@@ -8,7 +8,6 @@ class MobileRegexValidator(RegexValidator):
     message = _("با 09 شروع شود و یازده رقمی باشد")
 
 
-# def nation_code_validator(value):
-#     if not isinstance(value, int):
-#         raise ValidationError(_("شماره ملی باید به صورت عدد باشد"))
-#     return value
+class NationCodeRegexValidator(RegexValidator):
+    regex = r'\d{10}'
+    message = _("شماره ملی باید به صورت عدد باشد یا 10 رقم باشد")

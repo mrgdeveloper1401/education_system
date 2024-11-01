@@ -8,9 +8,15 @@ https://docs.djangoproject.com/en/5.1/howto/deployment/wsgi/
 """
 
 import os
+from decouple import config
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "education_system.settings")
+
+debug_mode = config('DEBUG', cast=bool, default=False)
+if debug_mode:
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "education_system.envs.development")
+else:
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "education_system.envs.production")
 
 application = get_wsgi_application()
