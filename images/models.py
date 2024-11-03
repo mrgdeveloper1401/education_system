@@ -4,11 +4,11 @@ from base64 import b64encode
 # from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
-from core.models import CreateMixin, UpdateMixin
+from core.models import CreateMixin, UpdateMixin, SoftDeleteMixin
 from images.validators import validate_image_size
 
 
-class Image(CreateMixin, UpdateMixin):
+class Image(CreateMixin, UpdateMixin, SoftDeleteMixin):
     title = models.CharField(max_length=128, null=True, blank=True)
     image = models.ImageField(width_field="width", height_field="height", upload_to="images/%Y/%m/%d",
                               validators=[validate_image_size],

@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.translation import gettext_lazy as _
 
-from .models import User, Otp
+from .models import User, Otp, State, City, School
 
 
 @admin.register(User)
@@ -11,7 +11,8 @@ class UserAdmin(BaseUserAdmin):
     change_user_password_template = None
     fieldsets = (
         (None, {"fields": ("mobile_phone", "password")}),
-        (_("Personal info"), {"fields": ("first_name", "last_name", "email")}),
+        (_("Personal info"), {"fields": ("first_name", "last_name", "email", "gender", "school", "state", "city",
+                                         "second_mobile_phone", "image", "nation_code", "address", "grade", "birth_date")}),
         (
             _("Permissions"),
             {
@@ -20,6 +21,8 @@ class UserAdmin(BaseUserAdmin):
                     "is_staff",
                     "is_superuser",
                     "is_deleted",
+                    "is_coach",
+                    "is_student",
                     "groups",
                     "user_permissions",
                 ),
@@ -45,7 +48,9 @@ class UserAdmin(BaseUserAdmin):
         "groups",
         "user_permissions",
     )
-    readonly_fields = ['updated_at', "deleted_at", "last_login", "created_at"]
+    readonly_fields = ['updated_at', "deleted_at", "last_login", "created_at", "is_deleted"]
+    list_editable = ['is_active', "is_staff", "is_superuser"]
+    raw_id_fields = ["city", "state", "school"]
 
 
 @admin.register(Otp)
@@ -54,3 +59,18 @@ class OtpAdmin(admin.ModelAdmin):
     search_fields = ['mobile_phone']
     list_filter = ['expired_date', "created_at"]
     date_hierarchy = 'created_at'
+
+
+@admin.register(State)
+class StateAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(City)
+class CityAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(School)
+class SchoolAdmin(admin.ModelAdmin):
+    pass
