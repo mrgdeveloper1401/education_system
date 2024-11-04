@@ -10,6 +10,8 @@ services:
     restart: always
     networks:
       - main
+    depends_on:
+      - backend
     volumes:
       - .:/home/app
     environment:
@@ -18,16 +20,18 @@ services:
 
   backend:
     container_name: education_system
-    image: postgres:16.4-alpine3.20
+    image: postgres:16.4-alpine
     restart: always
+    networks:
+      - main
     volumes:
-      - postgres-data:/var/lib/postgres
+      - postgres-data:/var/lib/postgresql/data
     ports:
       - "5434:5432"
     environment:
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_NAME=postgres
+      - POSTGRES_PASSWORD=${POSTDB_POSTGRES_PASSWORD}
+      - POSTGRES_USER=${POSTDB_POSTGRES_USER}
+      - POSTGRES_NAME=${POSTDB_POSTGRES_NAME}
 
   nginx:
     container_name: nginx
@@ -40,10 +44,10 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
     networks:
-      - mian
+      - main
+
 networks:
   main:
 
 volumes:
   postgres-data:
-

@@ -29,7 +29,8 @@ class User(AbstractBaseUser, PermissionsMixin, UpdateMixin, SoftDeleteMixin, Cre
     state = models.ForeignKey("State", on_delete=models.PROTECT, related_name='state', verbose_name=_("استان"),
                               blank=True, null=True)
     city = models.ForeignKey("City", on_delete=models.PROTECT, related_name='student_city', blank=True, null=True)
-    nation_code = models.CharField(_("کد ملی"), max_length=10, validators=[NationCodeRegexValidator()])
+    nation_code = models.CharField(_("کد ملی"), max_length=10, validators=[NationCodeRegexValidator()],
+                                   blank=True, null=True)
     address = models.TextField(_("ادرس"), blank=True, null=True)
     is_coach = models.BooleanField(_('به عنوان مربی'), default=False)
     is_student = models.BooleanField(_("به عنوان فراگیر"), default=False)

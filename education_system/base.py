@@ -19,7 +19,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Application definition
 
-DEBUG = False
+DEBUG = config("DEBUG", cast=str, default=True)
 
 THIRD_PARTY_PACKAGE = [
     "drf_spectacular",
@@ -32,6 +32,8 @@ THIRD_PARTY_APP = [
     'core.apps.CoreConfig',
     'images.apps.ImagesConfig',
     "advertise.apps.AdvertiseConfig",
+    "course.apps.CourseConfig",
+    "departments.apps.DepartmentsConfig"
 ]
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -41,7 +43,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     *THIRD_PARTY_PACKAGE,
-    *THIRD_PARTY_APP
+    *THIRD_PARTY_APP,
 ]
 
 MIDDLEWARE = [
