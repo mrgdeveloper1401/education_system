@@ -16,7 +16,7 @@ from django.core.wsgi import get_wsgi_application
 debug_mode = config('DEBUG', cast=bool, default=False)
 if debug_mode:
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "education_system.envs.development")
-else:
+if not debug_mode:
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "education_system.envs.production")
 
 application = get_wsgi_application()

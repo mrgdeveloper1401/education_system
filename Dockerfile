@@ -12,12 +12,11 @@ RUN apk update && \
 
 RUN pip install --upgrade pip
 RUN pip install -r /home/app/requirements/production.txt
-RUN chmod +x ./manage.py
-RUN python3 ./manage.py collectstatic --settings=education_system.envs.production
+RUN adduser -D -H mohammad
+ENV DJANGO_SETTINGS_MODULE="education_system.envs.production"
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDDONOTWRITEBYTECODE=1
 
 
-EXPOSE 8000
 ENTRYPOINT [ "gunicorn", "shop.wsgi", "-b"]
 CMD ["0.0.0.0:8000"]

@@ -3,13 +3,14 @@ from turtle import mode
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from accounts.validators import MobileRegexValidator
 from core.models import UpdateMixin, SoftDeleteMixin, CreateMixin
 
 
 class Advertise(UpdateMixin, SoftDeleteMixin, CreateMixin):
     slot = models.ForeignKey('DefineAdvertise', on_delete=models.PROTECT, related_name="advertise",
                              verbose_name=_("تاریخ مشاوره"), limit_choices_to={'is_available': True})
-    mobile_phone = models.CharField(_("شماره موبایل"))
+    mobile_phone = models.CharField(_("شماره موبایل"), max_length=11, validators=[MobileRegexValidator])
 
     class SubjectAdvertiseChoices(models.TextChoices):
         how_to_signup = 'how_to_signup', _("چه جوری در کلاس ها ثبت نام کنم")

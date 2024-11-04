@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 import os.path
+from datetime import timedelta
 from pathlib import Path
 from decouple import config
 
@@ -18,6 +19,20 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Application definition
 
+DEBUG = False
+
+THIRD_PARTY_PACKAGE = [
+    "drf_spectacular",
+    "rest_framework",
+    "rest_framework_simplejwt",
+]
+
+THIRD_PARTY_APP = [
+    'accounts.apps.AccountsConfig',
+    'core.apps.CoreConfig',
+    'images.apps.ImagesConfig',
+    "advertise.apps.AdvertiseConfig",
+]
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -25,15 +40,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    #     third party package
-    "drf_spectacular",
-    "rest_framework",
-    "rest_framework_simplejwt",
-    #     third party app
-    'accounts.apps.AccountsConfig',
-    'core.apps.CoreConfig',
-    'images.apps.ImagesConfig',
-    "advertise.apps.AdvertiseConfig",
+    *THIRD_PARTY_PACKAGE,
+    *THIRD_PARTY_APP
 ]
 
 MIDDLEWARE = [
@@ -114,6 +122,9 @@ AUTH_USER_MODEL = 'accounts.User'
 REST_FRAMEWORK = {
     # YOUR SETTINGS
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
 }
 
 SPECTACULAR_SETTINGS = {
@@ -122,4 +133,13 @@ SPECTACULAR_SETTINGS = {
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
     # OTHER SETTINGS
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    # "ROTATE_REFRESH_TOKENS": True,
+    # "BLACKLIST_AFTER_ROTATION": True,
+    # "UPDATE_LAST_LOGIN": True,
+    "AUTH_HEADER_TYPES": ("Bearer",),
 }

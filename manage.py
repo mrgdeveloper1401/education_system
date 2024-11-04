@@ -4,10 +4,9 @@ import os
 import sys
 from decouple import config
 
-debug_mode = config("DEBUG", default=False, cast=bool)
-
 
 def main():
+    debug_mode = config("DEBUG", default=False, cast=bool)
     """Run administrative tasks."""
     if debug_mode:
         os.environ.setdefault("DJANGO_SETTINGS_MODULE", "education_system.envs.development")

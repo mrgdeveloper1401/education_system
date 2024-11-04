@@ -13,13 +13,20 @@ class AdvertiseViewSet(CreateModelMixin, GenericViewSet):
 
 
 class DefineAdvertiseViewSet(ModelViewSet):
-    queryset = DefineAdvertise.objects.all()
+    queryset = DefineAdvertise.objects.filter(is_available=True)
     serializer_class = DefineAdvertiseSerializer
     permission_classes = [IsAdminUser]
 
 
 class AnsweredAdvertiseViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
     queryset = Advertise.objects.filter(answered=True).select_related('slot')
+    serializer_class = AnsweredAdvertiseSerializer
+    permission_classes = [IsAdminUser]
+    pagination_class = AdvertisePagination
+
+
+class WaitingAdvertiseViewSet(ModelViewSet):
+    queryset = Advertise.objects.select_related('slot')
     serializer_class = AnsweredAdvertiseSerializer
     permission_classes = [IsAdminUser]
     pagination_class = AdvertisePagination

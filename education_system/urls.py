@@ -17,10 +17,11 @@ Including another URLconf
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 from decouple import config
 
-from .settings import MEDIA_URL, MEDIA_ROOT
+from .base import MEDIA_URL, MEDIA_ROOT
 
 debug_mode = config('DEBUG', cast=str)
 
@@ -32,6 +33,11 @@ swagger_url = [
     path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 ]
 
+simple_jwt_url = [
+    path('jwt/create/', TokenObtainPairView.as_view(), name='jwt-create'),
+    path('jwt/refresh/', TokenRefreshView.as_view(), name='jwt-refresh'),
+]
+
 api_url = [
     path('auth_user/', include('api.v1.user.urls', namespace='user')),
     path('advertise/', include('api.v1.advertise.urls', namespace='advertise'))
@@ -41,7 +47,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
 ]
 
-urlpatterns += swagger_url + api_url
+urlpatterns += swagger_url + api_url + simple_jwt_url
 
 if debug_mode:
     from debug_toolbar.toolbar import debug_toolbar_urls

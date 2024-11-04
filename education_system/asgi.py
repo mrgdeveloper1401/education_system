@@ -12,7 +12,7 @@ from decouple import config
 
 from django.core.asgi import get_asgi_application
 
-debug_mode = config('DEBUG', cast=bool, default=False)
+debug_mode = config('DEBUG', cast=bool, default=True)
 if debug_mode:
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "education_system.envs.development")
 else:
