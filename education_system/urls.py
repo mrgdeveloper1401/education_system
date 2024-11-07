@@ -19,11 +19,9 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
-from decouple import config
 
-from .base import MEDIA_URL, MEDIA_ROOT
+from .base import MEDIA_URL, MEDIA_ROOT, DEBUG
 
-debug_mode = config('DEBUG', cast=str)
 
 swagger_url = [
     # YOUR PATTERNS
@@ -40,7 +38,8 @@ simple_jwt_url = [
 
 api_url = [
     path('auth_user/', include('api.v1.user.urls', namespace='user')),
-    path('advertise/', include('api.v1.advertise.urls', namespace='advertise'))
+    path('advertise/', include('api.v1.advertise.urls', namespace='advertise')),
+    path('course/', include('api.v1.course.urls', namespace='course'))
 
 ]
 urlpatterns = [
@@ -49,7 +48,7 @@ urlpatterns = [
 
 urlpatterns += swagger_url + api_url + simple_jwt_url
 
-if debug_mode:
+if DEBUG:
     from debug_toolbar.toolbar import debug_toolbar_urls
     urlpatterns += debug_toolbar_urls()
     urlpatterns += static(MEDIA_URL, document_root=MEDIA_ROOT)

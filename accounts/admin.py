@@ -35,7 +35,8 @@ class UserAdmin(BaseUserAdmin):
             None,
             {
                 "classes": ("wide",),
-                "fields": ("mobile_phone", "usable_password", "password1", "password2"),
+                "fields": ("mobile_phone", "usable_password", "password1", "password2", "is_active", "is_staff",
+                           "is_student", "is_coach", "first_name", "last_name"),
             },
         ),
     )
@@ -68,9 +69,10 @@ class StateAdmin(admin.ModelAdmin):
 
 @admin.register(City)
 class CityAdmin(admin.ModelAdmin):
-    pass
+    raw_id_fields = ['state_name']
+    list_display = ['state_name', "city"]
 
 
 @admin.register(School)
 class SchoolAdmin(admin.ModelAdmin):
-    pass
+    list_display = ['school_name', "created_at"]

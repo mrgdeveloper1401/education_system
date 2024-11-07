@@ -283,3 +283,7 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
+education.zip
+general_log_django
+.gitignore
+.env

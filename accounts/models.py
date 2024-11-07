@@ -1,3 +1,4 @@
+from builtins import set
 from datetime import timedelta
 from random import randint
 from django.contrib.auth.models import PermissionsMixin, AbstractBaseUser
@@ -7,9 +8,10 @@ from django.db.models import Q
 from django.utils.crypto import get_random_string
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
+from base64 import b64encode
 
 from accounts.managers import UserManager
-from accounts.validators import MobileRegexValidator, NationCodeRegexValidator
+from accounts.validators import MobileRegexValidator, NationCodeRegexValidator, validate_upload_image_user
 from core.models import UpdateMixin, SoftDeleteMixin, CreateMixin
 
 
@@ -23,7 +25,9 @@ class User(AbstractBaseUser, PermissionsMixin, UpdateMixin, SoftDeleteMixin, Cre
     is_verified = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     password = models.CharField(_("password"), max_length=128, blank=True, null=True)
-    image = models.ImageField(_("عکس کاربر"), upload_to='user_image/%Y/%m/%d', blank=True, null=True)
+    image = models.ImageField(_("عکس کاربر"), upload_to='user_image/%Y/%m/%d', blank=True, null=True,
+                              validators=[validate_upload_image_user])
+    image_base64 = models.TextField(_("فورمت عکس base64"), blank=True, null=True)
     second_mobile_phone = models.CharField(_("شماره تماس دوم"), max_length=11, blank=True, null=True,
                                            validators=[MobileRegexValidator()])
     state = models.ForeignKey("State", on_delete=models.PROTECT, related_name='state', verbose_name=_("استان"),
@@ -86,9 +90,17 @@ class User(AbstractBaseUser, PermissionsMixin, UpdateMixin, SoftDeleteMixin, Cre
                                     condition=Q(second_mobile_phone__isnull=True)),
         ]
 
+    @property
+    def convert_image_to_base64(self):
+        if self.image:
+            encode_b64 = b64encode(self.image.read())
+            return encode_b64.decode('utf-8')
+        return None
+
     def save(self, *args, **kwargs):
         if not self.password:
             self.password = self.set_password(get_random_string(10))
+        self.image_base64 = self.convert_image_to_base64
         return super().save()
 
 

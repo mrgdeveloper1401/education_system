@@ -19,10 +19,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Application definition
 
-DEBUG = config("DEBUG", cast=str, default=True)
+DEBUG = config("DEBUG", cast=bool, default=False)
 
 THIRD_PARTY_PACKAGE = [
     "drf_spectacular",
+    "rest_framework_gis",
     "rest_framework",
     "rest_framework_simplejwt",
 ]
@@ -33,9 +34,11 @@ THIRD_PARTY_APP = [
     'images.apps.ImagesConfig',
     "advertise.apps.AdvertiseConfig",
     "course.apps.CourseConfig",
-    "departments.apps.DepartmentsConfig"
+    "departments.apps.DepartmentsConfig",
+    "main_settings.apps.MainSettingsConfig",
 ]
 INSTALLED_APPS = [
+    "django.contrib.gis",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -130,7 +133,7 @@ REST_FRAMEWORK = {
 }
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Your Project API',
+    'TITLE': 'education system',
     'DESCRIPTION': 'Your project description',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
@@ -140,8 +143,66 @@ SPECTACULAR_SETTINGS = {
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
-    # "ROTATE_REFRESH_TOKENS": True,
-    # "BLACKLIST_AFTER_ROTATION": True,
-    # "UPDATE_LAST_LOGIN": True,
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "UPDATE_LAST_LOGIN": True,
     "AUTH_HEADER_TYPES": ("Bearer",),
+}
+
+# with logging django
+log_dir = os.path.join(BASE_DIR / 'general_log_django')
+os.makedirs(log_dir, exist_ok=True)
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "color": {
+            "()": "colorlog.ColoredFormatter",
+            "format": "%(log_color)s%(levelname)s %(reset)s%(asctime)s %(module)s %(process)d %(thread)d %(message)s",
+            "datefmt": "%Y-%m-%d %H:%M:%S",
+        },
+    },
+    'filters': {
+        'require_debug_true': {
+            "()": "django.utils.log.RequireDebugTrue",
+        },
+    },
+    "handlers": {
+        "console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "formatter": "color",
+            "filters": ["require_debug_true"],
+        },
+        "info_file": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "formatter": "color",
+            "filename": os.path.join(BASE_DIR / log_dir / 'info_file.log')
+        },
+        "error_file": {
+            "level": "ERROR",
+            "class": "logging.FileHandler",
+            "formatter": "color",
+            "filename": os.path.join(BASE_DIR / log_dir / 'error_file.log')
+        },
+        "warning_file": {
+            "level": "WARN",
+            "class": "logging.FileHandler",
+            "formatter": "color",
+            "filename": os.path.join(BASE_DIR / log_dir / 'warning_file.log')
+        },
+        "critical_file": {
+            "level": "CRITICAL",
+            "class": "logging.FileHandler",
+            "formatter": "color",
+            "filename": os.path.join(BASE_DIR / log_dir / 'critical_file.log')
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console", "info_file", "warning_file", "critical_file", "error_file"],
+            'propagate': True,
+        }
+    }
 }
