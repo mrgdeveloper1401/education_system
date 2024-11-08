@@ -23,7 +23,7 @@ DEBUG = config("DEBUG", cast=bool, default=False)
 
 THIRD_PARTY_PACKAGE = [
     "drf_spectacular",
-    "rest_framework_gis",
+    # "rest_framework_gis",
     "rest_framework",
     "rest_framework_simplejwt",
 ]
@@ -35,10 +35,10 @@ THIRD_PARTY_APP = [
     "advertise.apps.AdvertiseConfig",
     "course.apps.CourseConfig",
     "departments.apps.DepartmentsConfig",
-    "main_settings.apps.MainSettingsConfig",
+    # "main_settings.apps.MainSettingsConfig",
 ]
 INSTALLED_APPS = [
-    "django.contrib.gis",
+    # "django.contrib.gis",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",

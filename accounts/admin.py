@@ -40,7 +40,7 @@ class UserAdmin(BaseUserAdmin):
             },
         ),
     )
-    list_display = ("mobile_phone", "email", "first_name", "last_name", "is_staff", "is_active", "is_superuser",
+    list_display = ("id", "mobile_phone", "email", "first_name", "last_name", "is_staff", "is_active", "is_superuser",
                     "is_deleted")
     list_filter = ("is_staff", "is_superuser", "is_active", "groups")
     search_fields = ("mobile_phone", "first_name", "last_name", "email")
@@ -52,7 +52,7 @@ class UserAdmin(BaseUserAdmin):
     readonly_fields = ['updated_at', "deleted_at", "last_login", "created_at", "is_deleted"]
     list_editable = ['is_active', "is_staff", "is_superuser"]
     raw_id_fields = ["city", "state", "school"]
-
+    list_display_links = ['id', "mobile_phone"]
 
 @admin.register(Otp)
 class OtpAdmin(admin.ModelAdmin):

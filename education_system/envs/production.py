@@ -34,6 +34,18 @@ DATABASES = {
    'default': dj_config(default=config("DATABASE_URL", cast=str)),
 }
 
+# use database liara with connect by defaul
+# DATABASES = {
+#     'default': {
+#         "ENGINE": "django.contrib.gis.db.backends.postgis",
+#         "HOST": config("LIARA_DB_HOST", cast=str),
+#         "PASSWORD": config("LIARA_DB_PASSWORD", cast=str),
+#         "USER": config("LIARA_DB_USER", cast=str),
+#         "PORT": config("LIARA_DB_PORT", cast=int),
+#         "NAME": config("LIARA_DB_NAME", cast=str)
+#     }
+# }
+
 SIMPLE_JWT['SIGNING_KEY'] = SECRET_KEY
 
 MIDDLEWARE += [
