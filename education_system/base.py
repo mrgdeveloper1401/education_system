@@ -26,6 +26,7 @@ THIRD_PARTY_PACKAGE = [
     # "rest_framework_gis",
     "rest_framework",
     "rest_framework_simplejwt",
+    "storages",
 ]
 
 THIRD_PARTY_APP = [
@@ -204,5 +205,23 @@ LOGGING = {
             "handlers": ["console", "info_file", "warning_file", "critical_file", "error_file"],
             'propagate': True,
         }
+    }
+}
+
+# config django storage
+AWS_ACCESS_KEY_ID = config('ARVAN_AWS_ACCESS_KEY_ID', cast=str)
+AWS_SECRET_ACCESS_KEY = config('ARVAN_AWS_SECRET_ACCESS_KEY', cast=str)
+AWS_STORAGE_BUCKET_NAME = config('ARVAN_AWS_STORAGE_BUCKET_NAME', cast=str)
+AWS_S3_ENDPOINT_URL = config('ARVAN_AWS_S3_ENDPOINT_URL', cast=str)
+AWS_S3_REGION_NAME = 'us-east-1'
+AWS_S3_FILE_OVERWRITE = False
+AWS_SERVICE_NAME = 's3'
+
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3.S3Storage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
     }
 }

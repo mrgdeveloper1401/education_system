@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.translation import gettext_lazy as _
 
-from .models import User, Otp, State, City, School
+from .models import User, Otp, State, City, Ticket
 
 
 @admin.register(User)
@@ -11,8 +11,9 @@ class UserAdmin(BaseUserAdmin):
     change_user_password_template = None
     fieldsets = (
         (None, {"fields": ("mobile_phone", "password")}),
-        (_("Personal info"), {"fields": ("first_name", "last_name", "email", "gender", "school", "state", "city",
-                                         "second_mobile_phone", "image", "nation_code", "address", "grade", "birth_date")}),
+        (_("Personal info"), {"fields": ("first_name", "last_name", "email", "gender", "state", "city", "school",
+                                         "second_mobile_phone", "image", "nation_code", "address", "grade",
+                                         "birth_date")}),
         (
             _("Permissions"),
             {
@@ -41,7 +42,7 @@ class UserAdmin(BaseUserAdmin):
         ),
     )
     list_display = ("id", "mobile_phone", "email", "first_name", "last_name", "is_staff", "is_active", "is_superuser",
-                    "is_deleted")
+                    "is_deleted", "deleted_at")
     list_filter = ("is_staff", "is_superuser", "is_active", "groups")
     search_fields = ("mobile_phone", "first_name", "last_name", "email")
     ordering = ("-created_at",)
@@ -51,8 +52,9 @@ class UserAdmin(BaseUserAdmin):
     )
     readonly_fields = ['updated_at', "deleted_at", "last_login", "created_at", "is_deleted"]
     list_editable = ['is_active', "is_staff", "is_superuser"]
-    raw_id_fields = ["city", "state", "school"]
+    raw_id_fields = ["city", "state"]
     list_display_links = ['id', "mobile_phone"]
+
 
 @admin.register(Otp)
 class OtpAdmin(admin.ModelAdmin):
@@ -73,6 +75,6 @@ class CityAdmin(admin.ModelAdmin):
     list_display = ['state_name', "city"]
 
 
-@admin.register(School)
-class SchoolAdmin(admin.ModelAdmin):
-    list_display = ['school_name', "created_at"]
+@admin.register(Ticket)
+class TicketAdmin(admin.ModelAdmin):
+    pass

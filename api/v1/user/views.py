@@ -2,7 +2,7 @@ from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.mixins import CreateModelMixin
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK
+from rest_framework.status import HTTP_200_OK, HTTP_204_NO_CONTENT
 from rest_framework.views import APIView
 
 from accounts.models import User, Otp
@@ -11,15 +11,18 @@ from .serializers import UserSerializer, OtpLoginSerializer, VerifyOtpSerializer
 
 
 class UserViewSet(ModelViewSet):
-    queryset = User.objects.select_related("state", "city", "school")
+    queryset = User.objects.select_related("state", "city")
     serializer_class = UserSerializer
     permission_classes = [IsAdminUser]
     pagination_class = UserPagination
-    
+
     def get_serializer_class(self):
-        if self.request.method in ['PUT', 'PATCH', "OPTION"]:
+        if self.request.method in ['PUT', "PATCH"]:
             return UpdateUserSerializer
         return super().get_serializer_class()
+
+    def perform_destroy(self, instance):
+        instance.deactivate_user()
 
 
 class SendCodeOtpViewSet(CreateModelMixin, GenericViewSet):

@@ -2,7 +2,7 @@ from django.contrib import admin
 from treebeard.admin import TreeAdmin
 from treebeard.forms import movenodeform_factory
 
-from .models import Term, Course, UnitSelection
+from .models import Term, Course, UnitSelection, Comment
 
 
 # Register your models here.
@@ -28,4 +28,9 @@ class CourseAdmin(admin.ModelAdmin):
 
 @admin.register(UnitSelection)
 class UnitSelectionAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
     pass
