@@ -5,15 +5,14 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.password_validation import validate_password
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from accounts.models import User, Otp
+from accounts.models import User, Otp, State, City
 
 
 class UserSerializer(ModelSerializer):
     confirm_password = CharField(write_only=True, style={'input_type': 'password'})
-    image = Base64ImageField()
+    image = Base64ImageField(required=False)
 
     def validate(self, attrs):
-        # validate password
         if attrs['password'] != attrs['confirm_password']:
             raise ValidationError({"confirm_password": _("پسورد ها با هم برابر نیست")})
         return attrs
@@ -31,6 +30,7 @@ class UserSerializer(ModelSerializer):
         extra_kwargs = {
             "password": {"write_only": True, "style": {"input_type": "password"}},
             "confirm_password": {"write_only": True},
+            "nation_code": {'required': False},
         }
 
     def create(self, validated_data):
@@ -39,12 +39,22 @@ class UserSerializer(ModelSerializer):
 
 
 class UpdateUserSerializer(ModelSerializer):
-    image = Base64ImageField()
+    image = Base64ImageField(required=False)
+
+    def validate(self, attrs):
+        state = attrs['state']
+        city = attrs['city']
+        if not City.objects.filter(city=city, state_name__exact=state).exists():
+            raise ValidationError({"message": _("لطفا شهر هر استان رو وارد کنید")})
+        return attrs
 
     class Meta:
         model = User
         exclude = ['password', "last_login", "is_superuser", "groups", "user_permissions", "is_active",
                    "is_verified"]
+        extra_kwargs = {
+            "nation_code": {"required": False}
+        }
 
 
 class OtpLoginSerializer(ModelSerializer):
@@ -90,3 +100,17 @@ class VerifyOtpSerializer(Serializer):
         attrs['access'] = str(refresh.access_token)
         otp.delete()
         return attrs
+
+
+class StateSerializer(ModelSerializer):
+    class Meta:
+        model = State
+        fields = ['id', "state_name"]
+
+
+class CitySerializer(ModelSerializer):
+    state_name = StateSerializer(read_only=True)
+
+    class Meta:
+        model = City
+        fields = ['id', "city", "state_name"]

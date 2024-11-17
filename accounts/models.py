@@ -133,7 +133,7 @@ class Otp(CreateMixin):
         ordering = ('created_at',)
 
 
-class State(CreateMixin, UpdateMixin, SoftDeleteMixin):
+class State(models.Model):
     state_name = models.CharField(_("استان"), max_length=30, unique=True)
 
     def __str__(self):
@@ -145,9 +145,9 @@ class State(CreateMixin, UpdateMixin, SoftDeleteMixin):
         verbose_name_plural = _("استان ها")
 
 
-class City(CreateMixin, UpdateMixin, SoftDeleteMixin):
+class City(models.Model):
     state_name = models.ForeignKey(State, on_delete=models.PROTECT, related_name="city", verbose_name=_("استان"))
-    city = models.CharField(_("شهر"), max_length=30)
+    city = models.CharField(_("شهر"), max_length=40, db_index=True)
 
     def __str__(self):
         return self.city
