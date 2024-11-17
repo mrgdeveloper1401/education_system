@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.translation import gettext_lazy as _
 
-from .models import User, Otp, State, City, Ticket
+from .models import User, Otp, State, City, Ticket, RecycleUser
 
 
 @admin.register(User)
@@ -23,7 +23,6 @@ class UserAdmin(BaseUserAdmin):
                     "is_superuser",
                     "is_deleted",
                     "is_coach",
-                    "is_student",
                     "groups",
                     "user_permissions",
                 ),
@@ -37,7 +36,7 @@ class UserAdmin(BaseUserAdmin):
             {
                 "classes": ("wide",),
                 "fields": ("mobile_phone", "usable_password", "password1", "password2", "is_active", "is_staff",
-                           "is_student", "is_coach", "first_name", "last_name"),
+                           "is_coach", "first_name", "last_name"),
             },
         ),
     )
@@ -54,6 +53,11 @@ class UserAdmin(BaseUserAdmin):
     list_editable = ['is_active', "is_staff", "is_superuser"]
     raw_id_fields = ["city", "state"]
     list_display_links = ['id', "mobile_phone"]
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        q = qs.filter(is_deleted=False)
+        return q
 
 
 @admin.register(Otp)
@@ -78,3 +82,13 @@ class CityAdmin(admin.ModelAdmin):
 @admin.register(Ticket)
 class TicketAdmin(admin.ModelAdmin):
     pass
+
+
+@admin.register(RecycleUser)
+class RecycleUserAdmin(admin.ModelAdmin):
+    list_display = ("id", "mobile_phone", "email", "first_name", "last_name", "is_staff", "is_active", "is_superuser",
+                    "is_deleted", "deleted_at")
+    search_fields = ['mobile_phone']
+
+    def get_queryset(self, request):
+        return RecycleUser.objects.filter(is_deleted=True)

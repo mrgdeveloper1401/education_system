@@ -1,5 +1,6 @@
 from education_system.base import *
 from dj_database_url import config as dj_config
+from corsheaders.defaults import default_headers, default_methods
 
 SECRET_KEY = config('PRODUCTION_SECRET_KEY', cast=str)
 
@@ -49,24 +50,11 @@ DATABASES = {
 SIMPLE_JWT['SIGNING_KEY'] = SECRET_KEY
 
 MIDDLEWARE += [
-    'corsheaders.middleware.CorsMiddleware',
-]
-
-CORS_ORIGIN_ALLOW_ALL = True
-CORS_ALLOW_HEADERS = '*'
-CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOW_METHODS = [
-    "DELETE",
-    "GET",
-    "OPTIONS",
-    "PATCH",
-    "POST",
-    "PUT",
-]
-
-MIDDLEWARE += [
     "whitenoise.middleware.WhiteNoiseMiddleware",
 ]
+MIDDLEWARE.insert(0, 'corsheaders.middleware.CorsMiddleware')
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True

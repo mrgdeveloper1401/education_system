@@ -48,8 +48,7 @@ class UnitSelection(CreateMixin, UpdateMixin, SoftDeleteMixin):
                                   verbose_name=_("استاد"), limit_choices_to={"is_active": True, "is_coach": True})
     course = models.ForeignKey(Course, models.PROTECT, related_name='unit_selection_courses', verbose_name=_("درس"),
                                limit_choices_to={"is_publish": True})
-    student = models.ForeignKey('accounts.User', on_delete=models.PROTECT, related_name='student',
-                                limit_choices_to={"is_student": True})
+    student = models.ForeignKey('accounts.User', on_delete=models.PROTECT, related_name='student')
 
     class Meta:
         db_table = 'unit_selection'
@@ -61,7 +60,7 @@ class UnitSelection(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 class Comment(CreateMixin, UpdateMixin, SoftDeleteMixin):
     student = models.ForeignKey("accounts.User", on_delete=models.PROTECT, related_name='student_comment',
-                                limit_choices_to={"is_student": True, "is_active": True, "is_deleted": False})
+                                limit_choices_to={"is_active": True, "is_deleted": False})
     course = models.ForeignKey(Course, on_delete=models.PROTECT, related_name="course_comment",
                                limit_choices_to={"is_publish": True}, verbose_name=_("دوره"))
     comment_body = models.TextField(_("تن کامنت"))
@@ -84,7 +83,7 @@ class Quiz(CreateMixin, UpdateMixin, SoftDeleteMixin):
     course = models.ForeignKey(Course, on_delete=models.PROTECT, related_name="quiz_courses",
                                limit_choices_to={'is_publish': True}, verbose_name=_("درس"))
     student = models.ManyToManyField("accounts.User", related_name='student_quiz', verbose_name=_("دانشجویان"),
-                                     limit_choices_to={'is_active': True, "is_student": True, "is_deleted": False})
+                                     limit_choices_to={'is_active': True, "is_deleted": False})
 
     def __str__(self):
         return f'{self.term.term_number} {self.professor.get_full_name} {self.course.course_name}'

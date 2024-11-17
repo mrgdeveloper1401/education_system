@@ -1,5 +1,11 @@
 from django.contrib.auth.models import UserManager as BaseUserManager
-from django.utils.crypto import get_random_string
+from django.db.models import QuerySet, Manager, Q
+from django.utils.timezone import now
+
+
+class DeleteQuerySet(QuerySet):
+    def delete(self):
+        return self.update(is_deleted=True, deleted_at=now())
 
 
 class UserManager(BaseUserManager):
@@ -17,3 +23,12 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault('is_active', True)
         extra_fields.setdefault('is_verified', True)
         return self.create_user(mobile_phone, password, **extra_fields)
+
+    def get_queryset(self):
+        return DeleteQuerySet(self.model, using=self._db).filter(Q(is_deleted=False) | Q(is_deleted=None))
+
+
+class SoftManager(Manager):
+    def get_queryset(self):
+        return DeleteQuerySet(self.model, using=self._db).filter(is_deleted=True)
+

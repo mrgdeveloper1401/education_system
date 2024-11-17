@@ -6,7 +6,7 @@ from django.db import models
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
-from accounts.managers import UserManager
+from accounts.managers import UserManager, SoftManager
 from accounts.validators import MobileRegexValidator, NationCodeRegexValidator, validate_upload_image_user
 from core.models import UpdateMixin, SoftDeleteMixin, CreateMixin
 
@@ -32,7 +32,7 @@ class User(AbstractBaseUser, PermissionsMixin, UpdateMixin, SoftDeleteMixin, Cre
                                    validators=[NationCodeRegexValidator()])
     address = models.TextField(_("ادرس"), blank=True, null=True)
     is_coach = models.BooleanField(_('به عنوان مربی'), default=False)
-    is_student = models.BooleanField(_("به عنوان فراگیر"), default=False)
+    # is_student = models.BooleanField(_("به عنوان فراگیر"), default=False)
     birth_date = models.DateField(_("تاریخ نولد"), blank=True, null=True)
 
     class Gender(models.TextChoices):
@@ -59,10 +59,10 @@ class User(AbstractBaseUser, PermissionsMixin, UpdateMixin, SoftDeleteMixin, Cre
     grade = models.CharField(_("grade"), max_length=8, choices=Grade.choices, blank=True, null=True)
     school = models.CharField(_("نام مدرسه"), max_length=30, blank=True, null=True)
 
-    def clean(self):
-        if self.is_student and (self.is_staff or self.is_coach):
-            raise ValidationError({"is_staff": _("کاربر فراگیر نمیتواند ادمین یا مربی باشد")})
-        return super().clean()
+    # def clean(self):
+    #     if self.is_student and (self.is_staff or self.is_coach):
+    #         raise ValidationError({"is_staff": _("کاربر فراگیر نمیتواند ادمین یا مربی باشد")})
+    #     return super().clean()
 
     @property
     def get_full_name(self):
@@ -81,17 +81,28 @@ class User(AbstractBaseUser, PermissionsMixin, UpdateMixin, SoftDeleteMixin, Cre
 
     objects = UserManager()
 
-    def save(self, *args, **kwargs):
-        if self.is_student and self.is_staff:
-            raise ValidationError({"is_student": _("یوزر فراگیر نمیتواند همزمان ادمین باشد")})
-        if self.is_coach and self.is_student:
-            raise ValidationError({"is_student": _("یوزر فراگیر نمیتواند همزمان مربی باشد")})
-        return super().save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     if self.is_student and self.is_staff:
+    #         raise ValidationError({"is_student": _("یوزر فراگیر نمیتواند همزمان ادمین باشد")})
+    #     if self.is_coach and self.is_student:
+    #         raise ValidationError({"is_student": _("یوزر فراگیر نمیتواند همزمان مربی باشد")})
+    #     return super().save(*args, **kwargs)
 
     class Meta:
         db_table = 'users'
         verbose_name = _('کاربر')
         verbose_name_plural = _('کاربران')
+        ordering = ("-created_at",)
+
+
+class RecycleUser(User):
+
+    objects = SoftManager()
+
+    class Meta:
+        proxy = True
+        verbose_name = _("کاربر پاک شده")
+        verbose_name_plural = _("کاربران پاک شده")
 
 
 class Otp(CreateMixin):

@@ -19,12 +19,12 @@ class UpdateMixin(models.Model):
 
 class SoftDeleteMixin(models.Model):
     deleted_at = models.DateTimeField(blank=True, null=True, editable=False)
-    is_deleted = models.BooleanField(default=False, editable=False)
+    is_deleted = models.BooleanField(default=False, editable=False, null=True)
 
-    def delete(self, *args, **kwargs):
+    def delete(self, using=None, keep_parents=False):
         self.deleted_at = timezone.now()
         self.is_deleted = True
-        self.save(*args, **kwargs)
+        self.save()
 
     class Meta:
         abstract = True
