@@ -5,7 +5,7 @@ from django.utils.timezone import now
 
 class DeleteQuerySet(QuerySet):
     def delete(self):
-        return self.update(is_deleted=True, deleted_at=now())
+        return self.update(is_deleted=True, deleted_at=now(), is_active=False)
 
 
 class UserManager(BaseUserManager):
@@ -31,4 +31,3 @@ class UserManager(BaseUserManager):
 class SoftManager(Manager):
     def get_queryset(self):
         return DeleteQuerySet(self.model, using=self._db).filter(is_deleted=True)
-

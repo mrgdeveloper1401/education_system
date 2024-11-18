@@ -44,7 +44,7 @@ class UpdateUserSerializer(ModelSerializer):
     def validate(self, attrs):
         state = attrs['state']
         city = attrs['city']
-        if not City.objects.filter(city=city, state_name__exact=state).exists():
+        if not City.objects.filter(city=city, state__state_name=state).exists():
             raise ValidationError({"message": _("لطفا شهر هر استان رو وارد کنید")})
         return attrs
 
@@ -109,8 +109,8 @@ class StateSerializer(ModelSerializer):
 
 
 class CitySerializer(ModelSerializer):
-    state_name = StateSerializer(read_only=True)
+    state = StateSerializer(read_only=True)
 
     class Meta:
         model = City
-        fields = ['id', "city", "state_name"]
+        fields = ['id', "city", "state"]

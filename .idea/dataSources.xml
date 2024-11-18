@@ -8,5 +8,12 @@
       <jdbc-url>jdbc:postgresql://localhost:5432/education_system</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
+    <data-source source="LOCAL" name="postgres@sabalan.liara.cloud" uuid="49e4c60c-4c8b-4630-996e-5c140ec1becd">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://sabalan.liara.cloud:32354/postgres</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
   </component>
 </project>

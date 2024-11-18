@@ -72,5 +72,5 @@ class StateApiView(BaseApiView):
 
 
 class CityApiView(BaseApiView):
-    model = City.objects.select_related("state_name")
+    model = City.objects.select_related("state")
     serializer_class = CitySerializer

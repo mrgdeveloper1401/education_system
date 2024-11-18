@@ -1,7 +1,6 @@
 from datetime import timedelta
 from random import randint
 from django.contrib.auth.models import PermissionsMixin, AbstractBaseUser
-from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
@@ -96,7 +95,6 @@ class User(AbstractBaseUser, PermissionsMixin, UpdateMixin, SoftDeleteMixin, Cre
 
 
 class RecycleUser(User):
-
     objects = SoftManager()
 
     class Meta:
@@ -146,7 +144,8 @@ class State(models.Model):
 
 
 class City(models.Model):
-    state_name = models.ForeignKey(State, on_delete=models.PROTECT, related_name="city", verbose_name=_("استان"))
+    state = models.ForeignKey(State, on_delete=models.PROTECT, related_name="cites", verbose_name=_("استان"),
+                              related_query_name='city')
     city = models.CharField(_("شهر"), max_length=40, db_index=True)
 
     def __str__(self):
@@ -156,7 +155,7 @@ class City(models.Model):
         db_table = "city"
         verbose_name = _("شهر")
         verbose_name_plural = _("شهر ها")
-        unique_together = [('state_name', "city")]
+        unique_together = [('state', "city")]
 
 
 class Ticket(CreateMixin, UpdateMixin, SoftDeleteMixin):
@@ -178,3 +177,47 @@ class Ticket(CreateMixin, UpdateMixin, SoftDeleteMixin):
         db_table = 'ticket'
         verbose_name = _("تیکت")
         verbose_name_plural = _("تیکت ها")
+
+
+class UserLogins(CreateMixin):
+    user = models.ForeignKey(User, on_delete=models.PROTECT, related_name='logins')
+    success_login = models.PositiveIntegerField(default=0)
+    failed_login = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return f'{self.user} {self.success_login} {self.failed_login}'
+
+    class Meta:
+        db_table = 'user_logins'
+        verbose_name = _("لاگین های کاربر")
+        verbose_name_plural = _("لاگین های کاربران")
+
+
+class UserDevice(CreateMixin):
+    user = models.ForeignKey(User, on_delete=models.PROTECT, related_name='device')
+    is_linux = models.BooleanField(default=False)
+    is_windows = models.BooleanField(default=False)
+    is_max = models.BooleanField(default=False)
+    is_iphone = models.BooleanField(default=False)
+    is_android = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'{self.user.get_full_name} {self.created_at}'
+
+    class Meta:
+        db_table = 'user_device'
+        verbose_name = _("دستگاه های کاربر")
+        verbose_name_plural = _("دستگاه های کاربران")
+
+
+class UserIp(CreateMixin):
+    user = models.ForeignKey(User, on_delete=models.PROTECT, related_name='device')
+    user_ip = models.GenericIPAddressField()
+
+    def __str__(self):
+        return f'{self.user.mobile_phone} {self.user_ip}'
+
+    class Meta:
+        db_table = 'user_ip'
+        verbose_name = _('ای پی کاربر')
+        verbose_name_plural = _("ای پی کاربران")

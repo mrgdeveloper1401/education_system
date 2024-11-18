@@ -70,13 +70,15 @@ class OtpAdmin(admin.ModelAdmin):
 
 @admin.register(State)
 class StateAdmin(admin.ModelAdmin):
-    pass
+    list_display = ['id', "state_name"]
+    search_fields = ['state_name']
 
 
 @admin.register(City)
 class CityAdmin(admin.ModelAdmin):
-    raw_id_fields = ['state_name']
-    list_display = ['state_name', "city"]
+    raw_id_fields = ['state']
+    list_display = ['state', "city"]
+    search_fields = ['city']
 
 
 @admin.register(Ticket)
