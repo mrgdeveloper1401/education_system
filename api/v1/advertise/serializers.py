@@ -2,12 +2,12 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.serializers import ModelSerializer
 from django.utils.translation import gettext_lazy as _
 
-from advertise.models import Advertise, DefineAdvertise
+from advertise.models import UserAdvertise, IntervalAdvertise
 
 
 class AdvertiseSerializer(ModelSerializer):
     class Meta:
-        model = Advertise
+        model = UserAdvertise
         fields = '__all__'
         extra_kwargs = {
             'answered': {'read_only': True},
@@ -15,20 +15,20 @@ class AdvertiseSerializer(ModelSerializer):
 
     def validate(self, attrs):
         mobile_phone = attrs.get('mobile_phone')
-        if Advertise.objects.filter(mobile_phone=mobile_phone, answered=False).exists():
+        if UserAdvertise.objects.filter(mobile_phone=mobile_phone, answered=False).exists():
             raise ValidationError({"message": _("شما از قبل یه رزرو داشته اید لطفا تا پاسخ دادن به این رزور صبر کنید")})
         return attrs
 
 
 class DefineAdvertiseSerializer(ModelSerializer):
     class Meta:
-        model = DefineAdvertise
+        model = IntervalAdvertise
         fields = '__all__'
 
 
 class AnsweredSlotSerializer(ModelSerializer):
     class Meta:
-        model = DefineAdvertise
+        model = IntervalAdvertise
         fields = '__all__'
 
 
@@ -36,5 +36,5 @@ class AnsweredAdvertiseSerializer(ModelSerializer):
     slot = AnsweredSlotSerializer(read_only=True)
 
     class Meta:
-        model = Advertise
+        model = UserAdvertise
         fields = '__all__'

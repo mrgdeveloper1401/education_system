@@ -13,10 +13,13 @@ from core.models import UpdateMixin, SoftDeleteMixin, CreateMixin
 class User(AbstractBaseUser, PermissionsMixin, UpdateMixin, SoftDeleteMixin, CreateMixin):
     mobile_phone = models.CharField(_("mobile phone"), max_length=11, unique=True,
                                     validators=[MobileRegexValidator()])
-    first_name = models.CharField(_("first name"), max_length=30, blank=True, null=True)
-    last_name = models.CharField(_("last name"), max_length=30, blank=True, null=True)
-    email = models.EmailField(_("email address"), unique=True, null=True)
-    is_staff = models.BooleanField(default=False)
+    first_name = models.CharField(_("first name"), max_length=30, blank=True, null=True,
+                                  db_index=True)
+    last_name = models.CharField(_("last name"), max_length=30, blank=True, null=True,
+                                 db_index=True)
+    email = models.EmailField(_("email address"), unique=True, null=True,
+                              db_index=True)
+    is_staff = models.BooleanField(default=False, db_index=True)
     is_verified = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     password = models.CharField(_("password"), max_length=128, blank=True, null=True)
@@ -31,7 +34,6 @@ class User(AbstractBaseUser, PermissionsMixin, UpdateMixin, SoftDeleteMixin, Cre
                                    validators=[NationCodeRegexValidator()])
     address = models.TextField(_("ادرس"), blank=True, null=True)
     is_coach = models.BooleanField(_('به عنوان مربی'), default=False)
-    # is_student = models.BooleanField(_("به عنوان فراگیر"), default=False)
     birth_date = models.DateField(_("تاریخ نولد"), blank=True, null=True)
 
     class Gender(models.TextChoices):
@@ -58,11 +60,6 @@ class User(AbstractBaseUser, PermissionsMixin, UpdateMixin, SoftDeleteMixin, Cre
     grade = models.CharField(_("grade"), max_length=8, choices=Grade.choices, blank=True, null=True)
     school = models.CharField(_("نام مدرسه"), max_length=30, blank=True, null=True)
 
-    # def clean(self):
-    #     if self.is_student and (self.is_staff or self.is_coach):
-    #         raise ValidationError({"is_staff": _("کاربر فراگیر نمیتواند ادمین یا مربی باشد")})
-    #     return super().clean()
-
     @property
     def get_full_name(self):
         return f'{self.first_name} {self.last_name}'
@@ -79,13 +76,6 @@ class User(AbstractBaseUser, PermissionsMixin, UpdateMixin, SoftDeleteMixin, Cre
     REQUIRED_FIELDS = ['first_name', "last_name", "email"]
 
     objects = UserManager()
-
-    # def save(self, *args, **kwargs):
-    #     if self.is_student and self.is_staff:
-    #         raise ValidationError({"is_student": _("یوزر فراگیر نمیتواند همزمان ادمین باشد")})
-    #     if self.is_coach and self.is_student:
-    #         raise ValidationError({"is_student": _("یوزر فراگیر نمیتواند همزمان مربی باشد")})
-    #     return super().save(*args, **kwargs)
 
     class Meta:
         db_table = 'users'
@@ -211,7 +201,7 @@ class UserDevice(CreateMixin):
 
 
 class UserIp(CreateMixin):
-    user = models.ForeignKey(User, on_delete=models.PROTECT, related_name='device')
+    user = models.ForeignKey(User, on_delete=models.PROTECT, related_name='ip')
     user_ip = models.GenericIPAddressField()
 
     def __str__(self):

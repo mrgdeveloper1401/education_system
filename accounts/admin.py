@@ -43,7 +43,7 @@ class UserAdmin(BaseUserAdmin):
     list_display = ("id", "mobile_phone", "email", "first_name", "last_name", "is_staff", "is_active", "is_superuser",
                     "is_deleted", "deleted_at")
     list_filter = ("is_staff", "is_superuser", "is_active", "groups")
-    search_fields = ("mobile_phone", "first_name", "last_name", "email")
+    search_fields = ("mobile_phone", "first_name", "last_name", "email", "nation_code")
     ordering = ("-created_at",)
     filter_horizontal = (
         "groups",
@@ -77,8 +77,9 @@ class StateAdmin(admin.ModelAdmin):
 @admin.register(City)
 class CityAdmin(admin.ModelAdmin):
     raw_id_fields = ['state']
-    list_display = ['state', "city"]
+    list_display = ['id', 'state', "city"]
     search_fields = ['city']
+    list_display_links = ['id', "state", "city"]
 
 
 @admin.register(Ticket)

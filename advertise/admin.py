@@ -1,10 +1,10 @@
 from django.contrib import admin
 
-from .models import Advertise, DefineAdvertise, AnsweredAdvertise
+from .models import UserAdvertise, IntervalAdvertise, AnsweredAdvertise
 # Register your models here.
 
 
-@admin.register(Advertise)
+@admin.register(UserAdvertise)
 class AdvertiseAdmin(admin.ModelAdmin):
     raw_id_fields = ['slot']
     list_display = ['slot', "mobile_phone", "subject_advertise", "answered"]
@@ -18,10 +18,10 @@ class AdvertiseAdmin(admin.ModelAdmin):
         return qs.filter(answered=False)
 
 
-@admin.register(DefineAdvertise)
+@admin.register(IntervalAdvertise)
 class DefineAdvertiseAdmin(admin.ModelAdmin):
-    list_display = ['date', "start_time", "end_time", "is_available"]
-    list_filter = ['is_available']
+    list_display = ['date', "start_time", 'end_time', "interval_minutes"]
+    list_filter = ['created_at']
     date_hierarchy = 'date'
 
 

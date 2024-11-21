@@ -1,6 +1,6 @@
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework.exceptions import ValidationError
-from rest_framework.serializers import ModelSerializer, CharField, SerializerMethodField, Serializer
+from rest_framework.serializers import ModelSerializer, CharField, Serializer, SerializerMethodField
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.password_validation import validate_password
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -11,6 +11,8 @@ from accounts.models import User, Otp, State, City
 class UserSerializer(ModelSerializer):
     confirm_password = CharField(write_only=True, style={'input_type': 'password'})
     image = Base64ImageField(required=False)
+    city_name = SerializerMethodField()
+    state_name = SerializerMethodField()
 
     def validate(self, attrs):
         if attrs['password'] != attrs['confirm_password']:
@@ -23,6 +25,12 @@ class UserSerializer(ModelSerializer):
         except Exception as e:
             raise ValidationError(e)
         return data
+
+    def get_city_name(self, obj):
+        return obj.city.city if obj.city else None
+
+    def get_state_name(self, obj):
+        return obj.state.state_name if obj.state else None
 
     class Meta:
         model = User
@@ -42,10 +50,11 @@ class UpdateUserSerializer(ModelSerializer):
     image = Base64ImageField(required=False)
 
     def validate(self, attrs):
-        state = attrs['state']
-        city = attrs['city']
-        if not City.objects.filter(city=city, state__state_name=state).exists():
-            raise ValidationError({"message": _("لطفا شهر هر استان رو وارد کنید")})
+        state = attrs.get('state')
+        city = attrs.get('city')
+        if state and city:
+            if not City.objects.filter(city=city, state__state_name=state).exists():
+                raise ValidationError({"message": _("لطفا شهر هر استان رو وارد کنید")})
         return attrs
 
     class Meta:

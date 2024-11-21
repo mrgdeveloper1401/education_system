@@ -3,7 +3,7 @@ from django.db.models import QuerySet, Manager, Q
 from django.utils.timezone import now
 
 
-class DeleteQuerySet(QuerySet):
+class SoftQuerySet(QuerySet):
     def delete(self):
         return self.update(is_deleted=True, deleted_at=now(), is_active=False)
 
@@ -25,9 +25,9 @@ class UserManager(BaseUserManager):
         return self.create_user(mobile_phone, password, **extra_fields)
 
     def get_queryset(self):
-        return DeleteQuerySet(self.model, using=self._db).filter(Q(is_deleted=False) | Q(is_deleted=None))
+        return SoftQuerySet(self.model, using=self._db).filter(Q(is_deleted=False) | Q(is_deleted=None))
 
 
 class SoftManager(Manager):
     def get_queryset(self):
-        return DeleteQuerySet(self.model, using=self._db).filter(is_deleted=True)
+        return SoftQuerySet(self.model, using=self._db).filter(is_deleted=True)

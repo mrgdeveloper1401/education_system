@@ -2,31 +2,31 @@ from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from rest_framework.mixins import CreateModelMixin, ListModelMixin, RetrieveModelMixin
 from rest_framework.permissions import IsAdminUser
 
-from advertise.models import Advertise, DefineAdvertise
+from advertise.models import UserAdvertise, IntervalAdvertise
 from .pagination import AdvertisePagination
 from .serializers import AdvertiseSerializer, DefineAdvertiseSerializer, AnsweredAdvertiseSerializer
 
 
 class AdvertiseViewSet(CreateModelMixin, GenericViewSet):
-    queryset = Advertise.objects.filter(slot__is_available=True)
+    queryset = UserAdvertise.objects.all()
     serializer_class = AdvertiseSerializer
 
 
 class DefineAdvertiseViewSet(ModelViewSet):
-    queryset = DefineAdvertise.objects.filter(is_available=True)
+    queryset = IntervalAdvertise.objects.all()
     serializer_class = DefineAdvertiseSerializer
     permission_classes = [IsAdminUser]
 
 
 class AnsweredAdvertiseViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
-    queryset = Advertise.objects.filter(answered=True).select_related('slot')
+    queryset = IntervalAdvertise.objects.select_related('slot')
     serializer_class = AnsweredAdvertiseSerializer
     permission_classes = [IsAdminUser]
     pagination_class = AdvertisePagination
 
 
 class WaitingAdvertiseViewSet(ModelViewSet):
-    queryset = Advertise.objects.select_related('slot')
+    queryset = IntervalAdvertise.objects.select_related('slot')
     serializer_class = AnsweredAdvertiseSerializer
     permission_classes = [IsAdminUser]
     pagination_class = AdvertisePagination
