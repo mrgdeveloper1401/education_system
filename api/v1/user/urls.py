@@ -2,7 +2,7 @@ from rest_framework.routers import DefaultRouter
 from rest_framework.urls import path
 
 from .views import UserViewSet, SendCodeOtpViewSet, VerifyOtpCodeApiView, StateApiView, CityApiView, \
-    StateCitiesGenericView
+    StateCitiesGenericView, ChangePasswordApiView
 
 router = DefaultRouter()
 router.register('user', UserViewSet, basename='create')
@@ -16,4 +16,5 @@ urlpatterns = [
     path('state/<int:pk>/city/', StateCitiesGenericView.as_view(), name='detail-state-city'),
     path('city-list/', CityApiView.as_view(), name='city-list'),
     path('city-list/<int:pk>/', CityApiView.as_view(), name='city-detail'),
+    path('user/change-password/', ChangePasswordApiView.as_view(), name='change-password'),
 ] + router.urls

@@ -1,11 +1,11 @@
 from django_filters.rest_framework.backends import DjangoFilterBackend
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.mixins import CreateModelMixin
-from rest_framework.permissions import IsAdminUser
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK
 from rest_framework.views import APIView
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, CreateAPIView
 from rest_framework.generics import get_object_or_404
 from rest_framework.filters import SearchFilter
 
@@ -13,7 +13,7 @@ from accounts.models import User, Otp, State, City
 from utils.filters import UserFilter
 from .pagination import UserPagination, CityPagination
 from .serializers import UserSerializer, OtpLoginSerializer, VerifyOtpSerializer, UpdateUserSerializer \
-    , StateSerializer, CitySerializer
+    , StateSerializer, CitySerializer, ChangePasswordSerializer
 
 
 class UserViewSet(ModelViewSet):
@@ -87,3 +87,14 @@ class StateCitiesGenericView(ListAPIView):
 
     def get_queryset(self):
         return City.objects.filter(state_id=self.kwargs['pk']).select_related('state').order_by("city")
+
+
+class ChangePasswordApiView(APIView):
+    serializer_class = ChangePasswordSerializer
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data, context={'user': request.user})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=HTTP_200_OK)
