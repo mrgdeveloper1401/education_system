@@ -6,6 +6,7 @@ from django.contrib.auth.password_validation import validate_password
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from accounts.models import User, Otp, State, City
+from accounts.validators import MobileRegexValidator
 
 
 class UserSerializer(ModelSerializer):
@@ -150,3 +151,67 @@ class ChangePasswordSerializer(Serializer):
 
     def to_representation(self, instance):
         return {"message": _("پسورد با موفقیت عوض شد")}
+
+
+class ForgetPasswordSerializer(Serializer):
+    mobile_phone = CharField(validators=[MobileRegexValidator()])
+
+    def validate_mobile_phone(self, data):
+        mobile_phone = data
+        try:
+            user = User.objects.get(mobile_phone=mobile_phone)
+        except User.DoesNotExist:
+            raise ValidationError({"message": _("چنین کاربری وجود ندارد")})
+        if user.is_deleted:
+            raise ValidationError({"message": _("حساب شما مسدود میباشد شما اجازه این کار رو ندارید")})
+        return data
+
+    def validate_mobile_phone(self, data):
+        mobile_phone = data
+        try:
+            otp = Otp.objects.get(mobile_phone=mobile_phone)
+        except Otp.DoesNotExist:
+            pass
+        else:
+            if otp and otp.is_expired:
+                otp.delete()
+            if otp:
+                raise ValidationError({"message": _("شما از قبل یه درخواست دارید لطفا به مدت 2 دقیقه صبر کنید")})
+        return data
+
+    def create(self, validated_data):
+        otp, created = Otp.objects.get_or_create(mobile_phone=validated_data['mobile_phone'])
+        return otp
+
+
+class ConfirmForgetPasswordSerializer(Serializer):
+    code = CharField()
+    password = CharField(min_length=8, style={'input_type': 'password'}, write_only=True)
+    confirm_password = CharField(min_length=8, style={'input_type': 'password'}, write_only=True)
+
+    def validate(self, attrs):
+        password = attrs.get('password')
+        confirm_password = attrs.get('confirm_password')
+        if password != confirm_password:
+            raise ValidationError({"message": _("پسورد ها باید یکی باشد")})
+        try:
+            otp = Otp.objects.get(code=attrs['code'])
+        except Otp.DoesNotExist:
+            raise ValidationError({"message": _("کد اشتباه هست")})
+        else:
+            if otp.is_expired:
+                otp.delete()
+                raise ValidationError({"message": _("کد شما منقضی شده هست لطفا دوباره درخواست خود را ارسال کنید")})
+        user = User.objects.get(mobile_phone=otp.mobile_phone)
+        attrs['user'] = user
+        otp.delete()
+        return attrs
+
+    def create(self, validated_data):
+        user = validated_data['user']
+        user.set_password(validated_data['password'])
+        user.save()
+        return user
+
+    def to_representation(self, instance):
+        return {"message": _("پسورد شما با موفقیت تعویض شد و میتوانید به حساب خود لاگین کنید")}

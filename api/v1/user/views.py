@@ -11,9 +11,11 @@ from rest_framework.filters import SearchFilter
 
 from accounts.models import User, Otp, State, City
 from utils.filters import UserFilter
+from utils.permissions import NotAuthenticate
 from .pagination import UserPagination, CityPagination
 from .serializers import UserSerializer, OtpLoginSerializer, VerifyOtpSerializer, UpdateUserSerializer \
-    , StateSerializer, CitySerializer, ChangePasswordSerializer
+    , StateSerializer, CitySerializer, ChangePasswordSerializer, ForgetPasswordSerializer, \
+    ConfirmForgetPasswordSerializer
 
 
 class UserViewSet(ModelViewSet):
@@ -95,6 +97,28 @@ class ChangePasswordApiView(APIView):
 
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data, context={'user': request.user})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=HTTP_200_OK)
+
+
+class ForgetPasswordApiView(APIView):
+    serializer_class = ForgetPasswordSerializer
+    permission_classes = [NotAuthenticate]
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=HTTP_200_OK)
+
+
+class ConfirmForgetPasswordApiView(APIView):
+    serializer_class = ConfirmForgetPasswordSerializer
+    permission_classes = [NotAuthenticate]
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=HTTP_200_OK)
