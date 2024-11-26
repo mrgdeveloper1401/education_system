@@ -1,7 +1,6 @@
 from django.db import models
 from hashlib import sha1
 from base64 import b64encode
-# from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from core.models import CreateMixin, UpdateMixin, SoftDeleteMixin

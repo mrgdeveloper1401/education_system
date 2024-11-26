@@ -8,6 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from accounts.managers import UserManager, SoftManager
 from accounts.validators import MobileRegexValidator, NationCodeRegexValidator, validate_upload_image_user
 from core.models import UpdateMixin, SoftDeleteMixin, CreateMixin
+from utils.model_choices import Grade
 
 
 class User(AbstractBaseUser, PermissionsMixin, UpdateMixin, SoftDeleteMixin, CreateMixin):
@@ -41,21 +42,6 @@ class User(AbstractBaseUser, PermissionsMixin, UpdateMixin, SoftDeleteMixin, Cre
         FEMALE = 'Female', _("دختر")
 
     gender = models.CharField(_("gender"), max_length=6, choices=Gender.choices, blank=True, null=True)
-
-    class Grade(models.TextChoices):
-        one = 'one', _("اول")
-        two = 'two', _("دوم")
-        three = 'three', _("سوم")
-        four = 'four', _("چهارم")
-        five = 'five', _("پنجم")
-        six = 'six', _("ششم")
-        seven = 'seven', _("هفتم")
-        eight = 'eight', _("هشتم")
-        nine = 'nine', _("نهم")
-        ten = 'ten', _("دهم")
-        eleven = 'eleven', _("یازدهم")
-        twelfth = 'twelfth', _("دوازدهم")
-        graduate = 'graduate', _("فارغ التحصیل")
 
     grade = models.CharField(_("grade"), max_length=8, choices=Grade.choices, blank=True, null=True)
     school = models.CharField(_("نام مدرسه"), max_length=30, blank=True, null=True)

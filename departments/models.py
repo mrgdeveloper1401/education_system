@@ -5,8 +5,6 @@ from core.models import UpdateMixin, CreateMixin, SoftDeleteMixin
 
 
 # Create your models here.
-
-
 class Department(UpdateMixin, CreateMixin, SoftDeleteMixin):
     user = models.ForeignKey("accounts.User", on_delete=models.PROTECT, related_name='user_departments',
                              limit_choices_to={"is_active": True, "is_staff": True})

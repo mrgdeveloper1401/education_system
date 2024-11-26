@@ -1,13 +1,13 @@
 from rest_framework.routers import DefaultRouter
 
-from .views import AdvertiseViewSet, DefineAdvertiseViewSet, AnsweredAdvertiseViewSet, WaitingAdvertiseViewSet
+from .views import ConsultationTopicViewSet, ConsultationScheduleViewSet, ConsultationSlotViewSet, \
+    ConsultationRequestViewSet
 
 app_name = 'advertise'
 router = DefaultRouter()
-router.register('reserve', AdvertiseViewSet, basename='advertise')
-router.register('define', DefineAdvertiseViewSet, basename='define')
-router.register('answered', AnsweredAdvertiseViewSet, basename="answered")
-router.register('waiting', WaitingAdvertiseViewSet, basename="waiting")
-
-
-urlpatterns = router.urls
+router.register('topic', ConsultationTopicViewSet)
+router.register('schedule', ConsultationScheduleViewSet)
+router.register('slot', ConsultationSlotViewSet)
+router.register('request', ConsultationRequestViewSet)
+urlpatterns = []
+urlpatterns += router.urls

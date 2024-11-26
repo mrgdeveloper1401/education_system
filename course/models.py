@@ -1,6 +1,5 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from treebeard.mp_tree import MP_Node
 
 from core.models import UpdateMixin, CreateMixin, SoftDeleteMixin
 

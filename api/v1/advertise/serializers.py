@@ -1,40 +1,27 @@
-from rest_framework.exceptions import ValidationError
 from rest_framework.serializers import ModelSerializer
-from django.utils.translation import gettext_lazy as _
 
-from advertise.models import UserAdvertise, IntervalAdvertise
+from advertise.models import ConsultationTopic, ConsultationSchedule, ConsultationSlot, ConsultationRequest
 
 
-class AdvertiseSerializer(ModelSerializer):
+class ConsultationTopicSerializer(ModelSerializer):
     class Meta:
-        model = UserAdvertise
-        fields = '__all__'
-        extra_kwargs = {
-            'answered': {'read_only': True},
-        }
-
-    def validate(self, attrs):
-        mobile_phone = attrs.get('mobile_phone')
-        if UserAdvertise.objects.filter(mobile_phone=mobile_phone, answered=False).exists():
-            raise ValidationError({"message": _("شما از قبل یه رزرو داشته اید لطفا تا پاسخ دادن به این رزور صبر کنید")})
-        return attrs
+        model = ConsultationTopic
+        fields = ['id', "name"]
 
 
-class DefineAdvertiseSerializer(ModelSerializer):
+class ConsultationScheduleSerializer(ModelSerializer):
     class Meta:
-        model = IntervalAdvertise
-        fields = '__all__'
+        model = ConsultationSchedule
+        exclude = ['deleted_at', "is_deleted"]
 
 
-class AnsweredSlotSerializer(ModelSerializer):
+class ConsultationSlotSerializer(ModelSerializer):
     class Meta:
-        model = IntervalAdvertise
-        fields = '__all__'
+        model = ConsultationSlot
+        exclude = ['deleted_at', "is_deleted"]
 
 
-class AnsweredAdvertiseSerializer(ModelSerializer):
-    slot = AnsweredSlotSerializer(read_only=True)
-
+class ConsultationRequestSerializer(ModelSerializer):
     class Meta:
-        model = UserAdvertise
-        fields = '__all__'
+        model = ConsultationRequest
+        exclude = ['deleted_at', "is_deleted"]
