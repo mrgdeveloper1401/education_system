@@ -73,6 +73,7 @@ class ConsultationRequest(CreateMixin, UpdateMixin, SoftDeleteMixin):
     last_name = models.CharField(_("نام خانوادگی کد اموز"), max_length=30)
     classroom = models.CharField(_("پایه درسی"), choices=Grade, max_length=8)
     gender = models.CharField(_("جنسیت"), max_length=6, choices=Gender.choices)
+    is_answer = models.BooleanField(default=False)
 
     def __str__(self):
         return f'{self.mobile_phone} {self.first_name} {self.last_name}'

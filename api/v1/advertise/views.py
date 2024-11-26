@@ -2,8 +2,9 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAdminUser
 
 from advertise.models import ConsultationTopic, ConsultationSchedule, ConsultationSlot, ConsultationRequest
+from utils.base_api import CrudApi
 from .serializers import ConsultationTopicSerializer, ConsultationScheduleSerializer, ConsultationSlotSerializer, \
-    ConsultationRequestSerializer
+    UserConsultationRequestSerializer, ConsultationRequestAnswerSerializer, AdminConsultationRequestSerializer
 
 
 class ConsultationTopicViewSet(ModelViewSet):
@@ -31,16 +32,27 @@ class ConsultationSlotViewSet(ModelViewSet):
     serializer_class = ConsultationSlotSerializer
     
     def get_permissions(self):
-        if self.request.method in ['POST', "PUT", "PATCH", "DELETE"]:
+        if self.request.method in ["PUT", "PATCH", "DELETE"]:
             return [IsAdminUser()]
         return super().get_permissions()
+    
+    def get_serializer_class(self):
+        if self.request.method in ['POST', "PUT", "PATCH", "DELETE"]:
+            return AdminConsultationRequestSerializer
+        return super().get_serializer_class()
 
 
 class ConsultationRequestViewSet(ModelViewSet):
     queryset = ConsultationRequest.objects.select_related('topic', "slot")
-    serializer_class = ConsultationRequestSerializer
+    serializer_class = UserConsultationRequestSerializer
     
     def get_permissions(self):
         if self.request.method in ['POST', "PUT", "PATCH", "DELETE"]:
             return [IsAdminUser()]
         return super().get_permissions()
+
+
+class AnswerApiView(CrudApi):
+    serializer_class = ConsultationRequestAnswerSerializer
+    queryset = ConsultationSlot.objects.all()
+    permission_classes = [IsAdminUser]

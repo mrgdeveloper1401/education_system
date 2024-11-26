@@ -21,7 +21,19 @@ class ConsultationSlotSerializer(ModelSerializer):
         exclude = ['deleted_at', "is_deleted"]
 
 
-class ConsultationRequestSerializer(ModelSerializer):
+class UserConsultationRequestSerializer(ModelSerializer):
+    class Meta:
+        model = ConsultationRequest
+        exclude = ['deleted_at', "is_deleted", "is_answer"]
+
+
+class AdminConsultationRequestSerializer(ModelSerializer):
+    class Meta:
+        model = ConsultationRequest
+        exclude = ['deleted_at', "is_deleted"]
+
+
+class ConsultationRequestAnswerSerializer(ModelSerializer):
     class Meta:
         model = ConsultationRequest
         exclude = ['deleted_at', "is_deleted"]
