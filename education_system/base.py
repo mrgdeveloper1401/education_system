@@ -36,7 +36,6 @@ THIRD_PARTY_APP = [
     'images.apps.ImagesConfig',
     "advertise.apps.AdvertiseConfig",
     "course.apps.CourseConfig",
-    "departments.apps.DepartmentsConfig",
     # "main_settings.apps.MainSettingsConfig",
 ]
 INSTALLED_APPS = [

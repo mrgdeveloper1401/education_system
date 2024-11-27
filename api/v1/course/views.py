@@ -7,14 +7,14 @@ from .serializers import TermSerializer, CourseSerializer, UnitSelectionSerializ
 
 
 class TermViewSet(ModelViewSet):
-    queryset = Term.objects.select_related('department')
+    queryset = Term.objects.all()
     serializer_class = TermSerializer
     permission_classes = [IsAdminUser]
     pagination_class = CoursePagination
 
 
 class CourseViewSet(ModelViewSet):
-    queryset = Course.objects.filter(is_publish=True).select_related('department', "term")
+    queryset = Course.objects.filter(is_publish=True).select_related("term")
     serializer_class = CourseSerializer
     permission_classes = [IsAdminUser]
     pagination_class = CoursePagination

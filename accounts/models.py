@@ -138,16 +138,12 @@ class Ticket(CreateMixin, UpdateMixin, SoftDeleteMixin):
     coach = models.ForeignKey(User, on_delete=models.PROTECT, related_name='coach_ticker',
                               limit_choices_to={"is_active": True, "is_coach": True, "is_deleted": False},
                               verbose_name=_("مربی"))
-    department = models.ForeignKey("departments.Department", on_delete=models.PROTECT, related_name='admin_ticket',
-                                   limit_choices_to={"user__is_active": True, "user__is_staff": True,
-                                                     "user__is_deleted": False},
-                                   verbose_name=_("کاربر ادمین"))
     ticker_body = models.TextField(_("متن تیکت"))
     subject_ticket = models.CharField(_("عنوان تیکت"), max_length=255)
     is_publish = models.BooleanField(default=True)
 
     def __str__(self):
-        return f'{self.coach.get_full_name} {self.department.department_name}'
+        return self.coach.get_full_name
 
     class Meta:
         db_table = 'ticket'
