@@ -6,46 +6,17 @@ SECRET_KEY = config('PRODUCTION_SECRET_KEY', cast=str)
 
 ALLOWED_HOSTS = ['*']
 
-# use system
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.postgresql",
-#         "NAME": 'postgres',
-#         'USER': "root",
-#         "PASSWORD": "UwIyKoT9U94eYKrtVpmT4lfu",
-#         'HOST': "education-systemdb",
-#         "PORT": 5432,
-#     }
-# }
-
-# user docker compose
-# DATABASES = {
-#     'default': {
-#         "ENGINE": "django.db.backends.postgresql",
-#         "HOST": "education_system",
-#         "PASSWORD": "postgres",
-#         "USER": "postgres",
-#         "PORT": "5432",
-#         "NAME": "postgres"
-#     }
-# }
-
-# use database liara with connect by url
 DATABASES = {
-    'default': dj_config(default=config("DATABASE_URL", cast=str)),
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": config("PRODUCTION_DB_NAME", cast=str),
+        'USER': config("PRODUCTION_DB_USER", cast=str),
+        "PASSWORD": config("PRODUCTION_DB_PASSWORD", cast=str),
+        'HOST': config("PRODUCTION_DB_HOST", cast=str),
+        "PORT": config("PRODUCTION_DB_PORT", cast=int),
+    }
 }
 
-# use database liara with connect by defaul
-# DATABASES = {
-#     'default': {
-#         "ENGINE": "django.contrib.gis.db.backends.postgis",
-#         "HOST": config("LIARA_DB_HOST", cast=str),
-#         "PASSWORD": config("LIARA_DB_PASSWORD", cast=str),
-#         "USER": config("LIARA_DB_USER", cast=str),
-#         "PORT": config("LIARA_DB_PORT", cast=int),
-#         "NAME": config("LIARA_DB_NAME", cast=str)
-#     }
-# }
 
 SIMPLE_JWT['SIGNING_KEY'] = SECRET_KEY
 

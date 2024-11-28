@@ -48,7 +48,7 @@ urlpatterns = [
 
 urlpatterns += swagger_url + api_url + simple_jwt_url
 
-if DEBUG:
-    from debug_toolbar.toolbar import debug_toolbar_urls
-    urlpatterns += debug_toolbar_urls()
-    urlpatterns += static(MEDIA_URL, document_root=MEDIA_ROOT)
+# if DEBUG:
+#    from debug_toolbar.toolbar import debug_toolbar_urls
+#    urlpatterns += debug_toolbar_urls()
+#    urlpatterns += static(MEDIA_URL, document_root=MEDIA_ROOT)
