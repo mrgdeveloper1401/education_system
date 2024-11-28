@@ -13,11 +13,11 @@ RUN apk update && \
 
 RUN pip install --upgrade pip
 RUN pip install -r /home/app/requirements/production.txt
-RUN mkdir -p /vol/web/static && \
-    mkdir -p /vol/web/media && \
-    adduser -D -H education
+#RUN mkdir -p /vol/web/static && \
+#    mkdir -p /vol/web/media && \
+#    adduser -D -H education
 #    chown -R 755 education
-RUN python /home/app/manage.py collectstatic --settings=education_system.envs.production
+RUN python3 /home/app/manage.py collectstatic --settings=education_system.envs.production
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDDONOTWRITEBYTECODE=1
 
