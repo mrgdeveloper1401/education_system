@@ -14,6 +14,8 @@ RUN apk update && \
 RUN pip install --upgrade pip
 RUN pip install -r /home/app/requirements/production.txt
 
+RUN chmod +x /home/app/manage.py
+
 RUN python3 manage.py collectstatic --noinput
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDDONOTWRITEBYTECODE=1
