@@ -16,7 +16,7 @@ RUN pip install -r /home/app/requirements/production.txt
 
 RUN chmod +x /home/app/manage.py
 
-RUN python3 /home/app/manage.py collectstatic --noinput
+RUN python3 /home/app/manage.py collectstatic -y
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDDONOTWRITEBYTECODE=1
 
