@@ -14,7 +14,7 @@ RUN apk update && \
 RUN pip install --upgrade pip
 RUN pip install -r /home/app/requirements/production.txt
 
-RUN python3 /home/app/manage.py collectstatic --settings=education_system.envs.production
+RUN python manage.py collectstatic --noinput
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDDONOTWRITEBYTECODE=1
 
