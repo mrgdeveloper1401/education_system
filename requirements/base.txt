@@ -12,3 +12,4 @@ drf-extra-fields==3.7.0
 colorlog==6.9.0
 djangorestframework-gis==1.1
 django-filter==24.3
+django-debug-toolbar==4.4.6

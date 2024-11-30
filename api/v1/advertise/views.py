@@ -20,26 +20,13 @@ class ConsultationTopicViewSet(ModelViewSet):
 class ConsultationScheduleViewSet(ModelViewSet):
     queryset = ConsultationSchedule.objects.all()
     serializer_class = ConsultationScheduleSerializer
-
-    def get_permissions(self):
-        if self.request.method in ['POST', "PUT", "PATCH", "DELETE"]:
-            return [IsAdminUser()]
-        return super().get_permissions()
+    permission_classes = [IsAdminUser]
 
 
 class ConsultationSlotViewSet(ModelViewSet):
     queryset = ConsultationSlot.objects.select_related('schedule').filter(is_available=True)
     serializer_class = ConsultationSlotSerializer
-    
-    def get_permissions(self):
-        if self.request.method in ["PUT", "PATCH", "DELETE"]:
-            return [IsAdminUser()]
-        return super().get_permissions()
-    
-    def get_serializer_class(self):
-        if self.request.method in ['POST', "PUT", "PATCH", "DELETE"]:
-            return AdminConsultationRequestSerializer
-        return super().get_serializer_class()
+    permission_classes = [IsAdminUser]
 
 
 class ConsultationRequestViewSet(ModelViewSet):
@@ -47,7 +34,7 @@ class ConsultationRequestViewSet(ModelViewSet):
     serializer_class = UserConsultationRequestSerializer
     
     def get_permissions(self):
-        if self.request.method in ['POST', "PUT", "PATCH", "DELETE"]:
+        if self.request.method in ["PUT", "PATCH", "DELETE"]:
             return [IsAdminUser()]
         return super().get_permissions()
 

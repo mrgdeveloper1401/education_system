@@ -1,22 +1,26 @@
 from education_system.base import *
 from dj_database_url import config as dj_config
-from corsheaders.defaults import default_headers, default_methods
+# from corsheaders.defaults import default_headers, default_methods
 
 SECRET_KEY = config('PRODUCTION_SECRET_KEY', cast=str)
 
 ALLOWED_HOSTS = ['*']
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": config("PRODUCTION_DB_NAME", cast=str),
-        'USER': config("PRODUCTION_DB_USER", cast=str),
-        "PASSWORD": config("PRODUCTION_DB_PASSWORD", cast=str),
-        'HOST': config("PRODUCTION_DB_HOST", cast=str),
-        "PORT": config("PRODUCTION_DB_PORT", cast=int),
-    }
-}
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.postgresql",
+#         "NAME": config("PRODUCTION_DB_NAME", cast=str),
+#         'USER': config("PRODUCTION_DB_USER", cast=str),
+#         "PASSWORD": config("PRODUCTION_DB_PASSWORD", cast=str),
+#         'HOST': config("PRODUCTION_DB_HOST", cast=str),
+#         "PORT": config("PRODUCTION_DB_PORT", cast=int),
+#     }
+# }
 
+
+DATABASES = {
+    "default": dj_config(default=config('LIARA_POSTDB_URL', cast=str))
+}
 
 SIMPLE_JWT['SIGNING_KEY'] = SECRET_KEY
 

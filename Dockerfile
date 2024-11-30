@@ -19,5 +19,7 @@ RUN chmod +x /home/app/manage.py
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDDONOTWRITEBYTECODE=1
 
+RUN python3 /home/app/manage.py collectstatic --noinput
+
 ENTRYPOINT ["gunicorn", "education_system.wsgi", "-b"]
 CMD ["0.0.0.0:8000"]

@@ -19,6 +19,7 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
+from debug_toolbar.toolbar import debug_toolbar_urls
 
 from .base import MEDIA_URL, MEDIA_ROOT, DEBUG
 
@@ -47,6 +48,8 @@ urlpatterns = [
 ]
 
 urlpatterns += swagger_url + api_url + simple_jwt_url
+urlpatterns += debug_toolbar_urls()
+
 
 # if DEBUG:
 #    from debug_toolbar.toolbar import debug_toolbar_urls
