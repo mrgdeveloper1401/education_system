@@ -2,6 +2,7 @@ from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.permissions import IsAdminUser
 from rest_framework import mixins
 
+
 from advertise.models import ConsultationTopic, ConsultationSchedule, ConsultationSlot, ConsultationRequest
 from utils.pagination import AnswerPagination, SlotPagination
 # from utils.base_api import CrudApi
@@ -37,18 +38,23 @@ class ConsultationSlotViewSet(ModelViewSet):
 
 
 class ConsultationRequestViewSet(ModelViewSet):
-    queryset = ConsultationRequest.objects.select_related('topic', "slot")
+    queryset = ConsultationRequest.objects.select_related("slot")
     serializer_class = UserConsultationRequestSerializer
     
     def get_permissions(self):
         if self.request.method in ["PUT", "PATCH", "DELETE", "GET"]:
             return [IsAdminUser()]
         return super().get_permissions()
+    
+    def get_serializer(self, *args, **kwargs):
+        if self.request.method in ["PUT", "PATCH", "DELETE"]:
+            return AdminConsultationRequestSerializer(*args, **kwargs)
+        return super().get_serializer()
 
 
 class AnswerViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
                     mixins.DestroyModelMixin, GenericViewSet):
     serializer_class = ConsultationRequestAnswerSerializer
-    queryset = ConsultationSlot.objects.select_related("schedule")
+    queryset = ConsultationRequest.objects.select_related("slot")
     permission_classes = [IsAdminUser]
     pagination_class = AnswerPagination
