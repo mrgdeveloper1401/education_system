@@ -1,8 +1,10 @@
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.permissions import IsAdminUser
+from rest_framework import mixins
 
 from advertise.models import ConsultationTopic, ConsultationSchedule, ConsultationSlot, ConsultationRequest
-from utils.base_api import CrudApi
+from utils.pagination import AnswerPagination, SlotPagination
+# from utils.base_api import CrudApi
 from .serializers import ConsultationTopicSerializer, ConsultationScheduleSerializer, ConsultationSlotSerializer, \
     UserConsultationRequestSerializer, ConsultationRequestAnswerSerializer, AdminConsultationRequestSerializer
 
@@ -26,7 +28,12 @@ class ConsultationScheduleViewSet(ModelViewSet):
 class ConsultationSlotViewSet(ModelViewSet):
     queryset = ConsultationSlot.objects.select_related('schedule').filter(is_available=True)
     serializer_class = ConsultationSlotSerializer
-    permission_classes = [IsAdminUser]
+    # pagination_class = SlotPagination
+
+    def get_permissions(self):
+        if self.request.method in ['POST', "PUT", "PATCH", "DELETE"]:
+            return [IsAdminUser()]
+        return super().get_permissions()
 
 
 class ConsultationRequestViewSet(ModelViewSet):
@@ -34,12 +41,14 @@ class ConsultationRequestViewSet(ModelViewSet):
     serializer_class = UserConsultationRequestSerializer
     
     def get_permissions(self):
-        if self.request.method in ["PUT", "PATCH", "DELETE"]:
+        if self.request.method in ["PUT", "PATCH", "DELETE", "GET"]:
             return [IsAdminUser()]
         return super().get_permissions()
 
 
-class AnswerApiView(CrudApi):
+class AnswerViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
+                    mixins.DestroyModelMixin, GenericViewSet):
     serializer_class = ConsultationRequestAnswerSerializer
-    queryset = ConsultationSlot.objects.all()
+    queryset = ConsultationSlot.objects.select_related("schedule")
     permission_classes = [IsAdminUser]
+    pagination_class = AnswerPagination

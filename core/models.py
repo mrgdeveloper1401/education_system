@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils import timezone
 
+from core.managers import PublishManager
+
 
 class CreateMixin(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
@@ -19,6 +21,8 @@ class UpdateMixin(models.Model):
 class SoftDeleteMixin(models.Model):
     deleted_at = models.DateTimeField(blank=True, null=True, editable=False)
     is_deleted = models.BooleanField(default=False, editable=False, null=True)
+
+    objects = PublishManager()
 
     def delete(self, using=None, keep_parents=False):
         self.deleted_at = timezone.now()

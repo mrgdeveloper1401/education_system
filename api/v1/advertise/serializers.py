@@ -25,6 +25,7 @@ class UserConsultationRequestSerializer(ModelSerializer):
     class Meta:
         model = ConsultationRequest
         exclude = ['deleted_at', "is_deleted", "is_answer"]
+        # extra_kwargs = {"topic": {"read_only": True}}
 
 
 class AdminConsultationRequestSerializer(ModelSerializer):

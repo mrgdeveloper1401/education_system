@@ -18,7 +18,7 @@ class User(AbstractBaseUser, PermissionsMixin, UpdateMixin, SoftDeleteMixin, Cre
                                   db_index=True)
     last_name = models.CharField(_("last name"), max_length=30, blank=True, null=True,
                                  db_index=True)
-    email = models.EmailField(_("email address"), unique=True, null=True,
+    email = models.EmailField(_("email address"), unique=True, null=True, blank=True,
                               db_index=True)
     is_staff = models.BooleanField(default=False, db_index=True)
     is_verified = models.BooleanField(default=False)
