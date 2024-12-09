@@ -1,12 +1,18 @@
-from rest_framework.routers import DefaultRouter
+from rest_framework_nested import routers
+from django.urls import include
+from rest_framework.urls import path
 
-from .views import TermViewSet, CourseViewSet, UnitSelectionViewSet
+from . import views
 
-router = DefaultRouter()
-router.register('term', TermViewSet, basename='term')
-router.register('course', CourseViewSet, basename='course')
-router.register('unit_selection', UnitSelectionViewSet, basename='unit_selection')
+router = routers.DefaultRouter()
+router.register('term', views.TermViewSet, basename='term')
+
+term_router = routers.NestedSimpleRouter(router, r'term', lookup='term')
+term_router.register('course', views.CourseViewSet, basename='course')
+
 
 app_name = 'course'
-urlpatterns = []
+urlpatterns = [
+    path('', include(term_router.urls)),
+]
 urlpatterns += router.urls

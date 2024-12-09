@@ -1,6 +1,6 @@
 -r base.txt
-gunicorn==23.0.0
-django-cors-headers==4.6.0
-dj-database-url==2.3.0
-django-storages==1.14.4
-boto3==1.35.54
+gunicorn
+django-cors-headers
+dj-database-url
+django-storages
+boto3

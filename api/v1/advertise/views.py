@@ -27,7 +27,7 @@ class ConsultationScheduleViewSet(ModelViewSet):
 
 
 class ConsultationSlotViewSet(ModelViewSet):
-    queryset = ConsultationSlot.objects.select_related('schedule').filter(is_available=True)
+    queryset = ConsultationSlot.objects.select_related('schedule')
     serializer_class = ConsultationSlotSerializer
     # pagination_class = SlotPagination
 

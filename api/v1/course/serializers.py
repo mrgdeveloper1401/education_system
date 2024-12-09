@@ -7,7 +7,7 @@ class TermSerializer(ModelSerializer):
 
     class Meta:
         model = Term
-        fields = '__all__'
+        exclude = ['is_deleted', "deleted_at"]
 
 
 class CourseSerializer(ModelSerializer):
@@ -15,11 +15,16 @@ class CourseSerializer(ModelSerializer):
 
     class Meta:
         model = Course
-        fields = '__all__'
+        exclude = ['deleted_at', "is_deleted"]
+        extra_kwargs = {"term": {'read_only': True}}
 
     def get_term_name(self, obj):
         term = obj.term
         return f'{term.start_date} || {term.end_date} || {term.term_number}'
+
+    def create(self, validated_data):
+        term_id = self.context['term_pk']
+        return Course.objects.create(term_id=term_id, **validated_data)
 
 
 class UnitSelectionSerializer(ModelSerializer):

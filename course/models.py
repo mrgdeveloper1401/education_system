@@ -21,7 +21,7 @@ class Term(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 class Course(CreateMixin, UpdateMixin, SoftDeleteMixin):
     term = models.ForeignKey(Term, on_delete=models.PROTECT, related_name='course_term')
-    course_name = models.CharField(_("نام درس"), max_length=30)
+    course_name = models.CharField(_("نام درس"), max_length=30, db_index=True)
     is_publish = models.BooleanField(_('حالت انتشار'), default=True)
     image = models.ImageField(_("عکس دوره"), upload_to='course/course_image/%Y/%m/%d')
     prerequisite = models.ForeignKey('self', related_name='course_prerequisite', on_delete=models.PROTECT,
