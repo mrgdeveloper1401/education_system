@@ -5,8 +5,7 @@ from .models import User, Coach, Student
 
 @receiver(post_save, sender=User)
 def create_coach(sender, instance, created, **kwargs):
-    if created:
-        if instance.is_coach:
-            Coach.objects.create(user=instance)
-        if instance.is_student:
-            Student.objects.create(user=instance)
+    if instance.is_coach:
+        Coach.objects.get_or_create(user=instance)
+    if instance.is_student:
+        Student.objects.get_or_create(user=instance)

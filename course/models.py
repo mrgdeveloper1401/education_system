@@ -1,7 +1,10 @@
 from django.db import models
 from core.models import UpdateMixin, CreateMixin, SoftDeleteMixin
 from django.utils.translation import gettext_lazy as _
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator, FileExtensionValidator
+
+from utils.file_name import course_name, practice_name
+from utils.validators import file_upload_validator
 
 
 class Term(CreateMixin, UpdateMixin, SoftDeleteMixin):
@@ -13,6 +16,7 @@ class Term(CreateMixin, UpdateMixin, SoftDeleteMixin):
     class Meta:
         db_table = 'term'
         verbose_name = _("ترم")
+        verbose_name_plural = _("ترم ها")
 
 
 class Course(CreateMixin, UpdateMixin, SoftDeleteMixin):
@@ -28,12 +32,31 @@ class Course(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = 'course'
+        verbose_name = _("درس")
+        verbose_name_plural = _("درس ها")
+
+
+class Section(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name='sections')
+    video = models.FileField(upload_to=course_name, validators=[FileExtensionValidator("mp4"), file_upload_validator])
+    video_title = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    is_available = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ('created_at',)
+        db_table = 'course_section'
+        verbose_name = _("قسمت")
+        verbose_name_plural = _("قسمت های دوره")
 
 
 class LessonTakenByStudent(CreateMixin, SoftDeleteMixin):
     student = models.ForeignKey("accounts.Student", related_name='lesson_student', on_delete=models.DO_NOTHING)
     coach = models.ManyToManyField('accounts.Coach', related_name='lesson_user_coach')
     course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name='course_product')
+
+    def __str__(self):
+        return f'course is: {self.course.course_name} student is: {self.student.user.get_full_name}'
 
     class Meta:
         db_table = 'lesson_student'
@@ -76,9 +99,14 @@ class Comment(models.Model):
         verbose_name_plural = _("نظرات")
 
 
-class Practice(models.Model):
-    # coach = models.ForeignKey(Coach, on_delete=models.CASCADE, related_name='practice')
-    practice_file = models.FileField(upload_to='practice/%Y/%m/%d')
+class Practice(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    coach = models.ForeignKey('accounts.Coach', on_delete=models.DO_NOTHING, related_name='practice')
+    practice_file = models.FileField(upload_to=practice_name)
+    practice_title = models.CharField(_("عنوان تمرین"), max_length=255)
+    is_available = models.BooleanField(default=False)
+    expired_practice = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         db_table = 'practice'
+        verbose_name = _("تمرین")
+        verbose_name_plural = _("تمرین ها")

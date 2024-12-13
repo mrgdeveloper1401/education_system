@@ -9,7 +9,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         db_conn = connections['default']
         try:
-            db_conn.coursor()
+            db_conn.cursor()
             self.stdout.write(self.style.SUCCESS('Successfully connected to database'))
         except OperationalError:
             self.stdout.write(self.style.ERROR('Database connection failed'))
