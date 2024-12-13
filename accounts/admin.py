@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.translation import gettext_lazy as _
 
-from .models import User, Otp, State, City, Ticket, RecycleUser
+from .models import User, Otp, State, City, Ticket, RecycleUser, Coach, Student
 
 
 @admin.register(User)
@@ -41,7 +41,7 @@ class UserAdmin(BaseUserAdmin):
         ),
     )
     list_display = ("id", "mobile_phone", "email", "first_name", "last_name", "is_staff", "is_active", "is_superuser",
-                    "is_deleted", "deleted_at")
+                    "is_deleted", "deleted_at", "is_student", "is_coach")
     list_filter = ("is_staff", "is_superuser", "is_active", "groups")
     search_fields = ("mobile_phone", "first_name", "last_name", "email", "nation_code")
     ordering = ("-created_at",)
@@ -95,3 +95,7 @@ class RecycleUserAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         return RecycleUser.objects.filter(is_deleted=True)
+
+
+admin.site.register(Coach)
+admin.site.register(Student)

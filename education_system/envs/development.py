@@ -5,12 +5,12 @@ SECRET_KEY = config('DEVELOP_SECRET_KEY', cast=str)
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.contrib.gis.db.backends.postgis",
-        "NAME": 'education_system',
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": 'education',
         'USER': "postgres",
-        "PASSWORD": "postgres",
+        "PASSWORD": "postgres.2024",
         'HOST': "localhost",
-        "PORT": 5432,
+        "PORT": 5498,
     }
 }
 

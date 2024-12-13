@@ -24,7 +24,7 @@ class User(AbstractBaseUser, PermissionsMixin, UpdateMixin, SoftDeleteMixin, Cre
     is_verified = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     password = models.CharField(_("password"), max_length=128, blank=True, null=True)
-    image = models.ImageField(_("عکس کاربر"), upload_to='user_image/%Y/%m/%d', blank=True, null=True,
+    image = models.ImageField(_("عکس"), upload_to='user_image/%Y/%m/%d', blank=True, null=True,
                               validators=[validate_upload_image_user])
     second_mobile_phone = models.CharField(_("شماره تماس دوم"), max_length=11, blank=True, null=True,
                                            validators=[MobileRegexValidator()])
@@ -57,6 +57,10 @@ class User(AbstractBaseUser, PermissionsMixin, UpdateMixin, SoftDeleteMixin, Cre
         self.deleted_at = now()
         self.is_staff = False
         self.save()
+
+    @property
+    def is_student(self):
+        return not self.is_coach
 
     USERNAME_FIELD = 'mobile_phone'
     REQUIRED_FIELDS = ['first_name', "last_name", "email"]
@@ -135,15 +139,14 @@ class City(models.Model):
 
 
 class Ticket(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    coach = models.ForeignKey(User, on_delete=models.PROTECT, related_name='coach_ticker',
-                              limit_choices_to={"is_active": True, "is_coach": True, "is_deleted": False},
-                              verbose_name=_("مربی"))
+    admin = models.ForeignKey("User", on_delete=models.DO_NOTHING, related_name='admin_ticket',
+                              limit_choices_to={"is_staff": True, "is_active": True})
     ticker_body = models.TextField(_("متن تیکت"))
     subject_ticket = models.CharField(_("عنوان تیکت"), max_length=255)
     is_publish = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.coach.get_full_name
+        return self.admin.get_full_name
 
     class Meta:
         db_table = 'ticket'
@@ -193,3 +196,36 @@ class UserIp(CreateMixin):
         db_table = 'user_ip'
         verbose_name = _('ای پی کاربر')
         verbose_name_plural = _("ای پی کاربران")
+
+
+class Coach(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    user = models.OneToOneField(User, on_delete=models.DO_NOTHING, related_name='coach')
+    bio = models.TextField(blank=True, null=True)
+    specialty = models.CharField(max_length=255, blank=True, null=True)
+    linkedin_url = models.URLField(blank=True, null=True)
+    years_of_experience = models.PositiveSmallIntegerField(blank=True, null=True)
+
+    def __str__(self):
+        return f'{self.user.get_full_name}'
+
+    @property
+    def get_coach_name(self):
+        return self.user.get_full_name
+
+    class Meta:
+        db_table = 'coach'
+        verbose_name = _("استاد")
+        verbose_name_plural = _("اساتید")
+
+
+class Student(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    user = models.OneToOneField(User, on_delete=models.DO_NOTHING, related_name='student')
+    bio = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return f'{self.user.get_full_name}'
+
+    class Meta:
+        db_table = 'student'
+        verbose_name = _("دانش اموز")
+        verbose_name_plural = _("دانش اموزان")

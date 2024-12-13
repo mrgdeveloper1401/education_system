@@ -1,16 +1,17 @@
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.permissions import IsAdminUser
 from rest_framework import permissions
+from rest_framework.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
+from django.utils import timezone
 
-from course.models import Term, Course, UnitSelection
-from .paginations import CoursePagination
-from .serializers import TermSerializer, CourseSerializer, UnitSelectionSerializer
+from course.models import Term, Course
+from utils.permissions import CoursePermission
+from .serializers import TermSerializer, CourseSerializer
 
 
-class TermViewSet(ModelViewSet):
+class CategoryViewSet(ModelViewSet):
     queryset = Term.objects.all()
     serializer_class = TermSerializer
-    pagination_class = CoursePagination
 
     def get_permissions(self):
         if self.request.method not in permissions.SAFE_METHODS:
@@ -19,8 +20,9 @@ class TermViewSet(ModelViewSet):
 
 
 class CourseViewSet(ModelViewSet):
-    queryset = Course.objects.select_related("term")
+    queryset = Course.objects.prefetch_related('term', "student")
     serializer_class = CourseSerializer
+    permission_classes = [CoursePermission]
 
     def get_permissions(self):
         if self.request.method not in permissions.SAFE_METHODS:
@@ -29,15 +31,10 @@ class CourseViewSet(ModelViewSet):
 
     def get_queryset(self):
         if "term_pk" in self.kwargs:
-            return Course.objects.filter(term_id=self.kwargs["term_pk"]).select_related("term")
+            return Course.objects.filter(term_pk=self.kwargs["term_pk"]).prefetch_related("term", "student")
         return super().get_queryset()
 
     def get_serializer_context(self):
+        # if "category_pk" in self.kwargs:
         return {'term_pk': self.kwargs["term_pk"]}
-
-
-class UnitSelectionViewSet(ModelViewSet):
-    queryset = UnitSelection.objects.select_related("term", "course", "student", "professor")
-    serializer_class = UnitSelectionSerializer
-    permission_classes = [IsAdminUser]
-    pagination_class = CoursePagination
+        # return super().get_serializer_context()

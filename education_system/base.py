@@ -28,6 +28,7 @@ THIRD_PARTY_PACKAGE = [
     "rest_framework_simplejwt",
     "storages",
     "django_filters",
+    "treebeard",
 ]
 
 THIRD_PARTY_APP = [
@@ -36,6 +37,7 @@ THIRD_PARTY_APP = [
     'images.apps.ImagesConfig',
     "advertise.apps.AdvertiseConfig",
     "course.apps.CourseConfig",
+    "coupons.apps.CouponsConfig",
     # "main_settings.apps.MainSettingsConfig",
 ]
 INSTALLED_APPS = [

@@ -20,7 +20,7 @@ class UpdateMixin(models.Model):
 
 class SoftDeleteMixin(models.Model):
     deleted_at = models.DateTimeField(blank=True, null=True, editable=False)
-    is_deleted = models.BooleanField(default=False, editable=False, null=True)
+    is_deleted = models.BooleanField(default=False, editable=False)
 
     objects = PublishManager()
 

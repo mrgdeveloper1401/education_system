@@ -5,10 +5,11 @@ from rest_framework.urls import path
 from . import views
 
 router = routers.DefaultRouter()
-router.register('term', views.TermViewSet, basename='term')
+router.register('term', views.CategoryViewSet, basename='category')
+# router.register('course', views.CourseViewSet, basename='course')
 
-term_router = routers.NestedSimpleRouter(router, r'term', lookup='term')
-term_router.register('course', views.CourseViewSet, basename='course')
+term_router = routers.NestedSimpleRouter(router, r'term', lookup='category')
+term_router.register('course', views.CourseViewSet, basename='nested-course')
 
 
 app_name = 'course'

@@ -14,3 +14,4 @@ djangorestframework-gis
 django-filter
 django-debug-toolbar
 drf-nested-routers
+django-treebeard

@@ -9,4 +9,4 @@ class SoftDeleteQuerySet(models.QuerySet):
 
 class PublishManager(models.Manager):
     def get_queryset(self):
-        return SoftDeleteQuerySet(self.model, using=self._db).filter(is_deleted=False, deleted_at=None)
+        return SoftDeleteQuerySet(self.model, using=self._db).filter(is_deleted=False)
