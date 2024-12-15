@@ -3,7 +3,7 @@ from core.models import UpdateMixin, CreateMixin, SoftDeleteMixin
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinValueValidator, MaxValueValidator, FileExtensionValidator
 
-from utils.file_name import course_name, practice_name
+from utils.file_name import course_name, practice_name, section_name
 from utils.validators import file_upload_validator
 
 
@@ -38,10 +38,10 @@ class Course(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 class Section(CreateMixin, UpdateMixin, SoftDeleteMixin):
     course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name='sections')
-    video = models.FileField(upload_to=course_name, validators=[FileExtensionValidator("mp4"), file_upload_validator])
+    video = models.FileField(upload_to=section_name, validators=[FileExtensionValidator(["mp4"]), file_upload_validator])
     video_title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
-    is_available = models.BooleanField(default=False)
+    is_available = models.BooleanField(db_default=True)
 
     class Meta:
         ordering = ('created_at',)
@@ -75,6 +75,7 @@ class LessonTakenByCoach(CreateMixin, SoftDeleteMixin):
 
 class Score(models.Model):
     student = models.ForeignKey("accounts.Student", related_name='student_score', on_delete=models.DO_NOTHING)
+    course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name="course_score")
     coach = models.ForeignKey('accounts.Coach', related_name='coach_score', on_delete=models.DO_NOTHING)
     score = models.PositiveSmallIntegerField(validators=[MinValueValidator(0), MaxValueValidator(20)],
                                              help_text=_("حداکثر نمره برابر با 20"
@@ -86,7 +87,7 @@ class Score(models.Model):
         verbose_name_plural = _("نمره ها")
 
 
-class Comment(models.Model):
+class Comment(CreateMixin, UpdateMixin, SoftDeleteMixin):
     student = models.ForeignKey('accounts.Student', on_delete=models.DO_NOTHING, related_name='student_comments')
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='comments')
     comment_body = models.TextField(_("متن کامنت"))
@@ -100,10 +101,14 @@ class Comment(models.Model):
 
 class Practice(CreateMixin, UpdateMixin, SoftDeleteMixin):
     coach = models.ForeignKey('accounts.Coach', on_delete=models.DO_NOTHING, related_name='practice')
+    course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name="course_practice")
     practice_file = models.FileField(upload_to=practice_name)
     practice_title = models.CharField(_("عنوان تمرین"), max_length=255)
     is_available = models.BooleanField(default=False)
     expired_practice = models.DateTimeField(blank=True, null=True)
+
+    def __str__(self):
+        return self.practice_title
 
     class Meta:
         db_table = 'practice'
@@ -115,7 +120,7 @@ class PracticeSubmission(CreateMixin, UpdateMixin, SoftDeleteMixin):
     practice = models.ForeignKey(Practice, on_delete=models.DO_NOTHING, related_name='submissions')
     student = models.ForeignKey("accounts.Student", on_delete=models.DO_NOTHING, related_name='submission_student')
     upload_file = models.FileField(upload_to="submit_practice/%Y/%m/%d/%H:%M:%S")
-    grade = models.FloatField(validators=[MinValueValidator(0)])
+    grade = models.FloatField(validators=[MinValueValidator(0)], blank=True, null=True)
 
     def __str__(self):
         return f'{self.grade} {self.student.user.get_full_name}'
@@ -131,8 +136,8 @@ class Quiz(CreateMixin, UpdateMixin, SoftDeleteMixin):
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name='quizzes')
-    start_time = models.DateTimeField()
-    end_time = models.DateTimeField()
+    quiz_time = models.DateTimeField(help_text=_("تاریخ ازمون"))
+    duration = models.DurationField(help_text=_("زمان ازمون"))
 
     def __str__(self):
         return f'{self.title}'

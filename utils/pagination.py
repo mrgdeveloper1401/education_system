@@ -15,3 +15,7 @@ class SlotPagination(PageNumberPagination):
 
 class StudentCoachTicketPagination(PageNumberPagination):
     page_size = 5
+
+
+class LessonTakenPagination(PageNumberPagination):
+    page_size = 5

@@ -6,7 +6,7 @@ SECRET_KEY = config('DEVELOP_SECRET_KEY', cast=str)
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": 'education',
+        "NAME": 'practicedb',
         'USER': "postgres",
         "PASSWORD": "postgres.2024",
         'HOST': "localhost",
