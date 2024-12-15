@@ -52,7 +52,6 @@ class Section(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 class LessonTakenByStudent(CreateMixin, SoftDeleteMixin):
     student = models.ForeignKey("accounts.Student", related_name='lesson_student', on_delete=models.DO_NOTHING)
-    coach = models.ManyToManyField('accounts.Coach', related_name='lesson_user_coach')
     course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name='course_product')
 
     def __str__(self):
@@ -110,3 +109,48 @@ class Practice(CreateMixin, UpdateMixin, SoftDeleteMixin):
         db_table = 'practice'
         verbose_name = _("تمرین")
         verbose_name_plural = _("تمرین ها")
+
+
+class PracticeSubmission(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    practice = models.ForeignKey(Practice, on_delete=models.DO_NOTHING, related_name='submissions')
+    student = models.ForeignKey("accounts.Student", on_delete=models.DO_NOTHING, related_name='submission_student')
+    upload_file = models.FileField(upload_to="submit_practice/%Y/%m/%d/%H:%M:%S")
+    grade = models.FloatField(validators=[MinValueValidator(0)])
+
+    def __str__(self):
+        return f'{self.grade} {self.student.user.get_full_name}'
+
+    class Meta:
+        db_table = 'submission'
+        verbose_name = _("ارسال تکلیف")
+        verbose_name_plural = _("تکالیف ارسال شده")
+
+
+class Quiz(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    coach = models.ForeignKey('accounts.Coach', on_delete=models.DO_NOTHING, related_name='coach_quiz')
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name='quizzes')
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+
+    def __str__(self):
+        return f'{self.title}'
+
+    class Meta:
+        db_table = 'quiz'
+        verbose_name = _("ازمون")
+        verbose_name_plural = _("ازمون ها")
+
+
+class ClassRoom(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name="course_classroom")
+    student = models.ManyToManyField('accounts.Student', related_name="class_room_user")
+    coach = models.ManyToManyField('accounts.Coach', related_name='class_room_coach')
+    is_available = models.BooleanField(default=True)
+    description = models.TextField(blank=True, null=True)
+
+    class Meta:
+        db_table = 'class_room'
+        verbose_name = _("کلاس درسی")
+        verbose_name_plural = _("کلاس های درسی")

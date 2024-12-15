@@ -9,13 +9,14 @@ from rest_framework.generics import ListAPIView, CreateAPIView
 from rest_framework.generics import get_object_or_404
 from rest_framework.filters import SearchFilter
 
-from accounts.models import User, Otp, State, City
+from accounts.models import User, Otp, State, City, Student, Coach
 from utils.filters import UserFilter
+from utils.pagination import StudentCoachPagination
 from utils.permissions import NotAuthenticate
 from .pagination import UserPagination, CityPagination
 from .serializers import UserSerializer, OtpLoginSerializer, VerifyOtpSerializer, UpdateUserSerializer \
     , StateSerializer, CitySerializer, ChangePasswordSerializer, ForgetPasswordSerializer, \
-    ConfirmForgetPasswordSerializer
+    ConfirmForgetPasswordSerializer, StudentSerializer, CoachSerializer
 
 
 class UserViewSet(ModelViewSet):
@@ -122,3 +123,15 @@ class ConfirmForgetPasswordApiView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=HTTP_200_OK)
+
+
+class StudentViewSet(ModelViewSet):
+    queryset = Student.objects.all()
+    serializer_class = StudentSerializer
+    pagination_class = StudentCoachPagination
+
+
+class CoachViewSet(ModelViewSet):
+    queryset = Coach.objects.all()
+    serializer_class = CoachSerializer
+    pagination_class = StudentCoachPagination

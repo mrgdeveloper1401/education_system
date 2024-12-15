@@ -11,3 +11,7 @@ class AnswerPagination(PageNumberPagination):
 
 class SlotPagination(PageNumberPagination):
     page_size = 20
+
+
+class StudentCoachPagination(PageNumberPagination):
+    page_size = 5

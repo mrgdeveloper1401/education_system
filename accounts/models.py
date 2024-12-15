@@ -139,14 +139,14 @@ class City(models.Model):
 
 
 class Ticket(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    admin = models.ForeignKey("User", on_delete=models.DO_NOTHING, related_name='admin_ticket',
-                              limit_choices_to={"is_staff": True, "is_active": True})
+    user = models.ForeignKey("User", on_delete=models.DO_NOTHING, related_name='ticket',
+                             limit_choices_to={"is_active": True})
     ticker_body = models.TextField(_("متن تیکت"))
     subject_ticket = models.CharField(_("عنوان تیکت"), max_length=255)
     is_publish = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.admin.get_full_name
+        return self.user.get_full_name
 
     class Meta:
         db_table = 'ticket'

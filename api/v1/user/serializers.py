@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.password_validation import validate_password
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from accounts.models import User, Otp, State, City
+from accounts.models import User, Otp, State, City, Student, Coach
 from accounts.validators import MobileRegexValidator
 
 
@@ -215,3 +215,15 @@ class ConfirmForgetPasswordSerializer(Serializer):
 
     def to_representation(self, instance):
         return {"message": _("پسورد شما با موفقیت تعویض شد و میتوانید به حساب خود لاگین کنید")}
+
+
+class StudentSerializer(ModelSerializer):
+    class Meta:
+        model = Student
+        exclude = ['deleted_at', "is_deleted", "created_at", "updated_at"]
+
+
+class CoachSerializer(ModelSerializer):
+    class Meta:
+        model = Coach
+        exclude = ['deleted_at', "is_deleted", "created_at", "updated_at"]

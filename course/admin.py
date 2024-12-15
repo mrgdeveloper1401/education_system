@@ -22,7 +22,6 @@ class SectionAdmin(admin.ModelAdmin):
 
 @admin.register(models.LessonTakenByStudent)
 class LessonTakenByStudentAdmin(admin.ModelAdmin):
-    filter_horizontal = ["coach"]
     list_select_related = ['course', "student"]
     raw_id_fields = ['student', "course"]
 
@@ -44,3 +43,21 @@ class PracticeAdmin(admin.ModelAdmin):
     raw_id_fields = ['coach']
     list_select_related = ['coach']
     list_display = ['coach', "is_available"]
+
+
+@admin.register(models.ClassRoom)
+class ClassRoomAdmin(admin.ModelAdmin):
+    raw_id_fields = ['course']
+    filter_horizontal = ['student', "coach"]
+    list_filter = ['is_available']
+    list_display = ['course', "course__term", "is_available"]
+
+
+@admin.register(models.PracticeSubmission)
+class PracticeSubmissionAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(models.Quiz)
+class QuizAdmin(admin.ModelAdmin):
+    pass

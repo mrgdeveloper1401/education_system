@@ -2,11 +2,14 @@ from rest_framework.routers import DefaultRouter
 from rest_framework.urls import path
 
 from .views import UserViewSet, SendCodeOtpViewSet, VerifyOtpCodeApiView, StateApiView, CityApiView, \
-    StateCitiesGenericView, ChangePasswordApiView, ForgetPasswordApiView, ConfirmForgetPasswordApiView
+    StateCitiesGenericView, ChangePasswordApiView, ForgetPasswordApiView, ConfirmForgetPasswordApiView, \
+    StudentViewSet, CoachViewSet
 
 router = DefaultRouter()
 router.register('user', UserViewSet, basename='create')
 router.register('send-code', SendCodeOtpViewSet, basename='login-otp')
+router.register('student', StudentViewSet, basename='student')
+router.register('coach', CoachViewSet, basename='coach')
 
 app_name = 'users'
 urlpatterns = [

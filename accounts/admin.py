@@ -84,7 +84,8 @@ class CityAdmin(admin.ModelAdmin):
 
 @admin.register(Ticket)
 class TicketAdmin(admin.ModelAdmin):
-    pass
+    raw_id_fields = ['user']
+    list_display = ['user', "subject_ticket", "is_publish"]
 
 
 @admin.register(RecycleUser)
