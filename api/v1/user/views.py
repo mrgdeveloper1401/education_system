@@ -5,18 +5,18 @@ from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK
 from rest_framework.views import APIView
-from rest_framework.generics import ListAPIView, CreateAPIView
+from rest_framework.generics import ListAPIView
 from rest_framework.generics import get_object_or_404
 from rest_framework.filters import SearchFilter
 
-from accounts.models import User, Otp, State, City, Student, Coach
+from accounts.models import User, Otp, State, City, Student, Coach, Ticket
 from utils.filters import UserFilter
-from utils.pagination import StudentCoachPagination
+from utils.pagination import StudentCoachTicketPagination
 from utils.permissions import NotAuthenticate
 from .pagination import UserPagination, CityPagination
 from .serializers import UserSerializer, OtpLoginSerializer, VerifyOtpSerializer, UpdateUserSerializer \
     , StateSerializer, CitySerializer, ChangePasswordSerializer, ForgetPasswordSerializer, \
-    ConfirmForgetPasswordSerializer, StudentSerializer, CoachSerializer
+    ConfirmForgetPasswordSerializer, StudentSerializer, CoachSerializer, TicketSerializer
 
 
 class UserViewSet(ModelViewSet):
@@ -40,9 +40,11 @@ class UserViewSet(ModelViewSet):
 class SendCodeOtpViewSet(CreateModelMixin, GenericViewSet):
     queryset = Otp.objects.all()
     serializer_class = OtpLoginSerializer
+    permission_classes = [NotAuthenticate]
 
 
 class VerifyOtpCodeApiView(APIView):
+    permission_classes = [NotAuthenticate]
     serializer_class = VerifyOtpSerializer
 
     def post(self, request, *args, **kwargs):
@@ -128,10 +130,22 @@ class ConfirmForgetPasswordApiView(APIView):
 class StudentViewSet(ModelViewSet):
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
-    pagination_class = StudentCoachPagination
+    pagination_class = StudentCoachTicketPagination
 
 
 class CoachViewSet(ModelViewSet):
     queryset = Coach.objects.all()
     serializer_class = CoachSerializer
-    pagination_class = StudentCoachPagination
+    pagination_class = StudentCoachTicketPagination
+
+
+class TicketViewSet(ModelViewSet):
+    serializer_class = TicketSerializer
+    pagination_class = StudentCoachTicketPagination
+    permission_classes = [IsAuthenticated]
+
+    def get_serializer_context(self):
+        return {"user": self.request.user}
+
+    def get_queryset(self):
+        return Ticket.objects.filter(user=self.request.user)
