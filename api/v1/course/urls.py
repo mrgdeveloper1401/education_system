@@ -24,11 +24,15 @@ course_practice.register('practice', views.PracticeViewSet, basename='nested-pra
 practice = routers.NestedSimpleRouter(course_practice, r'practice', lookup='practice')
 practice.register('submit-practice', views.SubmitPracticeViewSet, basename='nested-submit-practice')
 
+quiz = routers.NestedSimpleRouter(course_router, r'quiz', lookup='quiz')
+quiz.register('question', views.QuestionViewSet, basename='nested-question')
+
 app_name = 'course'
 urlpatterns = [
     path('', include(term_router.urls)),
     path('', include(course_router.urls)),
     path('', include(course_practice.urls)),
-    path('', include(practice.urls))
+    path('', include(practice.urls)),
+    path('', include(quiz.urls)),
 ]
 urlpatterns += router.urls

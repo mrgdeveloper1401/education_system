@@ -5,7 +5,7 @@ from rest_framework.validators import ValidationError
 
 from accounts.models import Coach, Student
 from course.models import Course, Term, Section, LessonTakenByStudent, LessonTakenByCoach, Score, Comment, Practice, \
-    PracticeSubmission, Quiz
+    PracticeSubmission, Quiz, Question
 
 
 class TermSerializer(serializers.ModelSerializer):
@@ -18,6 +18,13 @@ class CourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         exclude = ['deleted_at', "is_deleted"]
+        extra_kwargs = {
+            "term": {'read_only': True},
+        }
+
+    def create(self, validated_data):
+        term_pk = self.context["term_pk"]
+        return Course.objects.create(term_id=term_pk, **validated_data)
 
 
 class SectionSerializer(serializers.ModelSerializer):
@@ -143,3 +150,16 @@ class QuizSerializer(serializers.ModelSerializer):
         course_pk = self.context['course_pk']
         coach = Coach.objects.get(user=user)
         return Quiz.objects.create(course_id=course_pk, coach=coach, **validated_data)
+
+
+class QuestionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Question
+        exclude = ['is_deleted', "deleted_at"]
+        extra_kwargs = {
+            "quiz": {"read_only": True}
+        }
+
+    def create(self, validated_data):
+        quiz_pk = self.context['quiz_pk']
+        return Question.objects.create(quiz_id=quiz_pk, **validated_data)

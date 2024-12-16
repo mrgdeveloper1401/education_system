@@ -23,6 +23,8 @@ DATABASES = {
 }
 
 SIMPLE_JWT['SIGNING_KEY'] = SECRET_KEY
+SIMPLE_JWT["AUDIENCE"] = config("AUDIENCE", cast=str)
+SIMPLE_JWT["ISSUER"] = config("ISSUER", cast=str)
 
 MIDDLEWARE += [
     "whitenoise.middleware.WhiteNoiseMiddleware",

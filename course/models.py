@@ -38,7 +38,8 @@ class Course(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 class Section(CreateMixin, UpdateMixin, SoftDeleteMixin):
     course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name='sections')
-    video = models.FileField(upload_to=section_name, validators=[FileExtensionValidator(["mp4"]), file_upload_validator])
+    video = models.FileField(upload_to=section_name,
+                             validators=[FileExtensionValidator(["mp4"]), file_upload_validator])
     video_title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     is_available = models.BooleanField(db_default=True)
@@ -146,6 +147,19 @@ class Quiz(CreateMixin, UpdateMixin, SoftDeleteMixin):
         db_table = 'quiz'
         verbose_name = _("ازمون")
         verbose_name_plural = _("ازمون ها")
+
+
+class Question(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    quiz = models.ForeignKey(Quiz, on_delete=models.DO_NOTHING, related_name="quiz_questions")
+    question = models.TextField(help_text=_("عنوان سوال"))
+
+    def __str__(self):
+        return self.quiz.title
+
+    class Meta:
+        db_table = 'question'
+        verbose_name = _("سوال")
+        verbose_name_plural = _("سوال ها")
 
 
 class ClassRoom(CreateMixin, UpdateMixin, SoftDeleteMixin):

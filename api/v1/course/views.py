@@ -4,13 +4,13 @@ from rest_framework.generics import get_object_or_404
 
 from accounts.models import Student, Coach
 from course.models import Term, Course, Section, LessonTakenByStudent, LessonTakenByCoach, Score, Comment, Practice, \
-    PracticeSubmission, Quiz
+    PracticeSubmission, Quiz, Question
 from utils.pagination import LessonTakenPagination
 from utils.permissions import CoursePermission, StudentPermission, CoachPermission, EditScorePermission, \
-    CommentPermission, PracticePermission, SubmitPracticePermissions, QuizPermission
+    CommentPermission, PracticePermission, SubmitPracticePermissions, QuizPermission, QuestionPermission
 from .serializers import TermSerializer, CourseSerializer, SectionSerializer, LessonByTakenStudentSerializer, \
     LessonTakenByCoachSerializer, ScoreSerializer, CommentSerializer, PracticeSerializer, PracticeSubmitSerializer, \
-    QuizSerializer
+    QuizSerializer, QuestionSerializer
 
 
 class CategoryViewSet(ModelViewSet):
@@ -145,7 +145,7 @@ class SubmitPracticeViewSet(ModelViewSet):
 
 class QuizViewSet(ModelViewSet):
     serializer_class = QuizSerializer
-    # permission_classes = [QuizPermission]
+    permission_classes = [QuizPermission]
 
     def get_queryset(self):
         term = get_object_or_404(Term, pk=self.kwargs['term_pk'])
@@ -156,4 +156,17 @@ class QuizViewSet(ModelViewSet):
         return {
             "user": self.request.user,
             "course_pk": self.kwargs['course_pk'],
+        }
+
+
+class QuestionViewSet(ModelViewSet):
+    serializer_class = QuestionSerializer
+    permission_classes = [QuestionPermission]
+
+    def get_queryset(self):
+        return Question.objects.filter(quiz_id=self.kwargs["quiz_pk"]).select_related("quiz__coach__user")
+
+    def get_serializer_context(self):
+        return {
+            "quiz_pk": self.kwargs['quiz_pk']
         }

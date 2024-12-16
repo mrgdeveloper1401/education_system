@@ -1,4 +1,7 @@
 from rest_framework import permissions
+from django.utils import timezone
+
+from course.models import Quiz
 
 
 class NotAuthenticate(permissions.BasePermission):
@@ -56,11 +59,28 @@ class SubmitPracticePermissions(permissions.IsAuthenticated):
 
 class QuizPermission(permissions.BasePermission):
     def has_permission(self, request, view):
-        if request.user and request.method in permissions.SAFE_METHODS:
+        if request.method in permissions.SAFE_METHODS:
             return True
-        return False
+        return hasattr(request.user, 'coach')
 
     def has_object_permission(self, request, view, obj):
         if obj.coach.user == request.user:
             return True
-        return False
+
+
+class QuestionPermission(permissions.BasePermission):
+    def has_permission(self, request, view):
+        quiz_pk = view.kwargs['quiz_pk']
+        try:
+            quiz = Quiz.objects.select_related("coach__user").get(pk=quiz_pk)
+        except Quiz.DoesNotExist:
+            return False
+        if not request.user.is_authenticated:
+            return False
+        if quiz.coach.user == request.user:
+            return True
+        return timezone.now() > quiz.quiz_time
+
+    def has_object_permission(self, request, view, obj):
+        if hasattr(request.user, 'coach') and obj.quiz.coach.user == request.user:
+            return True
