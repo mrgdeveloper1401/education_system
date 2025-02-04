@@ -62,6 +62,9 @@ class User(AbstractBaseUser, PermissionsMixin, UpdateMixin, SoftDeleteMixin, Cre
     def is_student(self):
         return not self.is_coach
 
+    def __str__(self):
+        return self.mobile_phone
+
     USERNAME_FIELD = 'mobile_phone'
     REQUIRED_FIELDS = ['first_name', "last_name", "email"]
 
@@ -229,3 +232,16 @@ class Student(CreateMixin, UpdateMixin, SoftDeleteMixin):
         db_table = 'student'
         verbose_name = _("دانش اموز")
         verbose_name_plural = _("دانش اموزان")
+
+
+class RequestLog(CreateMixin):
+    path = models.CharField(max_length=255)
+    method = models.CharField(max_length=10)
+    meta_data = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.method} {self.path}"
+
+    class Meta:
+        db_table = 'request_log'

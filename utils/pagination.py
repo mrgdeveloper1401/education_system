@@ -19,3 +19,7 @@ class StudentCoachTicketPagination(PageNumberPagination):
 
 class LessonTakenPagination(PageNumberPagination):
     page_size = 5
+
+
+class ListUserPagination(PageNumberPagination):
+    page_size = 20

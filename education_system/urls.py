@@ -20,10 +20,10 @@ simple_jwt_url = [
 ]
 
 api_url = [
-    path('api-auth_user/', include('api.v1.user.urls', namespace='user')),
-    path('api-advertise/', include('api.v1.advertise.urls', namespace='advertise')),
-    path('api-course/', include('api.v1.course.urls', namespace='course')),
-    path('api-discount/', include('api.v1.coupons.urls', namespace='coupons')),
+    path('api_auth_user/', include('api.v1.user.urls', namespace='user')),
+    path('api_advertise/', include('api.v1.advertise.urls', namespace='advertise')),
+    path('api_course/', include('api.v1.course.urls', namespace='course')),
+    path('api_discount/', include('api.v1.coupons.urls', namespace='coupons')),
 
 ]
 urlpatterns = [

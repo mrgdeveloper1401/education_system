@@ -1,8 +1,9 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.translation import gettext_lazy as _
+from import_export.admin import ImportExportModelAdmin
 
-from .models import User, Otp, State, City, Ticket, RecycleUser, Coach, Student
+from .models import User, Otp, State, City, Ticket, RecycleUser, Coach, Student, RequestLog
 
 
 @admin.register(User)
@@ -53,6 +54,7 @@ class UserAdmin(BaseUserAdmin):
     list_editable = ['is_active', "is_staff", "is_superuser"]
     raw_id_fields = ["city", "state"]
     list_display_links = ['id', "mobile_phone"]
+    list_per_page = 20
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
@@ -69,13 +71,13 @@ class OtpAdmin(admin.ModelAdmin):
 
 
 @admin.register(State)
-class StateAdmin(admin.ModelAdmin):
+class StateAdmin(ImportExportModelAdmin):
     list_display = ['id', "state_name"]
     search_fields = ['state_name']
 
 
 @admin.register(City)
-class CityAdmin(admin.ModelAdmin):
+class CityAdmin(ImportExportModelAdmin):
     raw_id_fields = ['state']
     list_display = ['id', 'state', "city"]
     search_fields = ['city']
@@ -100,3 +102,4 @@ class RecycleUserAdmin(admin.ModelAdmin):
 
 admin.site.register(Coach)
 admin.site.register(Student)
+admin.site.register(RequestLog)

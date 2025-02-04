@@ -15,11 +15,11 @@ RUN pip install --upgrade pip
 RUN pip install -r /home/app/requirements/production.txt
 
 RUN chmod +x /home/app/manage.py
+RUN adduser -D -H mohammad;
 
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDDONOTWRITEBYTECODE=1
 
-RUN python3 /home/app/manage.py collectstatic --noinput
+RUN chmod +x ./start.sh
 
-ENTRYPOINT ["gunicorn", "education_system.wsgi", "-b"]
-CMD ["0.0.0.0:8000"]
+ENTRYPOINT ["./start.sh"]

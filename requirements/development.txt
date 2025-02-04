@@ -2,3 +2,4 @@
 django-debug-toolbar
 colorlog
 memory_profiler
+pandas

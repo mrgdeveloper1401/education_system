@@ -1,6 +1,6 @@
 from django.db.models.signals import m2m_changed
 from django.dispatch import receiver
-from .models import LessonTakenByStudent, LessonTakenByCoach
+# from .models import LessonTakenByStudent, LessonTakenByCoach
 
 
 # @receiver(m2m_changed, sender=LessonTakenByStudent.coach.through)

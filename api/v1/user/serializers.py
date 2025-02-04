@@ -240,3 +240,9 @@ class TicketSerializer(ModelSerializer):
     def create(self, validated_data):
         user = self.context['user']
         return Ticket.objects.create(user=user, **validated_data)
+
+
+class ListUserSerializer(ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', "mobile_phone", "email", "is_coach"]

@@ -284,3 +284,4 @@ cython_debug/
 staticfiles
 education.zip
 general_log_django
+utils/mock_data

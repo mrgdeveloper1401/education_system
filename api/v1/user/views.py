@@ -11,12 +11,12 @@ from rest_framework.filters import SearchFilter
 
 from accounts.models import User, Otp, State, City, Student, Coach, Ticket
 from utils.filters import UserFilter
-from utils.pagination import StudentCoachTicketPagination
+from utils.pagination import StudentCoachTicketPagination, ListUserPagination
 from utils.permissions import NotAuthenticate
 from .pagination import UserPagination, CityPagination
 from .serializers import UserSerializer, OtpLoginSerializer, VerifyOtpSerializer, UpdateUserSerializer \
     , StateSerializer, CitySerializer, ChangePasswordSerializer, ForgetPasswordSerializer, \
-    ConfirmForgetPasswordSerializer, StudentSerializer, CoachSerializer, TicketSerializer
+    ConfirmForgetPasswordSerializer, StudentSerializer, CoachSerializer, TicketSerializer, ListUserSerializer
 
 
 class UserViewSet(ModelViewSet):
@@ -149,3 +149,10 @@ class TicketViewSet(ModelViewSet):
 
     def get_queryset(self):
         return Ticket.objects.filter(user=self.request.user)
+
+
+class ListUserApiView(ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = ListUserSerializer
+    pagination_class = ListUserPagination
+    permission_classes = [IsAdminUser]

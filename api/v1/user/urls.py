@@ -3,7 +3,7 @@ from rest_framework.urls import path
 
 from .views import UserViewSet, SendCodeOtpViewSet, VerifyOtpCodeApiView, StateApiView, CityApiView, \
     StateCitiesGenericView, ChangePasswordApiView, ForgetPasswordApiView, ConfirmForgetPasswordApiView, \
-    StudentViewSet, CoachViewSet, TicketViewSet
+    StudentViewSet, CoachViewSet, TicketViewSet, ListUserApiView
 
 router = DefaultRouter()
 router.register('user', UserViewSet, basename='create')
@@ -14,6 +14,7 @@ router.register('ticket', TicketViewSet, basename='ticket')
 
 app_name = 'users'
 urlpatterns = [
+    path('user-list/', ListUserApiView.as_view(), name='user-list'),
     path("verify-otp/", VerifyOtpCodeApiView.as_view(), name="verify-otp"),
     path('state-list/', StateApiView.as_view(), name='state-list'),
     path('state-list/<int:pk>/', StateApiView.as_view(), name='detail-state-list'),

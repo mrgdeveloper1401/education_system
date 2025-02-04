@@ -1,7 +1,7 @@
 from rest_framework import permissions
 from django.utils import timezone
 
-from course.models import Quiz
+# from course.models import Quiz
 
 
 class NotAuthenticate(permissions.BasePermission):
@@ -68,18 +68,18 @@ class QuizPermission(permissions.BasePermission):
             return True
 
 
-class QuestionPermission(permissions.BasePermission):
-    def has_permission(self, request, view):
-        quiz_pk = view.kwargs['quiz_pk']
-        try:
-            quiz = Quiz.objects.select_related("coach__user").get(pk=quiz_pk)
-        except Quiz.DoesNotExist:
-            return False
-        if not request.user.is_authenticated:
-            return False
-        if quiz.coach.user == request.user:
-            return True
-        return timezone.now() > quiz.quiz_time
+# class QuestionPermission(permissions.BasePermission):
+#     def has_permission(self, request, view):
+#         quiz_pk = view.kwargs['quiz_pk']
+#         try:
+#             quiz = Quiz.objects.select_related("coach__user").get(pk=quiz_pk)
+#         except Quiz.DoesNotExist:
+#             return False
+#         if not request.user.is_authenticated:
+#             return False
+#         if quiz.coach.user == request.user:
+#             return True
+#         return timezone.now() > quiz.quiz_time
 
     def has_object_permission(self, request, view, obj):
         if hasattr(request.user, 'coach') and obj.quiz.coach.user == request.user:
