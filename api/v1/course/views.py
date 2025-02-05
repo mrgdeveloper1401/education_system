@@ -1,12 +1,14 @@
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 from rest_framework import permissions
 from rest_framework.exceptions import NotAcceptable, ValidationError
 from django.utils.translation import gettext_lazy as _
+from rest_framework.generics import get_object_or_404
 
-from course.models import Category, Course
+from course.models import Category, Course, Comment
 from utils.permissions import CoursePermission
 from .serializers import CourseSerializer, CreateCategorySerializer, CategoryNodeSerializer, \
-    UpdateCategoryNodeSerializer, DestroyCategoryNodeSerializer
+    UpdateCategoryNodeSerializer, DestroyCategoryNodeSerializer, CommentSerializer
 
 
 class CategoryViewSet(ModelViewSet):
@@ -110,24 +112,23 @@ class CourseViewSet(ModelViewSet):
 #
 #     def get_serializer_context(self):
 #         return {"user": self.request.user}
-#
-#
-# class CommentViewSet(ModelViewSet):
-#     serializer_class = CommentSerializer
-#     permission_classes = [CommentPermission]
-#
-#     def get_queryset(self):
-#         term = get_object_or_404(Term, pk=self.kwargs['term_pk'])
-#         course = get_object_or_404(Course, term=term, pk=self.kwargs['course_pk'])
-#         return Comment.objects.filter(course=course).select_related('student__user', "course")
-#
-#     def get_serializer_context(self):
-#         return {
-#             "user": self.request.user,
-#             "course_pk": self.kwargs["course_pk"]
-#         }
-#
-#
+
+
+class CommentViewSet(ModelViewSet):
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Comment.objects.filter(course_id=self.kwargs['course_pk'],
+                                      course__category_id=self.kwargs['category_pk']).select_related("course")
+
+    def get_serializer_context(self):
+        return {
+            "user": self.request.user,
+            "course_pk": self.kwargs["course_pk"]
+        }
+
+
 # class PracticeViewSet(ModelViewSet):
 #     serializer_class = PracticeSerializer
 #     permission_classes = [PracticePermission]

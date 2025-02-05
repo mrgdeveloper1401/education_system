@@ -10,13 +10,13 @@ router.register('category', views.CategoryViewSet, basename='term')
 # router.register("lesson_taken_coach", views.LessonByCoachTakenViewSet, basename='lesson-taken-coach')
 # router.register('course', views.CourseViewSet, basename='course')
 #
-category_router = routers.NestedSimpleRouter(router, r'category', lookup='category')
+category_router = routers.NestedDefaultRouter(router, r'category', lookup='category')
 category_router.register('course', views.CourseViewSet, basename='nested-course')
 
-# course_router = routers.NestedSimpleRouter(term_router, r'course', lookup='course')
+course_router = routers.NestedDefaultRouter(category_router, r'course', lookup='course')
 # course_router.register('class_room', views.ClassRoomViewSet, basename='class-room')
 # course_router.register('section', views.SectionViewSet, basename='nested-section')
-# course_router.register('comment', views.CommentViewSet, basename='nested-comment')
+course_router.register('comment', views.CommentViewSet, basename='nested-comment')
 # course_router.register('quiz', views.QuizViewSet, basename='nested-quiz')
 #
 # course_practice = routers.NestedSimpleRouter(router, r'course', lookup='course')
@@ -31,7 +31,7 @@ category_router.register('course', views.CourseViewSet, basename='nested-course'
 app_name = 'course'
 urlpatterns = [
     path('', include(category_router.urls)),
-    # path('', include(course_router.urls)),
+    path('', include(course_router.urls)),
     # path('', include(course_practice.urls)),
     # path('', include(practice.urls)),
     # path('', include(quiz.urls)),

@@ -65,3 +65,13 @@ class CategoryTreeAdmin(TreeAdmin):
 # @admin.register(models.Quiz)
 # class QuizAdmin(admin.ModelAdmin):
 #     pass
+
+
+@admin.register(models.Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ['user', "course", "is_publish", "created_at", "updated_at"]
+    list_select_related = ['user', "course"]
+    list_editable = ['is_publish']
+    raw_id_fields = ['user', "course"]
+    list_filter = ['created_at']
+    search_fields = ['user__mobile_phone']

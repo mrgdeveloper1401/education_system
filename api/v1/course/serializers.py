@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from course.models import Course, Category
+from course.models import Course, Category, Comment
 from rest_framework.generics import get_object_or_404
 from drf_spectacular.utils import extend_schema_field
 
@@ -118,28 +118,26 @@ class CourseSerializer(serializers.ModelSerializer):
 #         user = self.context['user']
 #         coach = Coach.objects.get(user=user)
 #         return Coach.objects.create(coach=coach, **validated_data)
-#
-#
-# class CommentSerializer(serializers.ModelSerializer):
-#     course = serializers.CharField(read_only=True)
-#     student = serializers.CharField(read_only=True)
-#
-#     class Meta:
-#         model = Comment
-#         exclude = ['is_deleted', "deleted_at"]
-#         extra_kwargs = {
-#             "course": {'read_only': True},
-#             "student": {'read_only': True},
-#             "is_publish": {'read_only': True},
-#         }
-#
-#     def create(self, validated_data):
-#         user = self.context['user']
-#         student = Student.objects.get(user=user)
-#         course_pk = self.context['course_pk']
-#         return Comment.objects.create(course_id=course_pk, student=student, **validated_data)
-#
-#
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    course = serializers.CharField(read_only=True)
+    student = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = Comment
+        exclude = ['is_deleted', "deleted_at", "user"]
+        extra_kwargs = {
+            "course": {'read_only': True},
+            "is_publish": {'read_only': True},
+        }
+
+    def create(self, validated_data):
+        user = self.context['user']
+        course_pk = self.context['course_pk']
+        return Comment.objects.create(course_id=course_pk, user=user, **validated_data)
+
+
 # class PracticeSerializer(serializers.ModelSerializer):
 #     coach = serializers.CharField(read_only=True)
 #     course = serializers.CharField(read_only=True)
@@ -153,8 +151,8 @@ class CourseSerializer(serializers.ModelSerializer):
 #         coach = Coach.objects.get(user=user)
 #         course_pk = self.context['course_pk']
 #         return Practice.objects.create(coach=coach, course_id=course_pk, **validated_data)
-#
-#
+
+
 # class PracticeSubmitSerializer(serializers.ModelSerializer):
 #     student = serializers.CharField(read_only=True)
 #     practice = serializers.CharField(read_only=True)

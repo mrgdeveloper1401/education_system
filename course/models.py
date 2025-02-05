@@ -55,8 +55,8 @@ class Course(CreateMixin, UpdateMixin, SoftDeleteMixin):
 #         db_table = 'course_section'
 #         verbose_name = _("قسمت")
 #         verbose_name_plural = _("قسمت های دوره")
-#
-#
+
+
 # class LessonTakenByStudent(CreateMixin, SoftDeleteMixin):
 #     student = models.ForeignKey("accounts.Student", related_name='lesson_student', on_delete=models.DO_NOTHING)
 #     course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name='course_product')
@@ -68,8 +68,8 @@ class Course(CreateMixin, UpdateMixin, SoftDeleteMixin):
 #         db_table = 'lesson_student'
 #         verbose_name = _("اخذ")
 #         verbose_name_plural = _("درس های اخذ شده دانشجو")
-#
-#
+
+
 # class LessonTakenByCoach(CreateMixin, SoftDeleteMixin):
 #     coach = models.ForeignKey("accounts.Coach", related_name='lesson_provide_coach', on_delete=models.DO_NOTHING)
 #     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='lesson_coach_course')
@@ -78,8 +78,8 @@ class Course(CreateMixin, UpdateMixin, SoftDeleteMixin):
 #         db_table = 'lesson_coach'
 #         verbose_name = _("اخذ")
 #         verbose_name_plural = _("درس های اخذ شده مربی")
-#
-#
+
+
 # class Score(models.Model):
 #     student = models.ForeignKey("accounts.Student", related_name='student_score', on_delete=models.DO_NOTHING)
 #     course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name="course_score")
@@ -92,20 +92,20 @@ class Course(CreateMixin, UpdateMixin, SoftDeleteMixin):
 #         db_table = 'score'
 #         verbose_name = _("نمره")
 #         verbose_name_plural = _("نمره ها")
-#
-#
-# class Comment(CreateMixin, UpdateMixin, SoftDeleteMixin):
-#     student = models.ForeignKey('accounts.Student', on_delete=models.DO_NOTHING, related_name='student_comments')
-#     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='comments')
-#     comment_body = models.TextField(_("متن کامنت"))
-#     is_publish = models.BooleanField(default=True)
-#
-#     class Meta:
-#         db_table = 'comment'
-#         verbose_name = _("نظر")
-#         verbose_name_plural = _("نظرات")
-#
-#
+
+
+class Comment(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    user = models.ForeignKey('accounts.User', on_delete=models.DO_NOTHING, related_name='user_comment')
+    course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name='comments')
+    comment_body = models.TextField(_("متن کامنت"))
+    is_publish = models.BooleanField(default=True)
+
+    class Meta:
+        db_table = 'comment'
+        verbose_name = _("نظر")
+        verbose_name_plural = _("نظرات")
+
+
 # class Practice(CreateMixin, UpdateMixin, SoftDeleteMixin):
 #     coach = models.ForeignKey('accounts.Coach', on_delete=models.DO_NOTHING, related_name='practice')
 #     course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name="course_practice")

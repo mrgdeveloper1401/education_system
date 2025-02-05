@@ -223,6 +223,7 @@ class Coach(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 class Student(CreateMixin, UpdateMixin, SoftDeleteMixin):
     user = models.OneToOneField(User, on_delete=models.DO_NOTHING, related_name='student')
+    student_number = models.CharField(max_length=11)
     bio = models.TextField(blank=True, null=True)
 
     def __str__(self):
