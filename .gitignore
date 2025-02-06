@@ -285,3 +285,5 @@ staticfiles
 education.zip
 general_log_django
 utils/mock_data
+edit_education.zip
+education_system/mock_data

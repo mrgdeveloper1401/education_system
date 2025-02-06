@@ -1,12 +1,13 @@
 from django.contrib import admin
 from treebeard.forms import movenodeform_factory
 from treebeard.admin import TreeAdmin
+from import_export.admin import ImportExportModelAdmin
 
 from . import models
 
 
 @admin.register(models.Course)
-class CouAdmin(admin.ModelAdmin):
+class CouAdmin(ImportExportModelAdmin):
     list_display = ["course_name", "course_price", "course_duration", "is_deleted"]
     list_filter = ['created_at', "updated_at"]
     raw_id_fields = ['category']
@@ -14,7 +15,7 @@ class CouAdmin(admin.ModelAdmin):
 
 
 @admin.register(models.Category)
-class CategoryTreeAdmin(TreeAdmin):
+class CategoryTreeAdmin(TreeAdmin, ImportExportModelAdmin):
     form = movenodeform_factory(models.Category)
 
 

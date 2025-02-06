@@ -3,16 +3,17 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework import permissions
 from rest_framework.exceptions import NotAcceptable, ValidationError
 from django.utils.translation import gettext_lazy as _
-from rest_framework.generics import get_object_or_404
 
 from course.models import Category, Course, Comment
 from utils.permissions import CoursePermission
+from .paginations import CourseCategoryPagination
 from .serializers import CourseSerializer, CreateCategorySerializer, CategoryNodeSerializer, \
     UpdateCategoryNodeSerializer, DestroyCategoryNodeSerializer, CommentSerializer
 
 
 class CategoryViewSet(ModelViewSet):
     queryset = Category.objects.all()
+    pagination_class = CourseCategoryPagination
 
     def get_permissions(self):
         if self.request.method not in permissions.SAFE_METHODS:
@@ -50,6 +51,7 @@ class CategoryViewSet(ModelViewSet):
 class CourseViewSet(ModelViewSet):
     serializer_class = CourseSerializer
     permission_classes = [CoursePermission]
+    pagination_class = CourseCategoryPagination
 
     def get_permissions(self):
         if self.request.method not in permissions.SAFE_METHODS:

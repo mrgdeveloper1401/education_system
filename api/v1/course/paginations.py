@@ -1,5 +1,15 @@
-from rest_framework.pagination import PageNumberPagination
+from rest_framework.pagination import PageNumberPagination, LimitOffsetPagination, CursorPagination
 
 
-class CoursePagination(PageNumberPagination):
-    page_size = 5
+# class CoursePagination(LimitOffsetPagination):
+#     default_limit = 10
+#     max_limit = 50
+
+
+# class CoursePagination(CursorPagination):
+#     page_size = 15
+#     ordering = '-created_at'
+
+
+class CourseCategoryPagination(PageNumberPagination):
+    page_size = 20

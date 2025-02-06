@@ -4,15 +4,6 @@ from rest_framework.generics import get_object_or_404
 from drf_spectacular.utils import extend_schema_field
 
 
-class CategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Category
-        fields = ['id', "category_name", "numchild", "sub_category_name"]
-        extra_kwargs = {
-            "numchild": {"read_only": True},
-        }
-
-
 class CreateCategorySerializer(serializers.ModelSerializer):
     parent = serializers.IntegerField(required=False)
 
@@ -45,7 +36,7 @@ class CategoryTreeNodeSerializer(serializers.ModelSerializer):
 class CategoryNodeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ['id', "category_name", "depth", "numchild", "path"]
+        fields = ['id', "category_name"]
 
 
 class UpdateCategoryNodeSerializer(serializers.ModelSerializer):
