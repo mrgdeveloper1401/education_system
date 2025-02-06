@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
+import datetime
 import os.path
 from datetime import timedelta
 from pathlib import Path
@@ -161,7 +162,7 @@ SIMPLE_JWT = {
 }
 
 # with logging django
-log_dir = os.path.join(BASE_DIR / 'general_log_django')
+log_dir = os.path.join(BASE_DIR / 'general_log_django', datetime.date.today().strftime("%Y-%m-%d"))
 os.makedirs(log_dir, exist_ok=True)
 LOGGING = {
     "version": 1,
