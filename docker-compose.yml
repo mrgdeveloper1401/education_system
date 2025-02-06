@@ -6,7 +6,7 @@ services:
     build:
       context: .
     ports:
-      - "8001:8000"
+      - "8002:8000"
     restart: always
     networks:
       - main
@@ -14,13 +14,12 @@ services:
       - backend
     volumes:
       - .:/home/app
-    environment:
-      - DEBUG=${DEBUG}
-      - SECRET_KEY=${PRODUCTION_SECRET_KEY}
+      - static-data:/home/app/vol
+    env_file: ".env"
 
   backend:
     container_name: education_system
-    image: postgres:16.4-alpine
+    image: postgres:16.6-alpine
     restart: always
     networks:
       - main
@@ -33,21 +32,23 @@ services:
       - POSTGRES_USER=${POSTDB_POSTGRES_USER}
       - POSTGRES_NAME=${POSTDB_POSTGRES_NAME}
 
-#  nginx:
-#    container_name: nginx
-#    image: nginx:1.27-alpine
-#    restart: on-failure
-#    depends_on:
-#      - django
-#    ports:
-#      - "82:80"
-#    volumes:
-#      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-#    networks:
-#      - main
+  nginx:
+    container_name: nginx
+    image: nginx:1.27.1-alpine
+    restart: on-failure
+    depends_on:
+      - django
+    ports:
+      - "82:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - static-data:/vol
+    networks:
+      - main
 
 networks:
   main:
 
 volumes:
   postgres-data:
+  static-data:

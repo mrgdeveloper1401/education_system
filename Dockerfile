@@ -1,25 +1,14 @@
-FROM python:3.12-alpine
+FROM mrgdocker2023/dj_5_base
 
 WORKDIR /home/app
 
 COPY . .
 
-RUN apk update && \
-    apk upgrade && \
-    apk add python3 && \
-    apk add py3-pip &&\
-    apk add postgresql && \
-    apk add nginx
-
 RUN pip install --upgrade pip
 RUN pip install -r /home/app/requirements/production.txt
 
-RUN chmod +x /home/app/manage.py
-RUN adduser -D -H mohammad;
+RUN adduser -D -H mohammad && \
+    chown -R mohammad:mohammad /home/app && \
+    chmod +x /home/app/start.sh
 
-ENV PYTHONUNBUFFERED=1
-ENV PYTHONDDONOTWRITEBYTECODE=1
-
-RUN chmod +x ./start.sh
-
-ENTRYPOINT ["./start.sh"]
+ENTRYPOINT ["sh", "-c", "./start.sh"]
