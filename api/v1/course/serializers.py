@@ -1,7 +1,11 @@
 from rest_framework import serializers
-from course.models import Course, Category, Comment, Section
+from course.models import Course, Category, Comment, Section, SectionImage
 from rest_framework.generics import get_object_or_404
 from drf_spectacular.utils import extend_schema_field
+from rest_framework.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
+
+from images.models import Image
 
 
 class CreateCategorySerializer(serializers.ModelSerializer):
@@ -67,17 +71,81 @@ class CourseSerializer(serializers.ModelSerializer):
         return course
 
 
-class SectionSerializer(serializers.ModelSerializer):
+class SectionImageSerializer(serializers.ModelSerializer):
+    image_address = serializers.SerializerMethodField()
+
+    class Meta:
+        model = SectionImage
+        fields = ["image_address"]
+
+    def get_image_address(self, obj):
+        return obj.image.image_url
+
+
+class ListSectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Section
-        exclude = ['is_deleted', "deleted_at", "is_available", "course"]
+        fields = ['id', "title"]
+
+
+class SectionSerializer(serializers.ModelSerializer):
+    section_image = SectionImageSerializer(many=True, required=False)
+
+    class Meta:
+        model = Section
+        exclude = ['is_deleted', "deleted_at", "is_available", "course", "id"]
         extra_kwargs = {
             "course": {'read_only': True},
         }
 
+
+class CreateSectionImageSerializer(serializers.Serializer):
+    class Meta:
+        model = SectionImage
+        fields = ['image']
+
+
+class CreateSectionSerializer(serializers.ModelSerializer):
+    section_image = CreateSectionImageSerializer(many=True, required=False)
+
+    class Meta:
+        model = Section
+        fields = ['section_image', "video", "pdf_file", "title", "description", "is_available"]
+        extra_kwargs = {
+            "is_available": {'default': True},
+        }
+
+    def validate(self, attrs):
+        video = attrs.get('video')
+        pdf_file = attrs.get('pdf_file')
+        if not video and not pdf_file:
+            raise ValidationError({"message": _("video or pdf file must be set")})
+        return attrs
+
     def create(self, validated_data):
         course_pk = self.context['course_pk']
-        return Section.objects.create(course_id=course_pk, **validated_data)
+        section_image = self.initial_data.getlist('section_image')
+        section = Section.objects.create(course_id=course_pk, **validated_data)
+
+        image_data_list = []
+        images = []
+
+        for image_data in section_image:
+            images.append(
+                Image(
+                    image=image_data,
+                )
+            )
+        Image.objects.bulk_create(images)
+
+        for i in images:
+            image_data_list.append(
+                SectionImage(
+                    section=section, image=i
+                )
+            )
+        SectionImage.objects.bulk_create(image_data_list)
+        return section
 
 
 # class LessonByTakenStudentSerializer(serializers.ModelSerializer):
