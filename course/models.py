@@ -42,19 +42,19 @@ class Course(CreateMixin, UpdateMixin, SoftDeleteMixin):
         ordering = ("-created_at",)
 
 
-# class Section(CreateMixin, UpdateMixin, SoftDeleteMixin):
-#     course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name='sections')
-#     video = models.FileField(upload_to=section_name,
-#                              validators=[FileExtensionValidator(["mp4"]), file_upload_validator])
-#     video_title = models.CharField(max_length=255)
-#     description = models.TextField(blank=True, null=True)
-#     is_available = models.BooleanField(db_default=True)
-#
-#     class Meta:
-#         ordering = ('created_at',)
-#         db_table = 'course_section'
-#         verbose_name = _("قسمت")
-#         verbose_name_plural = _("قسمت های دوره")
+class Section(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name='sections')
+    video = models.FileField(upload_to=section_name,
+                             validators=[FileExtensionValidator(["mp4"])])
+    video_title = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    is_available = models.BooleanField(db_default=True)
+
+    class Meta:
+        ordering = ('created_at',)
+        db_table = 'course_section'
+        verbose_name = _("قسمت")
+        verbose_name_plural = _("قسمت های دوره")
 
 
 # class LessonTakenByStudent(CreateMixin, SoftDeleteMixin):

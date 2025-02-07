@@ -4,11 +4,11 @@ from rest_framework import permissions
 from rest_framework.exceptions import NotAcceptable, ValidationError
 from django.utils.translation import gettext_lazy as _
 
-from course.models import Category, Course, Comment
+from course.models import Category, Course, Comment, Section
 from utils.permissions import CoursePermission
 from .paginations import CourseCategoryPagination
 from .serializers import CourseSerializer, CreateCategorySerializer, CategoryNodeSerializer, \
-    UpdateCategoryNodeSerializer, DestroyCategoryNodeSerializer, CommentSerializer
+    UpdateCategoryNodeSerializer, DestroyCategoryNodeSerializer, CommentSerializer, SectionSerializer
 
 
 class CategoryViewSet(ModelViewSet):
@@ -67,25 +67,25 @@ class CourseViewSet(ModelViewSet):
         return super().get_serializer_context()
 
 
-# class SectionViewSet(ModelViewSet):
-#     queryset = Section.objects.select_related('course')
-#     serializer_class = SectionSerializer
-#
-#     def get_permissions(self):
-#         if self.request.method not in permissions.SAFE_METHODS:
-#             return [permissions.IsAdminUser()]
-#         return [permissions.IsAuthenticated()]
-#
-#     def get_queryset(self):
-#         term = get_object_or_404(Term, id=self.kwargs["term_pk"])
-#         course = get_object_or_404(Course, term_id=term, id=self.kwargs["course_pk"])
-#         section = Section.objects.filter(course_id=course)
-#         return section
-#
-#     def get_serializer_context(self):
-#         return {"course_pk": self.kwargs["course_pk"]}
-#
-#
+class SectionViewSet(ModelViewSet):
+    queryset = Section.objects.select_related('course')
+    serializer_class = SectionSerializer
+
+    def get_permissions(self):
+        if self.request.method not in permissions.SAFE_METHODS:
+            return [permissions.IsAdminUser()]
+        return [permissions.IsAuthenticated()]
+
+    def get_queryset(self):
+        term = get_object_or_404(Category, id=self.kwargs["category_pk"])
+        course = get_object_or_404(Course, term=term, id=self.kwargs["course_pk"])
+        section = Section.objects.filter(course_id=course)
+        return section
+
+    def get_serializer_context(self):
+        return {"course_pk": self.kwargs["course_pk"]}
+
+
 # class LessonByStudentTakenViewSet(ReadOnlyModelViewSet):
 #     # queryset = LessonTakenByStudent.objects.select_related("course", "student")
 #     serializer_class = LessonByTakenStudentSerializer
