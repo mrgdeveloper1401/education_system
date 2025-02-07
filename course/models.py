@@ -48,7 +48,8 @@ class Section(CreateMixin, UpdateMixin, SoftDeleteMixin):
                              validators=[FileExtensionValidator(["mp4"])])
     video_title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
-    is_available = models.BooleanField(db_default=True)
+    is_available = models.BooleanField(db_default=True,
+                                       help_text=_("در دسترس بودن"))
 
     class Meta:
         ordering = ('created_at',)

@@ -4,7 +4,7 @@ from django.urls import path, include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 
-# from .base import MEDIA_URL, MEDIA_ROOT, DEBUG
+from .base import MEDIA_URL, MEDIA_ROOT, DEBUG
 
 swagger_url = [
     # YOUR PATTERNS
@@ -32,8 +32,8 @@ urlpatterns = [
 
 urlpatterns += swagger_url + api_url + simple_jwt_url
 
-# if DEBUG:
-#     from debug_toolbar.toolbar import debug_toolbar_urls
-#
-#     urlpatterns += debug_toolbar_urls()
-#     urlpatterns += static(MEDIA_URL, document_root=MEDIA_ROOT)
+if DEBUG:
+    from debug_toolbar.toolbar import debug_toolbar_urls
+
+    urlpatterns += debug_toolbar_urls()
+    urlpatterns += static(MEDIA_URL, document_root=MEDIA_ROOT)

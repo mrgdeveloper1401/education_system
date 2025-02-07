@@ -12,6 +12,7 @@ class CouAdmin(ImportExportModelAdmin):
     list_filter = ['created_at', "updated_at"]
     raw_id_fields = ['category']
     list_select_related = ['category']
+    search_fields = ['course_name']
 
 
 @admin.register(models.Category)
@@ -19,12 +20,17 @@ class CategoryTreeAdmin(TreeAdmin, ImportExportModelAdmin):
     form = movenodeform_factory(models.Category)
 
 
-# @admin.register(models.Section)
-# class SectionAdmin(admin.ModelAdmin):
-#     raw_id_fields = ['course']
-#     list_select_related = ['course']
-#
-#
+@admin.register(models.Section)
+class SectionAdmin(admin.ModelAdmin):
+    raw_id_fields = ['course']
+    list_select_related = ['course']
+    list_display = ["id", 'course', "video_title", "description", "is_available"]
+    list_filter = ['is_available']
+    list_per_page = 30
+    search_fields = ['video_title']
+    list_display_links = ['id', "course"]
+
+
 # @admin.register(models.LessonTakenByStudent)
 # class LessonTakenByStudentAdmin(admin.ModelAdmin):
 #     list_select_related = ['course', "student"]

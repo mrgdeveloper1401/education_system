@@ -70,7 +70,7 @@ class CourseSerializer(serializers.ModelSerializer):
 class SectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Section
-        exclude = ['is_deleted', "deleted_at"]
+        exclude = ['is_deleted', "deleted_at", "is_available", "course"]
         extra_kwargs = {
             "course": {'read_only': True},
         }

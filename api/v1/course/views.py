@@ -3,6 +3,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework import permissions
 from rest_framework.exceptions import NotAcceptable, ValidationError
 from django.utils.translation import gettext_lazy as _
+from rest_framework.generics import get_object_or_404
 
 from course.models import Category, Course, Comment, Section
 from utils.permissions import CoursePermission
@@ -77,8 +78,8 @@ class SectionViewSet(ModelViewSet):
         return [permissions.IsAuthenticated()]
 
     def get_queryset(self):
-        term = get_object_or_404(Category, id=self.kwargs["category_pk"])
-        course = get_object_or_404(Course, term=term, id=self.kwargs["course_pk"])
+        category = get_object_or_404(Category, id=self.kwargs["category_pk"])
+        course = get_object_or_404(Course, category=category, id=self.kwargs["course_pk"])
         section = Section.objects.filter(course_id=course)
         return section
 
