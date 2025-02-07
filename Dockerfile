@@ -1,8 +1,16 @@
-FROM mrgdocker2023/dj_5_base
+FROM python:3.12-alpine
 
 WORKDIR /home/app
 
 COPY . .
+
+RUN apk update && \
+    apk upgrade && \
+    apk add python3 && \
+    apk add py3-pip && \
+    apk add postgresql && \
+    apk add nginx && \
+    apk add celery
 
 RUN pip install --upgrade pip
 RUN pip install -r /home/app/requirements/production.txt
