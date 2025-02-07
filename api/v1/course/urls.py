@@ -15,7 +15,7 @@ category_router.register('course', views.CourseViewSet, basename='nested-course'
 
 course_router = routers.NestedDefaultRouter(category_router, r'course', lookup='course')
 # course_router.register('class_room', views.ClassRoomViewSet, basename='class-room')
-# course_router.register('section', views.SectionViewSet, basename='nested-section')
+course_router.register('section', views.SectionViewSet, basename='nested-section')
 course_router.register('comment', views.CommentViewSet, basename='nested-comment')
 # course_router.register('quiz', views.QuizViewSet, basename='nested-quiz')
 #

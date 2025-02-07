@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from course.models import Course, Category, Comment
+from course.models import Course, Category, Comment, Section
 from rest_framework.generics import get_object_or_404
 from drf_spectacular.utils import extend_schema_field
 
@@ -75,19 +75,20 @@ class CourseSerializer(serializers.ModelSerializer):
         course = Course.objects.create(category_id=category_pk, **validated_data)
         return course
 
-# class SectionSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Section
-#         exclude = ['is_deleted', "deleted_at"]
-#         extra_kwargs = {
-#             "course": {'read_only': True},
-#         }
-#
-#     def create(self, validated_data):
-#         course_pk = self.context['course_pk']
-#         return Section.objects.create(course_id=course_pk, **validated_data)
-#
-#
+
+class SectionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Section
+        exclude = ['is_deleted', "deleted_at"]
+        extra_kwargs = {
+            "course": {'read_only': True},
+        }
+
+    def create(self, validated_data):
+        course_pk = self.context['course_pk']
+        return Section.objects.create(course_id=course_pk, **validated_data)
+
+
 # class LessonByTakenStudentSerializer(serializers.ModelSerializer):
 #     course = serializers.CharField()
 #     student = serializers.CharField()
