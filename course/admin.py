@@ -6,6 +6,12 @@ from import_export.admin import ImportExportModelAdmin
 from . import models
 
 
+class SectionImageInline(admin.TabularInline):
+    model = models.SectionImage
+    extra = 1
+    raw_id_fields = ['image']
+
+
 @admin.register(models.Course)
 class CouAdmin(ImportExportModelAdmin):
     list_display = ["course_name", "course_price", "course_duration", "is_deleted"]
@@ -24,11 +30,17 @@ class CategoryTreeAdmin(TreeAdmin, ImportExportModelAdmin):
 class SectionAdmin(admin.ModelAdmin):
     raw_id_fields = ['course']
     list_select_related = ['course']
-    list_display = ["id", 'course', "video_title", "description", "is_available"]
+    list_display = ["id", 'course', "title", "description", "is_available"]
     list_filter = ['is_available']
     list_per_page = 30
-    search_fields = ['video_title']
+    search_fields = ['title']
     list_display_links = ['id', "course"]
+    inlines = [SectionImageInline]
+
+
+@admin.register(models.SectionImage)
+class SectionImageAdmin(admin.ModelAdmin):
+    raw_id_fields = ['section', "image"]
 
 
 # @admin.register(models.LessonTakenByStudent)

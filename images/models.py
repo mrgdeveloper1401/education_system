@@ -42,7 +42,7 @@ class Image(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     @property
     def image_url(self):
-        return self.image.url
+        return self.image.url if self.image else None
 
     def show_image_base64(self):
         d = 'data:image/png;base64,{}'.format(self.image_base64)

@@ -3,8 +3,9 @@ from core.models import UpdateMixin, CreateMixin, SoftDeleteMixin
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinValueValidator, MaxValueValidator, FileExtensionValidator
 from treebeard.mp_tree import MP_Node
+from rest_framework.validators import ValidationError
 
-from utils.file_name import course_name, practice_name, section_name
+from utils.file_name import course_name, practice_name, section_name, section_filename
 from utils.validators import file_upload_validator
 
 
@@ -44,18 +45,32 @@ class Course(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 class Section(CreateMixin, UpdateMixin, SoftDeleteMixin):
     course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name='sections')
-    video = models.FileField(upload_to=section_name,
+    video = models.FileField(upload_to=section_name, blank=True,
                              validators=[FileExtensionValidator(["mp4"])])
-    video_title = models.CharField(max_length=255)
+    pdf_file = models.FileField(upload_to=section_filename, validators=[FileExtensionValidator(["pdf"])], blank=True)
+    title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     is_available = models.BooleanField(db_default=True,
                                        help_text=_("در دسترس بودن"))
+
+    def clean(self):
+        if not self.video and not self.pdf_file:
+            raise ValidationError({"detail": _("field video or pdf must be set")})
 
     class Meta:
         ordering = ('created_at',)
         db_table = 'course_section'
         verbose_name = _("قسمت")
         verbose_name_plural = _("قسمت های دوره")
+
+
+class SectionImage(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name='section_image')
+    image = models.ForeignKey("images.Image", on_delete=models.DO_NOTHING, related_name="image_section_image")
+    is_active = models.BooleanField(db_default=True)
+
+    class Meta:
+        db_table = 'course_section_image'
 
 
 # class LessonTakenByStudent(CreateMixin, SoftDeleteMixin):

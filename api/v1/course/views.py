@@ -9,7 +9,8 @@ from course.models import Category, Course, Comment, Section
 from utils.permissions import CoursePermission
 from .paginations import CourseCategoryPagination
 from .serializers import CourseSerializer, CreateCategorySerializer, CategoryNodeSerializer, \
-    UpdateCategoryNodeSerializer, DestroyCategoryNodeSerializer, CommentSerializer, SectionSerializer
+    UpdateCategoryNodeSerializer, DestroyCategoryNodeSerializer, CommentSerializer, SectionSerializer, \
+    ListSectionSerializer, CreateSectionSerializer
 
 
 class CategoryViewSet(ModelViewSet):
@@ -37,11 +38,6 @@ class CategoryViewSet(ModelViewSet):
         else:
             raise NotAcceptable()
 
-    # def get_queryset(self):
-    #     if self.action == "list":
-    #         return Category.objects.filter(depth=1)
-    #     else:
-    #         return self.queryset
 
     def perform_destroy(self, instance):
         if instance.numchild >= 1 or instance.course_category.count() > 0:
@@ -69,7 +65,6 @@ class CourseViewSet(ModelViewSet):
 
 
 class SectionViewSet(ModelViewSet):
-    queryset = Section.objects.select_related('course')
     serializer_class = SectionSerializer
 
     def get_permissions(self):
@@ -77,14 +72,27 @@ class SectionViewSet(ModelViewSet):
             return [permissions.IsAdminUser()]
         return [permissions.IsAuthenticated()]
 
-    def get_queryset(self):
+    def get_course(self):
         category = get_object_or_404(Category, id=self.kwargs["category_pk"])
         course = get_object_or_404(Course, category=category, id=self.kwargs["course_pk"])
-        section = Section.objects.filter(course_id=course)
+        return course
+
+    def get_queryset(self):
+        if self.action == "list":
+            section = Section.objects.only("id", "title")
+        else:
+            section = Section.objects.filter(course=self.get_course(), is_available=True).prefetch_related("section_image__image")
         return section
 
     def get_serializer_context(self):
         return {"course_pk": self.kwargs["course_pk"]}
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return ListSectionSerializer
+        if self.action == "create":
+            return CreateSectionSerializer
+        return super().get_serializer_class()
 
 
 # class LessonByStudentTakenViewSet(ReadOnlyModelViewSet):
