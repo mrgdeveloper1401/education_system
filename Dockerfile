@@ -11,6 +11,9 @@ RUN pip install --upgrade pip && \
     pip install -r requirements/production.txt
 
 RUN adduser -D -H mohammad && \
+    mkdir -p /vol/media && \
+    mkdir -p /vol/static && \
+    chown -R mohammad:mohammad /vol && \
     chown -R mohammad:mohammad /home/app && \
     chmod +x ./start.sh
 

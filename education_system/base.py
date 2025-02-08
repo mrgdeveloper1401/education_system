@@ -162,7 +162,7 @@ SIMPLE_JWT = {
 }
 
 # with logging django
-log_dir = os.path.join(BASE_DIR / 'general_log_django', datetime.date.today().strftime("%Y-%m-%d"))
+log_dir = os.path.join(BASE_DIR / 'general_log_django')
 os.makedirs(log_dir, exist_ok=True)
 LOGGING = {
     "version": 1,

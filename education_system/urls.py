@@ -4,7 +4,7 @@ from django.urls import path, include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 
-from .base import MEDIA_URL, MEDIA_ROOT, DEBUG
+# from .base import MEDIA_URL, MEDIA_ROOT, DEBUG
 
 swagger_url = [
     # YOUR PATTERNS
