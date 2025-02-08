@@ -6,8 +6,9 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework.generics import get_object_or_404
 
 from course.models import Category, Course, Comment, Section
-from utils.permissions import CoursePermission
+# from utils.permissions import CoursePermission
 from .paginations import CourseCategoryPagination
+from .permissions import AccessCourse, AccessSection
 from .serializers import CourseSerializer, CreateCategorySerializer, CategoryNodeSerializer, \
     UpdateCategoryNodeSerializer, DestroyCategoryNodeSerializer, CommentSerializer, SectionSerializer, \
     ListSectionSerializer, CreateSectionSerializer
@@ -38,7 +39,6 @@ class CategoryViewSet(ModelViewSet):
         else:
             raise NotAcceptable()
 
-
     def perform_destroy(self, instance):
         if instance.numchild >= 1 or instance.course_category.count() > 0:
             raise ValidationError({'detail': _("this data have child node")})
@@ -47,7 +47,7 @@ class CategoryViewSet(ModelViewSet):
 
 class CourseViewSet(ModelViewSet):
     serializer_class = CourseSerializer
-    permission_classes = [CoursePermission]
+    permission_classes = [AccessCourse]
     pagination_class = CourseCategoryPagination
 
     def get_permissions(self):
@@ -70,7 +70,7 @@ class SectionViewSet(ModelViewSet):
     def get_permissions(self):
         if self.request.method not in permissions.SAFE_METHODS:
             return [permissions.IsAdminUser()]
-        return [permissions.IsAuthenticated()]
+        return [AccessSection()]
 
     def get_course(self):
         category = get_object_or_404(Category, id=self.kwargs["category_pk"])
@@ -81,7 +81,8 @@ class SectionViewSet(ModelViewSet):
         if self.action == "list":
             section = Section.objects.only("id", "title")
         else:
-            section = Section.objects.filter(course=self.get_course(), is_available=True).prefetch_related("section_image__image")
+            section = Section.objects.filter(course=self.get_course(), is_available=True).prefetch_related(
+                "section_image__image")
         return section
 
     def get_serializer_context(self):
@@ -138,7 +139,6 @@ class CommentViewSet(ModelViewSet):
             "user": self.request.user,
             "course_pk": self.kwargs["course_pk"]
         }
-
 
 # class PracticeViewSet(ModelViewSet):
 #     serializer_class = PracticeSerializer

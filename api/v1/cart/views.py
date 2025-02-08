@@ -24,8 +24,10 @@ class CartItemViewSet(viewsets.ModelViewSet):
 class OrderViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.CreateModelMixin, mixins.DestroyModelMixin,
                    viewsets.GenericViewSet):
     serializer_class = serializers.OrderSerializer
-    queryset = Order.objects.filter(is_active=True)
     permission_classes = [IsAuthenticated]
 
     def get_serializer_context(self):
         return {"user": self.request.user}
+
+    def get_queryset(self):
+        return Order.objects.filter(is_active=True, user=self.request.user)
