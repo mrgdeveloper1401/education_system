@@ -7,4 +7,5 @@ app_name = "subscription"
 
 router = routers.DefaultRouter()
 router.register(r'subscriptions', views.SubscriptionViewSet, basename='subscriptions')
+router.register(r'plan', views.PlanViewSet, basename='plan')
 urlpatterns = router.urls

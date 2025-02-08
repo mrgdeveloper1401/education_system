@@ -2,7 +2,7 @@ import datetime
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django.core.validators import ValidationError
+from django.core.validators import ValidationError, MinValueValidator
 from accounts.models import User
 from core.models import CreateMixin, UpdateMixin, SoftDeleteMixin
 
@@ -13,7 +13,8 @@ class Subscription(CreateMixin, UpdateMixin, SoftDeleteMixin):
     end_date = models.DateField()
     is_active = models.BooleanField(default=True)
     status = models.CharField(
-        choices=[("active", _("فعال")), ("expired", _("منقضی شده")), ("nothing", _("هیچ")), ("waiting", _("انتظار"))],
+        choices=[("active", _("فعال")), ("expired", _("منقضی شده")), ("nothing", _("هیچ")), ("waiting", _("انتظار")),
+                 ("delete", _("حذف شده"))],
         max_length=7,
         default="nothing"
     )
@@ -36,14 +37,38 @@ class Subscription(CreateMixin, UpdateMixin, SoftDeleteMixin):
             self.status = "waiting"
         else:
             self.status = "active"
+        if self.is_active is False:
+            self.status = "delete"
         super().save(*args, **kwargs)
 
     def clean(self):
-        subscription = Subscription.objects.filter(user=self.user, is_active=True).last()
+        subscription = Subscription.objects.filter(user__mobile_phone=self.user, is_active=True).last()
+        count_sub = Subscription.objects.filter(user__mobile_phone=self.user, is_active=True).count()
         if self.end_date < self.start_date:
             raise ValidationError({"start_date": _("start date dont biggest end data")})
         if self.pk is None and subscription and (subscription.status == 'active' or subscription.status == "waiting"):
-            raise ValidationError({"user": _("you have already subscription")})
+            raise ValidationError({"user": _("you have already active subscription")})
+        # if count_sub >= 1:
+        #     raise ValidationError({"user": _("you have already active subscription")})
 
     class Meta:
         db_table = 'subscription'
+
+
+class Plan(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    plan_title = models.CharField(help_text=_("عنوان پلن"))
+    number_of_days = models.PositiveSmallIntegerField()
+    price = models.FloatField(validators=[MinValueValidator(0)])
+    is_free = models.BooleanField(default=False)
+    description = models.TextField(help_text=_("توضیحی در مورد پلن"))
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.plan_title
+
+    def clean(self):
+        if self.is_free and self.price > 0:
+            raise ValidationError({"is_free", _("dont create plan when is_free and not free")})
+
+    class Meta:
+        db_table = 'plan'

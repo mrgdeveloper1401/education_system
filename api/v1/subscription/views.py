@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 
-from subscription_app.models import Subscription
+from subscription_app.models import Subscription, Plan
 
 from . import serializers
 
@@ -35,3 +35,8 @@ class SubscriptionViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         return Subscription.objects.filter(user=self.request.user, is_active=True)
+
+
+class PlanViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = serializers.PlanSerializer
+    queryset = Plan.objects.all()

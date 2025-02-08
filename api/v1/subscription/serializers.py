@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
 
 from accounts.models import User
-from subscription_app.models import Subscription
+from subscription_app.models import Subscription, Plan
 
 
 class SubscriptionSerializer(serializers.ModelSerializer):
@@ -58,3 +58,9 @@ class UpdateSubscriptionSerializer(serializers.ModelSerializer):
             if end_date < subscription.start_date:
                 raise serializers.ValidationError("end_date must be greater than subscription.start_date")
         return attrs
+
+
+class PlanSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Plan
+        exclude = ['is_deleted', "is_active", "created_at", "updated_at", "deleted_at"]
