@@ -6,11 +6,16 @@ from . import views
 
 
 app_name = 'cart'
+
 router = routers.DefaultRouter()
+
 router.register(r'cart', views.CartViewSet, basename="cart")
+router.register('order', views.OrderViewSet, basename="order")
+
 cart_router = routers.NestedDefaultRouter(router, r'cart', lookup='cart')
 
 cart_router.register(r'items', views.CartItemViewSet, basename="item")
+
 urlpatterns = [
     path('', include(cart_router.urls)),
 ]

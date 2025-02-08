@@ -41,7 +41,6 @@ THIRD_PARTY_APP = [
     "advertise.apps.AdvertiseConfig",
     "course.apps.CourseConfig",
     "coupons.apps.CouponsConfig",
-    "orders.apps.OrdersConfig",
     "subscription_app.apps.SubscriptionAppConfig",
     "cart_app.apps.CartAppConfig"
     # "main_settings.apps.MainSettingsConfig",
