@@ -39,7 +39,7 @@ class Subscription(CreateMixin, UpdateMixin, SoftDeleteMixin):
         super().save(*args, **kwargs)
 
     def clean(self):
-        subscription = Subscription.objects.filter(user=self.user).last()
+        subscription = Subscription.objects.filter(user=self.user, is_active=True).last()
         if self.end_date < self.start_date:
             raise ValidationError({"start_date": _("start date dont biggest end data")})
         if self.pk is None and subscription and (subscription.status == 'active' or subscription.status == "waiting"):
