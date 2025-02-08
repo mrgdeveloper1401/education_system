@@ -24,6 +24,7 @@ api_url = [
     path('api_advertise/', include('api.v1.advertise.urls', namespace='advertise')),
     path('api_course/', include('api.v1.course.urls', namespace='course')),
     path('api_discount/', include('api.v1.coupons.urls', namespace='coupons')),
+    path('api_subscription/', include('api.v1.subscription.urls', namespace='subscription')),
 
 ]
 urlpatterns = [
