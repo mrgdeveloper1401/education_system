@@ -5,6 +5,7 @@ from rest_framework.exceptions import NotAcceptable, ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from course.models import Category, Course, Comment, Section
+from .pagination import CommentPagination
 from .paginations import CourseCategoryPagination
 from .serializers import CourseSerializer, CreateCategorySerializer, CategoryNodeSerializer, \
     UpdateCategoryNodeSerializer, DestroyCategoryNodeSerializer, CommentSerializer, SectionSerializer, \
@@ -121,6 +122,7 @@ class SectionViewSet(ModelViewSet):
 class CommentViewSet(ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = [IsAuthenticated]
+    pagination_class = CommentPagination
 
     def get_queryset(self):
         return Comment.objects.filter(course_id=self.kwargs['course_pk'])
