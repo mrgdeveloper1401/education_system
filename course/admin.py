@@ -43,49 +43,6 @@ class SectionImageAdmin(admin.ModelAdmin):
     raw_id_fields = ['section', "image"]
 
 
-# @admin.register(models.LessonTakenByStudent)
-# class LessonTakenByStudentAdmin(admin.ModelAdmin):
-#     list_select_related = ['course', "student"]
-#     raw_id_fields = ['student', "course"]
-#
-#
-# @admin.register(models.LessonTakenByCoach)
-# class LessonTakenByCoachAdmin(admin.ModelAdmin):
-#     raw_id_fields = ['coach', "course"]
-#     list_select_related = ['coach', "course"]
-#     list_display = ['coach', "course", "course__term"]
-#
-#     def get_queryset(self, request):
-#         q = super().get_queryset(request)
-#         qs = q.select_related('course__term', "coach__user")
-#         return qs
-#
-#
-# @admin.register(models.Practice)
-# class PracticeAdmin(admin.ModelAdmin):
-#     raw_id_fields = ['coach']
-#     list_select_related = ['coach']
-#     list_display = ['coach', "is_available"]
-#
-#
-# @admin.register(models.ClassRoom)
-# class ClassRoomAdmin(admin.ModelAdmin):
-#     raw_id_fields = ['course']
-#     filter_horizontal = ['student', "coach"]
-#     list_filter = ['is_available']
-#     list_display = ['course', "course__term", "is_available"]
-#
-#
-# @admin.register(models.PracticeSubmission)
-# class PracticeSubmissionAdmin(admin.ModelAdmin):
-#     pass
-#
-#
-# @admin.register(models.Quiz)
-# class QuizAdmin(admin.ModelAdmin):
-#     pass
-
-
 @admin.register(models.Comment)
 class CommentAdmin(admin.ModelAdmin):
     list_display = ['user', "course", "is_publish", "created_at", "updated_at"]
@@ -94,3 +51,19 @@ class CommentAdmin(admin.ModelAdmin):
     raw_id_fields = ['user', "course"]
     list_filter = ['created_at']
     search_fields = ['user__mobile_phone']
+
+
+@admin.register(models.StudentEnrollment)
+class StudentEnrollmentAdmin(admin.ModelAdmin):
+    raw_id_fields = ['student', "course"]
+    list_per_page = 20
+    list_display = ['student', "course", "status", "created_at"]
+    list_filter = ['created_at']
+
+
+@admin.register(models.TeacherEnrollment)
+class TeacherEnrollmentAdmin(admin.ModelAdmin):
+    raw_id_fields = ['instructor', "course"]
+    list_per_page = 20
+    list_display = ['instructor', "course", "role", "created_at"]
+    list_filter = ['created_at']
