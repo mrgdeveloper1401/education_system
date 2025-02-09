@@ -31,7 +31,8 @@ THIRD_PARTY_PACKAGE = [
     "storages",
     "django_filters",
     "treebeard",
-    "import_export"
+    "import_export",
+    # "guardian",
 ]
 
 THIRD_PARTY_APP = [
@@ -237,3 +238,8 @@ STORAGES = {
         "BACKEND": "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
     }
 }
+
+# AUTHENTICATION_BACKENDS = (
+#     'django.contrib.auth.backends.ModelBackend',
+#     'guardian.backends.ObjectPermissionBackend',
+# )

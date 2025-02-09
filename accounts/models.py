@@ -1,3 +1,4 @@
+import datetime
 from datetime import timedelta
 from random import randint
 from django.contrib.auth.models import PermissionsMixin, AbstractBaseUser
@@ -14,12 +15,9 @@ from utils.model_choices import Grade
 class User(AbstractBaseUser, PermissionsMixin, UpdateMixin, SoftDeleteMixin, CreateMixin):
     mobile_phone = models.CharField(_("mobile phone"), max_length=11, unique=True,
                                     validators=[MobileRegexValidator()])
-    first_name = models.CharField(_("first name"), max_length=30, blank=True, null=True,
-                                  db_index=True)
-    last_name = models.CharField(_("last name"), max_length=30, blank=True, null=True,
-                                 db_index=True)
-    email = models.EmailField(_("email address"), unique=True, null=True, blank=True,
-                              db_index=True)
+    first_name = models.CharField(_("first name"), max_length=30, blank=True, null=True)
+    last_name = models.CharField(_("last name"), max_length=30, blank=True, null=True)
+    email = models.EmailField(_("email address"), unique=True, null=True, blank=True)
     is_staff = models.BooleanField(default=False, db_index=True)
     is_verified = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
@@ -203,17 +201,25 @@ class UserIp(CreateMixin):
 
 class Coach(CreateMixin, UpdateMixin, SoftDeleteMixin):
     user = models.OneToOneField(User, on_delete=models.DO_NOTHING, related_name='coach')
-    bio = models.TextField(blank=True, null=True)
-    specialty = models.CharField(max_length=255, blank=True, null=True)
-    linkedin_url = models.URLField(blank=True, null=True)
-    years_of_experience = models.PositiveSmallIntegerField(blank=True, null=True)
+    coach_number = models.CharField(max_length=15)
+    # bio = models.TextField(blank=True, null=True)
+    # specialty = models.CharField(max_length=255, blank=True, null=True)
+    # linkedin_url = models.URLField(blank=True, null=True)
+    # years_of_experience = models.PositiveSmallIntegerField(blank=True, null=True)
 
     def __str__(self):
         return f'{self.user.get_full_name}'
 
     @property
-    def get_coach_name(self):
-        return self.user.get_full_name
+    def create_coach_number(self):
+        co_randint = randint(1, 9999999999)
+        co_number = f'co{datetime.datetime.today().strftime("%y")}_{co_randint}'
+        return co_number
+
+    def save(self, *args, **kwargs):
+        if not self.coach_number:
+            self.coach_number = self.create_coach_number
+        super().save(*args, **kwargs)
 
     class Meta:
         db_table = 'coach'
@@ -224,7 +230,7 @@ class Coach(CreateMixin, UpdateMixin, SoftDeleteMixin):
 class Student(CreateMixin, UpdateMixin, SoftDeleteMixin):
     user = models.OneToOneField(User, on_delete=models.DO_NOTHING, related_name='student')
     student_number = models.CharField(max_length=11)
-    bio = models.TextField(blank=True, null=True)
+    # bio = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return f'{self.user.get_full_name}'
