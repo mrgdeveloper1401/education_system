@@ -181,14 +181,12 @@ class CreateSectionSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    course = serializers.CharField(read_only=True)
     student = serializers.CharField(read_only=True)
 
     class Meta:
         model = Comment
-        exclude = ['is_deleted', "deleted_at", "user"]
+        exclude = ['is_deleted', "deleted_at", "user", "is_publish", "updated_at", "course"]
         extra_kwargs = {
-            "course": {'read_only': True},
             "is_publish": {'read_only': True},
         }
 

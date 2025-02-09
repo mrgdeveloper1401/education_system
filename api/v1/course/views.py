@@ -3,12 +3,9 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework import permissions
 from rest_framework.exceptions import NotAcceptable, ValidationError
 from django.utils.translation import gettext_lazy as _
-from rest_framework.generics import get_object_or_404
 
 from course.models import Category, Course, Comment, Section
-# from utils.permissions import CoursePermission
 from .paginations import CourseCategoryPagination
-from .permissions import AccessCourse, AccessSection
 from .serializers import CourseSerializer, CreateCategorySerializer, CategoryNodeSerializer, \
     UpdateCategoryNodeSerializer, DestroyCategoryNodeSerializer, CommentSerializer, SectionSerializer, \
     ListSectionSerializer, CreateSectionSerializer
@@ -126,8 +123,7 @@ class CommentViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Comment.objects.filter(course_id=self.kwargs['course_pk'],
-                                      course__category_id=self.kwargs['category_pk']).select_related("course")
+        return Comment.objects.filter(course_id=self.kwargs['course_pk'])
 
     def get_serializer_context(self):
         return {
