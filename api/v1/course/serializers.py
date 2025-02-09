@@ -148,15 +148,21 @@ class CreateSectionSerializer(serializers.ModelSerializer):
         return section
 
 
-class ListRetrieveSectionImageSerializer(serializers.ModelSerializer):
-    image_url = serializers.SerializerMethodField()
-
+class ListSectionImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = SectionImage
-        fields = ["id", "image_url"]
+        fields = ["id", "image"]
+
+
+class RetrieveSectionImageSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
 
     def get_image_url(self, obj):
         return obj.image.image_url
+
+    class Meta:
+        model = SectionImage
+        fields = ["image_url"]
 
 
 # class LessonByTakenStudentSerializer(serializers.ModelSerializer):

@@ -1,17 +1,18 @@
 from rest_framework import permissions
 
+from subscription_app.models import AccessCourse
 
-class AccessCourse(permissions.IsAuthenticated):
+
+class AccessCoursePermission(permissions.IsAuthenticated):
     def has_object_permission(self, request, view, obj):
-        course_access = request.user.access_user.values_list("course_id", flat=True)
-        if obj.id in course_access:
-            return True
-        return False
+        return AccessCourse.objects.filter(user=request.user, course=obj, is_active=True).exists()
 
 
-class AccessSection(permissions.IsAuthenticated):
+class AccessCourseSectionPermission(permissions.IsAuthenticated):
     def has_object_permission(self, request, view, obj):
-        course_access = request.user.access_user.values_list("course_id", flat=True)
-        if obj.course.id in course_access:
-            return True
-        return False
+        return AccessCourse.objects.filter(user=request.user, course=obj.course, is_active=True).exists()
+
+
+class AccessCourseSectionImagePermission(permissions.IsAuthenticated):
+    def has_object_permission(self, request, view, obj):
+        return AccessCourse.objects.filter(user=request.user, course=obj.section.course, is_active=True).exists()

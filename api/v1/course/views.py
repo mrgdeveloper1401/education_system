@@ -8,9 +8,11 @@ from django.utils.translation import gettext_lazy as _
 from course.models import Category, Course, Comment, Section, SectionImage
 from .pagination import CommentPagination
 from .paginations import CourseCategoryPagination
+from .permissions import AccessCoursePermission, AccessCourseSectionPermission, AccessCourseSectionImagePermission
 from .serializers import CourseSerializer, CreateCategorySerializer, CategoryNodeSerializer, \
     UpdateCategoryNodeSerializer, DestroyCategoryNodeSerializer, CommentSerializer, SectionSerializer, \
-    ListSectionSerializer, CreateSectionSerializer, SectionImageSerializer, ListRetrieveSectionImageSerializer
+    ListSectionSerializer, CreateSectionSerializer, SectionImageSerializer, ListSectionImageSerializer, \
+    RetrieveSectionImageSerializer
 
 
 class CategoryViewSet(ReadOnlyModelViewSet):
@@ -46,7 +48,7 @@ class CategoryViewSet(ReadOnlyModelViewSet):
 
 class CourseViewSet(ReadOnlyModelViewSet):
     serializer_class = CourseSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AccessCoursePermission]
     pagination_class = CourseCategoryPagination
 
     # def get_permissions(self):
@@ -65,7 +67,7 @@ class CourseViewSet(ReadOnlyModelViewSet):
 
 class SectionViewSet(ReadOnlyModelViewSet):
     serializer_class = SectionSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AccessCourseSectionPermission]
 
     # def get_permissions(self):
     #     if self.request.method not in permissions.SAFE_METHODS:
@@ -92,9 +94,15 @@ class SectionViewSet(ReadOnlyModelViewSet):
 
 class ListRetrieveSectionImageViewSet(ReadOnlyModelViewSet):
     queryset = SectionImage.objects.filter(is_active=True).select_related("image")
-    serializer_class = ListRetrieveSectionImageSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AccessCourseSectionImagePermission]
 
+    def get_serializer_class(self):
+        if self.action == "list":
+            return ListSectionImageSerializer
+        if self.action == 'retrieve':
+            return RetrieveSectionImageSerializer
+        else:
+            raise NotAcceptable
 
 # class LessonByStudentTakenViewSet(ReadOnlyModelViewSet):
 #     # queryset = LessonTakenByStudent.objects.select_related("course", "student")
