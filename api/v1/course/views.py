@@ -47,7 +47,7 @@ class CategoryViewSet(ModelViewSet):
 
 class CourseViewSet(ModelViewSet):
     serializer_class = CourseSerializer
-    permission_classes = [AccessCourse]
+    permission_classes = [IsAuthenticated]
     pagination_class = CourseCategoryPagination
 
     def get_permissions(self):
@@ -70,18 +70,13 @@ class SectionViewSet(ModelViewSet):
     def get_permissions(self):
         if self.request.method not in permissions.SAFE_METHODS:
             return [permissions.IsAdminUser()]
-        return [AccessSection()]
-
-    def get_course(self):
-        category = get_object_or_404(Category, id=self.kwargs["category_pk"])
-        course = get_object_or_404(Course, category=category, id=self.kwargs["course_pk"])
-        return course
+        return [IsAuthenticated()]
 
     def get_queryset(self):
         if self.action == "list":
             section = Section.objects.only("id", "title")
         else:
-            section = Section.objects.filter(course=self.get_course(), is_available=True).prefetch_related(
+            section = Section.objects.filter(course_id=self.kwargs['course_pk'], is_available=True).prefetch_related(
                 "section_image__image")
         return section
 

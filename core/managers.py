@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Q
 from django.utils import timezone
 
 
@@ -9,4 +10,4 @@ class SoftDeleteQuerySet(models.QuerySet):
 
 class PublishManager(models.Manager):
     def get_queryset(self):
-        return SoftDeleteQuerySet(self.model, using=self._db).filter(is_deleted=False)
+        return SoftDeleteQuerySet(self.model, using=self._db).filter(Q(is_deleted=False) | Q(is_deleted=None))

@@ -93,7 +93,7 @@ class SectionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Section
-        exclude = ['is_deleted', "deleted_at", "is_available", "course", "id"]
+        exclude = ['is_deleted', "deleted_at", "is_available", "course", "id", "created_at", "updated_at"]
         extra_kwargs = {
             "course": {'read_only': True},
         }

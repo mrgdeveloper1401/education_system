@@ -14,8 +14,8 @@ class SectionImageInline(admin.TabularInline):
 
 @admin.register(models.Course)
 class CouAdmin(ImportExportModelAdmin):
-    list_display = ["course_name", "course_price", "course_duration", "is_deleted"]
-    list_filter = ['created_at', "updated_at"]
+    list_display = ["course_name", "course_price", "course_duration"]
+    list_filter = ['created_at']
     raw_id_fields = ['category']
     list_select_related = ['category']
     search_fields = ['course_name']
