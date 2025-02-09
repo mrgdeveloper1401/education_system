@@ -19,8 +19,8 @@ course_router.register('section', views.SectionViewSet, basename='nested-section
 course_router.register('comment', views.CommentViewSet, basename='nested-comment')
 # course_router.register('quiz', views.QuizViewSet, basename='nested-quiz')
 
-# section_router = routers.NestedDefaultRouter(course_router, "section", lookup="section")
-# section_router.register("section_image", views.SectionImageViewSet, basename='nested-section-image')
+section_router = routers.NestedDefaultRouter(course_router, "section", lookup="section")
+section_router.register("section_image", views.ListRetrieveSectionImageViewSet, basename='nested-section-image')
 # course_practice = routers.NestedSimpleRouter(router, r'course', lookup='course')
 # course_practice.register('practice', views.PracticeViewSet, basename='nested-practice')
 #
@@ -34,7 +34,7 @@ app_name = 'course'
 urlpatterns = [
     path('', include(category_router.urls)),
     path('', include(course_router.urls)),
-    # path("", include(section_router.urls)),
+    path("", include(section_router.urls)),
     # path('', include(course_practice.urls)),
     # path('', include(practice.urls)),
     # path('', include(quiz.urls)),

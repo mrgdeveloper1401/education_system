@@ -5,12 +5,12 @@ from rest_framework import mixins
 from rest_framework.exceptions import NotAcceptable, ValidationError
 from django.utils.translation import gettext_lazy as _
 
-from course.models import Category, Course, Comment, Section
+from course.models import Category, Course, Comment, Section, SectionImage
 from .pagination import CommentPagination
 from .paginations import CourseCategoryPagination
 from .serializers import CourseSerializer, CreateCategorySerializer, CategoryNodeSerializer, \
     UpdateCategoryNodeSerializer, DestroyCategoryNodeSerializer, CommentSerializer, SectionSerializer, \
-    ListSectionSerializer, CreateSectionSerializer
+    ListSectionSerializer, CreateSectionSerializer, SectionImageSerializer, ListRetrieveSectionImageSerializer
 
 
 class CategoryViewSet(ReadOnlyModelViewSet):
@@ -38,10 +38,10 @@ class CategoryViewSet(ReadOnlyModelViewSet):
         else:
             raise NotAcceptable()
 
-    def perform_destroy(self, instance):
-        if instance.numchild >= 1 or instance.course_category.count() > 0:
-            raise ValidationError({'detail': _("this data have child node")})
-        instance.delete()
+    # def perform_destroy(self, instance):
+    #     if instance.numchild >= 1 or instance.course_category.count() > 0:
+    #         raise ValidationError({'detail': _("this data have child node")})
+    #     instance.delete()
 
 
 class CourseViewSet(ReadOnlyModelViewSet):
@@ -74,10 +74,9 @@ class SectionViewSet(ReadOnlyModelViewSet):
 
     def get_queryset(self):
         if self.action == "list":
-            section = Section.objects.only("id", "title")
+            section = Section.objects.only("id", "title").filter(is_available=True)
         else:
-            section = Section.objects.filter(course_id=self.kwargs['course_pk'], is_available=True).prefetch_related(
-                "section_image__image")
+            section = Section.objects.filter(course_id=self.kwargs['course_pk'], is_available=True)
         return section
 
     def get_serializer_context(self):
@@ -89,6 +88,12 @@ class SectionViewSet(ReadOnlyModelViewSet):
         if self.action == "create":
             return CreateSectionSerializer
         return super().get_serializer_class()
+
+
+class ListRetrieveSectionImageViewSet(ReadOnlyModelViewSet):
+    queryset = SectionImage.objects.filter(is_active=True).select_related("image")
+    serializer_class = ListRetrieveSectionImageSerializer
+    permission_classes = [IsAuthenticated]
 
 
 # class LessonByStudentTakenViewSet(ReadOnlyModelViewSet):
@@ -134,6 +139,7 @@ class CommentViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.Retr
             "user": self.request.user,
             "course_pk": self.kwargs["course_pk"]
         }
+
 
 # class PracticeViewSet(ModelViewSet):
 #     serializer_class = PracticeSerializer

@@ -8,7 +8,7 @@ from . import models
 
 class SectionImageInline(admin.TabularInline):
     model = models.SectionImage
-    extra = 1
+    extra = 0
     raw_id_fields = ['image']
 
 

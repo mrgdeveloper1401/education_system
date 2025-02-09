@@ -89,7 +89,7 @@ class ListSectionSerializer(serializers.ModelSerializer):
 
 
 class SectionSerializer(serializers.ModelSerializer):
-    section_image = SectionImageSerializer(many=True, required=False)
+    # section_image = SectionImageSerializer(many=True, required=False)
 
     class Meta:
         model = Section
@@ -106,11 +106,11 @@ class CreateSectionImageSerializer(serializers.Serializer):
 
 
 class CreateSectionSerializer(serializers.ModelSerializer):
-    section_image = CreateSectionImageSerializer(many=True, required=False)
+    # section_image = CreateSectionImageSerializer(many=True, required=False)
 
     class Meta:
         model = Section
-        fields = ['section_image', "video", "pdf_file", "title", "description", "is_available"]
+        fields = ["video", "pdf_file", "title", "description", "is_available"]
         extra_kwargs = {
             "is_available": {'default': True},
         }
@@ -146,6 +146,17 @@ class CreateSectionSerializer(serializers.ModelSerializer):
             )
         SectionImage.objects.bulk_create(image_data_list)
         return section
+
+
+class ListRetrieveSectionImageSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = SectionImage
+        fields = ["id", "image_url"]
+
+    def get_image_url(self, obj):
+        return obj.image.image_url
 
 
 # class LessonByTakenStudentSerializer(serializers.ModelSerializer):
