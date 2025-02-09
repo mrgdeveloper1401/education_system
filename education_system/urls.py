@@ -26,13 +26,16 @@ api_url = [
     path('api_discount/', include('api.v1.coupons.urls', namespace='coupons')),
     path('api_subscription/', include('api.v1.subscription.urls', namespace='subscription')),
     path("api_cart/", include('api.v1.cart.urls', namespace='cart')),
+]
 
+api_admin = [
+    path("api_admin/", include("api.v1.v1_admin.course.urls", namespace="admin_category")),
 ]
 urlpatterns = [
     path("admin/", admin.site.urls),
 ]
 
-urlpatterns += swagger_url + api_url + simple_jwt_url
+urlpatterns += swagger_url + api_url + simple_jwt_url + api_admin
 
 if DEBUG:
     from debug_toolbar.toolbar import debug_toolbar_urls

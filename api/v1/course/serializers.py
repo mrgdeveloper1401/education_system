@@ -8,23 +8,6 @@ from django.utils.translation import gettext_lazy as _
 from images.models import Image
 
 
-class CreateCategorySerializer(serializers.ModelSerializer):
-    parent = serializers.IntegerField(required=False)
-
-    class Meta:
-        model = Category
-        fields = ['category_name', 'parent']
-
-    def create(self, validated_data):
-        parent = validated_data.pop("parent", None)
-        if parent is None:
-            instance = Category.add_root(**validated_data)
-        else:
-            category = get_object_or_404(Category, pk=parent)
-            instance = category.add_child(**validated_data)
-        return instance
-
-
 class CategoryTreeNodeSerializer(serializers.ModelSerializer):
     children = serializers.SerializerMethodField()
 
@@ -41,12 +24,6 @@ class CategoryNodeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ['id', "category_name"]
-
-
-class UpdateCategoryNodeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Category
-        fields = ['category_name']
 
 
 class DestroyCategoryNodeSerializer(serializers.ModelSerializer):
@@ -94,9 +71,6 @@ class SectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Section
         exclude = ['is_deleted', "deleted_at", "is_available", "course", "id", "created_at", "updated_at"]
-        extra_kwargs = {
-            "course": {'read_only': True},
-        }
 
 
 class CreateSectionImageSerializer(serializers.Serializer):
