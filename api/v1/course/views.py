@@ -1,6 +1,7 @@
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet, GenericViewSet
 from rest_framework import permissions
+from rest_framework import mixins
 from rest_framework.exceptions import NotAcceptable, ValidationError
 from django.utils.translation import gettext_lazy as _
 
@@ -12,14 +13,14 @@ from .serializers import CourseSerializer, CreateCategorySerializer, CategoryNod
     ListSectionSerializer, CreateSectionSerializer
 
 
-class CategoryViewSet(ModelViewSet):
+class CategoryViewSet(ReadOnlyModelViewSet):
     queryset = Category.objects.all()
     pagination_class = CourseCategoryPagination
 
-    def get_permissions(self):
-        if self.request.method not in permissions.SAFE_METHODS:
-            return [permissions.IsAdminUser()]
-        return super().get_permissions()
+    # def get_permissions(self):
+    #     if self.request.method not in permissions.SAFE_METHODS:
+    #         return [permissions.IsAdminUser()]
+    #     return super().get_permissions()
 
     def get_serializer_class(self):
         if self.action == 'create':
@@ -43,15 +44,15 @@ class CategoryViewSet(ModelViewSet):
         instance.delete()
 
 
-class CourseViewSet(ModelViewSet):
+class CourseViewSet(ReadOnlyModelViewSet):
     serializer_class = CourseSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = CourseCategoryPagination
 
-    def get_permissions(self):
-        if self.request.method not in permissions.SAFE_METHODS:
-            return [permissions.IsAdminUser()]
-        return super().get_permissions()
+    # def get_permissions(self):
+    #     if self.request.method not in permissions.SAFE_METHODS:
+    #         return [permissions.IsAdminUser()]
+    #     return super().get_permissions()
 
     def get_queryset(self):
         return Course.objects.filter(category_id=self.kwargs["category_pk"]).select_related("category")
@@ -62,13 +63,14 @@ class CourseViewSet(ModelViewSet):
         return super().get_serializer_context()
 
 
-class SectionViewSet(ModelViewSet):
+class SectionViewSet(ReadOnlyModelViewSet):
     serializer_class = SectionSerializer
+    permission_classes = [IsAuthenticated]
 
-    def get_permissions(self):
-        if self.request.method not in permissions.SAFE_METHODS:
-            return [permissions.IsAdminUser()]
-        return [IsAuthenticated()]
+    # def get_permissions(self):
+    #     if self.request.method not in permissions.SAFE_METHODS:
+    #         return [permissions.IsAdminUser()]
+    #     return [IsAuthenticated()]
 
     def get_queryset(self):
         if self.action == "list":
@@ -119,7 +121,7 @@ class SectionViewSet(ModelViewSet):
 #         return {"user": self.request.user}
 
 
-class CommentViewSet(ModelViewSet):
+class CommentViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.RetrieveModelMixin, GenericViewSet):
     serializer_class = CommentSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = CommentPagination
