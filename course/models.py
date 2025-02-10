@@ -1,16 +1,16 @@
 from django.db import models
 from core.models import UpdateMixin, CreateMixin, SoftDeleteMixin
 from django.utils.translation import gettext_lazy as _
-from django.core.validators import MinValueValidator, MaxValueValidator, FileExtensionValidator
+from django.core.validators import FileExtensionValidator
 from treebeard.mp_tree import MP_Node
 from rest_framework.validators import ValidationError
 
-from utils.file_name import course_name, practice_name, section_name, section_filename
-from utils.validators import file_upload_validator
+from utils.file_name import section_name, section_filename
 
 
 class Category(MP_Node, CreateMixin, UpdateMixin, SoftDeleteMixin):
     category_name = models.CharField(max_length=100, db_index=True)
+    node_order_by = ["category_name"]
 
     def __str__(self):
         return self.category_name
@@ -29,13 +29,9 @@ class Course(CreateMixin, UpdateMixin, SoftDeleteMixin):
     category = models.ForeignKey(Category, related_name="course_category", on_delete=models.DO_NOTHING)
     course_name = models.CharField(max_length=100)
     course_description = models.TextField()
-    course_price = models.FloatField(help_text=_("قیمت دوره"))
+    course_price = models.FloatField(help_text=_("قیمت دوره که بر اساس تومان میباشد"))
     course_duration = models.CharField(help_text=_("مدت زمان دوره"), max_length=20)
-    course_image = models.ImageField(upload_to="course_image/%Y/%m/%d", blank=True, null=True)
-    student = models.ManyToManyField("accounts.User", through="StudentEnrollment",
-                                     related_name="course_student_enrollment")
-    teacher = models.ManyToManyField("accounts.User", through="TeacherEnrollment",
-                                     related_name="course_teacher_enrollment")
+    course_image = models.ForeignKey("images.Image", on_delete=models.DO_NOTHING, related_name="course_image")
 
     def __str__(self):
         return self.course_name
@@ -54,12 +50,14 @@ class Section(CreateMixin, UpdateMixin, SoftDeleteMixin):
     pdf_file = models.FileField(upload_to=section_filename, validators=[FileExtensionValidator(["pdf"])], blank=True)
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
-    is_available = models.BooleanField(db_default=True,
+    is_available = models.BooleanField(default=True,
                                        help_text=_("در دسترس بودن"))
+    section_image = models.ForeignKey("images.Image", related_name="section_images", on_delete=models.DO_NOTHING,
+                                      blank=True, null=True)
 
-    def clean(self):
-        if not self.video and not self.pdf_file:
-            raise ValidationError({"detail": _("field video or pdf must be set")})
+    # def clean(self):
+    #     if not self.video and not self.pdf_file:
+    #         raise ValidationError({"detail": _("field video or pdf must be set")})
 
     class Meta:
         ordering = ('created_at',)
@@ -68,13 +66,13 @@ class Section(CreateMixin, UpdateMixin, SoftDeleteMixin):
         verbose_name_plural = _("قسمت های دوره")
 
 
-class SectionImage(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name='section_image')
-    image = models.ForeignKey("images.Image", on_delete=models.DO_NOTHING, related_name="image_section_image")
-    is_active = models.BooleanField(db_default=True)
-
-    class Meta:
-        db_table = 'course_section_image'
+# class SectionImage(CreateMixin, UpdateMixin, SoftDeleteMixin):
+#     section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name='section_image')
+#     image = models.ForeignKey("images.Image", on_delete=models.DO_NOTHING, related_name="image_section_image")
+#     is_active = models.BooleanField(db_default=True)
+#
+#     class Meta:
+#         db_table = 'course_section_image'
 
 
 class StudentEnrollment(CreateMixin, UpdateMixin, SoftDeleteMixin):

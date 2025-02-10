@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from course.models import Course, Category, Comment, Section, SectionImage
+from course.models import Course, Category, Comment, Section
 from rest_framework.generics import get_object_or_404
 from drf_spectacular.utils import extend_schema_field
 from rest_framework.exceptions import ValidationError
@@ -48,15 +48,32 @@ class CourseSerializer(serializers.ModelSerializer):
         return course
 
 
-class SectionImageSerializer(serializers.ModelSerializer):
-    image_address = serializers.SerializerMethodField()
+class ListCourseSerializer(serializers.ModelSerializer):
+    course_image = serializers.SerializerMethodField()
+
+    def get_course_image(self, obj):
+        return obj.course_image.image_url
 
     class Meta:
-        model = SectionImage
-        fields = ["image_address"]
+        model = Course
+        fields = ['id', "course_name", "course_image", "course_price", "course_duration"]
 
-    def get_image_address(self, obj):
-        return obj.image.image_url
+
+class RetrieveCourseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Course
+        fields = ['course_name', "course_description", "course_duration", "course_price"]
+
+
+# class SectionImageSerializer(serializers.ModelSerializer):
+#     image_address = serializers.SerializerMethodField()
+#
+#     class Meta:
+#         model = SectionImage
+#         fields = ["image_address"]
+#
+#     def get_image_address(self, obj):
+#         return obj.image.image_url
 
 
 class ListSectionSerializer(serializers.ModelSerializer):
@@ -73,10 +90,10 @@ class SectionSerializer(serializers.ModelSerializer):
         exclude = ['is_deleted', "deleted_at", "is_available", "course", "id", "created_at", "updated_at"]
 
 
-class CreateSectionImageSerializer(serializers.Serializer):
-    class Meta:
-        model = SectionImage
-        fields = ['image']
+# class CreateSectionImageSerializer(serializers.Serializer):
+#     class Meta:
+#         model = SectionImage
+#         fields = ['image']
 
 
 class CreateSectionSerializer(serializers.ModelSerializer):
@@ -112,31 +129,31 @@ class CreateSectionSerializer(serializers.ModelSerializer):
             )
         Image.objects.bulk_create(images)
 
-        for i in images:
-            image_data_list.append(
-                SectionImage(
-                    section=section, image=i
-                )
-            )
-        SectionImage.objects.bulk_create(image_data_list)
-        return section
+        # for i in images:
+        #     image_data_list.append(
+        #         SectionImage(
+        #             section=section, image=i
+        #         )
+        #     )
+        # SectionImage.objects.bulk_create(image_data_list)
+        # return section
 
 
-class ListSectionImageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SectionImage
-        fields = ["id", "image"]
+# class ListSectionImageSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = SectionImage
+#         fields = ["id", "image"]
 
 
-class RetrieveSectionImageSerializer(serializers.ModelSerializer):
-    image_url = serializers.SerializerMethodField()
-
-    def get_image_url(self, obj):
-        return obj.image.image_url
-
-    class Meta:
-        model = SectionImage
-        fields = ["image_url"]
+# class RetrieveSectionImageSerializer(serializers.ModelSerializer):
+#     image_url = serializers.SerializerMethodField()
+#
+#     def get_image_url(self, obj):
+#         return obj.image.image_url
+#
+#     class Meta:
+#         model = SectionImage
+#         fields = ["image_url"]
 
 
 # class LessonByTakenStudentSerializer(serializers.ModelSerializer):

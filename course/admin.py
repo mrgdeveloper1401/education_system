@@ -6,17 +6,17 @@ from import_export.admin import ImportExportModelAdmin
 from . import models
 
 
-class SectionImageInline(admin.TabularInline):
-    model = models.SectionImage
-    extra = 0
-    raw_id_fields = ['image']
+# class SectionImageInline(admin.TabularInline):
+#     model = models.SectionImage
+#     extra = 0
+#     raw_id_fields = ['image']
 
 
 @admin.register(models.Course)
 class CouAdmin(ImportExportModelAdmin):
-    list_display = ["course_name", "course_price", "course_duration"]
+    list_display = ["category", "course_name", "course_price", "course_duration"]
     list_filter = ['created_at']
-    raw_id_fields = ['category']
+    raw_id_fields = ['category', "course_image"]
     list_select_related = ['category']
     search_fields = ['course_name']
 
@@ -24,23 +24,24 @@ class CouAdmin(ImportExportModelAdmin):
 @admin.register(models.Category)
 class CategoryTreeAdmin(TreeAdmin, ImportExportModelAdmin):
     form = movenodeform_factory(models.Category)
+    list_per_page = 20
 
 
 @admin.register(models.Section)
 class SectionAdmin(admin.ModelAdmin):
-    raw_id_fields = ['course']
+    raw_id_fields = ['course', "section_image"]
     list_select_related = ['course']
     list_display = ["id", 'course', "title", "description", "is_available"]
     list_filter = ['is_available']
     list_per_page = 30
     search_fields = ['title']
     list_display_links = ['id', "course"]
-    inlines = [SectionImageInline]
+    # inlines = [SectionImageInline]
 
 
-@admin.register(models.SectionImage)
-class SectionImageAdmin(admin.ModelAdmin):
-    raw_id_fields = ['section', "image"]
+# @admin.register(models.SectionImage)
+# class SectionImageAdmin(admin.ModelAdmin):
+#     raw_id_fields = ['section', "image"]
 
 
 @admin.register(models.Comment)

@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 from import_export.admin import ImportExportModelAdmin
 
@@ -58,7 +59,7 @@ class UserAdmin(BaseUserAdmin):
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        q = qs.filter(is_deleted=False)
+        q = qs.filter(Q(is_deleted=False) | Q(is_deleted__isnull=True))
         return q
 
 
@@ -95,9 +96,14 @@ class RecycleUserAdmin(admin.ModelAdmin):
     list_display = ("id", "mobile_phone", "email", "first_name", "last_name", "is_staff", "is_active", "is_superuser",
                     "is_deleted", "deleted_at")
     search_fields = ['mobile_phone']
+    actions = ["restore_user"]
 
     def get_queryset(self, request):
         return RecycleUser.objects.filter(is_deleted=True)
+
+    @admin.action(description="recovery user")
+    def restore_user(self, request, queryset):
+        return queryset.update(is_deleted=False, deleted_at=None)
 
 
 admin.site.register(Coach)
