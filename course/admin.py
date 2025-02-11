@@ -16,7 +16,7 @@ from . import models
 class CouAdmin(ImportExportModelAdmin):
     list_display = ["category", "course_name", "course_price", "course_duration"]
     list_filter = ['created_at']
-    raw_id_fields = ['category', "course_image"]
+    raw_id_fields = ['category']
     list_select_related = ['category']
     search_fields = ['course_name']
 

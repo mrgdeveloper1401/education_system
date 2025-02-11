@@ -5,12 +5,13 @@ from rest_framework import exceptions
 
 from . import serializers
 from course.models import Category, Course
-
+from .paginations import AdminPagination
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAdminUser]
     queryset = Category.objects.only("id", "category_name")
+    pagination_class = AdminPagination
 
     def get_serializer_class(self):
         if self.action == "create":
@@ -27,6 +28,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
 class AdminCourseViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAdminUser]
+    pagination_class = AdminPagination
 
     def get_queryset(self):
         return Course.objects.filter(category_id=self.kwargs["category_pk"])
