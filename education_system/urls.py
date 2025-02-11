@@ -29,7 +29,8 @@ api_url = [
 ]
 
 api_admin = [
-    path("api_admin/", include("api.v1.v1_admin.course.urls", namespace="admin_category")),
+    path("api_admin_course/", include("api.v1.v1_admin.course.urls", namespace="admin_category")),
+    path('api_admin_image/', include("api.v1.v1_admin.images.urls", namespace="admin_image")),
 ]
 urlpatterns = [
     path("admin/", admin.site.urls),

@@ -38,7 +38,6 @@ class UserViewSet(ModelViewSet):
 
 
 class SendCodeOtpViewSet(CreateModelMixin, GenericViewSet):
-    queryset = Otp.objects.all()
     serializer_class = OtpLoginSerializer
     permission_classes = [NotAuthenticate]
 
@@ -140,6 +139,9 @@ class CoachViewSet(ModelViewSet):
 
 
 class TicketViewSet(ModelViewSet):
+    """
+    send ticket user to admin
+    """""
     serializer_class = TicketSerializer
     pagination_class = StudentCoachTicketPagination
     permission_classes = [IsAuthenticated]
@@ -148,7 +150,7 @@ class TicketViewSet(ModelViewSet):
         return {"user": self.request.user}
 
     def get_queryset(self):
-        return Ticket.objects.filter(user=self.request.user)
+        return Ticket.objects.filter(user=self.request.user).only("id", "subject_ticket", "ticket_body")
 
 
 class ListUserApiView(ListAPIView):

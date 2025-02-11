@@ -31,7 +31,8 @@ class Course(CreateMixin, UpdateMixin, SoftDeleteMixin):
     course_description = models.TextField()
     course_price = models.FloatField(help_text=_("قیمت دوره که بر اساس تومان میباشد"))
     course_duration = models.CharField(help_text=_("مدت زمان دوره"), max_length=20)
-    course_image = models.ForeignKey("images.Image", on_delete=models.DO_NOTHING, related_name="course_image")
+    course_image = models.ForeignKey("images.Image", on_delete=models.DO_NOTHING, related_name="course_image",
+                                     blank=True, null=True)
 
     def __str__(self):
         return self.course_name

@@ -3,8 +3,8 @@ from datetime import timedelta
 from random import randint
 from django.contrib.auth.models import PermissionsMixin, AbstractBaseUser
 from django.db import models
-from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
+from django.utils import timezone
 
 from accounts.managers import UserManager, SoftManager
 from accounts.validators import MobileRegexValidator, NationCodeRegexValidator, validate_upload_image_user
@@ -52,7 +52,7 @@ class User(AbstractBaseUser, PermissionsMixin, UpdateMixin, SoftDeleteMixin, Cre
         self.is_active = False
         self.is_verified = False
         self.is_deleted = True
-        self.deleted_at = now()
+        self.deleted_at = timezone.now()
         self.is_staff = False
         self.save()
 
@@ -91,9 +91,13 @@ class Otp(CreateMixin):
 
     @property
     def is_expired(self):
-        if now() > self.expired_date:
+        if timezone.now() > self.expired_date:
             return True
         return False
+
+    @property
+    def time_left_otp(self):
+        return (self.expired_date - timezone.now()).seconds
 
     @property
     def create_otp_code(self):
@@ -102,7 +106,7 @@ class Otp(CreateMixin):
 
     def save(self, *args, **kwargs):
         self.code = self.create_otp_code
-        self.expired_date = now() + timedelta(minutes=2)
+        self.expired_date = timezone.now() + timedelta(minutes=2)
         return super().save(*args, **kwargs)
 
     class Meta:
@@ -140,17 +144,25 @@ class City(models.Model):
 
 
 class Ticket(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    """
+    send ticket to admin
+    """
     user = models.ForeignKey("User", on_delete=models.DO_NOTHING, related_name='ticket',
                              limit_choices_to={"is_active": True})
-    ticker_body = models.TextField(_("متن تیکت"))
+    ticket_body = models.TextField(_("متن تیکت"))
     subject_ticket = models.CharField(_("عنوان تیکت"), max_length=255)
     is_publish = models.BooleanField(default=True)
+    reply_to = models.ForeignKey('self', on_delete=models.DO_NOTHING, related_name="reply", blank=True, null=True)
+    is_close = models.BooleanField(default=False)
 
     def __str__(self):
         return self.user.get_full_name
 
+    # def save(self, *args, **kwargs):
+    #     if
     class Meta:
         db_table = 'ticket'
+        ordering = ['-created_at']
         verbose_name = _("تیکت")
         verbose_name_plural = _("تیکت ها")
 

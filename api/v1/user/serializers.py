@@ -84,7 +84,9 @@ class OtpLoginSerializer(ModelSerializer):
                 raise ValidationError({"message": _("کاربر گرامی دسترسی شما مسدود شده هست!")})
             if otp:
                 if not otp.is_expired:
-                    raise ValidationError({"message": _("شما از قبل یه کد رو دارید لطفا به مدت 2 دقیقه صبر کنید")})
+                    raise ValidationError(
+                        {"message": _(f"شما از قبل یه کد دارید لطفا به مدت {otp.time_left_otp} ثانیه صبر کنید ")}
+                    )
                 if otp.is_expired:
                     otp.delete()
                     raise ValidationError({"message": _("کد otp منقضی شده هست لطفا دوباره درخواست خود را ارسال کنید")})
@@ -230,12 +232,14 @@ class CoachSerializer(ModelSerializer):
 
 
 class TicketSerializer(ModelSerializer):
+    reply_ticket = SerializerMethodField()
+
+    def get_reply_ticket(self, obj):
+        return obj.reply.values("subject_ticket", "ticket_body")
+
     class Meta:
         model = Ticket
-        exclude = ['deleted_at', "is_deleted", "created_at", "updated_at"]
-        extra_kwargs = {
-            "user": {"read_only": True}
-        }
+        fields = ['id', "subject_ticket", "ticket_body", "reply_ticket"]
 
     def create(self, validated_data):
         user = self.context['user']

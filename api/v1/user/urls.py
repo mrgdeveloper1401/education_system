@@ -8,8 +8,8 @@ from .views import UserViewSet, SendCodeOtpViewSet, VerifyOtpCodeApiView, StateA
 router = DefaultRouter()
 router.register('user', UserViewSet, basename='create')
 router.register('send-code', SendCodeOtpViewSet, basename='login-otp')
-router.register('student', StudentViewSet, basename='student')
-router.register('coach', CoachViewSet, basename='coach')
+# router.register('student', StudentViewSet, basename='student')
+# router.register('coach', CoachViewSet, basename='coach')
 router.register('ticket', TicketViewSet, basename='ticket')
 
 app_name = 'users'

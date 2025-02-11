@@ -87,8 +87,11 @@ class CityAdmin(ImportExportModelAdmin):
 
 @admin.register(Ticket)
 class TicketAdmin(admin.ModelAdmin):
-    raw_id_fields = ['user']
-    list_display = ['user', "subject_ticket", "is_publish"]
+    raw_id_fields = ['user', "reply_to"]
+    list_display = ['user', "subject_ticket", "reply_to", "is_publish", "is_close"]
+    list_select_related = ['user', 'reply_to']
+    list_per_page = 30
+    search_fields = ['user__mobile_phone', "subject_title"]
 
 
 @admin.register(RecycleUser)
