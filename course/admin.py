@@ -29,7 +29,7 @@ class CategoryTreeAdmin(TreeAdmin, ImportExportModelAdmin):
 
 @admin.register(models.Section)
 class SectionAdmin(admin.ModelAdmin):
-    raw_id_fields = ['course', "section_image"]
+    raw_id_fields = ['course']
     list_select_related = ['course']
     list_display = ["id", 'course', "title", "description", "is_available"]
     list_filter = ['is_available']

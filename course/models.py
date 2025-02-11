@@ -34,7 +34,8 @@ class Course(CreateMixin, UpdateMixin, SoftDeleteMixin):
     course_duration = models.CharField(help_text=_("مدت زمان دوره"), max_length=20)
     # course_image = models.ForeignKey("images.Image", on_delete=models.DO_NOTHING, related_name="course_image",
     #                                  blank=True, null=True)
-    course_image = models.ImageField(upload_to="course_image/%Y/%m/%d", validators=[max_upload_image_validator])
+    course_image = models.ImageField(upload_to="course_image/%Y/%m/%d", validators=[max_upload_image_validator],
+                                     help_text=_("حداکثر اندازه عکس 1 مگابایت هست"))
 
     def __str__(self):
         return self.course_name
@@ -55,8 +56,11 @@ class Section(CreateMixin, UpdateMixin, SoftDeleteMixin):
     description = models.TextField(blank=True, null=True)
     is_available = models.BooleanField(default=True,
                                        help_text=_("در دسترس بودن"))
-    section_image = models.ForeignKey("images.Image", related_name="section_images", on_delete=models.DO_NOTHING,
-                                      blank=True, null=True)
+    # section_image = models.ForeignKey("images.Image", related_name="section_images", on_delete=models.DO_NOTHING,
+    #                                   blank=True, null=True)
+    section_image = models.ImageField(upload_to="course_section/%Y/%m/%d",
+                                      validators=[max_upload_image_validator],
+                                      help_text=_("حداکثر اندازه سایز عکس برابر است با 1 مگابایت هست"))
 
     # def clean(self):
     #     if not self.video and not self.pdf_file:

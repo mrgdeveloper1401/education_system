@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
-from course.models import Category, Course
+from course.models import Category, Course, Section
 from drf_extra_fields.fields import Base64ImageField
 
 from images.models import Image
@@ -65,3 +65,30 @@ class AdminUpdateCourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         exclude = ['is_deleted', "deleted_at"]
+
+
+class AdminCreateCourseSectionSerializer(serializers.ModelSerializer):
+    section_image = Base64ImageField()
+
+    class Meta:
+        model = Section
+        exclude = ['course']
+
+    def create(self, validated_data):
+        course_id = self.context['course_pk']
+        return Section.objects.create(
+            course_id=course_id,
+            **validated_data
+        )
+
+
+class AdminListCourseSectionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Section
+        fields = ['id', "section_image", "title"]
+
+
+class AdminUpdateCourseSectionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Section
+        exclude = ['course', "deleted_at", "is_deleted"]
