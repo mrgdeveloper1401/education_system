@@ -2,6 +2,7 @@ from rest_framework_nested import routers
 from rest_framework.urls import path
 from django.urls import include
 
+from api.v1.v1_admin.accounts.views import TicketReplyViewSet
 from .views import UserViewSet, SendCodeOtpViewSet, VerifyOtpCodeApiView, StateApiView, CityApiView, \
     StateCitiesGenericView, ChangePasswordApiView, ForgetPasswordApiView, ConfirmForgetPasswordApiView, \
     StudentViewSet, CoachViewSet, TicketChatViewSet, ListUserApiView, TicketRoomViewSet
@@ -16,9 +17,13 @@ router.register("ticket_room", TicketRoomViewSet, basename='ticket_room')
 ticket_room_router = routers.NestedDefaultRouter(router, "ticket_room", lookup='ticket_room')
 ticket_room_router.register("ticket_chat", TicketChatViewSet, basename='ticket_chat')
 
+ticket_chat_router = routers.NestedDefaultRouter(ticket_room_router, "ticket_chat", lookup='ticket_chat')
+ticket_chat_router.register("reply", TicketReplyViewSet, basename='reply_ticket')
+
 app_name = 'users'
 urlpatterns = [
     path('', include(ticket_room_router.urls)),
+    path("", include(ticket_chat_router.urls)),
     path('user-list/', ListUserApiView.as_view(), name='user-list'),
     path("verify-otp/", VerifyOtpCodeApiView.as_view(), name="verify-otp"),
     path('state-list/', StateApiView.as_view(), name='state-list'),

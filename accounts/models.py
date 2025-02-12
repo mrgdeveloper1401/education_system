@@ -184,6 +184,22 @@ class Ticket(CreateMixin, UpdateMixin, SoftDeleteMixin):
         verbose_name_plural = _("تیکت ها")
 
 
+class TicketReply(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    ticket = models.ForeignKey(Ticket, on_delete=models.DO_NOTHING, related_name="reply")
+    sender = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='reply_sender',
+                               limit_choices_to={'is_staff': True})
+    message = models.TextField()
+    image = models.ImageField(upload_to=ticket_image_upload_url, blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.sender.mobile_phone} {self.is_active}"
+
+    class Meta:
+        db_table = "ticket_reply"
+        ordering = ['created_at']
+
+
 class UserLogins(CreateMixin):
     user = models.ForeignKey(User, on_delete=models.PROTECT, related_name='logins')
     success_login = models.PositiveIntegerField(default=0)

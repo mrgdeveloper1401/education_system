@@ -4,7 +4,7 @@ from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 from import_export.admin import ImportExportModelAdmin
 
-from .models import User, Otp, State, City, Ticket, RecycleUser, Coach, Student, RequestLog, TicketRoom
+from .models import User, Otp, State, City, Ticket, RecycleUser, Coach, Student, RequestLog, TicketRoom, TicketReply
 
 
 @admin.register(User)
@@ -119,6 +119,14 @@ class TicketRoomAdmin(admin.ModelAdmin):
     list_editable = ['is_active', "is_close"]
     search_fields = ['title_room']
     list_display_links = ['id', "user"]
+
+
+@admin.register(TicketReply)
+class TicketReplyAdmin(admin.ModelAdmin):
+    list_display = ['id', "ticket", "sender", "is_active", "created_at"]
+    list_select_related = ['ticket', "sender"]
+    list_filter = ['is_active', "created_at"]
+    list_display_links = ['id', "ticket"]
 
 
 admin.site.register(Coach)
