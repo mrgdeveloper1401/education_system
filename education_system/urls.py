@@ -25,7 +25,7 @@ api_url = [
     path('api_course/', include('api.v1.course.urls', namespace='course')),
     # path('api_discount/', include('api.v1.coupons.urls', namespace='coupons')),
     path('api_subscription/', include('api.v1.subscription.urls', namespace='subscription')),
-    path("api_cart/", include('api.v1.cart.urls', namespace='cart')),
+    # path("api_cart/", include('api.v1.cart.urls', namespace='cart')),
 ]
 
 api_admin = [

@@ -4,6 +4,8 @@ from rest_framework.serializers import ModelSerializer, CharField, Serializer, S
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.password_validation import validate_password
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework import generics
+from rest_framework import exceptions
 
 from accounts.models import User, Otp, State, City, Student, Coach, Ticket, TicketRoom
 from accounts.validators import MobileRegexValidator
@@ -236,15 +238,46 @@ class TickerRoomSerializer(ModelSerializer):
         model = TicketRoom
         fields = ['id', "title_room"]
 
-
-class TicketSerializer(ModelSerializer):
-    class Meta:
-        model = Ticket
-        fields = ['id', "ticket_body"]
-
     def create(self, validated_data):
         user = self.context['user']
-        return Ticket.objects.create(user=user, **validated_data)
+        return TicketRoom.objects.create(user=user, **validated_data)
+
+
+class CreateTicketSerializer(ModelSerializer):
+    ticket_image = Base64ImageField()
+
+    class Meta:
+        model = Ticket
+        fields = ['id', "ticket_body", "ticket_image"]
+
+    def validate(self, attrs):
+        ticket_room = generics.get_object_or_404(
+            TicketRoom.objects.only("id", "user_id"),
+            pk=self.context['room_pk']
+        )
+        if ticket_room.user_id != self.context['request'].user.id:
+            raise exceptions.ValidationError(detail=exceptions.PermissionDenied)
+        return attrs
+
+    def create(self, validated_data):
+        user_id = self.context['request'].user.id
+        room_id = self.context['room_pk']
+        return Ticket.objects.create(sender_id=user_id, room_id=room_id, **validated_data)
+
+
+class ListTicketChatSerializer(ModelSerializer):
+    class Meta:
+        model = Ticket
+        fields = ['id']
+
+
+class UpdateTicketChatSerializer(ModelSerializer):
+    ticket_image = Base64ImageField()
+
+    class Meta:
+        model = Ticket
+        fields = ['ticket_body', "ticket_image", "sender"]
+        read_only_fields = ['sender']
 
 
 class ListUserSerializer(ModelSerializer):

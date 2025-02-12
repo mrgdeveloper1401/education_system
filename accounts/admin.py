@@ -112,12 +112,13 @@ class RecycleUserAdmin(admin.ModelAdmin):
 @admin.register(TicketRoom)
 class TicketRoomAdmin(admin.ModelAdmin):
     raw_id_fields = ['user']
-    list_display = ['user', "title_room", "is_active", "is_close", "created_at"]
+    list_display = ["id", 'user', "title_room", "is_active", "is_close", "created_at"]
     list_filter = ['is_active', "is_close"]
     list_per_page = 30
     list_select_related = ['user']
     list_editable = ['is_active', "is_close"]
     search_fields = ['title_room']
+    list_display_links = ['id', "user"]
 
 
 admin.site.register(Coach)

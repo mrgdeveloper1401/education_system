@@ -1,20 +1,24 @@
-from rest_framework.routers import DefaultRouter
+from rest_framework_nested import routers
 from rest_framework.urls import path
+from django.urls import include
 
 from .views import UserViewSet, SendCodeOtpViewSet, VerifyOtpCodeApiView, StateApiView, CityApiView, \
     StateCitiesGenericView, ChangePasswordApiView, ForgetPasswordApiView, ConfirmForgetPasswordApiView, \
-    StudentViewSet, CoachViewSet, TicketViewSet, ListUserApiView, TicketRoomViewSet
+    StudentViewSet, CoachViewSet, TicketChatViewSet, ListUserApiView, TicketRoomViewSet
 
-router = DefaultRouter()
+router = routers.DefaultRouter()
 router.register('user', UserViewSet, basename='create')
 router.register('send-code', SendCodeOtpViewSet, basename='login-otp')
 # router.register('student', StudentViewSet, basename='student')
 # router.register('coach', CoachViewSet, basename='coach')
-router.register('ticket', TicketViewSet, basename='ticket')
 router.register("ticket_room", TicketRoomViewSet, basename='ticket_room')
+
+ticket_room_router = routers.NestedDefaultRouter(router, "ticket_room", lookup='ticket_room')
+ticket_room_router.register("ticket_chat", TicketChatViewSet, basename='ticket_chat')
 
 app_name = 'users'
 urlpatterns = [
+    path('', include(ticket_room_router.urls)),
     path('user-list/', ListUserApiView.as_view(), name='user-list'),
     path("verify-otp/", VerifyOtpCodeApiView.as_view(), name="verify-otp"),
     path('state-list/', StateApiView.as_view(), name='state-list'),

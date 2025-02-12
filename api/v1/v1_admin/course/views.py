@@ -31,13 +31,9 @@ class AdminCourseViewSet(viewsets.ModelViewSet):
     pagination_class = AdminPagination
 
     def get_queryset(self):
-        if self.action == "list":
-            return Course.objects.filter(category_id=self.kwargs["category_pk"]).only(
-                "id", "course_name", "course_image"
-            )
         return Course.objects.filter(category_id=self.kwargs["category_pk"]).only(
-            "id", "course_image", "created_at", "course_name", "course_description", "course_description", "category_id",
-            "course_price", "course_duration"
+            "id", "course_image", "created_at", "course_name", "course_description", "course_description",
+            "category_id", "course_price", "course_duration", "updated_at", "created_at"
         )
 
     def get_serializer_context(self):

@@ -8,6 +8,7 @@ from django.utils import timezone
 
 from accounts.managers import UserManager, SoftManager
 from accounts.validators import MobileRegexValidator, NationCodeRegexValidator, validate_upload_image_user
+from api.v1.user.utils import ticket_validate_image, ticket_image_upload_url
 from core.models import UpdateMixin, SoftDeleteMixin, CreateMixin
 from utils.model_choices import Grade
 
@@ -169,6 +170,8 @@ class Ticket(CreateMixin, UpdateMixin, SoftDeleteMixin):
     sender = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='sender',
                                limit_choices_to={"is_active": True})
     ticket_body = models.TextField(_("متن تیکت"))
+    ticket_image = models.ImageField(upload_to=ticket_image_upload_url, validators=[ticket_validate_image],
+                                     blank=True, null=True)
     is_publish = models.BooleanField(default=True)
 
     def __str__(self):
@@ -176,7 +179,7 @@ class Ticket(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = 'ticket'
-        ordering = ['-created_at']
+        ordering = ['created_at']
         verbose_name = _("تیکت")
         verbose_name_plural = _("تیکت ها")
 

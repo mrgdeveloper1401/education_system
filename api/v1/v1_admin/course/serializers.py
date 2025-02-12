@@ -39,7 +39,7 @@ class UpdateCategoryNodeSerializer(serializers.ModelSerializer):
 class AdminListCourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
-        fields = ['id', "course_name", "course_image"]
+        exclude = ['is_deleted', "deleted_at"]
         read_only_fields = ['course_image']
 
 

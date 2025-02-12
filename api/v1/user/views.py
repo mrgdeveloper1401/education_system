@@ -8,16 +8,18 @@ from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView
 from rest_framework.generics import get_object_or_404
 from rest_framework.filters import SearchFilter
+from rest_framework import exceptions
 
 from accounts.models import User, Otp, State, City, Student, Coach, Ticket, TicketRoom
 from utils.filters import UserFilter
 from utils.pagination import StudentCoachTicketPagination, ListUserPagination
 from utils.permissions import NotAuthenticate
 from .pagination import UserPagination, CityPagination
+from .permissions import TicketRoomPermission
 from .serializers import UserSerializer, OtpLoginSerializer, VerifyOtpSerializer, UpdateUserSerializer \
     , StateSerializer, CitySerializer, ChangePasswordSerializer, ForgetPasswordSerializer, \
-    ConfirmForgetPasswordSerializer, StudentSerializer, CoachSerializer, TicketSerializer, ListUserSerializer, \
-    TickerRoomSerializer
+    ConfirmForgetPasswordSerializer, StudentSerializer, CoachSerializer, CreateTicketSerializer, ListUserSerializer, \
+    TickerRoomSerializer, ListTicketChatSerializer, UpdateTicketChatSerializer
 
 
 class UserViewSet(ModelViewSet):
@@ -146,20 +148,38 @@ class TicketRoomViewSet(ModelViewSet):
     def get_queryset(self):
         return TicketRoom.objects.filter(user=self.request.user).only("id", "title_room")
 
-
-class TicketViewSet(ModelViewSet):
-    """
-    send ticket user to admin
-    """""
-    serializer_class = TicketSerializer
-    pagination_class = StudentCoachTicketPagination
-    permission_classes = [IsAuthenticated]
-
     def get_serializer_context(self):
         return {"user": self.request.user}
 
+
+class TicketChatViewSet(ModelViewSet):
+    """
+    send ticket user to admin
+    """""
+    pagination_class = StudentCoachTicketPagination
+    permission_classes = [TicketRoomPermission]
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return ListTicketChatSerializer
+        if self.action in ['update', "partial_update", "destroy", "retrieve"]:
+            return UpdateTicketChatSerializer
+        if self.action == "create":
+            return CreateTicketSerializer
+        else:
+            raise exceptions.NotAcceptable()
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['room_pk'] = self.kwargs['ticket_room_pk']
+        return context
+
     def get_queryset(self):
-        return Ticket.objects.filter(user=self.request.user).only("id", "subject_ticket", "ticket_body")
+        if self.action == "list":
+            return Ticket.objects.filter(room_id=self.kwargs['ticket_room_pk'], room__is_close=False).only("id")
+        return Ticket.objects.filter(room_id=self.kwargs['ticket_room_pk'], room__is_close=False).only(
+            "id", "ticket_body", "ticket_image", "sender_id"
+        )
 
 
 class ListUserApiView(ListAPIView):
