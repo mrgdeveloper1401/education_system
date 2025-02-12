@@ -143,23 +143,37 @@ class City(models.Model):
         unique_together = [('state', "city")]
 
 
+class TicketRoom(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    """
+    create ticket room
+    """
+    user = models.ForeignKey('accounts.User', on_delete=models.DO_NOTHING, related_name="ticker_room",
+                             limit_choices_to={'is_active': True})
+    title_room = models.CharField(max_length=50, help_text=_("عنوان چت روم تیکت"))
+    is_active = models.BooleanField(default=True)
+    is_close = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.title_room
+
+    class Meta:
+        db_table = "ticker_room"
+        ordering = ("-created_at",)
+
+
 class Ticket(CreateMixin, UpdateMixin, SoftDeleteMixin):
     """
     send ticket to admin
     """
-    user = models.ForeignKey("User", on_delete=models.DO_NOTHING, related_name='ticket',
-                             limit_choices_to={"is_active": True})
+    room = models.ForeignKey(TicketRoom, on_delete=models.DO_NOTHING, related_name="room")
+    sender = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='sender',
+                               limit_choices_to={"is_active": True})
     ticket_body = models.TextField(_("متن تیکت"))
-    subject_ticket = models.CharField(_("عنوان تیکت"), max_length=255)
     is_publish = models.BooleanField(default=True)
-    reply_to = models.ForeignKey('self', on_delete=models.DO_NOTHING, related_name="reply", blank=True, null=True)
-    is_close = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.user.get_full_name
+        return self.sender.mobile_phone
 
-    # def save(self, *args, **kwargs):
-    #     if
     class Meta:
         db_table = 'ticket'
         ordering = ['-created_at']
@@ -214,6 +228,7 @@ class UserIp(CreateMixin):
 class Coach(CreateMixin, UpdateMixin, SoftDeleteMixin):
     user = models.OneToOneField(User, on_delete=models.DO_NOTHING, related_name='coach')
     coach_number = models.CharField(max_length=15)
+
     # bio = models.TextField(blank=True, null=True)
     # specialty = models.CharField(max_length=255, blank=True, null=True)
     # linkedin_url = models.URLField(blank=True, null=True)
@@ -242,6 +257,7 @@ class Coach(CreateMixin, UpdateMixin, SoftDeleteMixin):
 class Student(CreateMixin, UpdateMixin, SoftDeleteMixin):
     user = models.OneToOneField(User, on_delete=models.DO_NOTHING, related_name='student')
     student_number = models.CharField(max_length=11)
+
     # bio = models.TextField(blank=True, null=True)
 
     def __str__(self):

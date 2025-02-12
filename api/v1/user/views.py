@@ -9,14 +9,15 @@ from rest_framework.generics import ListAPIView
 from rest_framework.generics import get_object_or_404
 from rest_framework.filters import SearchFilter
 
-from accounts.models import User, Otp, State, City, Student, Coach, Ticket
+from accounts.models import User, Otp, State, City, Student, Coach, Ticket, TicketRoom
 from utils.filters import UserFilter
 from utils.pagination import StudentCoachTicketPagination, ListUserPagination
 from utils.permissions import NotAuthenticate
 from .pagination import UserPagination, CityPagination
 from .serializers import UserSerializer, OtpLoginSerializer, VerifyOtpSerializer, UpdateUserSerializer \
     , StateSerializer, CitySerializer, ChangePasswordSerializer, ForgetPasswordSerializer, \
-    ConfirmForgetPasswordSerializer, StudentSerializer, CoachSerializer, TicketSerializer, ListUserSerializer
+    ConfirmForgetPasswordSerializer, StudentSerializer, CoachSerializer, TicketSerializer, ListUserSerializer, \
+    TickerRoomSerializer
 
 
 class UserViewSet(ModelViewSet):
@@ -136,6 +137,14 @@ class CoachViewSet(ModelViewSet):
     queryset = Coach.objects.all()
     serializer_class = CoachSerializer
     pagination_class = StudentCoachTicketPagination
+
+
+class TicketRoomViewSet(ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    serializer_class = TickerRoomSerializer
+
+    def get_queryset(self):
+        return TicketRoom.objects.filter(user=self.request.user).only("id", "title_room")
 
 
 class TicketViewSet(ModelViewSet):

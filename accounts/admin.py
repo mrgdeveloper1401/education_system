@@ -4,7 +4,7 @@ from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 from import_export.admin import ImportExportModelAdmin
 
-from .models import User, Otp, State, City, Ticket, RecycleUser, Coach, Student, RequestLog
+from .models import User, Otp, State, City, Ticket, RecycleUser, Coach, Student, RequestLog, TicketRoom
 
 
 @admin.register(User)
@@ -87,9 +87,9 @@ class CityAdmin(ImportExportModelAdmin):
 
 @admin.register(Ticket)
 class TicketAdmin(admin.ModelAdmin):
-    raw_id_fields = ['user', "reply_to"]
-    list_display = ['user', "subject_ticket", "reply_to", "is_publish", "is_close"]
-    list_select_related = ['user', 'reply_to']
+    raw_id_fields = ['sender', "room"]
+    list_display = ['sender', "is_publish", "created_at"]
+    list_select_related = ['sender']
     list_per_page = 30
     search_fields = ['user__mobile_phone', "subject_title"]
 
@@ -107,6 +107,17 @@ class RecycleUserAdmin(admin.ModelAdmin):
     @admin.action(description="recovery user")
     def restore_user(self, request, queryset):
         return queryset.update(is_deleted=False, deleted_at=None)
+
+
+@admin.register(TicketRoom)
+class TicketRoomAdmin(admin.ModelAdmin):
+    raw_id_fields = ['user']
+    list_display = ['user', "title_room", "is_active", "is_close", "created_at"]
+    list_filter = ['is_active', "is_close"]
+    list_per_page = 30
+    list_select_related = ['user']
+    list_editable = ['is_active', "is_close"]
+    search_fields = ['title_room']
 
 
 admin.site.register(Coach)

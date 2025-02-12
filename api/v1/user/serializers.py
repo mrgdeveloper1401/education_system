@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.password_validation import validate_password
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from accounts.models import User, Otp, State, City, Student, Coach, Ticket
+from accounts.models import User, Otp, State, City, Student, Coach, Ticket, TicketRoom
 from accounts.validators import MobileRegexValidator
 
 
@@ -231,15 +231,16 @@ class CoachSerializer(ModelSerializer):
         exclude = ['deleted_at', "is_deleted", "created_at", "updated_at"]
 
 
+class TickerRoomSerializer(ModelSerializer):
+    class Meta:
+        model = TicketRoom
+        fields = ['id', "title_room"]
+
+
 class TicketSerializer(ModelSerializer):
-    reply_ticket = SerializerMethodField()
-
-    def get_reply_ticket(self, obj):
-        return obj.reply.values("subject_ticket", "ticket_body")
-
     class Meta:
         model = Ticket
-        fields = ['id', "subject_ticket", "ticket_body", "reply_ticket"]
+        fields = ['id', "ticket_body"]
 
     def create(self, validated_data):
         user = self.context['user']

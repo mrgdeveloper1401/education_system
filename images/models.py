@@ -11,7 +11,7 @@ class Image(CreateMixin, UpdateMixin, SoftDeleteMixin):
     title = models.CharField(max_length=128, null=True, blank=True)
     image = models.ImageField(width_field="width", height_field="height", upload_to="images/%Y/%m/%d",
                               validators=[validate_image_size],
-                              help_text=_("max size is 2 MG"))
+                              help_text=_("max size is 1 MG"))
 
     width = models.IntegerField(null=True, blank=True)
     height = models.IntegerField(null=True, blank=True)
