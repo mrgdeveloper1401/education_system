@@ -5,13 +5,21 @@ SECRET_KEY = config('DEVELOP_SECRET_KEY', cast=str)
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
         "NAME": 'education_system',
         'USER': "postgres",
         "PASSWORD": "postgres",
         'HOST': "localhost",
         "PORT": 5432,
-    }
+    },
+    # "chat_db": {
+    #     "ENGINE": "djongo",
+    #     "NAME": 'mongo_education_system',
+    #     "ENFORCE_SCHEMA": False,
+    #     "CLIENT": {
+    #         "host": "localhost",
+    #     }
+    # }
 }
 
 INSTALLED_APPS += [

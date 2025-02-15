@@ -85,7 +85,7 @@ class AdminCreateCourseSectionSerializer(serializers.ModelSerializer):
 class AdminListCourseSectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Section
-        fields = ['id', "section_image", "title"]
+        fields = ['id', "title"]
 
 
 class AdminUpdateCourseSectionSerializer(serializers.ModelSerializer):

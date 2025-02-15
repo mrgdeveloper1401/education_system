@@ -15,3 +15,5 @@ drf-nested-routers==0.94.1
 django-import-export==4.3.4
 celery==5.4.0
 python-ulid==3.0.0
+channels-redis==4.2.0
+channels

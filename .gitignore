@@ -287,3 +287,6 @@ general_log_django
 utils/mock_data
 edit_education.zip
 education_system/mock_data
+/blog_app/mock_data/State-2025-02-01.csv
+/blog_app/mock_data/CategoryBlog-2025-02-12.csv
+/blog_app/mock_data/edit_mock_data.py

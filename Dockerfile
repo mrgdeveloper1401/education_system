@@ -2,7 +2,8 @@ FROM python:3.12-alpine
 
 WORKDIR /home/app
 
-RUN apk update && \
+RUN apk update --no-cache && \
+    apk upgrade --no-cache && \
     apk add --no-cache gcc musl-dev libpq postgresql-dev
 
 COPY . .

@@ -6,15 +6,9 @@ from import_export.admin import ImportExportModelAdmin
 from . import models
 
 
-# class SectionImageInline(admin.TabularInline):
-#     model = models.SectionImage
-#     extra = 0
-#     raw_id_fields = ['image']
-
-
 @admin.register(models.Course)
 class CouAdmin(ImportExportModelAdmin):
-    list_display = ["category", "course_name", "course_price", "course_duration"]
+    list_display = ["category", "course_name", "course_price", "course_duration", "is_publish"]
     list_filter = ['created_at']
     raw_id_fields = ['category']
     list_select_related = ['category']
@@ -36,12 +30,6 @@ class SectionAdmin(admin.ModelAdmin):
     list_per_page = 30
     search_fields = ['title']
     list_display_links = ['id', "course"]
-    # inlines = [SectionImageInline]
-
-
-# @admin.register(models.SectionImage)
-# class SectionImageAdmin(admin.ModelAdmin):
-#     raw_id_fields = ['section', "image"]
 
 
 @admin.register(models.Comment)
@@ -68,3 +56,30 @@ class TeacherEnrollmentAdmin(admin.ModelAdmin):
     list_per_page = 20
     list_display = ['instructor', "course", "role", "created_at"]
     list_filter = ['created_at']
+
+
+@admin.register(models.SectionVideo)
+class SectionVideoAdmin(admin.ModelAdmin):
+    raw_id_fields = ['section']
+    list_display = ['section', "is_publish", "created_at"]
+    list_select_related = ['section']
+    list_per_page = 20
+    list_filter = ['is_publish', "created_at"]
+
+
+@admin.register(models.SectionImages)
+class SectionImagesAdmin(admin.ModelAdmin):
+    raw_id_fields = ['section']
+    list_display = ['section', "is_publish", "created_at"]
+    list_select_related = ['section']
+    list_per_page = 20
+    list_filter = ['is_publish', "created_at"]
+
+
+@admin.register(models.SectionFile)
+class SectionFileAdmin(admin.ModelAdmin):
+    raw_id_fields = ['section']
+    list_display = ['section', "is_publish", "created_at"]
+    list_select_related = ['section']
+    list_per_page = 20
+    list_filter = ['is_publish', "created_at"]

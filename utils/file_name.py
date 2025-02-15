@@ -10,12 +10,6 @@ def practice_name(instance, filename):
     return f"practice/{name}/{date}/{filename}"
 
 
-def section_name(instance, filename):
-    name = instance.title.replace(" ", "_")
-    date = instance.created_at.strftime("%Y/%m/%d")
-    return f"video/{name}/{date}/{filename}"
-
-
 def section_filename(instance, filename):
     name = instance.title.replace(" ", "_")
     date = instance.created_at.strftime("%Y/%m/%d")

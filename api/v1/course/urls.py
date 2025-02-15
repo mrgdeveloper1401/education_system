@@ -20,7 +20,9 @@ course_router.register('comment', views.CommentViewSet, basename='nested-comment
 # course_router.register('quiz', views.QuizViewSet, basename='nested-quiz')
 
 section_router = routers.NestedDefaultRouter(course_router, "section", lookup="section")
-# section_router.register("section_image", views.ListRetrieveSectionImageViewSet, basename='nested-section-image')
+section_router.register("section_video", views.SectionVideoViewSet, basename="section_video")
+section_router.register("section_file", views.SectionFileViewSet, basename="section_file")
+section_router.register("section_image", views.SectionImagesViewSet, basename="section_image")
 # course_practice = routers.NestedSimpleRouter(router, r'course', lookup='course')
 # course_practice.register('practice', views.PracticeViewSet, basename='nested-practice')
 #

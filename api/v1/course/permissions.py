@@ -10,7 +10,7 @@ class AccessCoursePermission(permissions.IsAuthenticated):
 
 class AccessCourseSectionPermission(permissions.IsAuthenticated):
     def has_object_permission(self, request, view, obj):
-        return AccessCourse.objects.filter(user=request.user, course=obj.course, is_active=True).exists()
+        return AccessCourse.objects.filter(user=request.user, course_id=obj.course, is_active=True).exists()
 
 
 class AccessCourseSectionImagePermission(permissions.IsAuthenticated):

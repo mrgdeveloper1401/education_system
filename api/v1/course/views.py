@@ -3,13 +3,11 @@ from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet
 from rest_framework import mixins
 from rest_framework.exceptions import NotAcceptable
 
-from course.models import Category, Course, Comment, Section
+from course.models import Category, Course, Comment, Section, SectionVideo, SectionFile, SectionImages
 from .pagination import CommentPagination
 from .paginations import CourseCategoryPagination
 from .permissions import AccessCoursePermission, AccessCourseSectionPermission, AccessCourseSectionImagePermission
-from .serializers import CourseSerializer, CategoryNodeSerializer, \
-    CommentSerializer, SectionSerializer, \
-    ListSectionSerializer, CreateSectionSerializer, ListCourseSerializer, RetrieveCourseSerializer
+from . import serializers
 
 
 class CategoryViewSet(ReadOnlyModelViewSet):
@@ -18,24 +16,27 @@ class CategoryViewSet(ReadOnlyModelViewSet):
 
     def get_serializer_class(self):
         if self.action == "list":
-            return CategoryNodeSerializer
+            return serializers.CategoryNodeSerializer
         if self.action == "retrieve":
-            return CategoryNodeSerializer
+            return serializers.CategoryNodeSerializer
         else:
             raise NotAcceptable()
 
 
 class CourseViewSet(ReadOnlyModelViewSet):
-    # serializer_class = CourseSerializer
     permission_classes = [AccessCoursePermission]
     pagination_class = CourseCategoryPagination
 
     def get_queryset(self):
+        query = Course.objects.filter(category_id=self.kwargs["category_pk"], is_publish=True)
         if self.action == "list":
-            return (Course.objects.filter(category_id=self.kwargs["category_pk"]).select_related("course_image").
-                    only("id", "course_name", "course_price", "course_duration", "course_image"))
+            return query.only(
+                "id", "course_name", "course_image", "course_price", "course_duration"
+            )
         else:
-            return Course.objects.filter(category_id=self.kwargs["category_pk"])
+            return query.only(
+                "id", "course_name", "course_image", "course_price", "course_duration", "course_description"
+            )
 
     def get_serializer_context(self):
         if "category_pk" in self.kwargs:
@@ -44,54 +45,85 @@ class CourseViewSet(ReadOnlyModelViewSet):
 
     def get_serializer_class(self):
         if self.action == "list":
-            return ListCourseSerializer
+            return serializers.ListCourseSerializer
         else:
-            return RetrieveCourseSerializer
+            return serializers.RetrieveCourseSerializer
 
 
 class SectionViewSet(ReadOnlyModelViewSet):
-    serializer_class = SectionSerializer
     permission_classes = [AccessCourseSectionPermission]
 
     def get_queryset(self):
         if self.action == "list":
-            section = Section.objects.only("id", "title").filter(course_id=self.kwargs['course_pk'], is_available=True)
-        else:
-            section = Section.objects.filter(course_id=self.kwargs['course_pk'], is_available=True)
-        return section
-
-    def get_serializer_context(self):
-        return {"course_pk": self.kwargs["course_pk"]}
+            return Section.objects.filter(course_id=self.kwargs['course_pk'], is_available=True).only(
+                "id", "course", "title", "created_at"
+            )
+        if self.action == "retrieve":
+            return (Section.objects.filter(course_id=self.kwargs['course_pk'], is_available=True).only(
+                "title", "description", "course_id"
+            ).select_related("course"))
 
     def get_serializer_class(self):
         if self.action == "list":
-            return ListSectionSerializer
-        if self.action == "create":
-            return CreateSectionSerializer
-        return super().get_serializer_class()
+            return serializers.ListSectionSerializer
+        else:
+            return serializers.RetrieveSectionSerializer
 
 
-# class ListRetrieveSectionImageViewSet(ReadOnlyModelViewSet):
-#     permission_classes = [AccessCourseSectionImagePermission]
-#
-#     def get_serializer_class(self):
-#         if self.action == "list":
-#             return ListSectionImageSerializer
-#         if self.action == 'retrieve':
-#             return RetrieveSectionImageSerializer
-#         else:
-#             raise NotAcceptable
-#
-#     def get_queryset(self):
-#         if self.action == "list":
-#             return SectionImage.objects.filter(is_active=True, section_id=self.kwargs['section_pk']).only("id", "image")
-#         if self.action == "retrieve":
-#             return (SectionImage.objects.filter(is_active=True, section_id=self.kwargs['section_pk']).
-#                     select_related("section__course"))
+class SectionVideoViewSet(ReadOnlyModelViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return serializers.ListSectionVideoSerializer
+        else:
+            return serializers.RetrieveSectionVideoSerializer
+
+    def get_queryset(self):
+        query = SectionVideo.objects.filter(is_publish=True, section_id=self.kwargs["section_pk"])
+        if self.action == "list":
+            query = query.only("id", "created_at", "video")
+        else:
+            query = query.only("video")
+        return query
+
+
+class SectionFileViewSet(ReadOnlyModelViewSet):
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        query = SectionFile.objects.filter(is_publish=True, section_id=self.kwargs["section_pk"])
+        if self.action == "list":
+            q = query.only("id", "pdf_file", "created_at")
+        else:
+            q = query.only("pdf_file")
+        return q
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return serializers.ListSectionFileSerializer
+        else:
+            return serializers.RetrieveSectionFileSerializer
+
+
+class SectionImagesViewSet(ReadOnlyModelViewSet):
+    def get_serializer_class(self):
+        if self.action == "list":
+            return serializers.ListSectionImageSerializer
+        else:
+            return serializers.RetrieveSectionImageSerializer
+
+    def get_queryset(self):
+        query = SectionImages.objects.filter(is_publish=True, section_id=self.kwargs['section_pk'])
+        if self.action == "list":
+            query = query.only("id", "section_image", "created_at")
+        else:
+            query = query.only("section_image")
+        return query
 
 
 class CommentViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.RetrieveModelMixin, GenericViewSet):
-    serializer_class = CommentSerializer
+    serializer_class = serializers.CommentSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = CommentPagination
 

@@ -6,7 +6,7 @@ from treebeard.mp_tree import MP_Node
 from rest_framework.validators import ValidationError
 
 from course.validators import max_upload_image_validator
-from utils.file_name import section_name, section_filename
+from utils.file_name import section_filename
 
 
 class Category(MP_Node, CreateMixin, UpdateMixin, SoftDeleteMixin):
@@ -36,6 +36,7 @@ class Course(CreateMixin, UpdateMixin, SoftDeleteMixin):
     #                                  blank=True, null=True)
     course_image = models.ImageField(upload_to="course_image/%Y/%m/%d", validators=[max_upload_image_validator],
                                      help_text=_("حداکثر اندازه عکس 1 مگابایت هست"))
+    is_publish = models.BooleanField(default=True)
 
     def __str__(self):
         return self.course_name
@@ -49,18 +50,12 @@ class Course(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 class Section(CreateMixin, UpdateMixin, SoftDeleteMixin):
     course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name='sections')
-    video = models.FileField(upload_to=section_name, blank=True,
-                             validators=[FileExtensionValidator(["mp4"])])
-    pdf_file = models.FileField(upload_to=section_filename, validators=[FileExtensionValidator(["pdf"])], blank=True)
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     is_available = models.BooleanField(default=True,
                                        help_text=_("در دسترس بودن"))
     # section_image = models.ForeignKey("images.Image", related_name="section_images", on_delete=models.DO_NOTHING,
     #                                   blank=True, null=True)
-    section_image = models.ImageField(upload_to="course_section/%Y/%m/%d",
-                                      validators=[max_upload_image_validator],
-                                      help_text=_("حداکثر اندازه سایز عکس برابر است با 1 مگابایت هست"))
 
     # def clean(self):
     #     if not self.video and not self.pdf_file:
@@ -72,6 +67,43 @@ class Section(CreateMixin, UpdateMixin, SoftDeleteMixin):
         verbose_name = _("قسمت")
         verbose_name_plural = _("قسمت های دوره")
 
+
+class SectionVideo(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name='section_videos')
+    video = models.FileField(upload_to="section_video/%Y/%m/%d", validators=[FileExtensionValidator(["mp4"])])
+    is_publish = models.BooleanField(default=True)
+    
+    def __str__(self):
+        return f'{self.section_id} {self.is_publish}'
+    
+    class Meta:
+        db_table = 'course_section_video'
+
+
+class SectionImages(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name='section_images')
+    section_image = models.ImageField(upload_to="course_images/%Y/%m/%d",
+                                      validators=[max_upload_image_validator],
+                                      help_text=_("حداکثر اندازه سایز عکس برابر است با 1 مگابایت هست"))
+    is_publish = models.BooleanField(default=True)
+    
+    def __str__(self):
+        return f'{self.section_id} {self.is_publish}'
+    
+    class Meta:
+        db_table = "course_section_images"
+
+
+class SectionFile(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name='section_files')
+    pdf_file = models.FileField(upload_to="section_file/%Y/%m/%d", validators=[FileExtensionValidator(["pdf"])], blank=True)
+    is_publish = models.BooleanField(default=True)
+    
+    def __str__(self):
+        return f'{self.section_id} {self.is_publish}'
+
+    class Meta:
+        db_table = "course_section_file"
 
 # class SectionImage(CreateMixin, UpdateMixin, SoftDeleteMixin):
 #     section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name='section_image')

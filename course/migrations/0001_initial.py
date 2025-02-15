@@ -157,7 +157,7 @@ class Migration(migrations.Migration):
                     "video",
                     models.FileField(
                         blank=True,
-                        upload_to=utils.file_name.section_name,
+                        upload_to="section_video/%Y/%m/%d",
                         validators=[
                             django.core.validators.FileExtensionValidator(["mp4"])
                         ],

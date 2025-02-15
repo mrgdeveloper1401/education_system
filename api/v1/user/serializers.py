@@ -273,11 +273,11 @@ class ListTicketChatSerializer(ModelSerializer):
 
 class UpdateTicketChatSerializer(ModelSerializer):
     ticket_image = Base64ImageField()
+    sender = CharField(read_only=True, source="sender.mobile_phone")
 
     class Meta:
         model = Ticket
-        fields = ['ticket_body', "ticket_image", "sender"]
-        read_only_fields = ['sender']
+        fields = ['ticket_body', "ticket_image", "sender", "created_at"]
 
 
 class ListUserSerializer(ModelSerializer):

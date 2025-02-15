@@ -7,7 +7,7 @@ ALLOWED_HOSTS = ['*']
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
         "NAME": config("PRODUCTION_DB_NAME", cast=str),
         'USER': config("PRODUCTION_DB_USER", cast=str),
         "PASSWORD": config("PRODUCTION_DB_PASSWORD", cast=str),

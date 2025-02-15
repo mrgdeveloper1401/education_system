@@ -1,11 +1,6 @@
 from rest_framework import serializers
-from course.models import Course, Category, Comment, Section
-from rest_framework.generics import get_object_or_404
+from course.models import Course, Category, Comment, Section, SectionVideo, SectionFile, SectionImages
 from drf_spectacular.utils import extend_schema_field
-from rest_framework.exceptions import ValidationError
-from django.utils.translation import gettext_lazy as _
-
-from images.models import Image
 
 
 class CategoryTreeNodeSerializer(serializers.ModelSerializer):
@@ -49,11 +44,6 @@ class CourseSerializer(serializers.ModelSerializer):
 
 
 class ListCourseSerializer(serializers.ModelSerializer):
-    course_image = serializers.SerializerMethodField()
-
-    def get_course_image(self, obj):
-        return obj.course_image.image_url
-
     class Meta:
         model = Course
         fields = ['id', "course_name", "course_image", "course_price", "course_duration"]
@@ -65,95 +55,52 @@ class RetrieveCourseSerializer(serializers.ModelSerializer):
         fields = ['course_name', "course_description", "course_duration", "course_price"]
 
 
-# class SectionImageSerializer(serializers.ModelSerializer):
-#     image_address = serializers.SerializerMethodField()
-#
-#     class Meta:
-#         model = SectionImage
-#         fields = ["image_address"]
-#
-#     def get_image_address(self, obj):
-#         return obj.image.image_url
-
-
 class ListSectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Section
-        fields = ['id', "title"]
+        fields = ['id', "title", "course", "created_at"]
 
 
-class SectionSerializer(serializers.ModelSerializer):
-    # section_image = SectionImageSerializer(many=True, required=False)
-
+class RetrieveSectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Section
-        exclude = ['is_deleted', "deleted_at", "is_available", "course", "id", "created_at", "updated_at"]
+        fields = ['course', "title", "description"]
 
 
-# class CreateSectionImageSerializer(serializers.Serializer):
-#     class Meta:
-#         model = SectionImage
-#         fields = ['image']
-
-
-class CreateSectionSerializer(serializers.ModelSerializer):
-    # section_image = CreateSectionImageSerializer(many=True, required=False)
-
+class ListSectionVideoSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Section
-        fields = ["video", "pdf_file", "title", "description", "is_available"]
-        extra_kwargs = {
-            "is_available": {'default': True},
-        }
-
-    def validate(self, attrs):
-        video = attrs.get('video')
-        pdf_file = attrs.get('pdf_file')
-        if not video and not pdf_file:
-            raise ValidationError({"message": _("video or pdf file must be set")})
-        return attrs
-
-    def create(self, validated_data):
-        course_pk = self.context['course_pk']
-        section_image = self.initial_data.getlist('section_image')
-        section = Section.objects.create(course_id=course_pk, **validated_data)
-
-        image_data_list = []
-        images = []
-
-        for image_data in section_image:
-            images.append(
-                Image(
-                    image=image_data,
-                )
-            )
-        Image.objects.bulk_create(images)
-
-        # for i in images:
-        #     image_data_list.append(
-        #         SectionImage(
-        #             section=section, image=i
-        #         )
-        #     )
-        # SectionImage.objects.bulk_create(image_data_list)
-        # return section
+        model = SectionVideo
+        fields = ["id", "video", "created_at"]
 
 
-# class ListSectionImageSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = SectionImage
-#         fields = ["id", "image"]
+class RetrieveSectionVideoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SectionVideo
+        fields = ['video']
 
 
-# class RetrieveSectionImageSerializer(serializers.ModelSerializer):
-#     image_url = serializers.SerializerMethodField()
-#
-#     def get_image_url(self, obj):
-#         return obj.image.image_url
-#
-#     class Meta:
-#         model = SectionImage
-#         fields = ["image_url"]
+class ListSectionFileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SectionFile
+        fields = ['id', "pdf_file", "created_at"]
+
+
+class RetrieveSectionFileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SectionFile
+        fields = ['pdf_file']
+
+
+class ListSectionImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SectionImages
+        fields = ['id', "section_image", "created_at"]
+
+
+class RetrieveSectionImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SectionImages
+        fields = ['section_image']
 
 
 # class LessonByTakenStudentSerializer(serializers.ModelSerializer):

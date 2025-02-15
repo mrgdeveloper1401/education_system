@@ -178,8 +178,8 @@ class TicketChatViewSet(ModelViewSet):
         if self.action == "list":
             return Ticket.objects.filter(room_id=self.kwargs['ticket_room_pk'], room__is_close=False).only("id")
         return Ticket.objects.filter(room_id=self.kwargs['ticket_room_pk'], room__is_close=False).only(
-            "id", "ticket_body", "ticket_image", "sender_id"
-        )
+            "id", "ticket_body", "ticket_image", "sender__mobile_phone", "created_at"
+        ).select_related("sender")
 
 
 class ListUserApiView(ListAPIView):

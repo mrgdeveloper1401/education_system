@@ -43,8 +43,10 @@ THIRD_PARTY_APP = [
     "course.apps.CourseConfig",
     "coupons.apps.CouponsConfig",
     "subscription_app.apps.SubscriptionAppConfig",
-    "cart_app.apps.CartAppConfig"
+    "cart_app.apps.CartAppConfig",
     # "main_settings.apps.MainSettingsConfig",
+    "blog_app.apps.BlogAppConfig",
+    "chat_app.apps.ChatAppConfig"
 ]
 INSTALLED_APPS = [
     # "django.contrib.gis",
@@ -89,7 +91,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "education_system.wsgi.application"
-
+ASGI_APPLICATION = "education_system.asgi.application"
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
