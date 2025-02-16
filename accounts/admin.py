@@ -4,7 +4,8 @@ from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 from import_export.admin import ImportExportModelAdmin
 
-from .models import User, Otp, State, City, Ticket, RecycleUser, Coach, Student, RequestLog, TicketRoom, TicketReply
+from .models import User, Otp, State, City, Ticket, RecycleUser, Coach, Student, RequestLog, TicketRoom, TicketReply, \
+    BestStudent, BestStudentAttribute
 
 
 @admin.register(User)
@@ -129,6 +130,40 @@ class TicketReplyAdmin(admin.ModelAdmin):
     list_display_links = ['id', "ticket"]
 
 
+class BestStudentAdmin(ImportExportModelAdmin):
+    raw_id_fields = ['student']
+    list_display = ['id', "get_student_full_name", "is_publish", "created_at"]
+    list_per_page = 20
+    list_filter = ['is_publish']
+
+    def get_student_full_name(self, obj):
+        return obj.student.user.mobile_phone
+    get_student_full_name.short_description = 'user phone'
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('student__user').only(
+            "id", "is_publish", "student__user__mobile_phone", "created_at"
+        )
+
+
+class BestStudentAttributeAdmin(ImportExportModelAdmin):
+    list_display = ['get_student_full_name', "attribute", "is_active", "created_at"]
+    raw_id_fields = ['best_student']
+    list_per_page = 30
+    list_filter = ['is_active']
+
+    def get_student_full_name(self, obj):
+        return obj.best_student.student.user.get_full_name
+    get_student_full_name.short_description = 'student full name'
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related("best_student__student__user").only(
+            "id", "created_at", "is_active", "attribute", "best_student__student__user__first_name",
+            "best_student__student__user__last_name"
+        )
+
+
 admin.site.register(Coach)
 admin.site.register(Student)
-admin.site.register(RequestLog)
+admin.site.register(BestStudent, BestStudentAdmin)
+admin.site.register(BestStudentAttribute, BestStudentAttributeAdmin)

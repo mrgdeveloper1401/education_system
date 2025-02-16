@@ -1,3 +1,4 @@
+from django.db.models import Prefetch
 from django_filters.rest_framework.backends import DjangoFilterBackend
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.mixins import CreateModelMixin
@@ -9,17 +10,20 @@ from rest_framework.generics import ListAPIView
 from rest_framework.generics import get_object_or_404
 from rest_framework.filters import SearchFilter
 from rest_framework import exceptions
+from rest_framework import viewsets
 
-from accounts.models import User, Otp, State, City, Student, Coach, Ticket, TicketRoom
+from accounts.models import User, Otp, State, City, Student, Coach, Ticket, TicketRoom, BestStudent, \
+    BestStudentAttribute
 from utils.filters import UserFilter
 from utils.pagination import StudentCoachTicketPagination, ListUserPagination
 from utils.permissions import NotAuthenticate
-from .pagination import UserPagination, CityPagination
+from .pagination import UserPagination, CityPagination, BestStudentPagination
 from .permissions import TicketRoomPermission
 from .serializers import UserSerializer, OtpLoginSerializer, VerifyOtpSerializer, UpdateUserSerializer \
     , StateSerializer, CitySerializer, ChangePasswordSerializer, ForgetPasswordSerializer, \
     ConfirmForgetPasswordSerializer, StudentSerializer, CoachSerializer, CreateTicketSerializer, ListUserSerializer, \
-    TickerRoomSerializer, ListTicketChatSerializer, UpdateTicketChatSerializer
+    TickerRoomSerializer, ListTicketChatSerializer, UpdateTicketChatSerializer, ListBestStudentSerializer, \
+    ListBestStudentAttributesSerializer
 
 
 class UserViewSet(ModelViewSet):
@@ -187,3 +191,21 @@ class ListUserApiView(ListAPIView):
     serializer_class = ListUserSerializer
     pagination_class = ListUserPagination
     permission_classes = [IsAdminUser]
+
+
+class BestStudentViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = ListBestStudentSerializer
+    pagination_class = BestStudentPagination
+
+    def get_queryset(self):
+        return BestStudent.objects.select_related("student__user").only(
+            "student__user__first_name", "student__user__last_name", "id", "student__user__image"
+        ).filter(is_publish=True)
+
+
+class BestStudentAttributeViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = ListBestStudentAttributesSerializer
+
+    def get_queryset(self):
+        return (BestStudentAttribute.objects.filter(is_active=True, best_student_id=self.kwargs['best_student_pk']).
+                only("attribute"))

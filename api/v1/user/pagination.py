@@ -7,3 +7,7 @@ class UserPagination(PageNumberPagination):
 
 class CityPagination(PageNumberPagination):
     page_size = 100
+
+
+class BestStudentPagination(PageNumberPagination):
+    page_size = 20

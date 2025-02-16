@@ -64,6 +64,10 @@ class User(AbstractBaseUser, PermissionsMixin, UpdateMixin, SoftDeleteMixin, Cre
     def __str__(self):
         return self.mobile_phone
 
+    @property
+    def user_image_url(self):
+        return self.image.url
+
     USERNAME_FIELD = 'mobile_phone'
     REQUIRED_FIELDS = ['first_name', "last_name", "email"]
 
@@ -200,58 +204,9 @@ class TicketReply(CreateMixin, UpdateMixin, SoftDeleteMixin):
         ordering = ['created_at']
 
 
-class UserLogins(CreateMixin):
-    user = models.ForeignKey(User, on_delete=models.PROTECT, related_name='logins')
-    success_login = models.PositiveIntegerField(default=0)
-    failed_login = models.PositiveIntegerField(default=0)
-
-    def __str__(self):
-        return f'{self.user} {self.success_login} {self.failed_login}'
-
-    class Meta:
-        db_table = 'user_logins'
-        verbose_name = _("لاگین های کاربر")
-        verbose_name_plural = _("لاگین های کاربران")
-
-
-class UserDevice(CreateMixin):
-    user = models.ForeignKey(User, on_delete=models.PROTECT, related_name='device')
-    is_linux = models.BooleanField(default=False)
-    is_windows = models.BooleanField(default=False)
-    is_max = models.BooleanField(default=False)
-    is_iphone = models.BooleanField(default=False)
-    is_android = models.BooleanField(default=False)
-
-    def __str__(self):
-        return f'{self.user.get_full_name} {self.created_at}'
-
-    class Meta:
-        db_table = 'user_device'
-        verbose_name = _("دستگاه های کاربر")
-        verbose_name_plural = _("دستگاه های کاربران")
-
-
-class UserIp(CreateMixin):
-    user = models.ForeignKey(User, on_delete=models.PROTECT, related_name='ip')
-    user_ip = models.GenericIPAddressField()
-
-    def __str__(self):
-        return f'{self.user.mobile_phone} {self.user_ip}'
-
-    class Meta:
-        db_table = 'user_ip'
-        verbose_name = _('ای پی کاربر')
-        verbose_name_plural = _("ای پی کاربران")
-
-
 class Coach(CreateMixin, UpdateMixin, SoftDeleteMixin):
     user = models.OneToOneField(User, on_delete=models.DO_NOTHING, related_name='coach')
     coach_number = models.CharField(max_length=15)
-
-    # bio = models.TextField(blank=True, null=True)
-    # specialty = models.CharField(max_length=255, blank=True, null=True)
-    # linkedin_url = models.URLField(blank=True, null=True)
-    # years_of_experience = models.PositiveSmallIntegerField(blank=True, null=True)
 
     def __str__(self):
         return f'{self.user.get_full_name}'
@@ -277,8 +232,6 @@ class Student(CreateMixin, UpdateMixin, SoftDeleteMixin):
     user = models.OneToOneField(User, on_delete=models.DO_NOTHING, related_name='student')
     student_number = models.CharField(max_length=11)
 
-    # bio = models.TextField(blank=True, null=True)
-
     def __str__(self):
         return f'{self.user.get_full_name}'
 
@@ -299,3 +252,31 @@ class RequestLog(CreateMixin):
 
     class Meta:
         db_table = 'request_log'
+
+
+class BestStudent(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    student = models.ForeignKey(Student, on_delete=models.DO_NOTHING, related_name='best_student')
+    is_publish = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f'{self.id} {self.is_publish}'
+
+    @property
+    def get_full_name(self):
+        return self.student.user.get_full_name
+
+    class Meta:
+        db_table = 'best_student'
+        ordering = ['-created_at']
+
+
+class BestStudentAttribute(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    best_student = models.ForeignKey(BestStudent, on_delete=models.DO_NOTHING, related_name='attributes')
+    attribute = models.CharField(max_length=50)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f'{self.attribute} {self.is_active}'
+
+    class Meta:
+        db_table = "best_student_attribute"

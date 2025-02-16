@@ -7,7 +7,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import generics
 from rest_framework import exceptions
 
-from accounts.models import User, Otp, State, City, Student, Coach, Ticket, TicketRoom
+from accounts.models import User, Otp, State, City, Student, Coach, Ticket, TicketRoom, BestStudent, \
+    BestStudentAttribute
 from accounts.validators import MobileRegexValidator
 
 
@@ -284,3 +285,20 @@ class ListUserSerializer(ModelSerializer):
     class Meta:
         model = User
         fields = ['id', "mobile_phone", "email", "is_coach"]
+
+
+class ListBestStudentSerializer(ModelSerializer):
+    def get_student_image(self, obj):
+        return obj.student.user.user_image_url if obj.student.user.image else None
+
+    student_image = SerializerMethodField()
+
+    class Meta:
+        model = BestStudent
+        fields = ["id", 'get_full_name', "student_image"]
+
+
+class ListBestStudentAttributesSerializer(ModelSerializer):
+    class Meta:
+        model = BestStudentAttribute
+        fields = ['attribute']
