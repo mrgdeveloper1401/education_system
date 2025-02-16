@@ -107,6 +107,8 @@ class SectionFileViewSet(ReadOnlyModelViewSet):
 
 
 class SectionImagesViewSet(ReadOnlyModelViewSet):
+    permission_classes = [IsAuthenticated]
+
     def get_serializer_class(self):
         if self.action == "list":
             return serializers.ListSectionImageSerializer

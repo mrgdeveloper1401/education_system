@@ -1,10 +1,13 @@
+from pip._vendor.requests.models import Response
 from rest_framework import mixins
 from rest_framework import viewsets
 from rest_framework import permissions
 from rest_framework import exceptions
+from rest_framework import status
+from rest_framework import response
 
 from . import serializers
-from course.models import Category, Course, Section
+from course.models import Category, Course, Section, SectionImages, SectionFile, SectionVideo
 from .paginations import AdminPagination
 
 
@@ -31,15 +34,12 @@ class AdminCourseViewSet(viewsets.ModelViewSet):
     pagination_class = AdminPagination
 
     def get_queryset(self):
-        return Course.objects.filter(category_id=self.kwargs["category_pk"]).only(
-            "id", "course_image", "created_at", "course_name", "course_description", "course_description",
-            "category_id", "course_price", "course_duration", "updated_at", "created_at"
-        )
+        return Course.objects.filter(category_id=self.kwargs["category_pk"]).defer("deleted_at", "is_deleted")
 
     def get_serializer_context(self):
-        return {
-            "category_pk": self.kwargs['category_pk']
-        }
+        context = super().get_serializer_context()
+        context['category_pk'] = self.kwargs["category_pk"]
+        return context
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -59,14 +59,16 @@ class AdminCourseSectionViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         if self.action == "list":
             return Section.objects.filter(course_id=self.kwargs["course_pk"]).only(
-                "id", "section_image", "title"
+                "id", "title"
             )
-        return Section.objects.filter(course_id=self.kwargs["course_pk"])
+        return Section.objects.filter(course_id=self.kwargs["course_pk"]).only(
+            "id", "created_at", "updated_at", "title", "description", "is_available"
+        )
 
     def get_serializer_context(self):
-        return {
-            "course_pk": self.kwargs["course_pk"],
-        }
+        context = super().get_serializer_context()
+        context["course_pk"] = self.kwargs["course_pk"]
+        return context
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -77,3 +79,63 @@ class AdminCourseSectionViewSet(viewsets.ModelViewSet):
             return serializers.AdminUpdateCourseSectionSerializer
         else:
             raise exceptions.NotAcceptable()
+
+
+class AdminSectionImagesViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAdminUser]
+
+    def get_serializer_class(self):
+        if self.action == "create":
+            return serializers.AdminCreateSectionImagesSerializer
+        else:
+            return serializers.AdminListSectionImagesSerializer
+
+    def get_queryset(self):
+        return SectionImages.objects.filter(section_id=self.kwargs["section_pk"]).only(
+            "id", "created_at", "updated_at", "section_image", "section_id", "is_publish"
+        )
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['section_pk'] = self.kwargs['section_pk']
+        return context
+    
+
+class AdminSectionFileViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAdminUser]
+
+    def get_serializer_class(self):
+        if self.action == "create":
+            return serializers.AdminCreateCourseSectionFileSerializer
+        else:
+            return serializers.AdminListCourseSectionFileSerializer
+
+    def get_queryset(self):
+        return SectionFile.objects.filter(section_id=self.kwargs["section_pk"]).only(
+            "id", "created_at", "updated_at", "pdf_file", "section_id", "is_publish"
+        )
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['section_pk'] = self.kwargs['section_pk']
+        return context
+
+
+class AdminSectionVideoViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAdminUser]
+
+    def get_serializer_class(self):
+        if self.action == "create":
+            return serializers.AdminCreateSectionVideoSerializer
+        else:
+            return serializers.AdminListSectionVideoSerializer
+
+    def get_queryset(self):
+        return SectionVideo.objects.filter(section_id=self.kwargs["section_pk"]).only(
+            "id", "created_at", "updated_at", "video", "section_id", "is_publish"
+        )
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['section_pk'] = self.kwargs['section_pk']
+        return context

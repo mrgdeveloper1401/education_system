@@ -3,10 +3,8 @@ from core.models import UpdateMixin, CreateMixin, SoftDeleteMixin
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import FileExtensionValidator
 from treebeard.mp_tree import MP_Node
-from rest_framework.validators import ValidationError
 
 from course.validators import max_upload_image_validator
-from utils.file_name import section_filename
 
 
 class Category(MP_Node, CreateMixin, UpdateMixin, SoftDeleteMixin):
@@ -82,7 +80,7 @@ class SectionVideo(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 class SectionImages(CreateMixin, UpdateMixin, SoftDeleteMixin):
     section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name='section_images')
-    section_image = models.ImageField(upload_to="course_images/%Y/%m/%d",
+    section_image = models.ImageField(upload_to="course_section_images/%Y/%m/%d",
                                       validators=[max_upload_image_validator],
                                       help_text=_("حداکثر اندازه سایز عکس برابر است با 1 مگابایت هست"))
     is_publish = models.BooleanField(default=True)
@@ -96,7 +94,8 @@ class SectionImages(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 class SectionFile(CreateMixin, UpdateMixin, SoftDeleteMixin):
     section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name='section_files')
-    pdf_file = models.FileField(upload_to="section_file/%Y/%m/%d", validators=[FileExtensionValidator(["pdf"])], blank=True)
+    pdf_file = models.FileField(upload_to="section_file/%Y/%m/%d", validators=[FileExtensionValidator(["pdf"])],
+                                blank=True)
     is_publish = models.BooleanField(default=True)
     
     def __str__(self):
@@ -104,14 +103,6 @@ class SectionFile(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = "course_section_file"
-
-# class SectionImage(CreateMixin, UpdateMixin, SoftDeleteMixin):
-#     section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name='section_image')
-#     image = models.ForeignKey("images.Image", on_delete=models.DO_NOTHING, related_name="image_section_image")
-#     is_active = models.BooleanField(db_default=True)
-#
-#     class Meta:
-#         db_table = 'course_section_image'
 
 
 class StudentEnrollment(CreateMixin, UpdateMixin, SoftDeleteMixin):
