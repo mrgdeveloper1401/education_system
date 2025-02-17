@@ -1,13 +1,9 @@
-from pip._vendor.requests.models import Response
-from rest_framework import mixins
 from rest_framework import viewsets
 from rest_framework import permissions
 from rest_framework import exceptions
-from rest_framework import status
-from rest_framework import response
 
 from . import serializers
-from course.models import Category, Course, Section, SectionImages, SectionFile, SectionVideo
+from course.models import Category, Course, Section, SectionFile, SectionVideo
 from .paginations import AdminPagination
 
 
@@ -80,26 +76,6 @@ class AdminCourseSectionViewSet(viewsets.ModelViewSet):
         else:
             raise exceptions.NotAcceptable()
 
-
-class AdminSectionImagesViewSet(viewsets.ModelViewSet):
-    permission_classes = [permissions.IsAdminUser]
-
-    def get_serializer_class(self):
-        if self.action == "create":
-            return serializers.AdminCreateSectionImagesSerializer
-        else:
-            return serializers.AdminListSectionImagesSerializer
-
-    def get_queryset(self):
-        return SectionImages.objects.filter(section_id=self.kwargs["section_pk"]).only(
-            "id", "created_at", "updated_at", "section_image", "section_id", "is_publish"
-        )
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context['section_pk'] = self.kwargs['section_pk']
-        return context
-    
 
 class AdminSectionFileViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAdminUser]

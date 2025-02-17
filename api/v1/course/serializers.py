@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from course.models import Course, Category, Comment, Section, SectionVideo, SectionFile, SectionImages
+from course.models import Course, Category, Comment, Section, SectionVideo, SectionFile
 from drf_spectacular.utils import extend_schema_field
 
 
@@ -58,13 +58,13 @@ class RetrieveCourseSerializer(serializers.ModelSerializer):
 class ListSectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Section
-        fields = ['id', "title", "course", "created_at"]
+        fields = ['id', "title", "course", "created_at", "cover_image"]
 
 
 class RetrieveSectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Section
-        fields = ['course', "title", "description"]
+        fields = ['course', "title", "description", "cover_image"]
 
 
 class ListSectionVideoSerializer(serializers.ModelSerializer):
@@ -89,18 +89,6 @@ class RetrieveSectionFileSerializer(serializers.ModelSerializer):
     class Meta:
         model = SectionFile
         fields = ['pdf_file']
-
-
-class ListSectionImageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SectionImages
-        fields = ['id', "section_image", "created_at"]
-
-
-class RetrieveSectionImageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SectionImages
-        fields = ['section_image']
 
 
 # class LessonByTakenStudentSerializer(serializers.ModelSerializer):

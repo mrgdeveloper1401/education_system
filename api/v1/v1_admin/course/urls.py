@@ -17,7 +17,6 @@ course_router = routers.NestedDefaultRouter(category_router, r'course', lookup='
 course_router.register("course_section", views.AdminCourseSectionViewSet, basename='course_section')
 
 section_router = routers.NestedDefaultRouter(course_router, r'course_section', lookup='section')
-section_router.register("section_image", views.AdminSectionImagesViewSet, basename='section_image')
 section_router.register('section_file', views.AdminSectionFileViewSet, basename='section_file')
 section_router.register("section_video", views.AdminSectionVideoViewSet, basename='section_video')
 

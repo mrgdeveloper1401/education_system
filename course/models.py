@@ -52,8 +52,8 @@ class Section(CreateMixin, UpdateMixin, SoftDeleteMixin):
     description = models.TextField(blank=True, null=True)
     is_available = models.BooleanField(default=True,
                                        help_text=_("در دسترس بودن"))
-    # section_image = models.ForeignKey("images.Image", related_name="section_images", on_delete=models.DO_NOTHING,
-    #                                   blank=True, null=True)
+    cover_image = models.ImageField(upload_to="section_cover_image/%Y/%m/%d", null=True,
+                                    validators=[max_upload_image_validator])
 
     # def clean(self):
     #     if not self.video and not self.pdf_file:
@@ -70,26 +70,12 @@ class SectionVideo(CreateMixin, UpdateMixin, SoftDeleteMixin):
     section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name='section_videos')
     video = models.FileField(upload_to="section_video/%Y/%m/%d", validators=[FileExtensionValidator(["mp4"])])
     is_publish = models.BooleanField(default=True)
-    
+
     def __str__(self):
         return f'{self.section_id} {self.is_publish}'
     
     class Meta:
         db_table = 'course_section_video'
-
-
-class SectionImages(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name='section_images')
-    section_image = models.ImageField(upload_to="course_section_images/%Y/%m/%d",
-                                      validators=[max_upload_image_validator],
-                                      help_text=_("حداکثر اندازه سایز عکس برابر است با 1 مگابایت هست"))
-    is_publish = models.BooleanField(default=True)
-    
-    def __str__(self):
-        return f'{self.section_id} {self.is_publish}'
-    
-    class Meta:
-        db_table = "course_section_images"
 
 
 class SectionFile(CreateMixin, UpdateMixin, SoftDeleteMixin):

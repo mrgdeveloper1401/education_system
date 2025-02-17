@@ -3,8 +3,8 @@ from rest_framework import serializers
 from rest_framework import exceptions
 from django.utils.translation import gettext_lazy as _
 
-from course.models import Category, Course, Section, SectionImages, SectionFile, SectionVideo
-from drf_extra_fields.fields import Base64ImageField, HybridImageField
+from course.models import Category, Course, Section, SectionFile, SectionVideo
+from drf_extra_fields.fields import Base64ImageField
 
 from images.models import Image
 
@@ -69,9 +69,11 @@ class AdminUpdateCourseSerializer(serializers.ModelSerializer):
 
 
 class AdminCreateCourseSectionSerializer(serializers.ModelSerializer):
+    cover_image = Base64ImageField()
+
     class Meta:
         model = Section
-        exclude = ['course']
+        fields = ['title', "description", "is_available", "cover_image"]
 
     def create(self, validated_data):
         course_id = self.context['course_pk']
@@ -91,26 +93,6 @@ class AdminUpdateCourseSectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Section
         exclude = ['course', "deleted_at", "is_deleted"]
-
-
-class AdminCreateSectionImagesSerializer(serializers.ModelSerializer):
-    # section_image = Base64ImageField()
-
-    class Meta:
-        model = SectionImages
-        fields = ["is_publish", "section_image"]
-
-    def create(self, validated_data):
-        return SectionImages.objects.create(
-            section_id=self.context['section_pk'],
-            **validated_data
-        )
-
-
-class AdminListSectionImagesSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SectionImages
-        exclude = ['is_deleted', "deleted_at"]
 
 
 class AdminCreateCourseSectionFileSerializer(serializers.ModelSerializer):

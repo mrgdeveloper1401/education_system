@@ -67,13 +67,13 @@ class SectionVideoAdmin(admin.ModelAdmin):
     list_filter = ['is_publish', "created_at"]
 
 
-@admin.register(models.SectionImages)
-class SectionImagesAdmin(admin.ModelAdmin):
-    raw_id_fields = ['section']
-    list_display = ['section', "is_publish", "created_at"]
-    list_select_related = ['section']
-    list_per_page = 20
-    list_filter = ['is_publish', "created_at"]
+# @admin.register(models.SectionImages)
+# class SectionImagesAdmin(admin.ModelAdmin):
+#     raw_id_fields = ['section']
+#     list_display = ['section', "is_publish", "created_at"]
+#     list_select_related = ['section']
+#     list_per_page = 20
+#     list_filter = ['is_publish', "created_at"]
 
 
 @admin.register(models.SectionFile)

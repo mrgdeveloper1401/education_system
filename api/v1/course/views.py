@@ -3,7 +3,7 @@ from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet
 from rest_framework import mixins
 from rest_framework.exceptions import NotAcceptable
 
-from course.models import Category, Course, Comment, Section, SectionVideo, SectionFile, SectionImages
+from course.models import Category, Course, Comment, Section, SectionVideo, SectionFile
 from .pagination import CommentPagination
 from .paginations import CourseCategoryPagination
 from .permissions import AccessCoursePermission, AccessCourseSectionPermission, AccessCourseSectionImagePermission
@@ -56,12 +56,14 @@ class SectionViewSet(ReadOnlyModelViewSet):
     def get_queryset(self):
         if self.action == "list":
             return Section.objects.filter(course_id=self.kwargs['course_pk'], is_available=True).only(
-                "id", "course", "title", "created_at"
+                "id", "course", "title", "created_at", "cover_image"
             )
-        if self.action == "retrieve":
-            return (Section.objects.filter(course_id=self.kwargs['course_pk'], is_available=True).only(
-                "title", "description", "course_id"
-            ).select_related("course"))
+        else:
+            return (Section.objects.filter(course_id=self.kwargs['course_pk'], is_available=True).select_related(
+                "course"
+            ).only(
+                "course_id", "title", "description", "cover_image"
+            ))
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -104,24 +106,6 @@ class SectionFileViewSet(ReadOnlyModelViewSet):
             return serializers.ListSectionFileSerializer
         else:
             return serializers.RetrieveSectionFileSerializer
-
-
-class SectionImagesViewSet(ReadOnlyModelViewSet):
-    permission_classes = [IsAuthenticated]
-
-    def get_serializer_class(self):
-        if self.action == "list":
-            return serializers.ListSectionImageSerializer
-        else:
-            return serializers.RetrieveSectionImageSerializer
-
-    def get_queryset(self):
-        query = SectionImages.objects.filter(is_publish=True, section_id=self.kwargs['section_pk'])
-        if self.action == "list":
-            query = query.only("id", "section_image", "created_at")
-        else:
-            query = query.only("section_image")
-        return query
 
 
 class CommentViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.RetrieveModelMixin, GenericViewSet):
