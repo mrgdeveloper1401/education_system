@@ -96,9 +96,9 @@ class SectionFileViewSet(ReadOnlyModelViewSet):
     def get_queryset(self):
         query = SectionFile.objects.filter(is_publish=True, section_id=self.kwargs["section_pk"])
         if self.action == "list":
-            q = query.only("id", "pdf_file", "created_at")
+            q = query.only("id", "zip_file", "created_at")
         else:
-            q = query.only("pdf_file")
+            q = query.only("zip_file")
         return q
 
     def get_serializer_class(self):

@@ -13,4 +13,4 @@ def practice_name(instance, filename):
 def section_filename(instance, filename):
     name = instance.title.replace(" ", "_")
     date = instance.created_at.strftime("%Y/%m/%d")
-    return f"section_pdf_file/{name}/{date}/{filename}"
+    return f"section_zip_file/{name}/{date}/{filename}"

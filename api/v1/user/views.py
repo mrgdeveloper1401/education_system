@@ -1,4 +1,3 @@
-from django.db.models import Prefetch
 from django_filters.rest_framework.backends import DjangoFilterBackend
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.mixins import CreateModelMixin
@@ -23,7 +22,26 @@ from .serializers import UserSerializer, OtpLoginSerializer, VerifyOtpSerializer
     , StateSerializer, CitySerializer, ChangePasswordSerializer, ForgetPasswordSerializer, \
     ConfirmForgetPasswordSerializer, StudentSerializer, CoachSerializer, CreateTicketSerializer, ListUserSerializer, \
     TickerRoomSerializer, ListTicketChatSerializer, UpdateTicketChatSerializer, ListBestStudentSerializer, \
-    ListBestStudentAttributesSerializer
+    ListBestStudentAttributesSerializer, UserLoginSerializer
+
+
+class UserLoginApiView(APIView):
+    serializer_class = UserLoginSerializer
+    permission_classes = [NotAuthenticate]
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        valid_token = serializer.validated_data['token']
+        response = Response(valid_token)
+        response.set_cookie(
+            key='token',
+            value=valid_token,
+            httponly=True,
+            secure=True,
+            samesite='Lax'
+        )
+        return response
 
 
 class UserViewSet(ModelViewSet):

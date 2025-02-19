@@ -4,7 +4,7 @@ WORKDIR /home/app
 
 RUN apk update --no-cache && \
     apk upgrade --no-cache && \
-    apk add --no-cache gcc musl-dev libpq postgresql-dev
+    apk add --no-cache postgresql
 
 COPY . .
 

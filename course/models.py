@@ -80,7 +80,7 @@ class SectionVideo(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 class SectionFile(CreateMixin, UpdateMixin, SoftDeleteMixin):
     section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name='section_files')
-    pdf_file = models.FileField(upload_to="section_file/%Y/%m/%d", validators=[FileExtensionValidator(["pdf"])],
+    zip_file = models.FileField(upload_to="section_file/%Y/%m/%d", validators=[FileExtensionValidator(["zip"])],
                                 blank=True)
     is_publish = models.BooleanField(default=True)
     

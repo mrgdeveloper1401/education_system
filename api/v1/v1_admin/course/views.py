@@ -53,13 +53,7 @@ class AdminCourseSectionViewSet(viewsets.ModelViewSet):
     pagination_class = AdminPagination
 
     def get_queryset(self):
-        if self.action == "list":
-            return Section.objects.filter(course_id=self.kwargs["course_pk"]).only(
-                "id", "title"
-            )
-        return Section.objects.filter(course_id=self.kwargs["course_pk"]).only(
-            "id", "created_at", "updated_at", "title", "description", "is_available"
-        )
+        return Section.objects.filter(course_id=self.kwargs["course_pk"]).defer("deleted_at", "is_deleted")
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -67,14 +61,10 @@ class AdminCourseSectionViewSet(viewsets.ModelViewSet):
         return context
 
     def get_serializer_class(self):
-        if self.action == "list":
-            return serializers.AdminListCourseSectionSerializer
         if self.action == "create":
             return serializers.AdminCreateCourseSectionSerializer
-        if self.action in ['retrieve', "update", "partial_update", "destroy"]:
-            return serializers.AdminUpdateCourseSectionSerializer
         else:
-            raise exceptions.NotAcceptable()
+            return serializers.AdminListCourseSectionSerializer
 
 
 class AdminSectionFileViewSet(viewsets.ModelViewSet):
@@ -88,7 +78,7 @@ class AdminSectionFileViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return SectionFile.objects.filter(section_id=self.kwargs["section_pk"]).only(
-            "id", "created_at", "updated_at", "pdf_file", "section_id", "is_publish"
+            "id", "created_at", "updated_at", "zip_file", "section_id", "is_publish"
         )
 
     def get_serializer_context(self):

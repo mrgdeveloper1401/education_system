@@ -3,8 +3,8 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
+from decouple import config
 
-from .base import MEDIA_URL, MEDIA_ROOT, DEBUG
 
 swagger_url = [
     # YOUR PATTERNS
@@ -33,12 +33,19 @@ api_admin = [
     path("api_admin_course/", include("api.v1.v1_admin.course.urls", namespace="admin_category")),
     path('api_admin_image/', include("api.v1.v1_admin.images.urls", namespace="admin_image")),
     path('api_admin_account/', include("api.v1.v1_admin.accounts.urls", namespace="admin_account")),
+    path('api_admin_blog/', include("api.v1.v1_admin.blogs.urls", namespace="admin_blog_category")),
 ]
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("ckeditor5/", include('django_ckeditor_5.urls')),
 ]
 
 urlpatterns += swagger_url + api_url + simple_jwt_url + api_admin
+
+DEBUG = config("DEBUG", cast=bool)
+MEDIA_URL = config("MEDIA_URL", cast=str)
+MEDIA_ROOT = config("MEDIA_ROOT", cast=str)
+
 
 if DEBUG:
     from debug_toolbar.toolbar import debug_toolbar_urls

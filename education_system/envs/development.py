@@ -41,3 +41,11 @@ SIMPLE_JWT['SIGNING_KEY'] = SECRET_KEY
 JWT_SECRET = ""
 JWT_AUDIENCE = ""
 JWT_ISSUER = ""
+
+# Static files (CSS, JavaScript, Images)
+STATIC_URL = config('STATIC_URL', cast=str)
+STATIC_ROOT = BASE_DIR / config("STATIC_ROOT", cast=str)
+
+MEDIA_URL = config("MEDIA_URL", cast=str)
+MEDIA_ROOT = config("MEDIA_ROOT", cast=str)
+

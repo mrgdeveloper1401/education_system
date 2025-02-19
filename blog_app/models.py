@@ -1,25 +1,20 @@
 from django.db import models
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
+from django_ckeditor_5.fields import CKEditor5Field
+from treebeard.mp_tree import MP_Node
 
 from core.models import UpdateMixin, CreateMixin, SoftDeleteMixin
 
 
-class CategoryBlog(CreateMixin, UpdateMixin, SoftDeleteMixin):
+class CategoryBlog(MP_Node, CreateMixin, UpdateMixin, SoftDeleteMixin):
     category_name = models.CharField(max_length=255)
     category_slug = models.SlugField(max_length=255, allow_unicode=True)
-    parent = models.ForeignKey('self', blank=True, null=True, related_name='children', on_delete=models.DO_NOTHING)
     is_publish = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.category_slug
-
-    @property
-    def get_children(self):
-        return self.children.values("id", "category_name")
-
-    class Meta:
-        db_table = 'blog_category'
+        return self.category_name
+    node_order_by = ["category_name"]
 
 
 class PostBlog(CreateMixin, UpdateMixin, SoftDeleteMixin):
@@ -28,6 +23,7 @@ class PostBlog(CreateMixin, UpdateMixin, SoftDeleteMixin):
     post_introduction = models.CharField(max_length=255, help_text=_("مقدمه ای در مورد پست"))
     post_title = models.CharField(max_length=255, help_text=_("عنوان پست"))
     post_slug = models.SlugField(max_length=255, allow_unicode=True)
+    post_body = CKEditor5Field(config_name='extends')
     read_count = models.PositiveIntegerField(default=0, help_text=_("چند نفر این پست را دیده اند"))
     read_time = models.PositiveSmallIntegerField(help_text=_("مدت زمان برای مطالعه این مقاله"))
     post_cover_image = models.ImageField(upload_to="blog/%Y/%m/%d")
@@ -37,10 +33,6 @@ class PostBlog(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     def __str__(self):
         return self.post_title
-
-    def save(self, *args, **kwargs):
-        self.slug = slugify(self.post_title)
-        super().save(*args, **kwargs)
 
 
 class TagBlog(CreateMixin, UpdateMixin, SoftDeleteMixin):

@@ -84,21 +84,17 @@ class AdminCreateCourseSectionSerializer(serializers.ModelSerializer):
 
 
 class AdminListCourseSectionSerializer(serializers.ModelSerializer):
+    cover_image = Base64ImageField()
+
     class Meta:
         model = Section
-        fields = ['id', "title"]
-
-
-class AdminUpdateCourseSectionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Section
-        exclude = ['course', "deleted_at", "is_deleted"]
+        exclude = ["deleted_at", "is_deleted"]
 
 
 class AdminCreateCourseSectionFileSerializer(serializers.ModelSerializer):
     class Meta:
         model = SectionFile
-        fields = ["is_publish", "pdf_file"]
+        fields = ["is_publish", "zip_file"]
 
     def create(self, validated_data):
         return SectionFile.objects.create(section_id=int(self.context['section_pk']), **validated_data)

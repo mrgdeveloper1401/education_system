@@ -82,13 +82,13 @@ class RetrieveSectionVideoSerializer(serializers.ModelSerializer):
 class ListSectionFileSerializer(serializers.ModelSerializer):
     class Meta:
         model = SectionFile
-        fields = ['id', "pdf_file", "created_at"]
+        fields = ['id', "zip_file", "created_at"]
 
 
 class RetrieveSectionFileSerializer(serializers.ModelSerializer):
     class Meta:
         model = SectionFile
-        fields = ['pdf_file']
+        fields = ['zip_file']
 
 
 # class LessonByTakenStudentSerializer(serializers.ModelSerializer):

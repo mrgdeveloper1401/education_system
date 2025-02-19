@@ -14,6 +14,7 @@ import os.path
 from datetime import timedelta
 from pathlib import Path
 from decouple import config
+from education_system.dj_ckeditor_config import CKEDITOR_5_CONFIGS, customColorPalette
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -32,6 +33,7 @@ THIRD_PARTY_PACKAGE = [
     "django_filters",
     "treebeard",
     "import_export",
+    "django_ckeditor_5",
     # "guardian",
 ]
 
@@ -69,7 +71,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "accounts.middleware.RequestLoggingMiddleware"
+    # "accounts.middleware.RequestLoggingMiddleware",
+    # "accounts.middleware.UserCacheMiddleware"
 ]
 
 ROOT_URLCONF = "education_system.urls"
@@ -122,13 +125,6 @@ USE_I18N = True
 
 USE_TZ = False
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
-
-STATIC_URL = "static/"
-STATIC_ROOT = os.path.join(BASE_DIR, "/vol/static")
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, '/vol/media')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -231,6 +227,7 @@ AWS_S3_ENDPOINT_URL = config('ARVAN_AWS_S3_ENDPOINT_URL', cast=str)
 AWS_S3_REGION_NAME = 'us-east-1'
 AWS_S3_FILE_OVERWRITE = False
 AWS_SERVICE_NAME = 's3'
+# AWS_QUERYSTRING_AUTH = False
 
 STORAGES = {
     "default": {
@@ -245,3 +242,20 @@ STORAGES = {
 #     'django.contrib.auth.backends.ModelBackend',
 #     'guardian.backends.ObjectPermissionBackend',
 # )
+
+# CKEDITOR_5_CUSTOM_CSS = 'path_to.css'
+# CKEDITOR_5_FILE_STORAGE = "path_to_storage.CustomStorage"
+CKEDITOR_5_ALLOW_ALL_FILE_TYPES = True
+
+# ckeditor path
+CKEDITOR_BASEPATH = BASE_DIR / "staticfiles/ckeditor/ckeditor/"
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://localhost:6380/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}

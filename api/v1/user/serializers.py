@@ -6,10 +6,30 @@ from django.contrib.auth.password_validation import validate_password
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import generics
 from rest_framework import exceptions
+from django.contrib.auth import authenticate
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from accounts.models import User, Otp, State, City, Student, Coach, Ticket, TicketRoom, BestStudent, \
     BestStudentAttribute
 from accounts.validators import MobileRegexValidator
+
+
+class UserLoginSerializer(Serializer):
+    mobile_phone = CharField(validators=[MobileRegexValidator])
+    password = CharField(write_only=True)
+
+    def validate(self, attrs):
+        user = authenticate(mobile_phone=attrs.get('mobile_phone'), password=attrs.get('password'))
+        if not user:
+            raise exceptions.ValidationError(_('Invalid credentials.'))
+        refresh = RefreshToken.for_user(user)
+        token = {
+            'refresh': str(refresh),
+            'access': str(refresh.access_token)
+        }
+        attrs['token'] = token
+        attrs['user'] = user
+        return attrs
 
 
 class UserSerializer(ModelSerializer):
