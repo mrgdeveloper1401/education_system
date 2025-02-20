@@ -18,3 +18,4 @@ python-ulid==3.0.0
 channels-redis==4.2.0
 channels
 django-ckeditor-5
+django_redis
