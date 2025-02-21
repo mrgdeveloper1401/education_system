@@ -24,7 +24,7 @@ class AdminBestStudentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return BestStudent.objects.select_related("student__user").only(
-            "id", "student__user__first_name", "student__user__last_name", "is_publish", "created_at"
+            "id", "student__user__first_name", "student__user__last_name", "is_publish", "created_at", "description"
         )
 
     def get_serializer_class(self):

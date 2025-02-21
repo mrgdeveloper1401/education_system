@@ -307,18 +307,19 @@ class ListUserSerializer(ModelSerializer):
         fields = ['id', "mobile_phone", "email", "is_coach"]
 
 
+class AttributeBestStudentSerializer(ModelSerializer):
+    class Meta:
+        model = BestStudentAttribute
+        fields = ['attribute']
+
+
 class ListBestStudentSerializer(ModelSerializer):
     def get_student_image(self, obj):
         return obj.student.user.user_image_url if obj.student.user.image else None
 
     student_image = SerializerMethodField()
+    attributes = AttributeBestStudentSerializer(many=True)
 
     class Meta:
         model = BestStudent
-        fields = ["id", 'get_full_name', "student_image"]
-
-
-class ListBestStudentAttributesSerializer(ModelSerializer):
-    class Meta:
-        model = BestStudentAttribute
-        fields = ['attribute']
+        fields = ["id", 'get_full_name', "student_image", "description", "attributes"]

@@ -5,8 +5,7 @@ from django.urls import include
 from api.v1.v1_admin.accounts.views import TicketReplyViewSet
 from .views import UserViewSet, SendCodeOtpViewSet, VerifyOtpCodeApiView, StateApiView, CityApiView, \
     StateCitiesGenericView, ChangePasswordApiView, ForgetPasswordApiView, ConfirmForgetPasswordApiView, \
-    TicketChatViewSet, ListUserApiView, TicketRoomViewSet, BestStudentViewSet, BestStudentAttributeViewSet, \
-    UserLoginApiView
+    TicketChatViewSet, ListUserApiView, TicketRoomViewSet, BestStudentViewSet, UserLoginApiView
 
 router = routers.DefaultRouter()
 router.register('user', UserViewSet, basename='create')
@@ -21,14 +20,11 @@ ticket_room_router.register("ticket_chat", TicketChatViewSet, basename='ticket_c
 ticket_chat_router = routers.NestedDefaultRouter(ticket_room_router, "ticket_chat", lookup='ticket_chat')
 ticket_chat_router.register("reply", TicketReplyViewSet, basename='reply_ticket')
 
-best_student_router = routers.NestedDefaultRouter(router, "best_student", lookup='best_student')
-best_student_router.register("attribute", BestStudentAttributeViewSet, basename='attribute')
 
 app_name = 'users'
 urlpatterns = [
     path('', include(ticket_room_router.urls)),
     path("", include(ticket_chat_router.urls)),
-    path('', include(best_student_router.urls)),
     path("login/", UserLoginApiView.as_view(), name='user_login'),
     path('user-list/', ListUserApiView.as_view(), name='user-list'),
     path("verify-otp/", VerifyOtpCodeApiView.as_view(), name="verify-otp"),

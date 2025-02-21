@@ -257,6 +257,7 @@ class RequestLog(CreateMixin):
 class BestStudent(CreateMixin, UpdateMixin, SoftDeleteMixin):
     student = models.ForeignKey(Student, on_delete=models.DO_NOTHING, related_name='best_student')
     is_publish = models.BooleanField(default=True)
+    description = models.CharField(max_length=500, null=True)
 
     def __str__(self):
         return f'{self.id} {self.is_publish}'

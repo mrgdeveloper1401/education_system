@@ -1,3 +1,4 @@
+from django.db.models import Prefetch
 from django_filters.rest_framework.backends import DjangoFilterBackend
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.mixins import CreateModelMixin
@@ -11,8 +12,7 @@ from rest_framework.filters import SearchFilter
 from rest_framework import exceptions
 from rest_framework import viewsets
 
-from accounts.models import User, Otp, State, City, Student, Coach, Ticket, TicketRoom, BestStudent, \
-    BestStudentAttribute
+from accounts.models import User, State, City, Student, Coach, Ticket, TicketRoom, BestStudent, BestStudentAttribute
 from utils.filters import UserFilter
 from utils.pagination import StudentCoachTicketPagination, ListUserPagination
 from utils.permissions import NotAuthenticate
@@ -22,7 +22,7 @@ from .serializers import UserSerializer, OtpLoginSerializer, VerifyOtpSerializer
     , StateSerializer, CitySerializer, ChangePasswordSerializer, ForgetPasswordSerializer, \
     ConfirmForgetPasswordSerializer, StudentSerializer, CoachSerializer, CreateTicketSerializer, ListUserSerializer, \
     TickerRoomSerializer, ListTicketChatSerializer, UpdateTicketChatSerializer, ListBestStudentSerializer, \
-    ListBestStudentAttributesSerializer, UserLoginSerializer
+    UserLoginSerializer
 
 
 class UserLoginApiView(APIView):
@@ -216,14 +216,11 @@ class BestStudentViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = BestStudentPagination
 
     def get_queryset(self):
-        return BestStudent.objects.select_related("student__user").only(
-            "student__user__first_name", "student__user__last_name", "id", "student__user__image"
-        ).filter(is_publish=True)
+        best_student_attributes_qs = BestStudentAttribute.objects.only("id", "best_student_id", "attribute")
 
-
-class BestStudentAttributeViewSet(viewsets.ReadOnlyModelViewSet):
-    serializer_class = ListBestStudentAttributesSerializer
-
-    def get_queryset(self):
-        return (BestStudentAttribute.objects.filter(is_active=True, best_student_id=self.kwargs['best_student_pk']).
-                only("attribute"))
+        queryset = BestStudent.objects.select_related("student__user").filter(is_publish=True).only(
+            "id", "student__user__first_name", "student__user__last_name", "description", "student__user__image"
+        ).prefetch_related(
+            Prefetch("attributes", queryset=best_student_attributes_qs)
+        )
+        return queryset

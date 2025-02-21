@@ -28,7 +28,7 @@ class AdminCreateBestStudentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = BestStudent
-        fields = ['is_publish', "student"]
+        fields = ['is_publish', "student", "description"]
 
     def validate(self, attrs):
         try:
