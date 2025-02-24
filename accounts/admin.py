@@ -4,11 +4,10 @@ from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 from import_export.admin import ImportExportModelAdmin
 
-from .models import User, Otp, State, City, Ticket, RecycleUser, Coach, Student, RequestLog, TicketRoom, TicketReply, \
-    BestStudent, BestStudentAttribute
+from . import models
 
 
-@admin.register(User)
+@admin.register(models.User)
 class UserAdmin(BaseUserAdmin):
     add_form_template = "admin/auth/user/add_form.html"
     change_user_password_template = None
@@ -64,7 +63,7 @@ class UserAdmin(BaseUserAdmin):
         return q
 
 
-@admin.register(Otp)
+@admin.register(models.Otp)
 class OtpAdmin(admin.ModelAdmin):
     list_display = ['mobile_phone', 'code', 'expired_date']
     search_fields = ['mobile_phone']
@@ -72,13 +71,13 @@ class OtpAdmin(admin.ModelAdmin):
     date_hierarchy = 'created_at'
 
 
-@admin.register(State)
+@admin.register(models.State)
 class StateAdmin(ImportExportModelAdmin):
     list_display = ['id', "state_name"]
     search_fields = ['state_name']
 
 
-@admin.register(City)
+@admin.register(models.City)
 class CityAdmin(ImportExportModelAdmin):
     raw_id_fields = ['state']
     list_display = ['id', 'state', "city"]
@@ -86,7 +85,7 @@ class CityAdmin(ImportExportModelAdmin):
     list_display_links = ['id', "state", "city"]
 
 
-@admin.register(Ticket)
+@admin.register(models.Ticket)
 class TicketAdmin(admin.ModelAdmin):
     raw_id_fields = ['sender', "room"]
     list_display = ['sender', "is_publish", "created_at"]
@@ -95,7 +94,7 @@ class TicketAdmin(admin.ModelAdmin):
     search_fields = ['user__mobile_phone', "subject_title"]
 
 
-@admin.register(RecycleUser)
+@admin.register(models.RecycleUser)
 class RecycleUserAdmin(admin.ModelAdmin):
     list_display = ("id", "mobile_phone", "email", "first_name", "last_name", "is_staff", "is_active", "is_superuser",
                     "is_deleted", "deleted_at")
@@ -103,14 +102,14 @@ class RecycleUserAdmin(admin.ModelAdmin):
     actions = ["restore_user"]
 
     def get_queryset(self, request):
-        return RecycleUser.objects.filter(is_deleted=True)
+        return models.RecycleUser.objects.filter(is_deleted=True)
 
     @admin.action(description="recovery user")
     def restore_user(self, request, queryset):
         return queryset.update(is_deleted=False, deleted_at=None)
 
 
-@admin.register(TicketRoom)
+@admin.register(models.TicketRoom)
 class TicketRoomAdmin(admin.ModelAdmin):
     raw_id_fields = ['user']
     list_display = ["id", 'user', "title_room", "is_active", "is_close", "created_at"]
@@ -122,7 +121,7 @@ class TicketRoomAdmin(admin.ModelAdmin):
     list_display_links = ['id', "user"]
 
 
-@admin.register(TicketReply)
+@admin.register(models.TicketReply)
 class TicketReplyAdmin(admin.ModelAdmin):
     list_display = ['id', "ticket", "sender", "is_active", "created_at"]
     list_select_related = ['ticket', "sender"]
@@ -131,7 +130,6 @@ class TicketReplyAdmin(admin.ModelAdmin):
 
 
 class BestStudentAdmin(ImportExportModelAdmin):
-    raw_id_fields = ['student']
     list_display = ['id', "get_student_full_name", "is_publish", "created_at"]
     list_per_page = 20
     list_filter = ['is_publish']
@@ -141,29 +139,10 @@ class BestStudentAdmin(ImportExportModelAdmin):
     get_student_full_name.short_description = 'user phone'
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('student__user').only(
-            "id", "is_publish", "student__user__mobile_phone", "created_at"
+        return super().get_queryset(request).only(
+            "id", "is_publish", "created_at", "student"
         )
 
 
-class BestStudentAttributeAdmin(ImportExportModelAdmin):
-    list_display = ['get_student_full_name', "attribute", "is_active", "created_at"]
-    raw_id_fields = ['best_student']
-    list_per_page = 30
-    list_filter = ['is_active']
-
-    def get_student_full_name(self, obj):
-        return obj.best_student.student.user.get_full_name
-    get_student_full_name.short_description = 'student full name'
-
-    def get_queryset(self, request):
-        return super().get_queryset(request).select_related("best_student__student__user").only(
-            "id", "created_at", "is_active", "attribute", "best_student__student__user__first_name",
-            "best_student__student__user__last_name"
-        )
-
-
-admin.site.register(Coach)
-admin.site.register(Student)
-admin.site.register(BestStudent, BestStudentAdmin)
-admin.site.register(BestStudentAttribute, BestStudentAttributeAdmin)
+admin.site.register(models.Coach)
+admin.site.register(models.BestStudent, BestStudentAdmin)

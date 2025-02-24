@@ -3,19 +3,17 @@ from rest_framework.urls import path
 from django.urls import include
 
 from api.v1.v1_admin.accounts.views import TicketReplyViewSet
-from .views import UserViewSet, SendCodeOtpViewSet, VerifyOtpCodeApiView, StateApiView, CityApiView, \
-    StateCitiesGenericView, ChangePasswordApiView, ForgetPasswordApiView, ConfirmForgetPasswordApiView, \
-    TicketChatViewSet, ListUserApiView, TicketRoomViewSet, BestStudentViewSet, UserLoginApiView
+from . import views
 
 router = routers.DefaultRouter()
-router.register('user', UserViewSet, basename='create')
-router.register('send-code', SendCodeOtpViewSet, basename='login-otp')
-router.register("best_student", BestStudentViewSet, basename="best_student")
+router.register('user', views.UserViewSet, basename='create')
+router.register('send-code', views.SendCodeOtpViewSet, basename='login-otp')
+router.register("best_student", views.BestStudentViewSet, basename="best_student")
 
-router.register("ticket_room", TicketRoomViewSet, basename='ticket_room')
+router.register("ticket_room", views.TicketRoomViewSet, basename='ticket_room')
 
 ticket_room_router = routers.NestedDefaultRouter(router, "ticket_room", lookup='ticket_room')
-ticket_room_router.register("ticket_chat", TicketChatViewSet, basename='ticket_chat')
+ticket_room_router.register("ticket_chat", views.TicketChatViewSet, basename='ticket_chat')
 
 ticket_chat_router = routers.NestedDefaultRouter(ticket_room_router, "ticket_chat", lookup='ticket_chat')
 ticket_chat_router.register("reply", TicketReplyViewSet, basename='reply_ticket')
@@ -25,15 +23,15 @@ app_name = 'users'
 urlpatterns = [
     path('', include(ticket_room_router.urls)),
     path("", include(ticket_chat_router.urls)),
-    path("login/", UserLoginApiView.as_view(), name='user_login'),
-    path('user-list/', ListUserApiView.as_view(), name='user-list'),
-    path("verify-otp/", VerifyOtpCodeApiView.as_view(), name="verify-otp"),
-    path('state-list/', StateApiView.as_view(), name='state-list'),
-    path('state-list/<int:pk>/', StateApiView.as_view(), name='detail-state-list'),
-    path('state/<int:pk>/city/', StateCitiesGenericView.as_view(), name='detail-state-city'),
-    path('city-list/', CityApiView.as_view(), name='city-list'),
-    path('city-list/<int:pk>/', CityApiView.as_view(), name='city-detail'),
-    path('user/change-password/', ChangePasswordApiView.as_view(), name='change-password'),
-    path('user/forget-password/', ForgetPasswordApiView.as_view(), name='forget-password'),
-    path('user/confirm-forget-password/', ConfirmForgetPasswordApiView.as_view(), name='confirm-password'),
+    path("login/", views.UserLoginApiView.as_view(), name='user_login'),
+    path('user-list/', views.ListUserApiView.as_view(), name='user-list'),
+    path("verify-otp/", views.VerifyOtpCodeApiView.as_view(), name="verify-otp"),
+    path('state-list/', views.StateApiView.as_view(), name='state-list'),
+    path('state-list/<int:pk>/', views.StateApiView.as_view(), name='detail-state-list'),
+    path('state/<int:pk>/city/', views.StateCitiesGenericView.as_view(), name='detail-state-city'),
+    path('city-list/', views.CityApiView.as_view(), name='city-list'),
+    path('city-list/<int:pk>/', views.CityApiView.as_view(), name='city-detail'),
+    path('user/change-password/', views.ChangePasswordApiView.as_view(), name='change-password'),
+    path('user/forget-password/', views.ForgetPasswordApiView.as_view(), name='forget-password'),
+    path('user/confirm-forget-password/', views.ConfirmForgetPasswordApiView.as_view(), name='confirm-password'),
 ] + router.urls

@@ -5,6 +5,7 @@ from django.contrib.auth.models import PermissionsMixin, AbstractBaseUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
+from django.contrib.postgres.fields.array import ArrayField
 
 from accounts.managers import UserManager, SoftManager
 from accounts.validators import MobileRegexValidator, NationCodeRegexValidator, validate_upload_image_user
@@ -233,10 +234,15 @@ class Student(CreateMixin, UpdateMixin, SoftDeleteMixin):
     student_number = models.CharField(max_length=11)
 
     def __str__(self):
-        return f'{self.user.get_full_name}'
+        return self.student_number
+
+    @property
+    def student_name(self):
+        return self.user.get_full_name
 
     class Meta:
         db_table = 'student'
+        ordering = ['-created_at']
         verbose_name = _("دانش اموز")
         verbose_name_plural = _("دانش اموزان")
 
@@ -255,29 +261,14 @@ class RequestLog(CreateMixin):
 
 
 class BestStudent(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    student = models.ForeignKey(Student, on_delete=models.DO_NOTHING, related_name='best_student')
+    student = models.CharField(max_length=50, help_text=_("نام دانش اموز"))
+    student_image = models.ImageField(upload_to="best_student_image/%Y/%m/%d", null=True,
+                                      validators=[validate_upload_image_user], help_text=_("حجم عکس اپلودی نباید بیش تر"
+                                                                                           " از یک مگابایت باشد"))
     is_publish = models.BooleanField(default=True)
     description = models.CharField(max_length=500, null=True)
-
-    def __str__(self):
-        return f'{self.id} {self.is_publish}'
-
-    @property
-    def get_full_name(self):
-        return self.student.user.get_full_name
+    attributes = ArrayField(models.CharField(max_length=20), null=True)
 
     class Meta:
         db_table = 'best_student'
         ordering = ['-created_at']
-
-
-class BestStudentAttribute(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    best_student = models.ForeignKey(BestStudent, on_delete=models.DO_NOTHING, related_name='attributes')
-    attribute = models.CharField(max_length=50)
-    is_active = models.BooleanField(default=True)
-
-    def __str__(self):
-        return f'{self.attribute} {self.is_active}'
-
-    class Meta:
-        db_table = "best_student_attribute"

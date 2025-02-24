@@ -9,8 +9,7 @@ from rest_framework import exceptions
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from accounts.models import User, Otp, State, City, Student, Coach, Ticket, TicketRoom, BestStudent, \
-    BestStudentAttribute
+from accounts.models import User, Otp, State, City, Student, Coach, Ticket, TicketRoom, BestStudent
 from accounts.validators import MobileRegexValidator
 
 
@@ -307,19 +306,7 @@ class ListUserSerializer(ModelSerializer):
         fields = ['id', "mobile_phone", "email", "is_coach"]
 
 
-class AttributeBestStudentSerializer(ModelSerializer):
-    class Meta:
-        model = BestStudentAttribute
-        fields = ['attribute']
-
-
 class ListBestStudentSerializer(ModelSerializer):
-    def get_student_image(self, obj):
-        return obj.student.user.user_image_url if obj.student.user.image else None
-
-    student_image = SerializerMethodField()
-    attributes = AttributeBestStudentSerializer(many=True)
-
     class Meta:
         model = BestStudent
-        fields = ["id", 'get_full_name', "student_image", "description", "attributes"]
+        fields = ["id", "student_image", "description", "attributes", "student"]

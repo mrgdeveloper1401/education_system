@@ -11,9 +11,6 @@ router = routers.DefaultRouter()
 
 router.register("best_student", views.AdminBestStudentViewSet, basename="best_student")
 
-best_student_router = routers.NestedDefaultRouter(router, "best_student", lookup="best_student")
-best_student_router.register("attribute", views.AdminBestStudentAttributeViewSet, basename="attribute")
-
 urlpatterns = [
-    path("", include(best_student_router.urls))
+    path("student_list/", views.AdminStudentApiView.as_view(), name="student_list_"),
 ] + router.urls

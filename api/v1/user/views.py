@@ -12,21 +12,17 @@ from rest_framework.filters import SearchFilter
 from rest_framework import exceptions
 from rest_framework import viewsets
 
-from accounts.models import User, State, City, Student, Coach, Ticket, TicketRoom, BestStudent, BestStudentAttribute
+from accounts.models import User, State, City, Student, Coach, Ticket, TicketRoom, BestStudent
 from utils.filters import UserFilter
 from utils.pagination import StudentCoachTicketPagination, ListUserPagination
 from utils.permissions import NotAuthenticate
 from .pagination import UserPagination, CityPagination, BestStudentPagination
 from .permissions import TicketRoomPermission
-from .serializers import UserSerializer, OtpLoginSerializer, VerifyOtpSerializer, UpdateUserSerializer \
-    , StateSerializer, CitySerializer, ChangePasswordSerializer, ForgetPasswordSerializer, \
-    ConfirmForgetPasswordSerializer, StudentSerializer, CoachSerializer, CreateTicketSerializer, ListUserSerializer, \
-    TickerRoomSerializer, ListTicketChatSerializer, UpdateTicketChatSerializer, ListBestStudentSerializer, \
-    UserLoginSerializer
+from . import serializers
 
 
 class UserLoginApiView(APIView):
-    serializer_class = UserLoginSerializer
+    serializer_class = serializers.UserLoginSerializer
     permission_classes = [NotAuthenticate]
 
     def post(self, request):
@@ -46,7 +42,7 @@ class UserLoginApiView(APIView):
 
 class UserViewSet(ModelViewSet):
     queryset = User.objects.select_related("state", "city")
-    serializer_class = UserSerializer
+    serializer_class = serializers.UserSerializer
     permission_classes = [IsAdminUser]
     pagination_class = UserPagination
     filter_backends = [DjangoFilterBackend, SearchFilter]
@@ -55,7 +51,7 @@ class UserViewSet(ModelViewSet):
 
     def get_serializer_class(self):
         if self.request.method in ['PUT', "PATCH"]:
-            return UpdateUserSerializer
+            return serializers.UpdateUserSerializer
         return super().get_serializer_class()
 
     def perform_destroy(self, instance):
@@ -63,13 +59,13 @@ class UserViewSet(ModelViewSet):
 
 
 class SendCodeOtpViewSet(CreateModelMixin, GenericViewSet):
-    serializer_class = OtpLoginSerializer
+    serializer_class = serializers.OtpLoginSerializer
     permission_classes = [NotAuthenticate]
 
 
 class VerifyOtpCodeApiView(APIView):
     permission_classes = [NotAuthenticate]
-    serializer_class = VerifyOtpSerializer
+    serializer_class = serializers.VerifyOtpSerializer
 
     def post(self, request, *args, **kwargs):
         ser_data = self.serializer_class(data=request.data)
@@ -103,23 +99,23 @@ class BaseApiView(APIView):
 
 class StateApiView(BaseApiView):
     model = State.objects.all()
-    serializer_class = StateSerializer
+    serializer_class = serializers.StateSerializer
 
 
 class CityApiView(BaseApiView):
     model = City.objects.select_related("state")
-    serializer_class = CitySerializer
+    serializer_class = serializers.CitySerializer
 
 
 class StateCitiesGenericView(ListAPIView):
-    serializer_class = CitySerializer
+    serializer_class = serializers.CitySerializer
 
     def get_queryset(self):
         return City.objects.filter(state_id=self.kwargs['pk']).select_related('state').order_by("city")
 
 
 class ChangePasswordApiView(APIView):
-    serializer_class = ChangePasswordSerializer
+    serializer_class = serializers.ChangePasswordSerializer
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
@@ -130,7 +126,7 @@ class ChangePasswordApiView(APIView):
 
 
 class ForgetPasswordApiView(APIView):
-    serializer_class = ForgetPasswordSerializer
+    serializer_class = serializers.ForgetPasswordSerializer
     permission_classes = [NotAuthenticate]
 
     def post(self, request, *args, **kwargs):
@@ -141,7 +137,7 @@ class ForgetPasswordApiView(APIView):
 
 
 class ConfirmForgetPasswordApiView(APIView):
-    serializer_class = ConfirmForgetPasswordSerializer
+    serializer_class = serializers.ConfirmForgetPasswordSerializer
     permission_classes = [NotAuthenticate]
 
     def post(self, request, *args, **kwargs):
@@ -153,19 +149,19 @@ class ConfirmForgetPasswordApiView(APIView):
 
 class StudentViewSet(ModelViewSet):
     queryset = Student.objects.all()
-    serializer_class = StudentSerializer
+    serializer_class = serializers.StudentSerializer
     pagination_class = StudentCoachTicketPagination
 
 
 class CoachViewSet(ModelViewSet):
     queryset = Coach.objects.all()
-    serializer_class = CoachSerializer
+    serializer_class = serializers.CoachSerializer
     pagination_class = StudentCoachTicketPagination
 
 
 class TicketRoomViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
-    serializer_class = TickerRoomSerializer
+    serializer_class = serializers.TickerRoomSerializer
 
     def get_queryset(self):
         return TicketRoom.objects.filter(user=self.request.user).only("id", "title_room")
@@ -183,11 +179,11 @@ class TicketChatViewSet(ModelViewSet):
 
     def get_serializer_class(self):
         if self.action == "list":
-            return ListTicketChatSerializer
+            return serializers.ListTicketChatSerializer
         if self.action in ['update', "partial_update", "destroy", "retrieve"]:
-            return UpdateTicketChatSerializer
+            return serializers.UpdateTicketChatSerializer
         if self.action == "create":
-            return CreateTicketSerializer
+            return serializers.CreateTicketSerializer
         else:
             raise exceptions.NotAcceptable()
 
@@ -206,21 +202,16 @@ class TicketChatViewSet(ModelViewSet):
 
 class ListUserApiView(ListAPIView):
     queryset = User.objects.all()
-    serializer_class = ListUserSerializer
+    serializer_class = serializers.ListUserSerializer
     pagination_class = ListUserPagination
     permission_classes = [IsAdminUser]
 
 
 class BestStudentViewSet(viewsets.ReadOnlyModelViewSet):
-    serializer_class = ListBestStudentSerializer
+    serializer_class = serializers.ListBestStudentSerializer
     pagination_class = BestStudentPagination
 
     def get_queryset(self):
-        best_student_attributes_qs = BestStudentAttribute.objects.only("id", "best_student_id", "attribute")
-
-        queryset = BestStudent.objects.select_related("student__user").filter(is_publish=True).only(
-            "id", "student__user__first_name", "student__user__last_name", "description", "student__user__image"
-        ).prefetch_related(
-            Prefetch("attributes", queryset=best_student_attributes_qs)
+        return BestStudent.objects.filter(is_publish=True).only(
+            "id", "student", "description", "student_image", "attributes"
         )
-        return queryset
