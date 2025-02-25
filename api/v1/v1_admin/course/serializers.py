@@ -119,3 +119,9 @@ class AdminListSectionVideoSerializer(serializers.ModelSerializer):
     class Meta:
         model = SectionVideo
         exclude = ['is_deleted', "deleted_at"]
+
+
+class AdminCourseListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Course
+        fields = ['id', "course_name"]

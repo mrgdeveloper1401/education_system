@@ -24,5 +24,6 @@ urlpatterns = [
     path("", include(category_router.urls)),
     path('', include(course_router.urls)),
     path("", include(section_router.urls)),
+    path('course_list/', views.AdminCourseListApiView.as_view(), name='course_list'),
 ]
 urlpatterns += router.urls

@@ -6,7 +6,8 @@ from rest_framework.exceptions import NotAcceptable
 from course.models import Category, Course, Comment, Section, SectionVideo, SectionFile
 from .pagination import CommentPagination
 from .paginations import CourseCategoryPagination
-from .permissions import AccessCoursePermission, AccessCourseSectionPermission, AccessCourseSectionImagePermission
+from .permissions import AccessCoursePermission, AccessCourseSectionPermission, AccessCourseSectionImagePermission, \
+    AccessCourseSectionVideoFilePermission
 from . import serializers
 
 
@@ -73,7 +74,7 @@ class SectionViewSet(ReadOnlyModelViewSet):
 
 
 class SectionVideoViewSet(ReadOnlyModelViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AccessCourseSectionVideoFilePermission]
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -91,7 +92,7 @@ class SectionVideoViewSet(ReadOnlyModelViewSet):
 
 
 class SectionFileViewSet(ReadOnlyModelViewSet):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AccessCourseSectionVideoFilePermission]
 
     def get_queryset(self):
         query = SectionFile.objects.filter(is_publish=True, section_id=self.kwargs["section_pk"])

@@ -130,13 +130,9 @@ class TicketReplyAdmin(admin.ModelAdmin):
 
 
 class BestStudentAdmin(ImportExportModelAdmin):
-    list_display = ['id', "get_student_full_name", "is_publish", "created_at"]
+    list_display = ['id', "student", "is_publish", "created_at"]
     list_per_page = 20
     list_filter = ['is_publish']
-
-    def get_student_full_name(self, obj):
-        return obj.student.user.mobile_phone
-    get_student_full_name.short_description = 'user phone'
 
     def get_queryset(self, request):
         return super().get_queryset(request).only(
@@ -145,4 +141,5 @@ class BestStudentAdmin(ImportExportModelAdmin):
 
 
 admin.site.register(models.Coach)
+admin.site.register(models.Student)
 admin.site.register(models.BestStudent, BestStudentAdmin)

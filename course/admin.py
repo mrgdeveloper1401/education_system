@@ -48,13 +48,14 @@ class StudentEnrollmentAdmin(admin.ModelAdmin):
     list_per_page = 20
     list_display = ['student', "course", "status", "created_at"]
     list_filter = ['created_at']
+    list_editable = ['status']
 
 
 @admin.register(models.TeacherEnrollment)
 class TeacherEnrollmentAdmin(admin.ModelAdmin):
-    raw_id_fields = ['instructor', "course"]
+    raw_id_fields = ['coach', "course"]
     list_per_page = 20
-    list_display = ['instructor', "course", "role", "created_at"]
+    list_display = ['coach', "course", "role", "created_at"]
     list_filter = ['created_at']
 
 

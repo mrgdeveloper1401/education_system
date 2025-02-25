@@ -207,10 +207,10 @@ class TicketReply(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 class Coach(CreateMixin, UpdateMixin, SoftDeleteMixin):
     user = models.OneToOneField(User, on_delete=models.DO_NOTHING, related_name='coach')
-    coach_number = models.CharField(max_length=15)
+    coach_number = models.CharField(max_length=15, blank=True)
 
     def __str__(self):
-        return f'{self.user.get_full_name}'
+        return self.coach_number
 
     @property
     def create_coach_number(self):
@@ -222,6 +222,14 @@ class Coach(CreateMixin, UpdateMixin, SoftDeleteMixin):
         if not self.coach_number:
             self.coach_number = self.create_coach_number
         super().save(*args, **kwargs)
+
+    @property
+    def get_coach_name(self):
+        return self.user.get_full_name
+
+    @property
+    def get_coach_phone(self):
+        return self.user.mobile_phone
 
     class Meta:
         db_table = 'coach'
@@ -239,6 +247,10 @@ class Student(CreateMixin, UpdateMixin, SoftDeleteMixin):
     @property
     def student_name(self):
         return self.user.get_full_name
+
+    @property
+    def get_student_phone(self):
+        return self.user.mobile_phone
 
     class Meta:
         db_table = 'student'

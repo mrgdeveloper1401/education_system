@@ -1,6 +1,6 @@
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework.exceptions import ValidationError
-from rest_framework.serializers import ModelSerializer, CharField, Serializer, SerializerMethodField
+from rest_framework import serializers
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.password_validation import validate_password
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -13,9 +13,9 @@ from accounts.models import User, Otp, State, City, Student, Coach, Ticket, Tick
 from accounts.validators import MobileRegexValidator
 
 
-class UserLoginSerializer(Serializer):
-    mobile_phone = CharField(validators=[MobileRegexValidator])
-    password = CharField(write_only=True)
+class UserLoginSerializer(serializers.Serializer):
+    mobile_phone = serializers.CharField(validators=[MobileRegexValidator])
+    password = serializers.CharField(write_only=True)
 
     def validate(self, attrs):
         user = authenticate(mobile_phone=attrs.get('mobile_phone'), password=attrs.get('password'))
@@ -31,11 +31,11 @@ class UserLoginSerializer(Serializer):
         return attrs
 
 
-class UserSerializer(ModelSerializer):
-    confirm_password = CharField(write_only=True, style={'input_type': 'password'})
+class UserSerializer(serializers.ModelSerializer):
+    confirm_password = serializers.CharField(write_only=True, style={'input_type': 'password'})
     image = Base64ImageField(required=False)
-    city_name = SerializerMethodField()
-    state_name = SerializerMethodField()
+    city_name = serializers.SerializerMethodField()
+    state_name = serializers.SerializerMethodField()
 
     def validate(self, attrs):
         if attrs['password'] != attrs['confirm_password']:
@@ -69,7 +69,7 @@ class UserSerializer(ModelSerializer):
         return User.objects.create_user(**validated_data)
 
 
-class UpdateUserSerializer(ModelSerializer):
+class UpdateUserSerializer(serializers.ModelSerializer):
     image = Base64ImageField(required=False)
 
     def validate(self, attrs):
@@ -89,7 +89,7 @@ class UpdateUserSerializer(ModelSerializer):
         }
 
 
-class OtpLoginSerializer(ModelSerializer):
+class OtpLoginSerializer(serializers.ModelSerializer):
     class Meta:
         model = Otp
         fields = ['mobile_phone']
@@ -115,8 +115,8 @@ class OtpLoginSerializer(ModelSerializer):
         return attrs
 
 
-class VerifyOtpSerializer(Serializer):
-    code = CharField()
+class VerifyOtpSerializer(serializers.Serializer):
+    code = serializers.CharField()
 
     def validate(self, attrs):
         try:
@@ -136,13 +136,13 @@ class VerifyOtpSerializer(Serializer):
         return attrs
 
 
-class StateSerializer(ModelSerializer):
+class StateSerializer(serializers.ModelSerializer):
     class Meta:
         model = State
         fields = ['id', "state_name"]
 
 
-class CitySerializer(ModelSerializer):
+class CitySerializer(serializers.ModelSerializer):
     state = StateSerializer(read_only=True)
 
     class Meta:
@@ -150,10 +150,10 @@ class CitySerializer(ModelSerializer):
         fields = ['id', "city", "state"]
 
 
-class ChangePasswordSerializer(Serializer):
-    old_password = CharField(min_length=8, style={'input_type': 'password'}, write_only=True)
-    new_password = CharField(min_length=8, style={'input_type': 'password'}, write_only=True)
-    confirm_password = CharField(min_length=8, style={'input_type': 'password'}, write_only=True)
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(min_length=8, style={'input_type': 'password'}, write_only=True)
+    new_password = serializers.CharField(min_length=8, style={'input_type': 'password'}, write_only=True)
+    confirm_password = serializers.CharField(min_length=8, style={'input_type': 'password'}, write_only=True)
 
     def validate(self, attrs):
         new_password = attrs.get('new_password')
@@ -177,8 +177,8 @@ class ChangePasswordSerializer(Serializer):
         return {"message": _("پسورد با موفقیت عوض شد")}
 
 
-class ForgetPasswordSerializer(Serializer):
-    mobile_phone = CharField(validators=[MobileRegexValidator()])
+class ForgetPasswordSerializer(serializers.Serializer):
+    mobile_phone = serializers.CharField(validators=[MobileRegexValidator()])
 
     def validate_mobile_phone(self, data):
         mobile_phone = data
@@ -208,10 +208,10 @@ class ForgetPasswordSerializer(Serializer):
         return otp
 
 
-class ConfirmForgetPasswordSerializer(Serializer):
-    code = CharField()
-    password = CharField(min_length=8, style={'input_type': 'password'}, write_only=True)
-    confirm_password = CharField(min_length=8, style={'input_type': 'password'}, write_only=True)
+class ConfirmForgetPasswordSerializer(serializers.Serializer):
+    code = serializers.CharField()
+    password = serializers.CharField(min_length=8, style={'input_type': 'password'}, write_only=True)
+    confirm_password = serializers.CharField(min_length=8, style={'input_type': 'password'}, write_only=True)
 
     def validate(self, attrs):
         password = attrs.get('password')
@@ -241,19 +241,19 @@ class ConfirmForgetPasswordSerializer(Serializer):
         return {"message": _("پسورد شما با موفقیت تعویض شد و میتوانید به حساب خود لاگین کنید")}
 
 
-class StudentSerializer(ModelSerializer):
+class StudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Student
         exclude = ['deleted_at', "is_deleted", "created_at", "updated_at"]
 
 
-class CoachSerializer(ModelSerializer):
+class CoachSerializer(serializers.ModelSerializer):
     class Meta:
         model = Coach
         exclude = ['deleted_at', "is_deleted", "created_at", "updated_at"]
 
 
-class TickerRoomSerializer(ModelSerializer):
+class TickerRoomSerializer(serializers.ModelSerializer):
     class Meta:
         model = TicketRoom
         fields = ['id', "title_room"]
@@ -263,7 +263,7 @@ class TickerRoomSerializer(ModelSerializer):
         return TicketRoom.objects.create(user=user, **validated_data)
 
 
-class CreateTicketSerializer(ModelSerializer):
+class CreateTicketSerializer(serializers.ModelSerializer):
     ticket_image = Base64ImageField()
 
     class Meta:
@@ -285,28 +285,28 @@ class CreateTicketSerializer(ModelSerializer):
         return Ticket.objects.create(sender_id=user_id, room_id=room_id, **validated_data)
 
 
-class ListTicketChatSerializer(ModelSerializer):
+class ListTicketChatSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ticket
         fields = ['id']
 
 
-class UpdateTicketChatSerializer(ModelSerializer):
+class UpdateTicketChatSerializer(serializers.ModelSerializer):
     ticket_image = Base64ImageField()
-    sender = CharField(read_only=True, source="sender.mobile_phone")
+    sender = serializers.CharField(read_only=True, source="sender.mobile_phone")
 
     class Meta:
         model = Ticket
         fields = ['ticket_body', "ticket_image", "sender", "created_at"]
 
 
-class ListUserSerializer(ModelSerializer):
+class ListUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', "mobile_phone", "email", "is_coach"]
 
 
-class ListBestStudentSerializer(ModelSerializer):
+class ListBestStudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = BestStudent
         fields = ["id", "student_image", "description", "attributes", "student"]

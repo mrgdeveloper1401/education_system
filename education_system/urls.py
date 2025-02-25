@@ -34,6 +34,7 @@ api_admin = [
     path('api_admin_image/', include("api.v1.v1_admin.images.urls", namespace="admin_image")),
     path('api_admin_account/', include("api.v1.v1_admin.accounts.urls", namespace="admin_account")),
     path('api_admin_blog/', include("api.v1.v1_admin.blogs.urls", namespace="admin_blog_category")),
+    path('api_admin_subscription/', include("api.v1.v1_admin.subscription.urls", namespace="admin_subscription_api")),
 ]
 urlpatterns = [
     path("admin/", admin.site.urls),

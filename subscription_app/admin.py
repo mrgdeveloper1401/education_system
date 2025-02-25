@@ -32,3 +32,4 @@ class AccessCourseAdmin(admin.ModelAdmin):
     list_display = ['user', "course", "is_active"]
     list_select_related = ['user', "course"]
     raw_id_fields = ['user', "course"]
+    list_editable = ['is_active']

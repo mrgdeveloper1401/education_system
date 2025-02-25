@@ -13,4 +13,5 @@ router.register("best_student", views.AdminBestStudentViewSet, basename="best_st
 
 urlpatterns = [
     path("student_list/", views.AdminStudentApiView.as_view(), name="student_list_"),
+    path("coach_list/", views.AdminCoachApiView.as_view(), name="coach_list"),
 ] + router.urls

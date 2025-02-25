@@ -1,6 +1,7 @@
 from rest_framework import viewsets, generics, permissions
+from rest_framework import filters
 
-from accounts.models import TicketReply, BestStudent, Student
+from accounts.models import TicketReply, BestStudent, Student, Coach
 from . import serializers
 from .pagination import BestStudentPagination, ListStudentByIdPagination
 
@@ -30,7 +31,20 @@ class AdminBestStudentViewSet(viewsets.ModelViewSet):
 class AdminStudentApiView(generics.ListAPIView):
     serializer_class = serializers.AdminStudentListSerializer
     permission_classes = [permissions.IsAdminUser]
-    queryset = Student.objects.only("id", "user__first_name", "user__last_name").select_related(
+    queryset = Student.objects.only(
+        "id", "user__first_name", "user__last_name",  "user__mobile_phone"
+    ).select_related(
         "user"
     )
-    pagination_class = ListStudentByIdPagination
+    search_fields = ['user__mobile_phone']
+    filter_backends = [filters.SearchFilter]
+
+
+class AdminCoachApiView(generics.ListAPIView):
+    queryset = Coach.objects.select_related("user").only(
+        "id", "user__first_name", "user__last_name", "user__mobile_phone"
+    )
+    serializer_class = serializers.AdminCouchListSerializer
+    permission_classes = [permissions.IsAdminUser]
+    search_fields = ['user__mobile_phone']
+    filter_backends = [filters.SearchFilter]

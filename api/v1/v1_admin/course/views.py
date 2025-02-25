@@ -1,6 +1,4 @@
-from rest_framework import viewsets
-from rest_framework import permissions
-from rest_framework import exceptions
+from rest_framework import viewsets, permissions, exceptions, generics, filters
 
 from . import serializers
 from course.models import Category, Course, Section, SectionFile, SectionVideo
@@ -105,3 +103,11 @@ class AdminSectionVideoViewSet(viewsets.ModelViewSet):
         context = super().get_serializer_context()
         context['section_pk'] = self.kwargs['section_pk']
         return context
+
+
+class AdminCourseListApiView(generics.ListAPIView):
+    queryset = Course.objects.only('id', "course_name")
+    serializer_class = serializers.AdminCourseListSerializer
+    permission_classes = [permissions.IsAdminUser]
+    search_fields = ['course_name']
+    filter_backends = [filters.SearchFilter]
