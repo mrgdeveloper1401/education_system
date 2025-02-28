@@ -13,3 +13,7 @@ from rest_framework.pagination import PageNumberPagination, LimitOffsetPaginatio
 
 class CourseCategoryPagination(PageNumberPagination):
     page_size = 20
+
+
+class CoachCoursePagination(PageNumberPagination):
+    page_size = 20

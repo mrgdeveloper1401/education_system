@@ -42,23 +42,6 @@ class CommentAdmin(admin.ModelAdmin):
     search_fields = ['user__mobile_phone']
 
 
-@admin.register(models.StudentEnrollment)
-class StudentEnrollmentAdmin(admin.ModelAdmin):
-    raw_id_fields = ['student', "course"]
-    list_per_page = 20
-    list_display = ['student', "course", "status", "created_at"]
-    list_filter = ['created_at']
-    list_editable = ['status']
-
-
-@admin.register(models.TeacherEnrollment)
-class TeacherEnrollmentAdmin(admin.ModelAdmin):
-    raw_id_fields = ['coach', "course"]
-    list_per_page = 20
-    list_display = ['coach', "course", "role", "created_at"]
-    list_filter = ['created_at']
-
-
 @admin.register(models.SectionVideo)
 class SectionVideoAdmin(admin.ModelAdmin):
     raw_id_fields = ['section']
@@ -68,15 +51,6 @@ class SectionVideoAdmin(admin.ModelAdmin):
     list_filter = ['is_publish', "created_at"]
 
 
-# @admin.register(models.SectionImages)
-# class SectionImagesAdmin(admin.ModelAdmin):
-#     raw_id_fields = ['section']
-#     list_display = ['section', "is_publish", "created_at"]
-#     list_select_related = ['section']
-#     list_per_page = 20
-#     list_filter = ['is_publish', "created_at"]
-
-
 @admin.register(models.SectionFile)
 class SectionFileAdmin(admin.ModelAdmin):
     raw_id_fields = ['section']
@@ -84,3 +58,16 @@ class SectionFileAdmin(admin.ModelAdmin):
     list_select_related = ['section']
     list_per_page = 20
     list_filter = ['is_publish', "created_at"]
+
+
+@admin.register(models.StudentEnrollment)
+class StudentEnrollmentAdmin(admin.ModelAdmin):
+    raw_id_fields = ['course', "student", "coach"]
+    list_select_related = ['course', "student", "coach"]
+    list_display = ['course', "student", "coach"]
+    list_per_page = 20
+
+
+admin.site.register(models.CoachEnrollment)
+admin.site.register(models.SendSectionFile)
+admin.site.register(models.AccessCourse)

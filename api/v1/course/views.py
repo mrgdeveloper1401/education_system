@@ -1,17 +1,16 @@
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet
-from rest_framework import mixins
+from rest_framework import mixins, viewsets, permissions
 from rest_framework.exceptions import NotAcceptable
 
-from course.models import Category, Course, Comment, Section, SectionVideo, SectionFile
+from course.models import Category, Course, Comment, Section, SectionVideo, SectionFile, SendSectionFile
 from .pagination import CommentPagination
 from .paginations import CourseCategoryPagination
-from .permissions import AccessCoursePermission, AccessCourseSectionPermission, AccessCourseSectionImagePermission, \
-    AccessCourseSectionVideoFilePermission
+
 from . import serializers
+from .permissions import AccessCoursePermission, AccessCourseSectionPermission, AccessSectionFilePermission, \
+    AccessSectionVideoPermission
 
 
-class CategoryViewSet(ReadOnlyModelViewSet):
+class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Category.objects.only("id", "category_name")
     pagination_class = CourseCategoryPagination
 
@@ -24,9 +23,9 @@ class CategoryViewSet(ReadOnlyModelViewSet):
             raise NotAcceptable()
 
 
-class CourseViewSet(ReadOnlyModelViewSet):
-    permission_classes = [AccessCoursePermission]
+class CourseViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = CourseCategoryPagination
+    permission_classes = [AccessCoursePermission]
 
     def get_queryset(self):
         query = Course.objects.filter(category_id=self.kwargs["category_pk"], is_publish=True)
@@ -51,7 +50,7 @@ class CourseViewSet(ReadOnlyModelViewSet):
             return serializers.RetrieveCourseSerializer
 
 
-class SectionViewSet(ReadOnlyModelViewSet):
+class SectionViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [AccessCourseSectionPermission]
 
     def get_queryset(self):
@@ -60,9 +59,7 @@ class SectionViewSet(ReadOnlyModelViewSet):
                 "id", "course", "title", "created_at", "cover_image"
             )
         else:
-            return (Section.objects.filter(course_id=self.kwargs['course_pk'], is_available=True).select_related(
-                "course"
-            ).only(
+            return (Section.objects.filter(course_id=self.kwargs['course_pk'], is_available=True).only(
                 "course_id", "title", "description", "cover_image"
             ))
 
@@ -73,8 +70,8 @@ class SectionViewSet(ReadOnlyModelViewSet):
             return serializers.RetrieveSectionSerializer
 
 
-class SectionVideoViewSet(ReadOnlyModelViewSet):
-    permission_classes = [AccessCourseSectionVideoFilePermission]
+class SectionVideoViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [AccessSectionVideoPermission]
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -91,15 +88,15 @@ class SectionVideoViewSet(ReadOnlyModelViewSet):
         return query
 
 
-class SectionFileViewSet(ReadOnlyModelViewSet):
-    permission_classes = [AccessCourseSectionVideoFilePermission]
+class SectionFileViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = [AccessSectionFilePermission]
 
     def get_queryset(self):
         query = SectionFile.objects.filter(is_publish=True, section_id=self.kwargs["section_pk"])
         if self.action == "list":
-            q = query.only("id", "zip_file", "created_at")
+            q = query.only("id", "zip_file", "created_at", "title", "is_close")
         else:
-            q = query.only("zip_file")
+            q = query.only("zip_file", "expired_data")
         return q
 
     def get_serializer_class(self):
@@ -109,9 +106,10 @@ class SectionFileViewSet(ReadOnlyModelViewSet):
             return serializers.RetrieveSectionFileSerializer
 
 
-class CommentViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.RetrieveModelMixin, GenericViewSet):
+class CommentViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.RetrieveModelMixin,
+                     viewsets.GenericViewSet):
     serializer_class = serializers.CommentSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]
     pagination_class = CommentPagination
 
     def get_queryset(self):
@@ -122,3 +120,19 @@ class CommentViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.Retr
             "user": self.request.user,
             "course_pk": self.kwargs["course_pk"]
         }
+
+
+class SendSectionFileViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.SendSectionFileSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def get_queryset(self):
+        return SendSectionFile.objects.filter(section_file_id=self.kwargs['section_file_pk'],
+                                              student__user=self.request.user).defer(
+            'is_deleted', "deleted_at"
+        )
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['section_file_pk'] = self.kwargs['section_file_pk']
+        return context

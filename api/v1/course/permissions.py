@@ -1,23 +1,23 @@
 from rest_framework import permissions
 
-from subscription_app.models import AccessCourse
+from course.models import AccessCourse
 
 
 class AccessCoursePermission(permissions.IsAuthenticated):
     def has_object_permission(self, request, view, obj):
-        return AccessCourse.objects.filter(user=request.user, course=obj, is_active=True).exists()
+        return bool(AccessCourse.objects.filter(user=request.user, course=obj).exists())
 
 
 class AccessCourseSectionPermission(permissions.IsAuthenticated):
     def has_object_permission(self, request, view, obj):
-        return AccessCourse.objects.filter(user=request.user, course_id=obj.course, is_active=True).exists()
+        return bool(AccessCourse.objects.filter(user=request.user, course=obj.course).exists())
 
 
-class AccessCourseSectionImagePermission(permissions.IsAuthenticated):
+class AccessSectionFilePermission(permissions.IsAuthenticated):
     def has_object_permission(self, request, view, obj):
-        return AccessCourse.objects.filter(user=request.user, course=obj.section.course, is_active=True).exists()
+        return bool(AccessCourse.objects.filter(user=request.user, course=obj.section.course).exists())
 
 
-class AccessCourseSectionVideoFilePermission(permissions.IsAuthenticated):
+class AccessSectionVideoPermission(permissions.IsAuthenticated):
     def has_object_permission(self, request, view, obj):
-        return AccessCourse.objects.filter(user=request.user, course=obj.section.course, is_active=True).exists()
+        return bool(AccessCourse.objects.filter(user=request.user, course=obj.section.course).exists())

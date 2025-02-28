@@ -8,7 +8,7 @@ from . import models
 
 
 @admin.register(models.User)
-class UserAdmin(BaseUserAdmin):
+class UserAdmin(ImportExportModelAdmin, BaseUserAdmin):
     add_form_template = "admin/auth/user/add_form.html"
     change_user_password_template = None
     fieldsets = (

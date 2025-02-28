@@ -1,12 +1,9 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
-from rest_framework import exceptions
-from django.utils.translation import gettext_lazy as _
 
-from course.models import Category, Course, Section, SectionFile, SectionVideo
+from accounts.models import Coach
+from course.models import Category, Course, Section, SectionFile, SectionVideo, CoachEnrollment, StudentEnrollment
 from drf_extra_fields.fields import Base64ImageField
-
-from images.models import Image
 
 
 class CreateCategorySerializer(serializers.ModelSerializer):
@@ -94,7 +91,7 @@ class AdminListCourseSectionSerializer(serializers.ModelSerializer):
 class AdminCreateCourseSectionFileSerializer(serializers.ModelSerializer):
     class Meta:
         model = SectionFile
-        fields = ["is_publish", "zip_file"]
+        fields = ["is_publish", "zip_file", "title", "expired_data", "is_close"]
 
     def create(self, validated_data):
         return SectionFile.objects.create(section_id=int(self.context['section_pk']), **validated_data)
@@ -125,3 +122,29 @@ class AdminCourseListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         fields = ['id', "course_name"]
+
+
+class AdminCoachSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CoachEnrollment
+        fields = ["id", 'coach', "is_active"]
+
+    def create(self, validated_data):
+        course_pk = self.context['course_pk']
+        return CoachEnrollment.objects.create(course_id=course_pk, **validated_data)
+
+
+class AdminStudentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StudentEnrollment
+        fields = ['id', "student", "coach"]
+
+    def create(self, validated_data):
+        course_id = self.context['course_pk']
+        return StudentEnrollment.objects.create(course_id=course_id, **validated_data)
+
+
+class AdminGetStudentByCoachSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StudentEnrollment
+        fields = ["id", 'student']

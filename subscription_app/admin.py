@@ -25,11 +25,3 @@ class PlanAdmin(admin.ModelAdmin):
     list_filter = ['is_free', "is_active", "updated_at"]
     list_per_page = 20
     list_editable = ['is_active', "price", "is_free"]
-
-
-@admin.register(models.AccessCourse)
-class AccessCourseAdmin(admin.ModelAdmin):
-    list_display = ['user', "course", "is_active"]
-    list_select_related = ['user', "course"]
-    raw_id_fields = ['user', "course"]
-    list_editable = ['is_active']

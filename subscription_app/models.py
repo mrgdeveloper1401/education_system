@@ -72,15 +72,3 @@ class Plan(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = 'plan'
-
-
-class AccessCourse(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    user = models.ForeignKey("accounts.User", on_delete=models.DO_NOTHING, related_name='access_user')
-    course = models.ForeignKey('course.Course', on_delete=models.DO_NOTHING, related_name='access_course')
-    is_active = models.BooleanField(default=True)
-
-    def __str__(self):
-        return f'{self.user.mobile_phone} {self.course.course_name}'
-
-    class Meta:
-        db_table = 'access_course'

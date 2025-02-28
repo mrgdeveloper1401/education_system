@@ -3,7 +3,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework import serializers
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.password_validation import validate_password
-from rest_framework_simplejwt.tokens import RefreshToken
+
 from rest_framework import generics
 from rest_framework import exceptions
 from django.contrib.auth import authenticate
