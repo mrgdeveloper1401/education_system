@@ -6,4 +6,5 @@ app_name = 'admin_subscription_api'
 
 router = routers.DefaultRouter()
 
+
 urlpatterns = router.urls

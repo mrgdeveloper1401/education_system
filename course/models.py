@@ -129,7 +129,8 @@ class SectionFile(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 class SendSectionFile(CreateMixin, UpdateMixin, SoftDeleteMixin):
     student = models.ForeignKey("accounts.Student", on_delete=models.DO_NOTHING, related_name="send_section_files")
-    section_file = models.ForeignKey(SectionFile, on_delete=models.DO_NOTHING, related_name='section_files')
+    section_file = models.ForeignKey(SectionFile, on_delete=models.DO_NOTHING, related_name='section_files',
+                                     validators=[FileExtensionValidator(["rar", "zip"])])
     zip_file = models.FileField(help_text=_("فایل ارسالی"))
 
     class Meta:
