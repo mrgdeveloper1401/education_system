@@ -1,6 +1,8 @@
 import datetime
 from datetime import timedelta
 from random import randint
+from uuid import uuid4
+
 from django.contrib.auth.models import PermissionsMixin, AbstractBaseUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -211,17 +213,6 @@ class Coach(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     def __str__(self):
         return self.coach_number
-
-    @property
-    def create_coach_number(self):
-        co_randint = randint(1, 9999999999)
-        co_number = f'co{datetime.datetime.today().strftime("%y")}_{co_randint}'
-        return co_number
-
-    def save(self, *args, **kwargs):
-        if not self.coach_number:
-            self.coach_number = self.create_coach_number
-        super().save(*args, **kwargs)
 
     @property
     def get_coach_name(self):

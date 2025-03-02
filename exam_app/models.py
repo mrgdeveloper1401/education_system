@@ -45,7 +45,6 @@ class Question(CreateMixin, UpdateMixin, SoftDeleteMixin):
 class Participation(CreateMixin, UpdateMixin, SoftDeleteMixin):
     student = models.ForeignKey('accounts.Student', on_delete=models.DO_NOTHING, related_name="participation_student")
     exam = models.ForeignKey(Exam, on_delete=models.DO_NOTHING, related_name="participation_exam")
-    is_active = models.BooleanField(default=True)
 
     class Meta:
         db_table = 'participation'

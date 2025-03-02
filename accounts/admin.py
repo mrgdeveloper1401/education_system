@@ -140,6 +140,37 @@ class BestStudentAdmin(ImportExportModelAdmin):
         )
 
 
-admin.site.register(models.Coach)
-admin.site.register(models.Student)
-admin.site.register(models.BestStudent, BestStudentAdmin)
+@admin.register(models.Student)
+class StudentAdmin(admin.ModelAdmin):
+    list_display = ['user', "student_number", "created_at", "get_student_name"]
+    raw_id_fields = ['user']
+    list_filter = ['created_at']
+    list_per_page = 20
+
+    def get_student_name(self, obj):
+        return obj.user.get_full_name
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).only(
+            "user", "student_number", "created_at", "user__first_name", "user__last_name", "user__mobile_phone"
+        )
+
+
+@admin.register(models.Coach)
+class CoachAdmin(admin.ModelAdmin):
+    list_display = ['user', "coach_number", "created_at", "get_coach_name"]
+    raw_id_fields = ['user']
+    list_per_page = 20
+
+    def get_coach_name(self, obj):
+        return obj.user.get_full_name
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).only(
+            "user", "coach_number", "created_at", "user__first_name", "user__last_name", "user__mobile_phone"
+        )
+
+
+@admin.register(models.BestStudent)
+class BestStudentAdmin(admin.ModelAdmin):
+    pass

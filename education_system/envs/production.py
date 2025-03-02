@@ -59,4 +59,3 @@ MEDIA_ROOT = config("MEDIA_ROOT", cast=str)
 STORAGES["staticfiles"] = {
     "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
 }
-

@@ -3,7 +3,6 @@ from core.models import UpdateMixin, CreateMixin, SoftDeleteMixin
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import FileExtensionValidator
 from treebeard.mp_tree import MP_Node
-from django.contrib.postgres.fields import ArrayField
 from django.utils import timezone
 
 from course.validators import max_upload_image_validator
@@ -54,6 +53,7 @@ class CoachEnrollment(CreateMixin, UpdateMixin, SoftDeleteMixin):
     class Meta:
         unique_together = [("course", "coach")]
         db_table = 'coach_enrollment'
+        ordering = ['created_at']
 
 
 class StudentEnrollment(CreateMixin, SoftDeleteMixin, UpdateMixin):
@@ -64,6 +64,7 @@ class StudentEnrollment(CreateMixin, SoftDeleteMixin, UpdateMixin):
     class Meta:
         unique_together = ("course", "student", "coach")
         db_table = 'enrollment'
+        ordering = ['created_at']
 
 
 class AccessCourse(CreateMixin, UpdateMixin, SoftDeleteMixin):

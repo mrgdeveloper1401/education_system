@@ -119,6 +119,7 @@ class AdminCourseListApiView(generics.ListAPIView):
 class AdminCoachViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.AdminCoachSerializer
     permission_classes = [permissions.IsAdminUser]
+    pagination_class = AdminPagination
 
     def get_queryset(self):
         return CoachEnrollment.objects.filter(course_id=self.kwargs['course_pk']).only(
@@ -134,6 +135,7 @@ class AdminCoachViewSet(viewsets.ModelViewSet):
 class AdminStudentEnrollmentViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.AdminStudentSerializer
     permission_classes = [permissions.IsAdminUser]
+    pagination_class = AdminPagination
 
     def get_queryset(self):
         return StudentEnrollment.objects.filter(course_id=self.kwargs['course_pk']).only("id", "student_id", "coach_id")

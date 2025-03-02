@@ -68,6 +68,16 @@ class StudentEnrollmentAdmin(admin.ModelAdmin):
     list_per_page = 20
 
 
-admin.site.register(models.CoachEnrollment)
+@admin.register(models.CoachEnrollment)
+class CoachEnrollmentAdmin(admin.ModelAdmin):
+    list_display = ['course', "coach", "is_active", "get_coach_name", "created_at"]
+
+    def get_coach_name(self, obj):
+        return obj.coach.user.get_full_name
+
+    def get_queryset(self, request):
+        return super().get_queryset(request)
+
+
 admin.site.register(models.SendSectionFile)
 admin.site.register(models.AccessCourse)
