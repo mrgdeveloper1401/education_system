@@ -1,3 +1,4 @@
+from django.contrib.admin.templatetags.admin_list import pagination
 from rest_framework.pagination import PageNumberPagination, LimitOffsetPagination, CursorPagination
 
 
@@ -16,4 +17,8 @@ class CourseCategoryPagination(PageNumberPagination):
 
 
 class CoachCoursePagination(PageNumberPagination):
+    page_size = 20
+
+
+class LessonTakenPagination(PageNumberPagination):
     page_size = 20

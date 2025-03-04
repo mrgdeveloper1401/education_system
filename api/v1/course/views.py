@@ -1,13 +1,13 @@
-from rest_framework import mixins, viewsets, permissions
+from rest_framework import mixins, viewsets, permissions, generics
 from rest_framework.exceptions import NotAcceptable
 
-from course.models import Category, Course, Comment, Section, SectionVideo, SectionFile, SendSectionFile
+from course.models import Category, Course, Comment, Section, SectionVideo, SectionFile, SendSectionFile, LessonCourse
 from .pagination import CommentPagination
-from .paginations import CourseCategoryPagination
+from .paginations import CourseCategoryPagination, LessonTakenPagination
 
 from . import serializers
 from .permissions import AccessCoursePermission, AccessCourseSectionPermission, AccessSectionFilePermission, \
-    AccessSectionVideoPermission
+    AccessSectionVideoPermission, IsCoach
 
 
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
@@ -136,3 +136,21 @@ class SendSectionFileViewSet(viewsets.ModelViewSet):
         context = super().get_serializer_context()
         context['section_file_pk'] = self.kwargs['section_file_pk']
         return context
+
+
+class CoachTakenCourseApiView(generics.ListAPIView):
+    serializer_class = serializers.LessonTakenByCoachSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    pagination_class = LessonTakenPagination
+
+    def get_queryset(self):
+        return LessonCourse.objects.filter(coach__user=self.request.user).only("course", "coach")
+
+
+class StudentTakenCourseApiView(generics.ListAPIView):
+    serializer_class = serializers.LessonTakenByStudentSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    pagination_class = LessonTakenPagination
+
+    def get_queryset(self):
+        return LessonCourse.objects.filter(students=self.request.user.student).only("course", "coach")

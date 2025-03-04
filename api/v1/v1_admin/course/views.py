@@ -3,7 +3,7 @@ from django.db.models import Prefetch
 
 from accounts.models import Coach
 from . import serializers
-from course.models import Category, Course, Section, SectionFile, SectionVideo, CoachEnrollment, StudentEnrollment
+from course.models import Category, Course, Section, SectionFile, SectionVideo, LessonCourse
 from .paginations import AdminPagination, AdminStudentByCoachPagination
 
 
@@ -116,41 +116,17 @@ class AdminCourseListApiView(generics.ListAPIView):
     filter_backends = [filters.SearchFilter]
 
 
-class AdminCoachViewSet(viewsets.ModelViewSet):
-    serializer_class = serializers.AdminCoachSerializer
+class AdminLessonCourseViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAdminUser]
+    serializer_class = serializers.AdminLessonCourseSerializer
     pagination_class = AdminPagination
 
     def get_queryset(self):
-        return CoachEnrollment.objects.filter(course_id=self.kwargs['course_pk']).only(
-            'id', "is_active", "coach_id"
+        return LessonCourse.objects.filter(course_id=self.kwargs['course_pk']).prefetch_related("students").defer(
+            "is_deleted", "deleted_at"
         )
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
         context['course_pk'] = self.kwargs['course_pk']
         return context
-
-
-class AdminStudentEnrollmentViewSet(viewsets.ModelViewSet):
-    serializer_class = serializers.AdminStudentSerializer
-    permission_classes = [permissions.IsAdminUser]
-    pagination_class = AdminPagination
-
-    def get_queryset(self):
-        return StudentEnrollment.objects.filter(course_id=self.kwargs['course_pk']).only("id", "student_id", "coach_id")
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context['course_pk'] = self.kwargs['course_pk']
-        return context
-
-
-class AdminStudentByCoachApiView(generics.ListAPIView):
-    serializer_class = serializers.AdminGetStudentByCoachSerializer
-    permission_classes = [permissions.IsAdminUser]
-    pagination_class = AdminStudentByCoachPagination
-
-    def get_queryset(self):
-        return (StudentEnrollment.objects.only("student").
-                filter(course_id=self.kwargs['course_pk'], coach_id=self.kwargs['coach_pk']))

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from course.models import Course, Category, Comment, Section, SectionVideo, SectionFile, SendSectionFile
+from course.models import Course, Category, Comment, Section, SectionVideo, SectionFile, SendSectionFile, LessonCourse
 from drf_spectacular.utils import extend_schema_field
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -125,3 +125,15 @@ class SendSectionFileSerializer(serializers.ModelSerializer):
         user = self.context['request'].user.student
         section_file_id = self.context['section_file_pk']
         return SendSectionFile.objects.create(student=user, section_file_id=section_file_id, **validated_data)
+
+
+class LessonTakenByCoachSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LessonCourse
+        fields = ['course', "coach"]
+
+
+class LessonTakenByStudentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LessonCourse
+        fields = ['course', "coach"]

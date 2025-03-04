@@ -1,8 +1,8 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
+from django.utils.translation import gettext_lazy as _
 
-from accounts.models import Coach
-from course.models import Category, Course, Section, SectionFile, SectionVideo, CoachEnrollment, StudentEnrollment
+from course.models import Category, Course, Section, SectionFile, SectionVideo, LessonCourse
 from drf_extra_fields.fields import Base64ImageField
 
 
@@ -124,27 +124,21 @@ class AdminCourseListSerializer(serializers.ModelSerializer):
         fields = ['id', "course_name"]
 
 
-class AdminCoachSerializer(serializers.ModelSerializer):
+class AdminLessonCourseSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CoachEnrollment
-        fields = ["id", 'coach', "is_active"]
+        model = LessonCourse
+        exclude = ['is_deleted', "deleted_at"]
+        read_only_fields = ['course']
+
+    def validate(self, attrs):
+        coach = attrs.get("coach")
+        if LessonCourse.objects.filter(course_id=self.context['course_pk'], coach=coach).exists():
+            raise serializers.ValidationError({"message": _("course, coach already exist")})
+        return attrs
 
     def create(self, validated_data):
         course_pk = self.context['course_pk']
-        return CoachEnrollment.objects.create(course_id=course_pk, **validated_data)
-
-
-class AdminStudentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = StudentEnrollment
-        fields = ['id', "student", "coach"]
-
-    def create(self, validated_data):
-        course_id = self.context['course_pk']
-        return StudentEnrollment.objects.create(course_id=course_id, **validated_data)
-
-
-class AdminGetStudentByCoachSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = StudentEnrollment
-        fields = ["id", 'student']
+        student = validated_data.pop("students")
+        class_room = LessonCourse.objects.create(course_id=course_pk, **validated_data)
+        class_room.students.set(student)
+        return class_room

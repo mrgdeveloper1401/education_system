@@ -60,23 +60,9 @@ class SectionFileAdmin(admin.ModelAdmin):
     list_filter = ['is_publish', "created_at"]
 
 
-@admin.register(models.StudentEnrollment)
-class StudentEnrollmentAdmin(admin.ModelAdmin):
-    raw_id_fields = ['course', "student", "coach"]
-    list_select_related = ['course', "student", "coach"]
-    list_display = ['course', "student", "coach"]
-    list_per_page = 20
-
-
-@admin.register(models.CoachEnrollment)
-class CoachEnrollmentAdmin(admin.ModelAdmin):
-    list_display = ['course', "coach", "is_active", "get_coach_name", "created_at"]
-
-    def get_coach_name(self, obj):
-        return obj.coach.user.get_full_name
-
-    def get_queryset(self, request):
-        return super().get_queryset(request)
+@admin.register(models.LessonCourse)
+class LessonCourseAdmin(admin.ModelAdmin):
+    filter_horizontal = ['students']
 
 
 admin.site.register(models.SendSectionFile)

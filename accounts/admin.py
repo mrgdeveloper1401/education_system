@@ -146,6 +146,7 @@ class StudentAdmin(admin.ModelAdmin):
     raw_id_fields = ['user']
     list_filter = ['created_at']
     list_per_page = 20
+    search_fields = ['user__mobile_phone']
 
     def get_student_name(self, obj):
         return obj.user.get_full_name
@@ -161,6 +162,7 @@ class CoachAdmin(admin.ModelAdmin):
     list_display = ['user', "coach_number", "created_at", "get_coach_name"]
     raw_id_fields = ['user']
     list_per_page = 20
+    search_fields = ['user__mobile_phone']
 
     def get_coach_name(self, obj):
         return obj.user.get_full_name

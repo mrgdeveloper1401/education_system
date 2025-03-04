@@ -27,5 +27,7 @@ urlpatterns = [
     path('', include(course_router.urls)),
     path("", include(section_router.urls)),
     path("", include(section_file_router.urls)),
+    path("coach_taken_lesson/", views.CoachTakenCourseApiView.as_view(), name="coach_taken_lesson"),
+    path("student_taken_lesson/", views.StudentTakenCourseApiView.as_view(), name="student_taken_lesson"),
 ]
 urlpatterns += router.urls

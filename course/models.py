@@ -45,26 +45,19 @@ class Course(CreateMixin, UpdateMixin, SoftDeleteMixin):
         ordering = ("-created_at",)
 
 
-class CoachEnrollment(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name="course_enrollment")
-    coach = models.ForeignKey("accounts.Coach", related_name="coach_enrollment", on_delete=models.DO_NOTHING)
+class LessonCourse(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name="lesson_course")
+    class_name = models.CharField(help_text=_("نام کلاس"))
+    coach = models.ForeignKey("accounts.Coach", on_delete=models.DO_NOTHING, related_name="coach_less_course")
+    students = models.ManyToManyField("accounts.Student", related_name="student_lesson_course")
     is_active = models.BooleanField(default=True)
 
-    class Meta:
-        unique_together = [("course", "coach")]
-        db_table = 'coach_enrollment'
-        ordering = ['created_at']
-
-
-class StudentEnrollment(CreateMixin, SoftDeleteMixin, UpdateMixin):
-    course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name='enrollments')
-    student = models.ForeignKey("accounts.Student", related_name="students", on_delete=models.DO_NOTHING)
-    coach = models.ForeignKey("accounts.Coach", related_name="coaches", on_delete=models.DO_NOTHING)
+    def __str__(self):
+        return self.class_name
 
     class Meta:
-        unique_together = ("course", "student", "coach")
-        db_table = 'enrollment'
-        ordering = ['created_at']
+        db_table = 'lesson_course'
+        ordering = ("-created_at",)
 
 
 class AccessCourse(CreateMixin, UpdateMixin, SoftDeleteMixin):

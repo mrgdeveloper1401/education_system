@@ -21,3 +21,11 @@ class AccessSectionFilePermission(permissions.IsAuthenticated):
 class AccessSectionVideoPermission(permissions.IsAuthenticated):
     def has_object_permission(self, request, view, obj):
         return bool(AccessCourse.objects.filter(user=request.user, course=obj.section.course).exists())
+
+
+class IsCoach(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.user.is_authenticated:
+            if getattr(request.user, 'coach'):
+                return True
+            return False
