@@ -9,7 +9,6 @@ app_name = 'admin_category'
 router = routers.DefaultRouter()
 
 router.register('category', views.CategoryViewSet, basename='category')
-# router.register("taken_student_by_coach", views.AdminStudentByCoachViewSet, basename='student_by_coach')
 
 category_router = routers.NestedSimpleRouter(router, r'category', lookup='category')
 category_router.register("course", views.AdminCourseViewSet, basename='course')

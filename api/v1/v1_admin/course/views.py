@@ -125,8 +125,3 @@ class AdminLessonCourseViewSet(viewsets.ModelViewSet):
         return LessonCourse.objects.filter(course_id=self.kwargs['course_pk']).prefetch_related("students").defer(
             "is_deleted", "deleted_at"
         )
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context['course_pk'] = self.kwargs['course_pk']
-        return context

@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import serializers
+from rest_framework import serializers, validators
 from django.utils.translation import gettext_lazy as _
 
 from course.models import Category, Course, Section, SectionFile, SectionVideo, LessonCourse
@@ -128,17 +128,16 @@ class AdminLessonCourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = LessonCourse
         exclude = ['is_deleted', "deleted_at"]
-        read_only_fields = ['course']
-
-    def validate(self, attrs):
-        coach = attrs.get("coach")
-        if LessonCourse.objects.filter(course_id=self.context['course_pk'], coach=coach).exists():
-            raise serializers.ValidationError({"message": _("course, coach already exist")})
-        return attrs
+        validators = [
+            validators.UniqueTogetherValidator(
+                queryset=LessonCourse.objects.filter(is_active=True),
+                fields=['course', 'coach'],
+                message="coach, course already exists"
+            )
+        ]
 
     def create(self, validated_data):
-        course_pk = self.context['course_pk']
         student = validated_data.pop("students")
-        class_room = LessonCourse.objects.create(course_id=course_pk, **validated_data)
+        class_room = LessonCourse.objects.create(**validated_data)
         class_room.students.set(student)
         return class_room
