@@ -1,5 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
 def ticket_image_upload_url(instance, filename):
@@ -13,3 +14,11 @@ def ticket_validate_image(value):
     if image_size > max_size * 1024 * 1024:
         raise ValidationError({"message": _("max image size is 1 MG")})
     return value
+
+
+def get_token_for_user(user):
+    refresh = RefreshToken.for_user(user)
+    return {
+        "refresh": str(refresh),
+        "access": str(refresh.access_token),
+    }

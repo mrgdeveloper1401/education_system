@@ -95,7 +95,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "education_system.wsgi.application"
-ASGI_APPLICATION = "education_system.asgi.application"
+# ASGI_APPLICATION = "education_system.asgi.application"
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -135,7 +135,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = 'accounts.User'
 
 REST_FRAMEWORK = {
-    # YOUR SETTINGS
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -149,17 +148,42 @@ SPECTACULAR_SETTINGS = {
     'DESCRIPTION': 'Your project description',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
-    # OTHER SETTINGS
+    'IGNORE_WARNINGS': ['drf_spectacular.W001'],
 }
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=30),
-    "ROTATE_REFRESH_TOKENS": True,
-    "BLACKLIST_AFTER_ROTATION": True,
-    "UPDATE_LAST_LOGIN": True,
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'UPDATE_LAST_LOGIN': False,
     "AUTH_HEADER_TYPES": ("Bearer",),
-    # "USER_ID_CLAIM": "sub"
+    'ALGORITHM': 'HS256',
+    'VERIFYING_KEY': None,
+    'AUDIENCE': None,
+    'ISSUER': None,
+
+    'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
+    'USER_AUTHENTICATION_RULE': 'rest_framework_simplejwt.authentication.default_user_authentication_rule',
+
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'TOKEN_TYPE_CLAIM': 'token_type',
+
+    'JTI_CLAIM': 'jti',
+
+    'SLIDING_TOKEN_REFRESH_EXP_CLAIM': 'refresh_exp',
+    'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
+    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
+
+    # custom
+    'AUTH_COOKIE': 'access_token',  # Cookie name. Enables cookies if value is set.
+    'AUTH_COOKIE_DOMAIN': None,  # A string like "example.com", or None for standard domain cookie.
+    'AUTH_COOKIE_SECURE': True,  # Whether the auth cookies should be secure (https:// only).
+    'AUTH_COOKIE_HTTP_ONLY': True,  # Http only cookie flag.It's not fetch by javascript.
+    'AUTH_COOKIE_PATH': '/',  # The path of the auth cookie.
+    'AUTH_COOKIE_SAMESITE': 'Lax',
 }
 
 # with logging django
@@ -242,8 +266,9 @@ AWS_S3_REGION_NAME = 'us-east-1'
 # )
 
 # CKEDITOR_5_CUSTOM_CSS = 'path_to.css'
-# CKEDITOR_5_FILE_STORAGE = "path_to_storage.CustomStorage"
+CKEDITOR_5_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 CKEDITOR_5_ALLOW_ALL_FILE_TYPES = True
+
 
 # ckeditor path
 CKEDITOR_BASEPATH = BASE_DIR / "staticfiles/ckeditor/ckeditor/"
@@ -251,9 +276,22 @@ CKEDITOR_BASEPATH = BASE_DIR / "staticfiles/ckeditor/ckeditor/"
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://localhost:6380/1",
+        "LOCATION": "redis://localhost:6379/5",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
     }
 }
+
+ADMINS = [
+    ("mohammad goodarzi", "mysum325g@gmail.com")
+]
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = config("EMAIL_HOST", cast=str)
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = config("EMAIL_HOST_USER", cast=str)
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", cast=str)
+
+CSRF_COOKIE_AGE = 3600

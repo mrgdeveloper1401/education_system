@@ -1,9 +1,9 @@
 from education_system.base import *
-# from corsheaders.defaults import default_headers, default_methods
+
 
 SECRET_KEY = config('PRODUCTION_SECRET_KEY', cast=str)
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ''.join(config("PRODUCTION_ALLOWED_HOSTS", cast=list)).split(",")
 
 DATABASES = {
     "default": {
@@ -25,28 +25,45 @@ MIDDLEWARE += [
 ]
 MIDDLEWARE.insert(0, 'corsheaders.middleware.CorsMiddleware')
 
-CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_ALL_ORIGINS = True
 
-CORS_ALLOW_METHODS = (
-    "DELETE",
-    "GET",
-    "OPTIONS",
-    "PATCH",
-    "POST",
-    "PUT",
-)
+# CSRF_COOKIE_DOMAIN = "education_system.ir"
 
 SESSION_COOKIE_SECURE = True
+
 CSRF_COOKIE_SECURE = True
+
+CSRF_COOKIE_HTTPONLY = True
+
+CSRF_COOKIE_SAMESITE = 'Strict'
+
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://localhost:3002',
+    'http://localhost:8001'
+]
+
+CSRF_USE_SESSIONS = True
+
 SECURE_SSL_REDIRECT = True
+
 SECURE_HSTS_SECONDS = 31536000
+
 SECURE_HSTS_PRELOAD = True
+
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+
 SECURE_CONTENT_TYPE_NOSNIFF = True
+
 SECURE_BROWSER_XSS_FILTER = True
-X_FRAME_OPTIONS = "SAMEORIGIN"
+
+X_FRAME_OPTIONS = "DENY"
+
 SECURE_REFERRER_POLICY = "strict-origin"
+
 USE_X_FORWARDED_HOST = True
+
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 STATIC_URL = config('STATIC_URL', cast=str)

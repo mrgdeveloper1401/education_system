@@ -63,7 +63,27 @@ class SectionFileAdmin(admin.ModelAdmin):
 @admin.register(models.LessonCourse)
 class LessonCourseAdmin(admin.ModelAdmin):
     filter_horizontal = ['students']
+    list_display = ['course', "coach", "is_active", "created_at"]
+    list_filter = ['is_active']
+    search_fields = ['course__course_name', "coach__coach_number"]
+
+
+@admin.register(models.StudentAccessCourse)
+class StudentAccessCourseAdmin(admin.ModelAdmin):
+    list_display = ['student', "course", "is_active", "created_at"]
+    list_select_related = ['student', "course"]
+    list_filter = ['is_active']
+    search_fields = ['student__student_number']
+    list_per_page = 20
+
+
+@admin.register(models.CoachAccessCourse)
+class StudentAccessCourseAdmin(admin.ModelAdmin):
+    list_display = ['coach', "course", "is_active", "created_at"]
+    list_select_related = ['coach', "course"]
+    list_filter = ['is_active']
+    search_fields = ['coach__coach_number']
+    list_per_page = 20
 
 
 admin.site.register(models.SendSectionFile)
-admin.site.register(models.AccessCourse)

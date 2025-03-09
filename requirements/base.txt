@@ -19,3 +19,4 @@ channels-redis==4.2.0
 channels
 django-ckeditor-5
 django_redis
+pyjwt==2.10.1

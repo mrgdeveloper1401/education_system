@@ -17,8 +17,7 @@ from utils.model_choices import Grade
 
 
 class User(AbstractBaseUser, PermissionsMixin, UpdateMixin, SoftDeleteMixin, CreateMixin):
-    mobile_phone = models.CharField(_("mobile phone"), max_length=11, unique=True,
-                                    validators=[MobileRegexValidator()])
+    mobile_phone = models.CharField(_("mobile phone"), max_length=15, unique=True)
     first_name = models.CharField(_("first name"), max_length=30, blank=True, null=True)
     last_name = models.CharField(_("last name"), max_length=30, blank=True, null=True)
     email = models.EmailField(_("email address"), unique=True, null=True, blank=True)
@@ -51,14 +50,6 @@ class User(AbstractBaseUser, PermissionsMixin, UpdateMixin, SoftDeleteMixin, Cre
     @property
     def get_full_name(self):
         return f'{self.first_name} {self.last_name}'
-
-    def deactivate_user(self):
-        self.is_active = False
-        self.is_verified = False
-        self.is_deleted = True
-        self.deleted_at = timezone.now()
-        self.is_staff = False
-        self.save()
 
     @property
     def is_student(self):
@@ -210,6 +201,7 @@ class TicketReply(CreateMixin, UpdateMixin, SoftDeleteMixin):
 class Coach(CreateMixin, UpdateMixin, SoftDeleteMixin):
     user = models.OneToOneField(User, on_delete=models.DO_NOTHING, related_name='coach')
     coach_number = models.CharField(max_length=15, blank=True)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.coach_number
@@ -231,6 +223,7 @@ class Coach(CreateMixin, UpdateMixin, SoftDeleteMixin):
 class Student(CreateMixin, UpdateMixin, SoftDeleteMixin):
     user = models.OneToOneField(User, on_delete=models.DO_NOTHING, related_name='student')
     student_number = models.CharField(max_length=11)
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.student_number

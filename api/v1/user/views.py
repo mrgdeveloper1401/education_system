@@ -1,4 +1,4 @@
-from django.db.models import Prefetch
+import jwt
 from django_filters.rest_framework.backends import DjangoFilterBackend
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.mixins import CreateModelMixin
@@ -9,8 +9,11 @@ from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView
 from rest_framework.generics import get_object_or_404
 from rest_framework.filters import SearchFilter
-from rest_framework import exceptions
-from rest_framework import viewsets
+from rest_framework import exceptions, viewsets, status
+from django.middleware import csrf
+from django.contrib.auth import authenticate
+from django.conf import settings
+from rest_framework.validators import ValidationError
 
 from accounts.models import User, State, City, Student, Coach, Ticket, TicketRoom, BestStudent
 from utils.filters import UserFilter
@@ -18,7 +21,9 @@ from utils.pagination import StudentCoachTicketPagination, ListUserPagination
 from utils.permissions import NotAuthenticate
 from .pagination import UserPagination, CityPagination, BestStudentPagination
 from .permissions import TicketRoomPermission
+from education_system.base import SIMPLE_JWT
 from . import serializers
+from .utils import get_token_for_user
 
 
 class UserLoginApiView(APIView):
@@ -28,34 +33,56 @@ class UserLoginApiView(APIView):
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-        valid_token = serializer.validated_data['token']
-        response = Response(valid_token)
-        response.set_cookie(
-            key='token',
-            value=valid_token,
-            httponly=True,
-            secure=True,
-            samesite='Lax'
-        )
+        validated_data = serializer.validated_data
+        user = authenticate(mobile_phone=validated_data['mobile_phone'], password=validated_data['password'])
+        response = Response()
+        if user:
+            if user.is_active:
+                data = get_token_for_user(user)
+                response.set_cookie(
+                    key=SIMPLE_JWT['AUTH_COOKIE'],
+                    value=data['access'],
+                    expires=SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],
+                    secure=SIMPLE_JWT['AUTH_COOKIE_SECURE'],
+                    httponly=SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
+                    samesite=SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
+
+                )
+                csrf.get_token(request)
+                response.data = {
+                    "Success": "Login successfully",
+                    "data": data,
+                    "is_staff": user.is_staff,
+                    "is_coach": user.is_coach
+                }
+            else:
+                return Response({"message": "this account is not active!"}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            return Response({"message": "invalid username or password"}, status=status.HTTP_404_NOT_FOUND)
         return response
 
 
-class UserViewSet(ModelViewSet):
-    queryset = User.objects.select_related("state", "city")
+class UserViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.UserSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAuthenticated]
     pagination_class = UserPagination
     filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_fields = ['is_staff', "gender"]
     filterset_class = UserFilter
 
+    def get_queryset(self):
+        if self.request.user.is_staff:
+            return User.objects.select_related("state", "city")
+        else:
+            return User.objects.select_related("state", "city").filter(id=self.request.user.id)
+
     def get_serializer_class(self):
         if self.request.method in ['PUT', "PATCH"]:
             return serializers.UpdateUserSerializer
         return super().get_serializer_class()
-
-    def perform_destroy(self, instance):
-        instance.deactivate_user()
+    
+    def get_serializer_context(self):
+        return super().get_serializer_context()
 
 
 class SendCodeOtpViewSet(CreateModelMixin, GenericViewSet):
@@ -215,3 +242,23 @@ class BestStudentViewSet(viewsets.ReadOnlyModelViewSet):
         return BestStudent.objects.filter(is_publish=True).only(
             "id", "student", "description", "student_image", "attributes"
         )
+
+
+class ValidateTokenApiView(APIView):
+    serializer_class = serializers.ValidateTokenSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        response = Response()
+        try:
+            token = serializer.validated_data['token']
+            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=settings.SIMPLE_JWT['ALGORITHM'])
+        except jwt.ExpiredSignatureError:
+            raise ValidationError("Token has expired")
+        except jwt.InvalidTokenError:
+            raise ValidationError("Invalid token")
+        else:
+            response.data = 'valid token'
+            response.status_code = HTTP_200_OK
+            return response

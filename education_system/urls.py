@@ -43,7 +43,7 @@ urlpatterns = [
     path("ckeditor5/", include('django_ckeditor_5.urls')),
 ]
 
-urlpatterns += swagger_url + api_url + simple_jwt_url + api_admin
+urlpatterns += swagger_url + api_url + api_admin
 
 DEBUG = config("DEBUG", cast=bool)
 MEDIA_URL = config("MEDIA_URL", cast=str)

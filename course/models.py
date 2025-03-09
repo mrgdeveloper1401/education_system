@@ -5,6 +5,9 @@ from django.core.validators import FileExtensionValidator
 from treebeard.mp_tree import MP_Node
 from django.utils import timezone
 
+from course.enums import ProgresChoices
+# from guardian.shortcuts import assign_perm
+
 from course.validators import max_upload_image_validator
 
 
@@ -43,6 +46,9 @@ class Course(CreateMixin, UpdateMixin, SoftDeleteMixin):
         verbose_name = _("درس")
         verbose_name_plural = _("درس ها")
         ordering = ("-created_at",)
+        # permissions = [
+        #     ("can_view_course", "Can View Course")
+        # ]
 
 
 class LessonCourse(CreateMixin, UpdateMixin, SoftDeleteMixin):
@@ -50,7 +56,9 @@ class LessonCourse(CreateMixin, UpdateMixin, SoftDeleteMixin):
     class_name = models.CharField(help_text=_("نام کلاس"))
     coach = models.ForeignKey("accounts.Coach", on_delete=models.DO_NOTHING, related_name="coach_less_course")
     students = models.ManyToManyField("accounts.Student", related_name="student_lesson_course")
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True, help_text=_("دیتا در سطح اپلیکیشن نمایش داده شود یا خیر"))
+    progress = models.CharField(help_text=_("وضعیت پیشرفت دوره"), choices=ProgresChoices, max_length=11,
+                                default=ProgresChoices.not_started, null=True)
 
     def __str__(self):
         return self.class_name
@@ -58,16 +66,6 @@ class LessonCourse(CreateMixin, UpdateMixin, SoftDeleteMixin):
     class Meta:
         db_table = 'lesson_course'
         ordering = ("-created_at",)
-
-
-class AccessCourse(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    user = models.ForeignKey("accounts.User", on_delete=models.DO_NOTHING, related_name="user_access_course")
-    course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name="access_course")
-    is_active_access = models.BooleanField(default=True)
-    is_coach = models.BooleanField(default=False)
-
-    class Meta:
-        db_table = 'access_course'
 
 
 class Section(CreateMixin, UpdateMixin, SoftDeleteMixin):
@@ -84,6 +82,9 @@ class Section(CreateMixin, UpdateMixin, SoftDeleteMixin):
         db_table = 'course_section'
         verbose_name = _("قسمت")
         verbose_name_plural = _("قسمت های دوره")
+        # permissions = [
+        #     ("can_view_section", "Can View Section")
+        # ]
 
 
 class SectionVideo(CreateMixin, UpdateMixin, SoftDeleteMixin):
@@ -96,6 +97,9 @@ class SectionVideo(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = 'course_section_video'
+        # permissions = [
+        #     ("can_view_section_video", "Can View Section Video")
+        # ]
 
 
 class SectionFile(CreateMixin, UpdateMixin, SoftDeleteMixin):
@@ -119,6 +123,9 @@ class SectionFile(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = "course_section_file"
+        # permissions = [
+        #     ("can_view_section_file", "Can View Section File")
+        # ]
 
 
 class SendSectionFile(CreateMixin, UpdateMixin, SoftDeleteMixin):
@@ -129,6 +136,34 @@ class SendSectionFile(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = "send_file"
+        ordering = ('-created_at',)
+        # permissions = [
+        #     ("can_view_send_section_file", "Can View Send Section File"),
+        #     ("can_add_section_file", "Can Add Section File"),
+        #     ("can_delete_section_file", "Can Delete Section File"),
+        #     ("can_change_section_file", "Can Change Section File"),
+        # ]
+
+
+class StudentAccessCourse(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    student = models.ForeignKey("accounts.Student", on_delete=models.DO_NOTHING,
+                                related_name="student_access_course")
+    course = models.ForeignKey(Course, related_name="std_course_access_course", on_delete=models.DO_NOTHING)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        db_table = 'student_access_course'
+        ordering = ('-created_at',)
+
+
+class CoachAccessCourse(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    coach = models.ForeignKey("accounts.Coach", related_name="coach_access_course", on_delete=models.DO_NOTHING)
+    course = models.ForeignKey(Course, related_name="co_course_access_course", on_delete=models.DO_NOTHING)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        db_table = 'coach_access_course'
+        ordering = ('-created_at',)
 
 
 class Comment(CreateMixin, UpdateMixin, SoftDeleteMixin):

@@ -128,13 +128,6 @@ class AdminLessonCourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = LessonCourse
         exclude = ['is_deleted', "deleted_at"]
-        validators = [
-            validators.UniqueTogetherValidator(
-                queryset=LessonCourse.objects.filter(is_active=True),
-                fields=['course', 'coach'],
-                message="coach, course already exists"
-            )
-        ]
 
     def create(self, validated_data):
         student = validated_data.pop("students")

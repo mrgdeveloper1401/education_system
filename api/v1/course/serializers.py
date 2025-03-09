@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from course.models import Course, Category, Comment, Section, SectionVideo, SectionFile, SendSectionFile, LessonCourse
+from course.models import Course, Category, Comment, Section, SectionVideo, SectionFile, SendSectionFile, LessonCourse, \
+    CoachAccessCourse, StudentAccessCourse
 from drf_spectacular.utils import extend_schema_field
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -116,9 +117,12 @@ class SendSectionFileSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         section_file = self.context['section_file_pk']
+        section_id = self.context['section_pk']
         get_section_file = SectionFile.objects.filter(id=section_file).first()
         if get_section_file.expired_data < timezone.now() or get_section_file.is_close:
             raise serializers.ValidationError({"message": _("this section_file is close or expired")})
+        if not SectionFile.objects.filter(id=self.context['section_file_pk'], section_id=section_id).exists():
+            raise serializers.ValidationError({"message": _("this section_file is not exist")})
         return attrs
 
     def create(self, validated_data):
@@ -127,13 +131,50 @@ class SendSectionFileSerializer(serializers.ModelSerializer):
         return SendSectionFile.objects.create(student=user, section_file_id=section_file_id, **validated_data)
 
 
+class NestedCourseSectionFileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SectionFile
+        fields = ['zip_file']
+
+
+class NestedCourseSectionVideoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SectionVideo
+        fields = ['video']
+
+
+class NestedCourseSectionSerializer(serializers.ModelSerializer):
+    section_videos = NestedCourseSectionVideoSerializer(many=True)
+    section_files = NestedCourseSectionFileSerializer(many=True)
+
+    class Meta:
+        model = Section
+        fields = ['title', "section_videos", "section_files"]
+
+
+class NestCourseSerializer(serializers.ModelSerializer):
+    sections = NestedCourseSectionSerializer(many=True)
+
+    class Meta:
+        model = Course
+        fields = ["sections"]
+
+
 class LessonTakenByCoachSerializer(serializers.ModelSerializer):
+    course_image = serializers.SerializerMethodField()
+    coach = serializers.CharField(source="coach.get_coach_name")
+    course = NestCourseSerializer()
+
     class Meta:
         model = LessonCourse
-        fields = ['course', "coach"]
+        fields = ['class_name', "coach", "course_image", "course", "created_at", "progress"]
+
+    def get_course_image(self, obj):
+        return obj.course.course_image.url if obj.course.course_image else None
 
 
 class LessonTakenByStudentSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = LessonCourse
-        fields = ['course', "coach"]
+        fields = ['course', "coach", "progress"]

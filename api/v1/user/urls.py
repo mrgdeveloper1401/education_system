@@ -24,6 +24,7 @@ urlpatterns = [
     path('', include(ticket_room_router.urls)),
     path("", include(ticket_chat_router.urls)),
     path("login/", views.UserLoginApiView.as_view(), name='user_login'),
+    path("validate_token/", views.ValidateTokenApiView.as_view(), name='validate_token'),
     path('user-list/', views.ListUserApiView.as_view(), name='user-list'),
     path("verify-otp/", views.VerifyOtpCodeApiView.as_view(), name="verify-otp"),
     path('state-list/', views.StateApiView.as_view(), name='state-list'),

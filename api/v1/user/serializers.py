@@ -1,3 +1,4 @@
+import jwt
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework.exceptions import ValidationError
 from rest_framework import serializers
@@ -6,7 +7,7 @@ from django.contrib.auth.password_validation import validate_password
 
 from rest_framework import generics
 from rest_framework import exceptions
-from django.contrib.auth import authenticate
+
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from accounts.models import User, Otp, State, City, Student, Coach, Ticket, TicketRoom, BestStudent
@@ -15,20 +16,7 @@ from accounts.validators import MobileRegexValidator
 
 class UserLoginSerializer(serializers.Serializer):
     mobile_phone = serializers.CharField(validators=[MobileRegexValidator])
-    password = serializers.CharField(write_only=True)
-
-    def validate(self, attrs):
-        user = authenticate(mobile_phone=attrs.get('mobile_phone'), password=attrs.get('password'))
-        if not user:
-            raise exceptions.ValidationError(_('Invalid credentials.'))
-        refresh = RefreshToken.for_user(user)
-        token = {
-            'refresh': str(refresh),
-            'access': str(refresh.access_token)
-        }
-        attrs['token'] = token
-        attrs['user'] = user
-        return attrs
+    password = serializers.CharField(write_only=True, help_text=_("رمز عبور"), style={"input_type": "password"})
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -310,3 +298,7 @@ class ListBestStudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = BestStudent
         fields = ["id", "student_image", "description", "attributes", "student"]
+
+
+class ValidateTokenSerializer(serializers.Serializer):
+    token = serializers.CharField()

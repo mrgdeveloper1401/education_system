@@ -35,7 +35,7 @@ class AdminStudentApiView(generics.ListAPIView):
         "id", "user__first_name", "user__last_name",  "user__mobile_phone"
     ).select_related(
         "user"
-    )
+    ).filter(is_active=True)
     search_fields = ['user__mobile_phone']
     filter_backends = [filters.SearchFilter]
 
@@ -43,7 +43,7 @@ class AdminStudentApiView(generics.ListAPIView):
 class AdminCoachApiView(generics.ListAPIView):
     queryset = Coach.objects.select_related("user").only(
         "id", "user__first_name", "user__last_name", "user__mobile_phone"
-    )
+    ).filter(is_active=True)
     serializer_class = serializers.AdminCouchListSerializer
     permission_classes = [permissions.IsAdminUser]
     search_fields = ['user__mobile_phone']
