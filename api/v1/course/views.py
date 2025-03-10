@@ -3,7 +3,7 @@ from rest_framework import mixins, viewsets, permissions, generics
 from rest_framework.exceptions import NotAcceptable
 
 from course.models import Category, Course, Comment, Section, SectionVideo, SectionFile, SendSectionFile, LessonCourse, \
-    StudentAccessCourse, CoachAccessCourse
+    StudentAccessCourse, CoachAccessCourse, Certificate
 from .pagination import CommentPagination
 from .paginations import CourseCategoryPagination, LessonTakenPagination
 
@@ -127,7 +127,7 @@ class CommentViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.Retr
 class SendSectionFileViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.SendSectionFileSerializer
     permission_classes = [StudentAccessCourseSendSectionFilePermission]
-    
+
     def get_queryset(self):
         return SendSectionFile.objects.filter(section_file_id=self.kwargs['section_file_pk'],
                                               student__user=self.request.user).defer(
@@ -170,8 +170,10 @@ class StudentTakenCourseApiView(generics.ListAPIView):
     pagination_class = LessonTakenPagination
 
     def get_queryset(self):
-        query = LessonCourse.objects.filter(students__user=self.request.user, is_active=True).only(
-            "coach", "course", "progress"
+        query = LessonCourse.objects.filter(students__user=self.request.user, is_active=True).select_related(
+            "course"
+        ).only(
+            "coach", "course_id", "progress"
         )
         progress_bar = self.request.query_params.get("progress")
         if progress_bar:

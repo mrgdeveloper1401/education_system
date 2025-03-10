@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import serializers, validators
 from django.utils.translation import gettext_lazy as _
 
-from course.models import Category, Course, Section, SectionFile, SectionVideo, LessonCourse
+from course.models import Category, Course, Section, SectionFile, SectionVideo, LessonCourse, Certificate
 from drf_extra_fields.fields import Base64ImageField
 
 
@@ -134,3 +134,9 @@ class AdminLessonCourseSerializer(serializers.ModelSerializer):
         class_room = LessonCourse.objects.create(**validated_data)
         class_room.students.set(student)
         return class_room
+
+
+class AdminCertificateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Certificate
+        exclude = ['is_deleted', "deleted_at", "updated_at", "created_at"]

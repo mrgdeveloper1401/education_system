@@ -145,6 +145,16 @@ class SendSectionFile(CreateMixin, UpdateMixin, SoftDeleteMixin):
         # ]
 
 
+class Certificate(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name="course_certificates")
+    student = models.ForeignKey("accounts.Student", on_delete=models.DO_NOTHING, related_name="student_certificates")
+    is_active = models.BooleanField(default=True)
+    pdf_file = models.FileField(validators=[FileExtensionValidator(".pdf", )])
+
+    class Meta:
+        db_table = 'course_certificate'
+
+
 class StudentAccessCourse(CreateMixin, UpdateMixin, SoftDeleteMixin):
     student = models.ForeignKey("accounts.Student", on_delete=models.DO_NOTHING,
                                 related_name="student_access_course")

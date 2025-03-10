@@ -86,4 +86,11 @@ class StudentAccessCourseAdmin(admin.ModelAdmin):
     list_per_page = 20
 
 
+@admin.register(models.Certificate)
+class CertificateAdmin(admin.ModelAdmin):
+    list_display = ['course', "student", "is_active", "created_at"]
+    list_select_related = ['student', "course"]
+    raw_id_fields = ['course', "student"]
+
+
 admin.site.register(models.SendSectionFile)

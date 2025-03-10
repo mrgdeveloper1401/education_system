@@ -9,6 +9,7 @@ app_name = 'admin_category'
 router = routers.DefaultRouter()
 
 router.register('category', views.CategoryViewSet, basename='category')
+router.register("certificate", views.AdminCertificateViewSet, basename='admin_certificate')
 
 category_router = routers.NestedSimpleRouter(router, r'category', lookup='category')
 category_router.register("course", views.AdminCourseViewSet, basename='course')

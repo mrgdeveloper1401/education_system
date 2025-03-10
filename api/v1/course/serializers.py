@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from course.models import Course, Category, Comment, Section, SectionVideo, SectionFile, SendSectionFile, LessonCourse, \
-    CoachAccessCourse, StudentAccessCourse
+    CoachAccessCourse, StudentAccessCourse, Certificate
 from drf_spectacular.utils import extend_schema_field
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -160,6 +160,12 @@ class NestCourseSerializer(serializers.ModelSerializer):
         fields = ["sections"]
 
 
+# class NestedCourseCertificateSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Certificate
+#         fields = ['pdf_file']
+
+
 class LessonTakenByCoachSerializer(serializers.ModelSerializer):
     course_image = serializers.SerializerMethodField()
     coach = serializers.CharField(source="coach.get_coach_name")
@@ -174,7 +180,11 @@ class LessonTakenByCoachSerializer(serializers.ModelSerializer):
 
 
 class LessonTakenByStudentSerializer(serializers.ModelSerializer):
+    student_certificate = serializers.SerializerMethodField()
 
     class Meta:
         model = LessonCourse
-        fields = ['course', "coach", "progress"]
+        fields = ['course', "coach", "progress", "student_certificate"]
+
+    def get_student_certificate(self, obj):
+        return obj.course.course_certificates.values("pdf_file") if obj.course.course_certificates else None

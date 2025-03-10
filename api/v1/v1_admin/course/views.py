@@ -3,7 +3,7 @@ from django.db.models import Prefetch
 
 from accounts.models import Coach
 from . import serializers
-from course.models import Category, Course, Section, SectionFile, SectionVideo, LessonCourse
+from course.models import Category, Course, Section, SectionFile, SectionVideo, LessonCourse, Certificate
 from .paginations import AdminPagination, AdminStudentByCoachPagination
 
 
@@ -125,3 +125,9 @@ class AdminLessonCourseViewSet(viewsets.ModelViewSet):
         return LessonCourse.objects.filter(course_id=self.kwargs['course_pk']).prefetch_related("students").defer(
             "is_deleted", "deleted_at"
         )
+
+
+class AdminCertificateViewSet(viewsets.ModelViewSet):
+    queryset = Certificate.objects.defer("deleted_at", "is_deleted", "created_at", "updated_at")
+    serializer_class = serializers.AdminCertificateSerializer
+    permission_classes = [permissions.IsAdminUser]
