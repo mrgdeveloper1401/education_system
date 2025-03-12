@@ -8,7 +8,7 @@ from . import models
 
 @admin.register(models.Course)
 class CouAdmin(ImportExportModelAdmin):
-    list_display = ["category", "course_name", "is_publish"]
+    list_display = ["category", "course_name", "is_publish", "project_counter"]
     list_filter = ['created_at']
     raw_id_fields = ['category']
     list_select_related = ['category']
@@ -73,7 +73,7 @@ class PurchasesAdmin(admin.ModelAdmin):
     list_display = ['user', "course", "coach", "is_active", "created_at"]
     list_select_related = ['user', "course", "coach"]
     list_filter = ['is_active']
-    search_fields = ['user__mobile_phone']
+    search_fields = ['user__mobile_phone', "course__course_name"]
     list_per_page = 20
     raw_id_fields = ['user', "course", "coach"]
 

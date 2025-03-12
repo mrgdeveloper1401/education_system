@@ -1,11 +1,11 @@
-from django.db.models.signals import post_save
+from django.db.models.signals import m2m_changed
 from django.dispatch import receiver
 
 from .models import LessonCourse, Purchases
 
 
-@receiver(post_save, sender=LessonCourse)
-def create_access_course(sender, instance, created, **kwargs):
+@receiver(m2m_changed, sender=LessonCourse.students.through)
+def create_access_course(sender, instance, action, **kwargs):
     if instance.is_active:
         students = instance.students.all()
         student_list = []

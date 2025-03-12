@@ -1,12 +1,10 @@
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets, permissions, exceptions, generics, filters
-from django.db.models import Prefetch
 
-from accounts.models import Coach
 from . import serializers
 from course.models import Category, Course, Section, SectionFile, SectionVideo, LessonCourse, Certificate, Purchases
-from .paginations import AdminPagination, AdminStudentByCoachPagination
+from .paginations import AdminPagination
 
 
 class CategoryViewSet(viewsets.ModelViewSet):

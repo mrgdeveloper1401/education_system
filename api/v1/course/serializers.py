@@ -1,3 +1,4 @@
+from django.db.models import Count
 from rest_framework import serializers
 from course.models import Course, Category, Comment, Section, SectionVideo, SectionFile, SendSectionFile, LessonCourse, \
     Purchases, Certificate
@@ -76,21 +77,19 @@ class SendSectionFileSerializer(serializers.ModelSerializer):
 class PurchasesCourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
-        fields = ['course_name', "course_image"]
+        fields = ['course_name', "course_image", "project_counter"]
 
 
 class PurchasesSerializer(serializers.ModelSerializer):
     course = PurchasesCourseSerializer()
     coach = serializers.CharField(source="coach.get_coach_name")
-    course_project_counter = serializers.SerializerMethodField()
-    section_count = serializers.SerializerMethodField()
+    course_student_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Purchases
-        fields = ['id', "course", "coach", "course_project_counter", "section_count"]
+        fields = ['id', "course", "coach", 'course_student_count']
 
-    def get_course_project_counter(self, obj):
-        return obj.course.project_counter
-
-    def get_section_count(self, obj):
-        return obj.course.sections.count()
+    def get_course_student_count(self, obj):
+        return obj.course.lesson_course.aggregate(
+            Count('students')
+        )

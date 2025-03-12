@@ -3,7 +3,7 @@ from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import mixins, viewsets, permissions, decorators, response, status
 from django.db.models import Prefetch
 
-from course.models import Comment, Section, SectionVideo, SectionFile, Purchases
+from course.models import Comment, Section, SectionVideo, SectionFile, Purchases, LessonCourse
 from .pagination import CommentPagination
 from .paginations import CourseCategoryPagination
 
@@ -33,7 +33,7 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
         query = Purchases.objects.filter(user=self.request.user).select_related("course", "coach__user").only(
             "id", "course__course_name", "course__course_image", "coach__user__first_name", "coach__user__last_name",
             "course__project_counter"
-        ).prefetch_related(Prefetch("course__sections", Section.objects.only("course_id")))
+        )
         course_name = self.request.query_params.get("name")
 
         if course_name:
@@ -55,7 +55,9 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
     def section_detail(self, request, pk=None, section_pk=None):
         purchase = self.get_object()
         try:
-            section = Section.objects.get(id=section_pk, course=purchase.course)
+            section = Section.objects.filter(id=section_pk, course=purchase.course).only(
+                "id", "title", "created_at", "cover_image"
+            ).first()
             serializer = serializers.CourseSectionSerializer(section)
             return response.Response(serializer.data)
         except Section.DoesNotExist:
