@@ -1,8 +1,7 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import serializers, validators
-from django.utils.translation import gettext_lazy as _
+from rest_framework import serializers
 
-from course.models import Category, Course, Section, SectionFile, SectionVideo, LessonCourse, Certificate
+from course.models import Category, Course, Section, SectionFile, SectionVideo, LessonCourse, Certificate, Purchases
 from drf_extra_fields.fields import Base64ImageField
 
 
@@ -140,3 +139,9 @@ class AdminCertificateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Certificate
         exclude = ['is_deleted', "deleted_at", "updated_at", "created_at"]
+
+
+class AdminPurchaseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Purchases
+        exclude = ['is_deleted', "deleted_at"]

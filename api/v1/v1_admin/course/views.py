@@ -1,9 +1,11 @@
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets, permissions, exceptions, generics, filters
 from django.db.models import Prefetch
 
 from accounts.models import Coach
 from . import serializers
-from course.models import Category, Course, Section, SectionFile, SectionVideo, LessonCourse, Certificate
+from course.models import Category, Course, Section, SectionFile, SectionVideo, LessonCourse, Certificate, Purchases
 from .paginations import AdminPagination, AdminStudentByCoachPagination
 
 
@@ -122,12 +124,35 @@ class AdminLessonCourseViewSet(viewsets.ModelViewSet):
     pagination_class = AdminPagination
 
     def get_queryset(self):
-        return LessonCourse.objects.filter(course_id=self.kwargs['course_pk']).prefetch_related("students").defer(
+        query = LessonCourse.objects.filter(course_id=self.kwargs['course_pk']).prefetch_related("students").defer(
             "is_deleted", "deleted_at"
         )
+        progress = self.request.query_params.get('progress')
+        if progress:
+            query = query.filter(progress=progress)
+        return query
+
+    @extend_schema(
+        parameters=[OpenApiParameter(
+            name="progress",
+            type=OpenApiTypes.STR,
+            location=OpenApiParameter.QUERY,
+            description="search in progress class room fields [not_started, finished, in_progress]"
+        )]
+    )
+    def list(self, request, *args, **kwargs):
+        res = super().list(request, *args, **kwargs)
+        return res
 
 
 class AdminCertificateViewSet(viewsets.ModelViewSet):
     queryset = Certificate.objects.defer("deleted_at", "is_deleted", "created_at", "updated_at")
     serializer_class = serializers.AdminCertificateSerializer
     permission_classes = [permissions.IsAdminUser]
+
+
+class AdminPurchaseViewSet(viewsets.ModelViewSet):
+    queryset = Purchases.objects.all().defer("deleted_at", "is_deleted")
+    serializer_class = serializers.AdminPurchaseSerializer
+    permission_classes = [permissions.IsAdminUser]
+    pagination_class = AdminPagination

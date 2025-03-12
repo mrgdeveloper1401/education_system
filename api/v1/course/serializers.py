@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from course.models import Course, Category, Comment, Section, SectionVideo, SectionFile, SendSectionFile, LessonCourse, \
-    CoachAccessCourse, StudentAccessCourse, Certificate
+    Purchases, Certificate
 from drf_spectacular.utils import extend_schema_field
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -18,80 +18,22 @@ class CategoryTreeNodeSerializer(serializers.ModelSerializer):
         exclude = ['created_at', "updated_at", "deleted_at", "is_deleted"]
 
 
-class CategoryNodeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Category
-        fields = ['id', "category_name"]
-
-
-class DestroyCategoryNodeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Category
-        fields = ['category_name']
-
-    def to_representation(self, instance):
-        return "successfully destroy category"
-
-
-class CourseSerializer(serializers.ModelSerializer):
-    category = serializers.CharField(read_only=True)
-
-    class Meta:
-        model = Course
-        exclude = ['deleted_at', "is_deleted", "created_at", "updated_at"]
-
-    def create(self, validated_data):
-        category_pk = self.context["category_pk"]
-        course = Course.objects.create(category_id=category_pk, **validated_data)
-        return course
-
-
-class ListCourseSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Course
-        fields = ['id', "course_name", "course_image", "course_price", "course_duration"]
-
-
-class RetrieveCourseSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Course
-        fields = ['course_name', "course_description", "course_duration", "course_price"]
-
-
-class ListSectionSerializer(serializers.ModelSerializer):
+class CourseSectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Section
-        fields = ['id', "title", "course", "created_at", "cover_image"]
+        fields = ['id', "title", "created_at", "cover_image"]
 
 
-class RetrieveSectionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Section
-        fields = ['course', "title", "description", "cover_image"]
-
-
-class ListSectionVideoSerializer(serializers.ModelSerializer):
+class CourseSectionVideoSerializer(serializers.ModelSerializer):
     class Meta:
         model = SectionVideo
         fields = ["id", "video", "created_at"]
 
 
-class RetrieveSectionVideoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SectionVideo
-        fields = ['video']
-
-
-class ListSectionFileSerializer(serializers.ModelSerializer):
+class CourseSectionFileSerializer(serializers.ModelSerializer):
     class Meta:
         model = SectionFile
         fields = ['id', "zip_file", "created_at", "title", "is_close"]
-
-
-class RetrieveSectionFileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SectionFile
-        fields = ['zip_file', "expired_data"]
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -131,60 +73,24 @@ class SendSectionFileSerializer(serializers.ModelSerializer):
         return SendSectionFile.objects.create(student=user, section_file_id=section_file_id, **validated_data)
 
 
-class NestedCourseSectionFileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SectionFile
-        fields = ['zip_file']
-
-
-class NestedCourseSectionVideoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SectionVideo
-        fields = ['video']
-
-
-class NestedCourseSectionSerializer(serializers.ModelSerializer):
-    section_videos = NestedCourseSectionVideoSerializer(many=True)
-    section_files = NestedCourseSectionFileSerializer(many=True)
-
-    class Meta:
-        model = Section
-        fields = ['title', "section_videos", "section_files"]
-
-
-class NestCourseSerializer(serializers.ModelSerializer):
-    sections = NestedCourseSectionSerializer(many=True)
-
+class PurchasesCourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
-        fields = ["sections"]
+        fields = ['course_name', "course_image"]
 
 
-# class NestedCourseCertificateSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Certificate
-#         fields = ['pdf_file']
-
-
-class LessonTakenByCoachSerializer(serializers.ModelSerializer):
-    course_image = serializers.SerializerMethodField()
+class PurchasesSerializer(serializers.ModelSerializer):
+    course = PurchasesCourseSerializer()
     coach = serializers.CharField(source="coach.get_coach_name")
-    course = NestCourseSerializer()
+    course_project_counter = serializers.SerializerMethodField()
+    section_count = serializers.SerializerMethodField()
 
     class Meta:
-        model = LessonCourse
-        fields = ['class_name', "coach", "course_image", "course", "created_at", "progress"]
+        model = Purchases
+        fields = ['id', "course", "coach", "course_project_counter", "section_count"]
 
-    def get_course_image(self, obj):
-        return obj.course.course_image.url if obj.course.course_image else None
+    def get_course_project_counter(self, obj):
+        return obj.course.project_counter
 
-
-class LessonTakenByStudentSerializer(serializers.ModelSerializer):
-    student_certificate = serializers.SerializerMethodField()
-
-    class Meta:
-        model = LessonCourse
-        fields = ['course', "coach", "progress", "student_certificate"]
-
-    def get_student_certificate(self, obj):
-        return obj.course.course_certificates.values("pdf_file") if obj.course.course_certificates else None
+    def get_section_count(self, obj):
+        return obj.course.sections.count()

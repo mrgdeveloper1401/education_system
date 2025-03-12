@@ -8,7 +8,7 @@ from . import models
 
 @admin.register(models.Course)
 class CouAdmin(ImportExportModelAdmin):
-    list_display = ["category", "course_name", "course_price", "course_duration", "is_publish"]
+    list_display = ["category", "course_name", "is_publish"]
     list_filter = ['created_at']
     raw_id_fields = ['category']
     list_select_related = ['category']
@@ -63,27 +63,19 @@ class SectionFileAdmin(admin.ModelAdmin):
 @admin.register(models.LessonCourse)
 class LessonCourseAdmin(admin.ModelAdmin):
     filter_horizontal = ['students']
-    list_display = ['course', "coach", "is_active", "created_at"]
+    list_display = ['course', "coach", "is_active", "created_at", "progress"]
     list_filter = ['is_active']
-    search_fields = ['course__course_name', "coach__coach_number"]
+    search_fields = ['course__course_name', "coach__coach_number", "progress"]
 
 
-@admin.register(models.StudentAccessCourse)
-class StudentAccessCourseAdmin(admin.ModelAdmin):
-    list_display = ['student', "course", "is_active", "created_at"]
-    list_select_related = ['student', "course"]
+@admin.register(models.Purchases)
+class PurchasesAdmin(admin.ModelAdmin):
+    list_display = ['user', "course", "coach", "is_active", "created_at"]
+    list_select_related = ['user', "course", "coach"]
     list_filter = ['is_active']
-    search_fields = ['student__student_number']
+    search_fields = ['user__mobile_phone']
     list_per_page = 20
-
-
-@admin.register(models.CoachAccessCourse)
-class StudentAccessCourseAdmin(admin.ModelAdmin):
-    list_display = ['coach', "course", "is_active", "created_at"]
-    list_select_related = ['coach', "course"]
-    list_filter = ['is_active']
-    search_fields = ['coach__coach_number']
-    list_per_page = 20
+    raw_id_fields = ['user', "course", "coach"]
 
 
 @admin.register(models.Certificate)

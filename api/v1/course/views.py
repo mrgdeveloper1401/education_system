@@ -1,111 +1,125 @@
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema, OpenApiParameter
+from rest_framework import mixins, viewsets, permissions, decorators, response, status
 from django.db.models import Prefetch
-from rest_framework import mixins, viewsets, permissions, generics
-from rest_framework.exceptions import NotAcceptable
 
-from course.models import Category, Course, Comment, Section, SectionVideo, SectionFile, SendSectionFile, LessonCourse, \
-    StudentAccessCourse, CoachAccessCourse, Certificate
+from course.models import Comment, Section, SectionVideo, SectionFile, Purchases
 from .pagination import CommentPagination
-from .paginations import CourseCategoryPagination, LessonTakenPagination
+from .paginations import CourseCategoryPagination
 
 from . import serializers
-from .permissions import StudentAccessCoursePermission, StudentAccessCourseSectionPermission, \
-    StudentAccessCourseSectionFilePermission, StudentAccessCourseSendSectionFilePermission, IsCoachAuthenticated
 
 
-class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Category.objects.only("id", "category_name")
+class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = serializers.PurchasesSerializer
+    permission_classes = [permissions.IsAuthenticated]
     pagination_class = CourseCategoryPagination
 
-    def get_serializer_class(self):
-        if self.action == "list":
-            return serializers.CategoryNodeSerializer
-        if self.action == "retrieve":
-            return serializers.CategoryNodeSerializer
-        else:
-            raise NotAcceptable()
-
-
-class CourseViewSet(viewsets.ReadOnlyModelViewSet):
-    pagination_class = CourseCategoryPagination
-    permission_classes = [StudentAccessCoursePermission]
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="name",
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.QUERY,
+                description="The name of the purchase.",
+            )
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        res = super().list(request, *args, **kwargs)
+        return res
 
     def get_queryset(self):
-        query = Course.objects.filter(category_id=self.kwargs["category_pk"], is_publish=True)
-        if self.action == "list":
-            return query.only(
-                "id", "course_name", "course_image", "course_price", "course_duration"
-            )
-        else:
-            return query.only(
-                "id", "course_name", "course_image", "course_price", "course_duration", "course_description"
-            )
+        query = Purchases.objects.filter(user=self.request.user).select_related("course", "coach__user").only(
+            "id", "course__course_name", "course__course_image", "coach__user__first_name", "coach__user__last_name",
+            "course__project_counter"
+        ).prefetch_related(Prefetch("course__sections", Section.objects.only("course_id")))
+        course_name = self.request.query_params.get("name")
 
-    def get_serializer_context(self):
-        if "category_pk" in self.kwargs:
-            return {'category_pk': self.kwargs["category_pk"]}
-        return super().get_serializer_context()
-
-    def get_serializer_class(self):
-        if self.action == "list":
-            return serializers.ListCourseSerializer
-        else:
-            return serializers.RetrieveCourseSerializer
-
-
-class SectionViewSet(viewsets.ReadOnlyModelViewSet):
-    permission_classes = [StudentAccessCourseSectionPermission]
-
-    def get_queryset(self):
-        if self.action == "list":
-            return Section.objects.filter(course_id=self.kwargs['course_pk'], is_available=True).only(
-                "id", "course", "title", "created_at", "cover_image"
-            )
-        else:
-            return (Section.objects.filter(course_id=self.kwargs['course_pk'], is_available=True).only(
-                "course_id", "title", "description", "cover_image"
-            ))
-
-    def get_serializer_class(self):
-        if self.action == "list":
-            return serializers.ListSectionSerializer
-        else:
-            return serializers.RetrieveSectionSerializer
-
-
-class SectionVideoViewSet(viewsets.ReadOnlyModelViewSet):
-    permission_classes = [StudentAccessCourseSectionFilePermission]
-
-    def get_serializer_class(self):
-        if self.action == "list":
-            return serializers.ListSectionVideoSerializer
-        else:
-            return serializers.RetrieveSectionVideoSerializer
-
-    def get_queryset(self):
-        query = SectionVideo.objects.filter(is_publish=True, section_id=self.kwargs["section_pk"])
-        if self.action == "list":
-            query = query.only("id", "created_at", "video")
-        else:
-            query = query.only("video")
+        if course_name:
+            query = query.filter(course__course_name__icontains=course_name)
+        elif course_name:
+            query = query.filter(course__course_name__icontains=course_name)
         return query
 
+    @decorators.action(detail=True, methods=["GET"])
+    def sections(self, request, pk=None):
+        purchase = self.get_object()
+        sections = Section.objects.filter(course=purchase.course).only(
+            'id', "title", "created_at", "cover_image"
+        )
+        serializer = serializers.CourseSectionSerializer(sections, many=True)
+        return response.Response(serializer.data)
 
-class SectionFileViewSet(viewsets.ReadOnlyModelViewSet):
-    permission_classes = [StudentAccessCourseSectionFilePermission]
+    @decorators.action(detail=True, methods=['GET'], url_path='sections/(?P<section_pk>[^/.]+)')
+    def section_detail(self, request, pk=None, section_pk=None):
+        purchase = self.get_object()
+        try:
+            section = Section.objects.get(id=section_pk, course=purchase.course)
+            serializer = serializers.CourseSectionSerializer(section)
+            return response.Response(serializer.data)
+        except Section.DoesNotExist:
+            return response.Response({"detail": "Section not found."}, status=status.HTTP_404_NOT_FOUND)
 
-    def get_queryset(self):
-        query = SectionFile.objects.filter(is_publish=True, section_id=self.kwargs["section_pk"])
-        if self.action == "list":
-            q = query.only("id", "zip_file", "created_at", "title", "is_close")
-        else:
-            q = query.only("zip_file", "expired_data")
-        return q
+    @decorators.action(detail=True, methods=['GET'], url_path="sections/(?P<section_pk>[^/.]+)/videos")
+    def section_video(self, request, pk=None, section_pk=None):
+        purchase = self.get_object()
+        section_video = SectionVideo.objects.filter(section_id=section_pk, section__course=purchase.course).only(
+            "id", "video", "created_at"
+        )
+        serializer = serializers.CourseSectionVideoSerializer(section_video, many=True)
+        return response.Response(serializer.data)
 
-    def get_serializer_class(self):
-        if self.action == "list":
-            return serializers.ListSectionFileSerializer
-        else:
-            return serializers.RetrieveSectionFileSerializer
+    @decorators.action(
+        detail=True,
+        methods=['GET'],
+        url_path="sections/(?P<section_pk>[^/.]+)/videos/(?P<section_video_pk>[^/.]+)"
+    )
+    def section_video_detail(self, request, section_video_pk, pk=None, section_pk=None):
+        purchase = self.get_object()
+        try:
+            section_video = SectionVideo.objects.filter(
+                section_id=section_pk,
+                id=section_video_pk,
+                section__course=purchase.course
+            ).only("id", "video", "created_at").first()
+            serializer = serializers.CourseSectionVideoSerializer(section_video)
+            return response.Response(serializer.data)
+        except SectionVideo.DoesNotExist:
+            return response.Response({"detail": "Section video not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    @decorators.action(
+        detail=True,
+        methods=['GET'],
+        url_path='sections/(?P<section_pk>[^/.]+)/files'
+    )
+    def section_file(self, request, pk=None, section_pk=None):
+        purchase = self.get_object()
+        section_file = SectionFile.objects.filter(section_id=section_pk, section__course=purchase.course).only(
+            "id", "zip_file", "created_at", "is_close", "title"
+        )
+        serializer = serializers.CourseSectionFileSerializer(section_file, many=True)
+        return response.Response(serializer.data)
+
+    @decorators.action(
+        detail=True,
+        methods=['GET'],
+        url_path='sections/(?P<section_pk>[^/.]+)/files/(?P<section_file_pk>[^/.]+)'
+    )
+    def section_file_detail(self, request, pk=None, section_pk=None, section_file_pk=None):
+        purchase = self.get_object()
+        try:
+            section_file = SectionFile.objects.filter(
+                id=section_file_pk,
+                section_id=section_pk,
+                section__course=purchase.course
+            ).only(
+                "id", "zip_file", "created_at", "is_close", "title"
+            ).first()
+            serializer = serializers.CourseSectionFileSerializer(section_file)
+            return response.Response(serializer.data)
+        except SectionFile.DoesNotExist:
+            return response.Response({"detail": "Section video not found."}, status=status.HTTP_404_NOT_FOUND)
 
 
 class CommentViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.RetrieveModelMixin,
@@ -122,62 +136,3 @@ class CommentViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.Retr
             "user": self.request.user,
             "course_pk": self.kwargs["course_pk"]
         }
-
-
-class SendSectionFileViewSet(viewsets.ModelViewSet):
-    serializer_class = serializers.SendSectionFileSerializer
-    permission_classes = [StudentAccessCourseSendSectionFilePermission]
-
-    def get_queryset(self):
-        return SendSectionFile.objects.filter(section_file_id=self.kwargs['section_file_pk'],
-                                              student__user=self.request.user).defer(
-            'is_deleted', "deleted_at"
-        )
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context['section_file_pk'] = self.kwargs['section_file_pk']
-        context['section_pk'] = self.kwargs['section_pk']
-        return context
-
-
-class CoachTakenCourseApiView(generics.ListAPIView):
-    serializer_class = serializers.LessonTakenByCoachSerializer
-    permission_classes = [IsCoachAuthenticated]
-
-    def get_queryset(self):
-        query = LessonCourse.objects.filter(coach__user=self.request.user, is_active=True).select_related(
-            "course", "coach__user"
-        ).only(
-            "course__course_image", "coach__user__first_name", "coach__user__last_name", "class_name", "created_at",
-            "progress"
-        ).prefetch_related(
-            Prefetch("course__sections", queryset=Section.objects.only("title", "course_id")),
-            Prefetch("course__sections__section_videos", queryset=SectionVideo.objects.only("video", "section_id")),
-            Prefetch("course__sections__section_files", queryset=SectionFile.objects.only("zip_file", "section_id"))
-        )
-        progress_bar = self.request.query_params.get("progress")
-        if progress_bar:
-            q = query.filter(progress=progress_bar)
-        else:
-            q = query
-        return q
-
-
-class StudentTakenCourseApiView(generics.ListAPIView):
-    serializer_class = serializers.LessonTakenByStudentSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    pagination_class = LessonTakenPagination
-
-    def get_queryset(self):
-        query = LessonCourse.objects.filter(students__user=self.request.user, is_active=True).select_related(
-            "course"
-        ).only(
-            "coach", "course_id", "progress"
-        )
-        progress_bar = self.request.query_params.get("progress")
-        if progress_bar:
-            q = query.filter(progress=progress_bar)
-        else:
-            q = query
-        return q
