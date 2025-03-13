@@ -93,3 +93,15 @@ class PurchasesSerializer(serializers.ModelSerializer):
         return obj.course.lesson_course.aggregate(
             Count('students')
         )
+
+
+class LessonCourseFinishedSerializer(serializers.ModelSerializer):
+    course = PurchasesCourseSerializer()
+    coach_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = LessonCourse
+        fields = ["id", "course", "progress", "coach_name"]
+
+    def get_coach_name(self, obj):
+        return obj.coach.get_coach_name

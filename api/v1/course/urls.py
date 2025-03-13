@@ -9,5 +9,6 @@ router.register("purchase", views.PurchasesViewSet, basename="purchases")
 
 app_name = 'course'
 urlpatterns = [
+    path("user_lesson_course/", views.LessonCourseFinishedApiView.as_view(), name="finished_lesson_course"),
 ]
 urlpatterns += router.urls

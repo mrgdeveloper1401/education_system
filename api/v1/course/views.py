@@ -1,6 +1,6 @@
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
-from rest_framework import mixins, viewsets, permissions, decorators, response, status
+from rest_framework import mixins, viewsets, permissions, decorators, response, status, generics
 from django.db.models import Prefetch
 
 from course.models import Comment, Section, SectionVideo, SectionFile, Purchases, LessonCourse
@@ -138,3 +138,22 @@ class CommentViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.Retr
             "user": self.request.user,
             "course_pk": self.kwargs["course_pk"]
         }
+
+
+class LessonCourseFinishedApiView(generics.ListAPIView):
+    serializer_class = serializers.LessonCourseFinishedSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        query = LessonCourse.objects.filter(
+            students__user=self.request.user
+        ).select_related(
+            "course", "coach__user"
+        ).only(
+            "course__course_name", "course__course_image", "progress", "coach__user__first_name",
+            "coach__user__last_name", "course__project_counter"
+        )
+        progress_status = self.request.query_params.get("status")
+        if progress_status:
+            query = query.filter(progress__exact=progress_status)
+        return query
