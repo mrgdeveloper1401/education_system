@@ -77,53 +77,6 @@ class UpdateUserSerializer(serializers.ModelSerializer):
         }
 
 
-class OtpLoginSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Otp
-        fields = ['mobile_phone']
-
-    def validate(self, attrs):
-        phone = attrs['mobile_phone']
-        try:
-            user = User.objects.get(mobile_phone=attrs['mobile_phone'])
-        except User.DoesNotExist:
-            raise ValidationError({"message": _("چنین کاربری وجود ندارد لطفا ابتدا ثبت نام کنید")})
-        else:
-            otp = Otp.objects.filter(mobile_phone=phone).last()
-            if user.is_deleted:
-                raise ValidationError({"message": _("کاربر گرامی دسترسی شما مسدود شده هست!")})
-            if otp:
-                if not otp.is_expired:
-                    raise ValidationError(
-                        {"message": _(f"شما از قبل یه کد دارید لطفا به مدت {otp.time_left_otp} ثانیه صبر کنید ")}
-                    )
-                if otp.is_expired:
-                    otp.delete()
-                    raise ValidationError({"message": _("کد otp منقضی شده هست لطفا دوباره درخواست خود را ارسال کنید")})
-        return attrs
-
-
-class VerifyOtpSerializer(serializers.Serializer):
-    code = serializers.CharField()
-
-    def validate(self, attrs):
-        try:
-            otp = Otp.objects.get(code=attrs['code'])
-        except Otp.DoesNotExist:
-            raise ValidationError({"code": _("کد وارد شده اشتباه هست")})
-        else:
-            if otp.is_expired:
-                otp.delete()
-                raise ValidationError({"message": _("کد وارد شده منقضی هست لطفا دوباره درخواست خود را ارسال کنید")})
-            else:
-                user = User.objects.get(mobile_phone=otp.mobile_phone)
-                refresh = RefreshToken.for_user(user)
-        attrs['refresh'] = str(refresh)
-        attrs['access'] = str(refresh.access_token)
-        otp.delete()
-        return attrs
-
-
 class StateSerializer(serializers.ModelSerializer):
     class Meta:
         model = State
@@ -286,12 +239,6 @@ class UpdateTicketChatSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ticket
         fields = ['ticket_body', "ticket_image", "sender", "created_at"]
-
-
-class ListUserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['id', "mobile_phone", "email", "is_coach"]
 
 
 class ListBestStudentSerializer(serializers.ModelSerializer):

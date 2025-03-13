@@ -7,7 +7,6 @@ from . import views
 
 router = routers.DefaultRouter()
 router.register('user', views.UserViewSet, basename='create')
-router.register('send-code', views.SendCodeOtpViewSet, basename='login-otp')
 router.register("best_student", views.BestStudentViewSet, basename="best_student")
 
 router.register("ticket_room", views.TicketRoomViewSet, basename='ticket_room')
@@ -25,8 +24,6 @@ urlpatterns = [
     path("", include(ticket_chat_router.urls)),
     path("login/", views.UserLoginApiView.as_view(), name='user_login'),
     path("validate_token/", views.ValidateTokenApiView.as_view(), name='validate_token'),
-    path('user-list/', views.ListUserApiView.as_view(), name='user-list'),
-    path("verify-otp/", views.VerifyOtpCodeApiView.as_view(), name="verify-otp"),
     path('state-list/', views.StateApiView.as_view(), name='state-list'),
     path('state-list/<int:pk>/', views.StateApiView.as_view(), name='detail-state-list'),
     path('state/<int:pk>/city/', views.StateCitiesGenericView.as_view(), name='detail-state-city'),

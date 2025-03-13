@@ -1,7 +1,7 @@
 from rest_framework import viewsets, generics, permissions
 from rest_framework import filters
 
-from accounts.models import TicketReply, BestStudent, Student, Coach
+from accounts.models import TicketReply, BestStudent, Student, Coach, User
 from . import serializers
 from .pagination import BestStudentPagination, ListStudentByIdPagination
 
@@ -48,3 +48,16 @@ class AdminCoachApiView(generics.ListAPIView):
     permission_classes = [permissions.IsAdminUser]
     search_fields = ['user__mobile_phone']
     filter_backends = [filters.SearchFilter]
+
+
+class AdminUserApiView(generics.ListAPIView):
+    queryset = User.objects.filter(is_active=True).only('id', "mobile_phone", "first_name", "last_name")
+    serializer_class = serializers.AdminUserListSerializer
+    permission_classes = [permissions.IsAdminUser]
+
+    def get_queryset(self):
+        query = super().get_queryset()
+        phone = self.request.query_params.get("phone")
+        if phone:
+            query = query.filter(mobile_phone__icontains=phone)
+        return query

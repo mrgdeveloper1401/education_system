@@ -85,25 +85,6 @@ class UserViewSet(viewsets.ModelViewSet):
         return super().get_serializer_context()
 
 
-class SendCodeOtpViewSet(CreateModelMixin, GenericViewSet):
-    serializer_class = serializers.OtpLoginSerializer
-    permission_classes = [NotAuthenticate]
-
-
-class VerifyOtpCodeApiView(APIView):
-    permission_classes = [NotAuthenticate]
-    serializer_class = serializers.VerifyOtpSerializer
-
-    def post(self, request, *args, **kwargs):
-        ser_data = self.serializer_class(data=request.data)
-        ser_data.is_valid(raise_exception=True)
-        validated_data = ser_data.validated_data
-        return Response({
-            'refresh_token': validated_data['refresh'],
-            'access_token': validated_data['access']
-        }, status=HTTP_200_OK)
-
-
 class BaseApiView(APIView):
     model = None
     serializer_class = None
@@ -225,13 +206,6 @@ class TicketChatViewSet(ModelViewSet):
         return Ticket.objects.filter(room_id=self.kwargs['ticket_room_pk'], room__is_close=False).only(
             "id", "ticket_body", "ticket_image", "sender__mobile_phone", "created_at"
         ).select_related("sender")
-
-
-class ListUserApiView(ListAPIView):
-    queryset = User.objects.all()
-    serializer_class = serializers.ListUserSerializer
-    pagination_class = ListUserPagination
-    permission_classes = [IsAdminUser]
 
 
 class BestStudentViewSet(viewsets.ReadOnlyModelViewSet):

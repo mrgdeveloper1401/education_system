@@ -15,7 +15,7 @@ class AdminCategoryBlogViewSet(viewsets.ModelViewSet):
             return serializers.AdminListCategoryBlogSerializer
 
     def get_queryset(self):
-        return CategoryBlog.objects.all().only(
+        return CategoryBlog.objects.only(
             'id', "category_name", "category_slug", "is_publish", "created_at", "updated_at"
         )
 
@@ -32,11 +32,14 @@ class AdminBlogPostViewSet(viewsets.ModelViewSet):
             return serializers.AdminRetrievePostBlogSerializer
 
     def get_queryset(self):
+        query = PostBlog.objects.filter(category_id=self.kwargs["category_pk"])
         if self.action == "list":
-            return PostBlog.objects.all().only('id', "post_title", "post_cover_image", "created_at", "post_slug")
-        return PostBlog.objects.all().defer("is_deleted", "deleted_at").prefetch_related(
-            "author", "tags"
-        )
+            query = query.only('id', "post_title", "post_cover_image", "created_at", "post_slug")
+        else:
+            query = query.defer("is_deleted", "deleted_at").prefetch_related(
+                "author", "tags"
+            )
+        return query
 
 
 class AdminTagViewSet(viewsets.ModelViewSet):
@@ -51,10 +54,12 @@ class AdminTagViewSet(viewsets.ModelViewSet):
             return serializers.AdminUpdateTagsSerializer
 
     def get_queryset(self):
+        query = TagBlog.objects.all()
         if self.action == "list":
-            return TagBlog.objects.all().only("id", "tag_name", "is_publish")
+            query = query.only("id", "tag_name", "is_publish")
         else:
-            return TagBlog.objects.all().defer("is_deleted", "deleted_at")
+            query = query.defer("is_deleted", "deleted_at")
+        return query
 
 
 class AdminFavoriteViewSet(viewsets.ModelViewSet):
@@ -69,10 +74,12 @@ class AdminFavoriteViewSet(viewsets.ModelViewSet):
             return serializers.AdminUpdateFavouritePostSerializer
 
     def get_queryset(self):
+        query = FavouritePost.objects.all()
         if self.action == "list":
-            return FavouritePost.objects.all().only("id", "user_id", "post_id").select_related("user", "post")
+            query = query.only("id", "user_id", "post_id").select_related("user", "post")
         else:
-            return FavouritePost.objects.all().defer("is_deleted", "deleted_at")
+            query = query.defer("is_deleted", "deleted_at")
+        return query
 
 
 class AdminCommentViewSet(viewsets.ModelViewSet):
@@ -87,9 +94,11 @@ class AdminCommentViewSet(viewsets.ModelViewSet):
             return serializers.AdminUpdateCommentSerializer
 
     def get_queryset(self):
+        query = CommentBlog.objects.filter(post_id=self.kwargs["post_pk"])
         if self.action == "list":
-            return CommentBlog.objects.all().only('id', "user", "post", "is_publish", "created_at").select_related(
+            query = query.only('id', "user", "post", "is_publish", "created_at").select_related(
                 "user", "post"
             )
         else:
-            return CommentBlog.objects.all().defer("is_deleted", "deleted_at")
+            query = query.defer("is_deleted", "deleted_at")
+        return query

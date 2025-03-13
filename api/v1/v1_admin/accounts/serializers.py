@@ -2,7 +2,7 @@ from rest_framework import serializers
 from drf_extra_fields.fields import Base64ImageField
 from django.db import connection
 
-from accounts.models import TicketReply, BestStudent, Student, Coach
+from accounts.models import TicketReply, BestStudent, Student, Coach, User
 
 
 class AdminCreateTicketReplySerializer(serializers.ModelSerializer):
@@ -37,3 +37,9 @@ class AdminCouchListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Coach
         fields = ['id', "get_coach_name", "get_coach_phone"]
+
+
+class AdminUserListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', "mobile_phone", "get_full_name"]
