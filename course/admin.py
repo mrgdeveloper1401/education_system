@@ -25,8 +25,8 @@ class CategoryTreeAdmin(TreeAdmin, ImportExportModelAdmin):
 class SectionAdmin(admin.ModelAdmin):
     raw_id_fields = ['course']
     list_select_related = ['course']
-    list_display = ["id", 'course', "title", "description", "is_available"]
-    list_filter = ['is_available']
+    list_display = ["id", 'course', "title", "description"]
+    list_filter = ['created_at']
     list_per_page = 30
     search_fields = ['title']
     list_display_links = ['id', "course"]
@@ -75,12 +75,12 @@ class CertificateAdmin(admin.ModelAdmin):
     raw_id_fields = ['course', "student"]
 
 
-@admin.register(models.SectionScore)
+@admin.register(models.StudentSectionProgress)
 class SectionScoreAdmin(admin.ModelAdmin):
-    list_display = ['section_file', "score", 'created_at']
+    list_display = ['section', "score", 'created_at']
     list_per_page = 30
     list_filter = ['created_at']
-    raw_id_fields = ['section_file']
+    raw_id_fields = ['section']
 
 
 admin.site.register(models.SendSectionFile)

@@ -4,7 +4,7 @@ from rest_framework import viewsets, permissions, exceptions, generics, filters
 
 from . import serializers
 from course.models import Category, Course, Section, SectionFile, SectionVideo, LessonCourse, Certificate, \
-    SectionScore
+    StudentSectionProgress
 from .paginations import AdminPagination
 
 
@@ -151,14 +151,14 @@ class AdminCertificateViewSet(viewsets.ModelViewSet):
 
 
 class AdminSectionScoreViewSet(viewsets.ModelViewSet):
-    serializer_class = serializers.AdminSectionScoreSerializer
+    serializer_class = serializers.AdminStudentSectionProgressSerializer
     permission_classes = [permissions.IsAdminUser]
 
     def get_queryset(self):
-        return (SectionScore.objects.filter(section_file_id=self.kwargs['section_file_pk']).
+        return (StudentSectionProgress.objects.filter(section_file_id=self.kwargs['section_pk']).
                 defer("deleted_at", "is_deleted"))
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        context['section_file_pk'] = self.kwargs['section_file_pk']
+        context['section_pk'] = self.kwargs['section_pk']
         return context

@@ -1,7 +1,7 @@
 from django.db import models
 from core.models import UpdateMixin, CreateMixin, SoftDeleteMixin
 from django.utils.translation import gettext_lazy as _
-from django.core.validators import FileExtensionValidator, MinValueValidator
+from django.core.validators import FileExtensionValidator, MinValueValidator, MaxValueValidator
 from treebeard.mp_tree import MP_Node
 from django.utils import timezone
 
@@ -66,16 +66,20 @@ class Section(CreateMixin, UpdateMixin, SoftDeleteMixin):
     course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name='sections')
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
-    is_available = models.BooleanField(default=True,
-                                       help_text=_("در دسترس بودن"))
+    # is_available = models.BooleanField(default=True,
+    #                                    help_text=_("در دسترس بودن"))
     cover_image = models.ImageField(upload_to="section_cover_image/%Y/%m/%d", null=True,
                                     validators=[max_upload_image_validator])
+    order = models.PositiveIntegerField(default=1)
 
     class Meta:
         ordering = ('created_at',)
         db_table = 'course_section'
         verbose_name = _("قسمت")
         verbose_name_plural = _("قسمت های دوره")
+        permissions = [
+            ("can_access_section", "can access section")
+        ]
 
 
 class SectionVideo(CreateMixin, UpdateMixin, SoftDeleteMixin):
@@ -113,12 +117,20 @@ class SectionFile(CreateMixin, UpdateMixin, SoftDeleteMixin):
         db_table = "course_section_file"
 
 
-class SectionScore(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    section_file = models.ForeignKey(SectionFile, on_delete=models.DO_NOTHING, related_name='score_section_files')
-    score = models.FloatField(validators=[MinValueValidator(0)])
+class StudentSectionProgress(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name='section_score', null=True)
+    score = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(100)])
+    student = models.ForeignKey("accounts.Student", on_delete=models.DO_NOTHING,
+                                related_name="student_section_progress")
+    is_completed = models.BooleanField(default=False)
 
     class Meta:
         db_table = "course_section_score"
+
+    def save(self, *args, **kwargs):
+        if self.score >= 60:
+            self.is_completed = True
+        super().save(*args, **kwargs)
 
 
 class SendSectionFile(CreateMixin, UpdateMixin, SoftDeleteMixin):

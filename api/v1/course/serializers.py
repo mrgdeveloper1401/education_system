@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from course.models import Course, Category, Comment, Section, SectionVideo, SectionFile, SendSectionFile, LessonCourse, \
-    SectionScore
+    StudentSectionProgress
 from drf_spectacular.utils import extend_schema_field
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -93,15 +93,15 @@ class LessonCourseSerializer(serializers.ModelSerializer):
 
 class SectionScoreSerializer(serializers.ModelSerializer):
     class Meta:
-        model = SectionScore
-        fields = ['id', "section_file", "score"]
+        model = StudentSectionProgress
+        fields = ['id', "section", "score"]
 
 
 class CreateUpdateSectionScoreSerializer(serializers.ModelSerializer):
     class Meta:
-        model = SectionScore
-        fields = ['score']
+        model = StudentSectionProgress
+        fields = ['score', "student"]
 
     def create(self, validated_data):
-        section_file_pk = self.context['section_file_pk']
-        return SectionScore.objects.create(section_file_id=section_file_pk, **validated_data)
+        section_pk = self.context['section_pk']
+        return StudentSectionProgress.objects.create(section_id=section_pk, **validated_data)
