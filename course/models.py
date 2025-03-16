@@ -1,7 +1,7 @@
 from django.db import models
 from core.models import UpdateMixin, CreateMixin, SoftDeleteMixin
 from django.utils.translation import gettext_lazy as _
-from django.core.validators import FileExtensionValidator
+from django.core.validators import FileExtensionValidator, MinValueValidator
 from treebeard.mp_tree import MP_Node
 from django.utils import timezone
 
@@ -113,6 +113,17 @@ class SectionFile(CreateMixin, UpdateMixin, SoftDeleteMixin):
         db_table = "course_section_file"
 
 
+class SectionScore(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    section_file = models.ForeignKey(SectionFile, on_delete=models.DO_NOTHING, related_name='score_section_files')
+    score = models.FloatField(validators=[MinValueValidator(0)])
+
+    def __str__(self):
+        return self.score
+
+    class Meta:
+        db_table = "course_section_score"
+
+
 class SendSectionFile(CreateMixin, UpdateMixin, SoftDeleteMixin):
     student = models.ForeignKey("accounts.Student", on_delete=models.DO_NOTHING, related_name="send_section_files")
     section_file = models.ForeignKey(SectionFile, on_delete=models.DO_NOTHING, related_name='section_files',
@@ -132,19 +143,6 @@ class Certificate(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = 'course_certificate'
-
-
-class Purchases(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    user = models.ForeignKey("accounts.User", on_delete=models.DO_NOTHING,
-                             related_name="student_access_course", null=True)
-    course = models.ForeignKey(Course, related_name="std_course_access_course", on_delete=models.DO_NOTHING)
-    coach = models.ForeignKey("accounts.Coach", related_name="coach_access_course", on_delete=models.DO_NOTHING,
-                              null=True)
-    is_active = models.BooleanField(default=True)
-
-    class Meta:
-        db_table = 'student_access_course'
-        ordering = ('-created_at',)
 
 
 class Comment(CreateMixin, UpdateMixin, SoftDeleteMixin):

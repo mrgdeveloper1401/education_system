@@ -68,21 +68,18 @@ class LessonCourseAdmin(admin.ModelAdmin):
     search_fields = ['course__course_name', "coach__coach_number", "progress"]
 
 
-@admin.register(models.Purchases)
-class PurchasesAdmin(admin.ModelAdmin):
-    list_display = ['user', "course", "coach", "is_active", "created_at"]
-    list_select_related = ['user', "course", "coach"]
-    list_filter = ['is_active']
-    search_fields = ['user__mobile_phone', "course__course_name"]
-    list_per_page = 20
-    raw_id_fields = ['user', "course", "coach"]
-
-
 @admin.register(models.Certificate)
 class CertificateAdmin(admin.ModelAdmin):
     list_display = ['course', "student", "is_active", "created_at"]
     list_select_related = ['student', "course"]
     raw_id_fields = ['course', "student"]
+
+
+@admin.register(models.SectionScore)
+class SectionScoreAdmin(admin.ModelAdmin):
+    list_display = ['section_file', "score", 'created_at']
+    list_per_page = 30
+    list_filter = ['created_at']
 
 
 admin.site.register(models.SendSectionFile)

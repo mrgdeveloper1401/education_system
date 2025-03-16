@@ -3,7 +3,8 @@ from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets, permissions, exceptions, generics, filters
 
 from . import serializers
-from course.models import Category, Course, Section, SectionFile, SectionVideo, LessonCourse, Certificate, Purchases
+from course.models import Category, Course, Section, SectionFile, SectionVideo, LessonCourse, Certificate, \
+    SectionScore
 from .paginations import AdminPagination
 
 
@@ -149,8 +150,15 @@ class AdminCertificateViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAdminUser]
 
 
-class AdminPurchaseViewSet(viewsets.ModelViewSet):
-    queryset = Purchases.objects.all().defer("deleted_at", "is_deleted")
-    serializer_class = serializers.AdminPurchaseSerializer
+class AdminSectionScoreViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.AdminSectionScoreSerializer
     permission_classes = [permissions.IsAdminUser]
-    pagination_class = AdminPagination
+
+    def get_queryset(self):
+        return (SectionScore.objects.filter(section_file_id=self.kwargs['section_file_pk']).
+                defer("deleted_at", "is_deleted"))
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['section_file_pk'] = self.kwargs['section_file_pk']
+        return context

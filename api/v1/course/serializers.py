@@ -1,7 +1,6 @@
-from django.db.models import Count
 from rest_framework import serializers
 from course.models import Course, Category, Comment, Section, SectionVideo, SectionFile, SendSectionFile, LessonCourse, \
-    Purchases, Certificate
+    SectionScore
 from drf_spectacular.utils import extend_schema_field
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -74,34 +73,25 @@ class SendSectionFileSerializer(serializers.ModelSerializer):
         return SendSectionFile.objects.create(student=user, section_file_id=section_file_id, **validated_data)
 
 
-class PurchasesCourseSerializer(serializers.ModelSerializer):
+class SimpleLessonCourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         fields = ['course_name', "course_image", "project_counter"]
 
 
-class PurchasesSerializer(serializers.ModelSerializer):
-    course = PurchasesCourseSerializer()
-    coach = serializers.CharField(source="coach.get_coach_name")
-    course_student_count = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Purchases
-        fields = ['id', "course", "coach", 'course_student_count']
-
-    def get_course_student_count(self, obj):
-        return obj.course.lesson_course.aggregate(
-            Count('students')
-        )
-
-
-class LessonCourseFinishedSerializer(serializers.ModelSerializer):
-    course = PurchasesCourseSerializer()
+class LessonCourseSerializer(serializers.ModelSerializer):
+    course = SimpleLessonCourseSerializer()
     coach_name = serializers.SerializerMethodField()
 
     class Meta:
         model = LessonCourse
-        fields = ["id", "course", "progress", "coach_name"]
+        fields = ["id", "course", "progress", "coach_name", "class_name"]
 
     def get_coach_name(self, obj):
         return obj.coach.get_coach_name
+
+
+class SectionScoreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SectionScore
+        fields = ['id', "section_file", "score"]
