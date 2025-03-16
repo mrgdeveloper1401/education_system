@@ -95,3 +95,13 @@ class SectionScoreSerializer(serializers.ModelSerializer):
     class Meta:
         model = SectionScore
         fields = ['id', "section_file", "score"]
+
+
+class CreateUpdateSectionScoreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SectionScore
+        fields = ['score']
+
+    def create(self, validated_data):
+        section_file_pk = self.context['section_file_pk']
+        return SectionScore.objects.create(section_file_id=section_file_pk, **validated_data)

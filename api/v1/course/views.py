@@ -1,6 +1,7 @@
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
-from rest_framework import mixins, viewsets, permissions, decorators, response, status
+from rest_framework import mixins, viewsets, permissions, decorators, response, status, exceptions
+from rest_framework.generics import get_object_or_404
 
 from course.models import Comment, Section, SectionVideo, SectionFile, LessonCourse, SectionScore
 from .pagination import CommentPagination
@@ -13,6 +14,13 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.LessonCourseSerializer
     permission_classes = [permissions.IsAuthenticated]
     pagination_class = CourseCategoryPagination
+
+    def get_serializer_class(self):
+        if self.action == "section_file_score" and self.request.method == "POST":
+            return serializers.CreateUpdateSectionScoreSerializer
+        elif self.action == "section_file_score_detail":
+            return serializers.CreateUpdateSectionScoreSerializer
+        return super().get_serializer_class()
 
     @extend_schema(
         parameters=[
@@ -35,12 +43,23 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
         return res
 
     def get_queryset(self):
-        query = LessonCourse.objects.filter(students__user=self.request.user, is_active=True).select_related(
-            "course", "coach__user"
-        ).only(
-            "course__course_name", "course__course_image", "course__project_counter", "coach__user__last_name",
-            "coach__user__first_name", "progress", "class_name"
-        )
+        is_coach = getattr(self.request.user, "is_coach", False)
+
+        if is_coach:
+            query = LessonCourse.objects.filter(coach__user=self.request.user, is_active=True).select_related(
+                "course", "coach__user"
+            ).only(
+                "course__course_name", "course__course_image", "course__project_counter", "coach__user__last_name",
+                "coach__user__first_name", "progress", "class_name"
+            )
+        else:
+            query = LessonCourse.objects.filter(students__user=self.request.user, is_active=True).select_related(
+                "course", "coach__user"
+            ).only(
+                "course__course_name", "course__course_image", "course__project_counter", "coach__user__last_name",
+                "coach__user__first_name", "progress", "class_name"
+            )
+
         class_name = self.request.query_params.get("class_name")
         progress_lesson = self.request.query_params.get("progress_lesson")
 
@@ -137,28 +156,54 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
 
     @decorators.action(
         detail=True,
-        methods=['GET'],
+        methods=['GET', 'POST'],
         url_path='sections/(?P<section_pk>[^/.]+)/files/(?P<section_file_pk>[^/.]+)/section_score'
     )
     def section_file_score(self, request, pk=None, section_pk=None, section_file_pk=None):
-        section_score = SectionScore.objects.filter(
-            section_file_id=self.kwargs['section_file_pk'],
-            section_file__section_id=self.kwargs['section_pk'],
-        ).only("id", "section_file", "score")
-        serializer = serializers.SectionScoreSerializer(section_score, many=True)
-        return response.Response(serializer.data)
+        if request.method == "GET":
+            section_score = SectionScore.objects.filter(
+                section_file_id=self.kwargs['section_file_pk'],
+                section_file__section_id=self.kwargs['section_pk'],
+            ).only("id", "section_file", "score")
+            serializer = serializers.SectionScoreSerializer(section_score, many=True)
+            return response.Response(serializer.data)
+
+        elif request.method == "POST":
+            is_coach = getattr(self.request.user, "is_coach")
+            if not is_coach:
+                raise exceptions.PermissionDenied("you do not have permission this view")
+            serializer = serializers.CreateUpdateSectionScoreSerializer(
+                data=request.data,
+                context={'section_file_pk': self.kwargs['section_file_pk']}
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return response.Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            raise exceptions.NotAcceptable
 
     @decorators.action(
         detail=True,
-        methods=['GET'],
+        methods=['GET', 'PATCH'],
         url_path='sections/(?P<section_pk>[^/.]+)/files/(?P<section_file_pk>[^/.]+)/section_score/'
                  '(?P<section_score_pk>[^/.]+)'
     )
     def section_file_score_detail(self, request, pk=None, section_pk=None, section_file_pk=None, section_score_pk=None):
+        if request.method == "PATCH":
+            is_coach = getattr(request.user, "coach", False)
+            if not is_coach:
+                raise exceptions.PermissionDenied("you do not have permission this view")
+
+            get_score = get_object_or_404(SectionScore, pk=self.kwargs['section_score_pk'])
+            serializer = serializers.CreateUpdateSectionScoreSerializer(get_score, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return response.Response(serializer.data, status=status.HTTP_200_OK)
+
         section_score = SectionScore.objects.filter(
             section_file_id=self.kwargs['section_file_pk'],
             section_file__section_id=self.kwargs['section_pk'],
-            id=section_score_pk
+            id=self.kwargs['section_score_pk'],
         ).only("id", "section_file", "score").first()
         serializer = serializers.SectionScoreSerializer(section_score)
         return response.Response(serializer.data)
