@@ -110,7 +110,7 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
     def section_file(self, request, pk=None, section_pk=None):
         lesson_course = self.get_object()
         section_file = SectionFile.objects.filter(section_id=section_pk, section__course=lesson_course.course).only(
-            "id", "zip_file", "created_at", "is_close", "title"
+            "id", "zip_file", "created_at", "is_close", "title", "expired_data"
         )
         serializer = serializers.CourseSectionFileSerializer(section_file, many=True)
         return response.Response(serializer.data)
@@ -128,7 +128,7 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
                 section_id=section_pk,
                 section__course=lesson_course.course
             ).only(
-                "id", "zip_file", "created_at", "is_close", "title"
+                "id", "zip_file", "created_at", "is_close", "title", "expired_data"
             ).first()
             serializer = serializers.CourseSectionFileSerializer(section_file)
             return response.Response(serializer.data)

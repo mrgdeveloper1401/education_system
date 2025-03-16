@@ -117,9 +117,6 @@ class SectionScore(CreateMixin, UpdateMixin, SoftDeleteMixin):
     section_file = models.ForeignKey(SectionFile, on_delete=models.DO_NOTHING, related_name='score_section_files')
     score = models.FloatField(validators=[MinValueValidator(0)])
 
-    def __str__(self):
-        return self.score
-
     class Meta:
         db_table = "course_section_score"
 

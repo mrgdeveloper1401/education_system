@@ -80,6 +80,7 @@ class SectionScoreAdmin(admin.ModelAdmin):
     list_display = ['section_file', "score", 'created_at']
     list_per_page = 30
     list_filter = ['created_at']
+    raw_id_fields = ['section_file']
 
 
 admin.site.register(models.SendSectionFile)

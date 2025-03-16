@@ -33,7 +33,7 @@ class CourseSectionVideoSerializer(serializers.ModelSerializer):
 class CourseSectionFileSerializer(serializers.ModelSerializer):
     class Meta:
         model = SectionFile
-        fields = ['id', "zip_file", "created_at", "title", "is_close"]
+        fields = ['id', "zip_file", "created_at", "title", "is_close", "expired_data"]
 
 
 class CommentSerializer(serializers.ModelSerializer):
