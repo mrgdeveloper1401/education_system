@@ -3,7 +3,7 @@ from guardian.shortcuts import assign_perm
 
 from accounts.models import Student
 from course.models import Course, Category, Comment, Section, SectionVideo, SectionFile, SendSectionFile, LessonCourse, \
-    StudentSectionProgress
+    StudentSectionProgress, PresentAbsent
 from drf_spectacular.utils import extend_schema_field
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -134,3 +134,13 @@ class LessonCourseStudentSerializer(serializers.ModelSerializer):
 
         assign_perm("can_access_section", get_student, get_section)
         return attrs
+
+
+class LessonCoursePreSentAbsentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PresentAbsent
+        exclude = ['is_deleted', "deleted_at", "created_at", "updated_at"]
+
+    def create(self, validated_data):
+        lesson_course_id = self.context['lesson_course_pk']
+        return PresentAbsent.objects.create(lesson_course_id=lesson_course_id, **validated_data)

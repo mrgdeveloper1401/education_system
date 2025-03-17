@@ -1,4 +1,6 @@
 from django.db import models
+
+from accounts.models import Student
 from core.models import UpdateMixin, CreateMixin, SoftDeleteMixin
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import FileExtensionValidator, MinValueValidator, MaxValueValidator
@@ -116,6 +118,17 @@ class SectionFile(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = "course_section_file"
+
+
+class PresentAbsent(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="section_present_absent")
+    student = models.ForeignKey(Student, on_delete=models.DO_NOTHING, related_name="student_present_absent")
+    lesson_course = models.ForeignKey(LessonCourse, on_delete=models.DO_NOTHING, related_name="lesson_present_absent")
+    is_present = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = "course_section_present_absent"
+        ordering = ("-created_at",)
 
 
 class StudentSectionProgress(CreateMixin, UpdateMixin, SoftDeleteMixin):

@@ -3,11 +3,13 @@ from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import mixins, viewsets, permissions, decorators, response, status, exceptions, generics
 from guardian.shortcuts import get_objects_for_user, assign_perm
 
-from course.models import Comment, Section, SectionVideo, SectionFile, LessonCourse, StudentSectionProgress
+from course.models import Comment, Section, SectionVideo, SectionFile, LessonCourse, StudentSectionProgress, \
+    PresentAbsent
 from .pagination import CommentPagination
 from .paginations import CourseCategoryPagination
 
 from . import serializers
+from .permissions import IsCoachPermission
 
 
 class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
@@ -253,3 +255,18 @@ class CommentViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.Retr
             "user": self.request.user,
             "course_pk": self.kwargs["course_pk"]
         }
+
+
+class LessonCoursePresentAbsent(viewsets.ModelViewSet):
+    serializer_class = serializers.LessonCoursePreSentAbsentSerializer
+    permission_classes = [IsCoachPermission]
+
+    def get_queryset(self):
+        return PresentAbsent.objects.filter(lesson_course_id=self.kwargs['lesson_course_pk']).defer(
+            "is_deleted", "deleted_at", "created_at", "updated_at"
+        )
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["lesson_course_pk"] = self.kwargs["lesson_course_pk"]
+        return context
