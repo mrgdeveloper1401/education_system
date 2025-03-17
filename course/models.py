@@ -83,6 +83,7 @@ class Section(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 
 class SectionVideo(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    title = models.CharField(max_length=50, help_text=_("عنوان"), null=True)
     section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name='section_videos')
     video = models.FileField(upload_to="section_video/%Y/%m/%d", validators=[FileExtensionValidator(["mp4"])])
     is_publish = models.BooleanField(default=True)
@@ -100,7 +101,7 @@ class SectionFile(CreateMixin, UpdateMixin, SoftDeleteMixin):
     zip_file = models.FileField(upload_to="section_file/%Y/%m/%d", validators=[FileExtensionValidator(["zip", "rar"])],
                                 blank=True)
     is_publish = models.BooleanField(default=True)
-    expired_data = models.DateTimeField(null=True, help_text=_("زمان انتقضای تمرین"))
+    expired_data = models.DateTimeField(help_text=_("زمان انتقضای تمرین"))
     is_close = models.BooleanField(default=False)
 
     def __str__(self):

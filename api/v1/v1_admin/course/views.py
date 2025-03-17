@@ -100,7 +100,7 @@ class AdminSectionVideoViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return SectionVideo.objects.filter(section_id=self.kwargs["section_pk"]).only(
-            "id", "created_at", "updated_at", "video", "section_id", "is_publish"
+            "id", "created_at", "updated_at", "video", "section_id", "is_publish", "title"
         )
 
     def get_serializer_context(self):

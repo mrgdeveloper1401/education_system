@@ -1,4 +1,7 @@
-from rest_framework import serializers
+from rest_framework import serializers, generics
+from guardian.shortcuts import assign_perm
+
+from accounts.models import Student
 from course.models import Course, Category, Comment, Section, SectionVideo, SectionFile, SendSectionFile, LessonCourse, \
     StudentSectionProgress
 from drf_spectacular.utils import extend_schema_field
@@ -105,3 +108,24 @@ class CreateUpdateSectionScoreSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         section_pk = self.context['section_pk']
         return StudentSectionProgress.objects.create(section_id=section_pk, **validated_data)
+
+
+class LessonCourseStudentSerializer(serializers.ModelSerializer):
+    students = serializers.PrimaryKeyRelatedField(
+        queryset=Student.objects.filter(is_active=True).only("id", "student_number"),
+        many=True
+    )
+
+    class Meta:
+        model = LessonCourse
+        fields = ['students']
+
+    def validate(self, attrs):
+        section_pk = self.context['section_pk']
+
+        get_section = generics.get_object_or_404(Section, pk=section_pk)
+
+        get_student = generics.get_object_or_404(Student, id=attrs['students'])
+
+        assign_perm("can_access_section", get_student, get_section)
+        return attrs

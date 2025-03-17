@@ -22,14 +22,14 @@ section_router = routers.NestedDefaultRouter(course_router, r'course_section', l
 section_router.register('section_file', views.AdminSectionFileViewSet, basename='section_file')
 section_router.register("section_video", views.AdminSectionVideoViewSet, basename='section_video')
 
-section_file_router = routers.NestedDefaultRouter(section_router, r'section_file', lookup='section_file')
-section_file_router.register("section_score", views.AdminSectionScoreViewSet, basename='section_score')
+# section_file_router = routers.NestedDefaultRouter(section_router, r'section_file', lookup='section_file')
+# section_file_router.register("section_score", views.AdminSectionScoreViewSet, basename='section_score')
 
 urlpatterns = [
     path("", include(category_router.urls)),
     path('', include(course_router.urls)),
     path("", include(section_router.urls)),
-    path("", include(section_file_router.urls)),
+    # path("", include(section_file_router.urls)),
     path('course_list/', views.AdminCourseListApiView.as_view(), name='course_list')
 ]
 urlpatterns += router.urls

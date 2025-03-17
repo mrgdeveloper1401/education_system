@@ -1,7 +1,7 @@
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
-from rest_framework import mixins, viewsets, permissions, decorators, response, status, exceptions
-from guardian.shortcuts import get_objects_for_user
+from rest_framework import mixins, viewsets, permissions, decorators, response, status, exceptions, generics
+from guardian.shortcuts import get_objects_for_user, assign_perm
 
 from course.models import Comment, Section, SectionVideo, SectionFile, LessonCourse, StudentSectionProgress
 from .pagination import CommentPagination
@@ -20,6 +20,8 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
             return serializers.CreateUpdateSectionScoreSerializer
         elif self.action == "detail_section_score":
             return serializers.CreateUpdateSectionScoreSerializer
+        elif self.action == 'grant_access':
+            return serializers.LessonCourseStudentSerializer
         else:
             return super().get_serializer_class()
 
@@ -82,6 +84,27 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
         )
         serializer = serializers.CourseSectionSerializer(sections, many=True)
         return response.Response(serializer.data)
+
+    @decorators.action(detail=True, methods=['GET', "POST"], url_path="sections/(?P<section_pk>[^/.]+)/access")
+    def grant_access(self, request, pk=None, section_pk=None):
+
+        is_coach = getattr(self.request.user, "is_coach", False)
+        ser_data = serializers.LessonCourseStudentSerializer
+
+        if not is_coach:
+            raise exceptions.PermissionDenied("you do not have permission this per view action")
+
+        if request.method == "POST":
+            serializer = ser_data(data=request.data, context={"section_pk": section_pk})
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return response.Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        if request.method == "GET":
+            serializer = ser_data()
+            return response.Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            raise exceptions.NotAcceptable()
 
     @decorators.action(detail=True, methods=["GET", 'POST'], url_path="sections/(?P<section_pk>[^/.]+)/score")
     def section_score(self, request, pk=None, section_pk=None):

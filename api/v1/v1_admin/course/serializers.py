@@ -106,7 +106,7 @@ class AdminListCourseSectionFileSerializer(serializers.ModelSerializer):
 class AdminCreateSectionVideoSerializer(serializers.ModelSerializer):
     class Meta:
         model = SectionVideo
-        fields = ['is_publish', "video"]
+        fields = ['is_publish', "video", "title"]
 
     def create(self, validated_data):
         return SectionVideo.objects.create(section_id=int(self.context['section_pk']), **validated_data)
