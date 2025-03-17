@@ -182,7 +182,7 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
     def section_video(self, request, pk=None, section_pk=None):
         lesson_course = self.get_object()
         section_video = SectionVideo.objects.filter(section_id=section_pk, section__course=lesson_course.course).only(
-            "id", "video", "created_at"
+            "id", "video", "created_at", "section__cover_image", "title"
         )
         serializer = serializers.CourseSectionVideoSerializer(section_video, many=True)
         return response.Response(serializer.data)
@@ -199,7 +199,7 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
                 section_id=section_pk,
                 id=section_video_pk,
                 section__course=lesson_course.course
-            ).only("id", "video", "created_at").first()
+            ).only("id", "video", "created_at", "section__cover_image", "title").first()
             serializer = serializers.CourseSectionVideoSerializer(section_video)
             return response.Response(serializer.data)
         except SectionVideo.DoesNotExist:

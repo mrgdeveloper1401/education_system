@@ -28,9 +28,14 @@ class CourseSectionSerializer(serializers.ModelSerializer):
 
 
 class CourseSectionVideoSerializer(serializers.ModelSerializer):
+    section_cover_image = serializers.SerializerMethodField()
+
     class Meta:
         model = SectionVideo
-        fields = ["id", "video", "created_at"]
+        fields = ["id", "video", "created_at", "title", "section_cover_image"]
+
+    def get_section_cover_image(self, obj):
+        return obj.section.cover_image.url
 
 
 class CourseSectionFileSerializer(serializers.ModelSerializer):
