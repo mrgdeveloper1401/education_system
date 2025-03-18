@@ -5,9 +5,9 @@ from rest_framework.urls import path
 from . import views
 
 router = routers.DefaultRouter()
-router.register("student_lesson_course", views.PurchasesViewSet, basename="purchases")
+router.register("lesson_course", views.PurchasesViewSet, basename="purchases")
 
-lesson_course_router = routers.NestedDefaultRouter(router, "student_lesson_course", lookup="lesson_course")
+lesson_course_router = routers.NestedDefaultRouter(router, "lesson_course", lookup="lesson_course")
 lesson_course_router.register("present_absent", views.LessonCoursePresentAbsent, basename="present_absent")
 
 app_name = 'course'

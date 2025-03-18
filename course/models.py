@@ -24,8 +24,6 @@ class Category(MP_Node, CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = 'category'
-        verbose_name = _("ترم")
-        verbose_name_plural = _("ترم ها")
 
 
 class Course(CreateMixin, UpdateMixin, SoftDeleteMixin):
@@ -42,8 +40,6 @@ class Course(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = 'course'
-        verbose_name = _("درس")
-        verbose_name_plural = _("درس ها")
         ordering = ("-created_at",)
 
 
@@ -51,7 +47,8 @@ class LessonCourse(CreateMixin, UpdateMixin, SoftDeleteMixin):
     course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name="lesson_course")
     class_name = models.CharField(help_text=_("نام کلاس"))
     coach = models.ForeignKey("accounts.Coach", on_delete=models.DO_NOTHING, related_name="coach_less_course")
-    students = models.ManyToManyField("accounts.Student", related_name="student_lesson_course")
+    students = models.ManyToManyField("accounts.Student", related_name="student_lesson_course",
+                                      limit_choices_to={"is_active": True})
     is_active = models.BooleanField(default=True, help_text=_("دیتا در سطح اپلیکیشن نمایش داده شود یا خیر"))
     progress = models.CharField(help_text=_("وضعیت پیشرفت کلاس"), choices=ProgresChoices, max_length=11,
                                 default=ProgresChoices.not_started, null=True)
@@ -65,20 +62,17 @@ class LessonCourse(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 
 class Section(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name='sections')
+    course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name='sections',
+                               limit_choices_to={"is_publish": True})
     title = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
-    # is_available = models.BooleanField(default=True,
-    #                                    help_text=_("در دسترس بودن"))
     cover_image = models.ImageField(upload_to="section_cover_image/%Y/%m/%d", null=True,
                                     validators=[max_upload_image_validator])
-    order = models.PositiveIntegerField(default=1)
+    is_publish = models.BooleanField(default=True)
 
     class Meta:
         ordering = ('created_at',)
         db_table = 'course_section'
-        verbose_name = _("قسمت")
-        verbose_name_plural = _("قسمت های دوره")
         permissions = [
             ("can_access_section", "can access section")
         ]
@@ -86,7 +80,8 @@ class Section(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 class SectionVideo(CreateMixin, UpdateMixin, SoftDeleteMixin):
     title = models.CharField(max_length=50, help_text=_("عنوان"), null=True)
-    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name='section_videos')
+    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name='section_videos',
+                                limit_choices_to={"is_publish": True})
     video = models.FileField(upload_to="section_video/%Y/%m/%d", validators=[FileExtensionValidator(["mp4"])])
     is_publish = models.BooleanField(default=True)
 
@@ -99,7 +94,8 @@ class SectionVideo(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 class SectionFile(CreateMixin, UpdateMixin, SoftDeleteMixin):
     title = models.CharField(help_text=_("عنوان"), max_length=100, null=True)
-    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name='section_files')
+    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name='section_files',
+                                limit_choices_to={"is_publish": True})
     zip_file = models.FileField(upload_to="section_file/%Y/%m/%d", validators=[FileExtensionValidator(["zip", "rar"])],
                                 blank=True)
     is_publish = models.BooleanField(default=True)
@@ -120,10 +116,23 @@ class SectionFile(CreateMixin, UpdateMixin, SoftDeleteMixin):
         db_table = "course_section_file"
 
 
+class StudentAccessSection(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    student = models.ForeignKey(Student, on_delete=models.DO_NOTHING, related_name="student_access_section",
+                                limit_choices_to={"is_active": True})
+    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="student_section",
+                                limit_choices_to={"is_publish": True})
+    is_access = models.BooleanField(default=False)
+
+    class Meta:
+        db_table = "student_access_section"
+        ordering = ("-created_at",)
+
+
 class PresentAbsent(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="section_present_absent")
-    student = models.ForeignKey(Student, on_delete=models.DO_NOTHING, related_name="student_present_absent")
-    lesson_course = models.ForeignKey(LessonCourse, on_delete=models.DO_NOTHING, related_name="lesson_present_absent")
+    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="section_present_absent",
+                                limit_choices_to={"is_publish": True})
+    student = models.ForeignKey(Student, on_delete=models.DO_NOTHING, related_name="student_present_absent",
+                                limit_choices_to={"is_active": True})
     is_present = models.BooleanField(default=False)
 
     class Meta:
@@ -131,10 +140,11 @@ class PresentAbsent(CreateMixin, UpdateMixin, SoftDeleteMixin):
         ordering = ("-created_at",)
 
 
-class StudentSectionProgress(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name='section_score', null=True)
+class StudentSectionScore(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name='section_score',
+                                limit_choices_to={"is_publish": True})
     score = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(100)])
-    student = models.ForeignKey("accounts.Student", on_delete=models.DO_NOTHING,
+    student = models.ForeignKey("accounts.Student", on_delete=models.DO_NOTHING, limit_choices_to={"is_active": True},
                                 related_name="student_section_progress")
     is_completed = models.BooleanField(default=False)
 
@@ -148,7 +158,8 @@ class StudentSectionProgress(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 
 class SendSectionFile(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    student = models.ForeignKey("accounts.Student", on_delete=models.DO_NOTHING, related_name="send_section_files")
+    student = models.ForeignKey("accounts.Student", on_delete=models.DO_NOTHING, related_name="send_section_files",
+                                limit_choices_to={"is_active": True})
     section_file = models.ForeignKey(SectionFile, on_delete=models.DO_NOTHING, related_name='section_files',
                                      validators=[FileExtensionValidator(["rar", "zip"])])
     zip_file = models.FileField(help_text=_("فایل ارسالی"))
@@ -159,13 +170,40 @@ class SendSectionFile(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 
 class Certificate(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name="course_certificates")
-    student = models.ForeignKey("accounts.Student", on_delete=models.DO_NOTHING, related_name="student_certificates")
+    course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name="course_certificates",
+                               limit_choices_to={"is_publish": True})
+    student = models.ForeignKey("accounts.Student", on_delete=models.DO_NOTHING, related_name="student_certificates",
+                                limit_choices_to={"is_active": True})
     is_active = models.BooleanField(default=True)
     pdf_file = models.FileField(validators=[FileExtensionValidator(".pdf", )])
 
     class Meta:
         db_table = 'course_certificate'
+
+
+class Practice(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    practice_title = models.CharField(max_length=100, help_text=_("عنوان تمرین"))
+    is_publish = models.BooleanField(default=True)
+    start_date = models.DateTimeField(help_text=_("تاریخ شروع"))
+    end_date = models.DateTimeField(help_text=_("تاریخ پایان"))
+    practice_file = models.FileField(upload_to="practice_file/%Y/%m/%d")
+    is_close = models.BooleanField(default=False, help_text=_("تمرین بسته شده هست یا خیر"))
+
+    class Meta:
+        db_table = 'practice'
+
+
+class SendPractice(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    practice = models.ForeignKey(Practice, on_delete=models.DO_NOTHING, related_name="send_practice",
+                                 limit_choices_to={"is_publish": True})
+    student = models.ForeignKey("accounts.Student", on_delete=models.DO_NOTHING, related_name="student_practice",
+                                limit_choices_to={"is_active": True})
+    question_file = models.FileField(validators=[FileExtensionValidator(["rar", "zip"])],
+                                     upload_to="sen_practice/%Y/%m/%d")
+    score = models.FloatField(help_text=_("نمره تکلیف"), blank=True, null=True)
+
+    class Meta:
+        db_table = "send_practice"
 
 
 class Comment(CreateMixin, UpdateMixin, SoftDeleteMixin):
@@ -176,5 +214,3 @@ class Comment(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = 'comment'
-        verbose_name = _("نظر")
-        verbose_name_plural = _("نظرات")

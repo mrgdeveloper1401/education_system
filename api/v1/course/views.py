@@ -1,9 +1,9 @@
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
-from rest_framework import mixins, viewsets, permissions, decorators, response, status, exceptions, generics
-from guardian.shortcuts import get_objects_for_user, assign_perm
+from rest_framework import mixins, viewsets, permissions, decorators, response, status, exceptions
+from guardian.shortcuts import get_objects_for_user
 
-from course.models import Comment, Section, SectionVideo, SectionFile, LessonCourse, StudentSectionProgress, \
+from course.models import Comment, Section, SectionVideo, SectionFile, LessonCourse, StudentSectionScore, \
     PresentAbsent
 from .pagination import CommentPagination
 from .paginations import CourseCategoryPagination
@@ -115,7 +115,7 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
         if request.method == "GET":
             lesson_course = self.get_object()
 
-            section_score = StudentSectionProgress.objects.filter(
+            section_score = StudentSectionScore.objects.filter(
                 section_id=self.kwargs['section_pk'], section__course=lesson_course.course
             ).only('id', "section", "score")
             serializer = serializers.SectionScoreSerializer(section_score, many=True)
@@ -140,7 +140,7 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
         url_path="sections/(?P<section_pk>[^/.]+)/score/(?P<score_pk>[^/.]+)"
     )
     def detail_section_score(self, request, pk=None, section_pk=None, score_pk=None):
-        score = StudentSectionProgress.objects.filter(id=score_pk).only('id', "section", "score").first()
+        score = StudentSectionScore.objects.filter(id=score_pk).only('id', "section", "score").first()
         if request.method == "GET":
             serializer = serializers.SectionScoreSerializer(score)
             return response.Response(serializer.data)
@@ -265,8 +265,3 @@ class LessonCoursePresentAbsent(viewsets.ModelViewSet):
         return PresentAbsent.objects.filter(lesson_course_id=self.kwargs['lesson_course_pk']).defer(
             "is_deleted", "deleted_at", "created_at", "updated_at"
         )
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context["lesson_course_pk"] = self.kwargs["lesson_course_pk"]
-        return context

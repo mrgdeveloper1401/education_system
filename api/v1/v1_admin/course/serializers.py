@@ -1,8 +1,7 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
-from course.models import Category, Course, Section, SectionFile, SectionVideo, LessonCourse, Certificate, \
-    StudentSectionProgress
+from course.models import Category, Course, Section, SectionFile, SectionVideo, LessonCourse, Certificate
 from drf_extra_fields.fields import Base64ImageField
 
 
@@ -140,13 +139,3 @@ class AdminCertificateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Certificate
         exclude = ['is_deleted', "deleted_at", "updated_at", "created_at"]
-
-
-class AdminStudentSectionProgressSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = StudentSectionProgress
-        exclude = ['is_deleted', "deleted_at"]
-
-    def create(self, validated_data):
-        section_pk = self.context['section_pk']
-        return StudentSectionProgress.objects.create(section_id=section_pk, **validated_data)

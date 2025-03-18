@@ -19,18 +19,19 @@ class CouAdmin(ImportExportModelAdmin):
 class CategoryTreeAdmin(TreeAdmin, ImportExportModelAdmin):
     form = movenodeform_factory(models.Category)
     list_per_page = 20
+    list_display = ['id', "category_name"]
+    list_display_links = ['category_name']
 
 
 @admin.register(models.Section)
 class SectionAdmin(admin.ModelAdmin):
     raw_id_fields = ['course']
     list_select_related = ['course']
-    list_display = ["id", 'course', "title", "order"]
+    list_display = ["id", 'course', "title"]
     list_filter = ['created_at']
     list_per_page = 30
     search_fields = ['title']
     list_display_links = ['id', "course"]
-    list_editable = ("order",)
 
 
 @admin.register(models.Comment)
@@ -67,6 +68,7 @@ class LessonCourseAdmin(admin.ModelAdmin):
     list_display = ['course', "coach", "is_active", "created_at", "progress"]
     list_filter = ['is_active']
     search_fields = ['course__course_name', "coach__coach_number", "progress"]
+    raw_id_fields = ['course', "coach"]
 
 
 @admin.register(models.Certificate)
@@ -76,12 +78,33 @@ class CertificateAdmin(admin.ModelAdmin):
     raw_id_fields = ['course', "student"]
 
 
-@admin.register(models.StudentSectionProgress)
+@admin.register(models.StudentSectionScore)
 class SectionScoreAdmin(admin.ModelAdmin):
     list_display = ['section', "score", 'created_at']
     list_per_page = 30
     list_filter = ['created_at']
-    raw_id_fields = ['section']
+    raw_id_fields = ['section', "student"]
 
 
-admin.site.register(models.SendSectionFile)
+@admin.register(models.PresentAbsent)
+class PresentAbsentAdmin(admin.ModelAdmin):
+    list_display = ['section', "student", "is_present"]
+    list_per_page = 30
+    raw_id_fields = ['section', "student"]
+    list_filter = ['is_present']
+
+
+@admin.register(models.SendSectionFile)
+class SendSectionFileAdmin(admin.ModelAdmin):
+    list_display = ['student', "section_file", "created_at"]
+    raw_id_fields = ['student', "section_file"]
+    list_per_page = 30
+
+
+@admin.register(models.Practice)
+class PracticeAdmin(admin.ModelAdmin):
+    list_display = ['practice_title', "is_publish", "is_close", "start_date", "end_date", "created_at"]
+    list_editable = ['is_publish']
+    list_per_page = 30
+    search_fields = ['practice_title']
+    list_filter = ['is_publish', "created_at", "is_close"]
