@@ -3,7 +3,7 @@ from rest_framework import filters
 
 from accounts.models import TicketReply, BestStudent, Student, Coach, User
 from . import serializers
-from .pagination import BestStudentPagination, ListStudentByIdPagination
+from .pagination import BestStudentPagination
 
 
 class TicketReplyViewSet(viewsets.ModelViewSet):

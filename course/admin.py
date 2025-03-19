@@ -83,7 +83,7 @@ class SectionScoreAdmin(admin.ModelAdmin):
     list_display = ['section', "score", 'created_at']
     list_per_page = 30
     list_filter = ['created_at']
-    raw_id_fields = ['section', "student"]
+    raw_id_fields = ['section']
 
 
 @admin.register(models.PresentAbsent)
@@ -108,3 +108,13 @@ class PracticeAdmin(admin.ModelAdmin):
     list_per_page = 30
     search_fields = ['practice_title']
     list_filter = ['is_publish', "created_at", "is_close"]
+
+
+@admin.register(models.StudentAccessSection)
+class StudentAccessSectionAdmin(admin.ModelAdmin):
+    list_display = ['student', "section", "is_access", "created_at"]
+    list_editable = ['is_access']
+    list_per_page = 30
+    list_filter = ['is_access']
+    raw_id_fields = ['student', "section"]
+    search_fields = ['student__student_number']

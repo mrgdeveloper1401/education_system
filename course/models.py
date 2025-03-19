@@ -129,8 +129,8 @@ class StudentAccessSection(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 
 class PresentAbsent(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="section_present_absent",
-                                limit_choices_to={"is_publish": True})
+    section = models.ForeignKey(StudentAccessSection, on_delete=models.DO_NOTHING,
+                                related_name="section_present_absent")
     student = models.ForeignKey(Student, on_delete=models.DO_NOTHING, related_name="student_present_absent",
                                 limit_choices_to={"is_active": True})
     is_present = models.BooleanField(default=False)
@@ -144,8 +144,7 @@ class StudentSectionScore(CreateMixin, UpdateMixin, SoftDeleteMixin):
     section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name='section_score',
                                 limit_choices_to={"is_publish": True})
     score = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(100)])
-    student = models.ForeignKey("accounts.Student", on_delete=models.DO_NOTHING, limit_choices_to={"is_active": True},
-                                related_name="student_section_progress")
+    student = models.ForeignKey(Student, on_delete=models.DO_NOTHING, related_name="student_section_score", null=True)
     is_completed = models.BooleanField(default=False)
 
     class Meta:

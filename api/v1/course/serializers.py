@@ -3,7 +3,7 @@ from guardian.shortcuts import assign_perm
 
 from accounts.models import Student
 from course.models import Course, Category, Comment, Section, SectionVideo, SectionFile, SendSectionFile, LessonCourse, \
-    StudentSectionScore, PresentAbsent
+    StudentSectionScore, PresentAbsent, StudentAccessSection, Practice, SendPractice
 from drf_spectacular.utils import extend_schema_field
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -24,7 +24,29 @@ class CategoryTreeNodeSerializer(serializers.ModelSerializer):
 class CourseSectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Section
-        fields = ['id', "title", "created_at", "cover_image"]
+        fields = ['id', "title", "cover_image"]
+
+
+class StudentAccessSectionSerializer(serializers.ModelSerializer):
+    section = CourseSectionSerializer()
+
+    class Meta:
+        model = StudentAccessSection
+        fields = ['section', "is_access"]
+
+
+class CourseSectionDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Section
+        fields = ['title', "cover_image", "description", "created_at"]
+
+
+class StudentAccessSectionDetailSerializer(serializers.ModelSerializer):
+    section = CourseSectionDetailSerializer()
+
+    class Meta:
+        model = StudentAccessSection
+        fields = ['section', "is_access"]
 
 
 class CourseSectionVideoSerializer(serializers.ModelSerializer):
@@ -102,41 +124,62 @@ class LessonCourseSerializer(serializers.ModelSerializer):
 class SectionScoreSerializer(serializers.ModelSerializer):
     class Meta:
         model = StudentSectionScore
-        fields = ['id', "section", "score"]
+        fields = ['id', "score"]
 
 
 class CreateUpdateSectionScoreSerializer(serializers.ModelSerializer):
     class Meta:
         model = StudentSectionScore
-        fields = ['score', "student"]
+        fields = ['score']
 
     def create(self, validated_data):
         section_pk = self.context['section_pk']
         return StudentSectionScore.objects.create(section_id=section_pk, **validated_data)
 
 
-class LessonCourseStudentSerializer(serializers.ModelSerializer):
-    students = serializers.PrimaryKeyRelatedField(
-        queryset=Student.objects.filter(is_active=True).only("id", "student_number"),
-        many=True
-    )
+class StudentNameLessonCourseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Student
+        fields = ['id', "student_name", "student_number"]
+
+
+class StudentLessonCourseSerializer(serializers.ModelSerializer):
+    students = StudentNameLessonCourseSerializer(many=True)
 
     class Meta:
         model = LessonCourse
         fields = ['students']
 
-    def validate(self, attrs):
-        section_pk = self.context['section_pk']
 
-        get_section = generics.get_object_or_404(Section, pk=section_pk)
-
-        get_student = generics.get_object_or_404(Student, id=attrs['students'])
-
-        assign_perm("can_access_section", get_student, get_section)
-        return attrs
-
-
-class LessonCoursePreSentAbsentSerializer(serializers.ModelSerializer):
+class StudentPresentAbsentSerializer(serializers.ModelSerializer):
     class Meta:
         model = PresentAbsent
-        exclude = ['is_deleted', "deleted_at", "created_at", "updated_at"]
+        fields = ['is_present']
+
+
+class AccessSectionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StudentAccessSection
+        fields = ['id', "section"]
+
+
+class PracticeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Practice
+        exclude = ['is_deleted', "deleted_at", "updated_at"]
+
+
+class StudentSendPracticeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SendPractice
+        fields = ['question_file', "created_at"]
+
+    def create(self, validated_data):
+        practice_pk = self.context['practice_pk']
+        return SendPractice.objects.create(practice_id=practice_pk, **validated_data)
+
+
+class StudentListRetrieveSendPracticeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SendPractice
+        fields = ['question_file', "created_at", "score"]
