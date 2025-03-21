@@ -1,6 +1,6 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from .models import StudentSectionScore, Section, LessonCourse, StudentAccessSection
+from .models import Section, LessonCourse, StudentAccessSection
 
 
 @receiver(post_save, sender=LessonCourse)
@@ -22,3 +22,8 @@ def create_student_section(sender, instance, created, **kwargs):
                         )
                     )
         StudentAccessSection.objects.bulk_create(lst)
+
+
+# @receiver(post_save, sender=Section)
+# def create_student_section(sender, instance, created, **kwargs):
+#     if created:

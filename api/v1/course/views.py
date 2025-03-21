@@ -18,11 +18,6 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     pagination_class = CourseCategoryPagination
 
-    def get_serializer_class(self):
-        if self.action == "send_section_file" and self.request.method == "POST":
-            return serializers.CreateSendSectionFileSerializer
-        return super().get_serializer_class()
-
     @extend_schema(
         parameters=[
             OpenApiParameter(
@@ -44,7 +39,9 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
         return res
 
     def get_queryset(self):
-        query = LessonCourse.objects.filter(students__user=self.request.user, is_active=True).select_related(
+        query = LessonCourse.objects.filter(
+            students__user=self.request.user, is_active=True, course__is_deleted=False
+        ).select_related(
             "course", "coach__user"
         ).only(
             "course__course_name", "course__course_image", "course__project_counter", "coach__user__last_name",

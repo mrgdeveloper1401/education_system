@@ -8,11 +8,11 @@
       <jdbc-url>jdbc:postgresql://localhost:5432/education_system</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
-    <data-source source="LOCAL" name="postgres@212.80.20.179" uuid="f925da9a-1570-40dd-acc0-ed33e93f4634">
+    <data-source source="LOCAL" name="db@212.80.20.179" uuid="935841c1-7b95-4789-9c63-253e91379f13">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://212.80.20.179:30104/postgres</jdbc-url>
+      <jdbc-url>jdbc:postgresql://212.80.20.179:30104/db</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>
