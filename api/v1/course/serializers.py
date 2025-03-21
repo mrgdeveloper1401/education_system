@@ -146,9 +146,3 @@ class SendFileSerializer(serializers.ModelSerializer):
             if SendSectionFile.objects.filter(section_file_id=data['section_file'], student__user=user).exists():
                 raise exceptions.ValidationError({"message": "you have already file"})
         return data
-
-
-class StudentSectionFileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SectionFile
-        fields = ['id', "title"]

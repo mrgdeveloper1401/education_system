@@ -40,7 +40,7 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         query = LessonCourse.objects.filter(
-            students__user=self.request.user, is_active=True).filter(
+            students__user=self.request.user, is_active= True).filter(
             Q(course__is_deleted=False) | Q(course__is_deleted=None)
         ).select_related(
             "course", "coach__user"
@@ -72,7 +72,7 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
             section__course=lesson_course.course, student__user=request.user, section__is_publish=True
         ).only(
             "section__cover_image", "section__title", 'is_access'
-        ).select_related("section")
+        ).select_related("section").order_by("created_at")
         serializer = serializers.StudentAccessSectionSerializer(sections, many=True)
         return response.Response(serializer.data)
 
@@ -105,7 +105,7 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
         lesson_course = self.get_object()
         section_file = SectionFile.objects.filter(
             section_id=section_pk, section__course=lesson_course.course, is_publish=True,
-            section__is_publish=True
+            section__is_publish=True, section__student_section__is_access=True
         ).only("zip_file", "title")
         serializer = serializers.CourseSectionFileSerializer(section_file, many=True)
         return response.Response(serializer.data)
@@ -118,7 +118,7 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
     @decorators.action(detail=True, methods=['GET'], url_path="sections/(?P<section_pk>[^/.]+)/videos")
     def section_video(self, request, pk=None, section_pk=None):
         section_video = SectionVideo.objects.filter(
-            section_id=section_pk, is_publish=True, section__is_publish=True
+            section_id=section_pk, is_publish=True, section__is_publish=True, section__student_section__is_access=True
         ).only("video", "title", "section__cover_image")
         serializer = serializers.CourseSectionVideoSerializer(section_video, many=True)
         return response.Response(serializer.data)
@@ -136,7 +136,7 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
         lesson_course = self.get_object()
         score = StudentSectionScore.objects.filter(
             section_id=section_pk, section__course=lesson_course.course, student__user=request.user,
-            section__is_publish=True
+            section__is_publish=True, section__student_section__is_access=True
         ).only(
             "score"
         )
@@ -151,7 +151,8 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
     @decorators.action(detail=True, methods=['GET'], url_path="sections/(?P<section_pk>[^/.]+)/present_absent")
     def section_present_absent(self, request, pk=None, section_pk=None):
         present_absent = PresentAbsent.objects.filter(
-            section_id=section_pk, student__user=request.user, section__is_publish=True
+            section_id=section_pk, student__user=request.user, section__is_publish=True,
+            section__student_section__is_access=True
         ).only("is_present")
         serializer = serializers.StudentPresentAbsentSerializer(present_absent, many=True)
         return response.Response(serializer.data)
@@ -216,11 +217,3 @@ class StudentSendfileViewSet(viewsets.ModelViewSet):
     )
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
-
-
-class StudentSectionFileApiView(generics.ListAPIView):
-    serializer_class = serializers.StudentSectionFileSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    queryset = SectionFile.objects.filter(is_publish=True).only(
-        "id", "title"
-    )

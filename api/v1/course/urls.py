@@ -15,6 +15,5 @@ lesson_course_router = routers.NestedDefaultRouter(router, "student_lesson_cours
 app_name = 'course'
 urlpatterns = [
     path("", include(lesson_course_router.urls)),
-    path('section_files/', views.StudentSectionFileApiView.as_view(), name='section_files'),
 ]
 urlpatterns += router.urls

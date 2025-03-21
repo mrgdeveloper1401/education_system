@@ -29,7 +29,7 @@ class SectionAdmin(admin.ModelAdmin):
     list_select_related = ['course']
     list_display = ["id", 'course', "title"]
     list_filter = ['created_at']
-    list_per_page = 30
+    list_per_page = 20
     search_fields = ['title']
     list_display_links = ['id', "course"]
 
@@ -81,7 +81,7 @@ class CertificateAdmin(admin.ModelAdmin):
 @admin.register(models.StudentSectionScore)
 class SectionScoreAdmin(admin.ModelAdmin):
     list_display = ['section', "score", 'created_at']
-    list_per_page = 30
+    list_per_page = 20
     list_filter = ['created_at']
     raw_id_fields = ['section']
 
@@ -89,7 +89,7 @@ class SectionScoreAdmin(admin.ModelAdmin):
 @admin.register(models.PresentAbsent)
 class PresentAbsentAdmin(admin.ModelAdmin):
     list_display = ['section', "student", "is_present"]
-    list_per_page = 30
+    list_per_page = 20
     raw_id_fields = ['section', "student"]
     list_filter = ['is_present']
 
@@ -98,14 +98,33 @@ class PresentAbsentAdmin(admin.ModelAdmin):
 class SendSectionFileAdmin(admin.ModelAdmin):
     list_display = ['student', "section_file", "created_at"]
     raw_id_fields = ['student', "section_file"]
-    list_per_page = 30
+    list_per_page = 20
 
 
 @admin.register(models.StudentAccessSection)
 class StudentAccessSectionAdmin(admin.ModelAdmin):
-    list_display = ['student', "section", "is_access", "created_at"]
+    list_display = ['student', "section", "get_section_name", "is_access", "created_at"]
     list_editable = ['is_access']
-    list_per_page = 30
+    list_per_page = 20
     list_filter = ['is_access']
     raw_id_fields = ['student', "section"]
     search_fields = ['student__student_number']
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        qs = qs.select_related(
+            "student__user",
+            "section__course__category"
+        ).only(
+            "student__student_number",
+            "section__title",
+            "is_access",
+            "created_at",
+            "section__course__category__category_name",
+            "student__user__first_name",
+            "student__user__last_name",
+        )
+        return qs
+
+    def get_section_name(self, obj):
+        return obj.section.title

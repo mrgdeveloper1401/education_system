@@ -22,8 +22,3 @@ def create_student_section(sender, instance, created, **kwargs):
                         )
                     )
         StudentAccessSection.objects.bulk_create(lst)
-
-
-# @receiver(post_save, sender=Section)
-# def create_student_section(sender, instance, created, **kwargs):
-#     if created:
