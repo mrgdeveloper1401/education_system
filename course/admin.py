@@ -101,15 +101,6 @@ class SendSectionFileAdmin(admin.ModelAdmin):
     list_per_page = 30
 
 
-@admin.register(models.Practice)
-class PracticeAdmin(admin.ModelAdmin):
-    list_display = ['practice_title', "is_publish", "is_close", "start_date", "end_date", "created_at"]
-    list_editable = ['is_publish']
-    list_per_page = 30
-    search_fields = ['practice_title']
-    list_filter = ['is_publish', "created_at", "is_close"]
-
-
 @admin.register(models.StudentAccessSection)
 class StudentAccessSectionAdmin(admin.ModelAdmin):
     list_display = ['student', "section", "is_access", "created_at"]

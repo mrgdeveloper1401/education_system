@@ -90,7 +90,7 @@ class AdminListCourseSectionSerializer(serializers.ModelSerializer):
 class AdminCreateCourseSectionFileSerializer(serializers.ModelSerializer):
     class Meta:
         model = SectionFile
-        fields = ["is_publish", "zip_file", "title", "expired_data", "is_close"]
+        fields = ["is_publish", "zip_file", "title"]
 
     def create(self, validated_data):
         return SectionFile.objects.create(section_id=int(self.context['section_pk']), **validated_data)

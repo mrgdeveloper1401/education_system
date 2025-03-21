@@ -79,8 +79,7 @@ class AdminSectionFileViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return SectionFile.objects.filter(section_id=self.kwargs["section_pk"]).only(
-            "id", "created_at", "updated_at", "zip_file", "section_id", "is_publish", "title", "is_close",
-            "expired_data"
+            "id", "created_at", "updated_at", "zip_file", "section_id", "is_publish", "title"
         )
 
     def get_serializer_context(self):

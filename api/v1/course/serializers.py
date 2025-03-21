@@ -1,12 +1,9 @@
-from rest_framework import serializers, generics
-from guardian.shortcuts import assign_perm
+from rest_framework import serializers, exceptions
 
 from accounts.models import Student
 from course.models import Course, Category, Comment, Section, SectionVideo, SectionFile, SendSectionFile, LessonCourse, \
-    StudentSectionScore, PresentAbsent, StudentAccessSection, Practice, SendPractice
+    StudentSectionScore, PresentAbsent, StudentAccessSection
 from drf_spectacular.utils import extend_schema_field
-from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
 
 
 class CategoryTreeNodeSerializer(serializers.ModelSerializer):
@@ -54,7 +51,7 @@ class CourseSectionVideoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SectionVideo
-        fields = ["id", "video", "created_at", "title", "section_cover_image"]
+        fields = ["video", "title", "section_cover_image"]
 
     def get_section_cover_image(self, obj):
         return obj.section.cover_image.url
@@ -63,7 +60,7 @@ class CourseSectionVideoSerializer(serializers.ModelSerializer):
 class CourseSectionFileSerializer(serializers.ModelSerializer):
     class Meta:
         model = SectionFile
-        fields = ['id', "zip_file", "created_at", "title", "is_close", "expired_data"]
+        fields = ["zip_file", "title"]
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -80,27 +77,6 @@ class CommentSerializer(serializers.ModelSerializer):
         user = self.context['user']
         course_pk = self.context['course_pk']
         return Comment.objects.create(course_id=course_pk, user=user, **validated_data)
-
-
-class SendSectionFileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SendSectionFile
-        fields = ["id", 'zip_file']
-
-    def validate(self, attrs):
-        section_file = self.context['section_file_pk']
-        section_id = self.context['section_pk']
-        get_section_file = SectionFile.objects.filter(id=section_file).first()
-        if get_section_file.expired_data < timezone.now() or get_section_file.is_close:
-            raise serializers.ValidationError({"message": _("this section_file is close or expired")})
-        if not SectionFile.objects.filter(id=self.context['section_file_pk'], section_id=section_id).exists():
-            raise serializers.ValidationError({"message": _("this section_file is not exist")})
-        return attrs
-
-    def create(self, validated_data):
-        user = self.context['request'].user.student
-        section_file_id = self.context['section_file_pk']
-        return SendSectionFile.objects.create(student=user, section_file_id=section_file_id, **validated_data)
 
 
 class SimpleLessonCourseSerializer(serializers.ModelSerializer):
@@ -124,17 +100,7 @@ class LessonCourseSerializer(serializers.ModelSerializer):
 class SectionScoreSerializer(serializers.ModelSerializer):
     class Meta:
         model = StudentSectionScore
-        fields = ['id', "score"]
-
-
-class CreateUpdateSectionScoreSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = StudentSectionScore
-        fields = ['score']
-
-    def create(self, validated_data):
-        section_pk = self.context['section_pk']
-        return StudentSectionScore.objects.create(section_id=section_pk, **validated_data)
+        fields = ["score"]
 
 
 class StudentNameLessonCourseSerializer(serializers.ModelSerializer):
@@ -157,29 +123,32 @@ class StudentPresentAbsentSerializer(serializers.ModelSerializer):
         fields = ['is_present']
 
 
-class AccessSectionSerializer(serializers.ModelSerializer):
+class SendFileSerializer(serializers.ModelSerializer):
+    section_file = serializers.PrimaryKeyRelatedField(
+        queryset=SectionFile.objects.filter(is_publish=True).only("id", "is_publish", "section_id")
+    )
+
     class Meta:
-        model = StudentAccessSection
-        fields = ['id', "section"]
-
-
-class PracticeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Practice
-        exclude = ['is_deleted', "deleted_at", "updated_at"]
-
-
-class StudentSendPracticeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SendPractice
-        fields = ['question_file', "created_at"]
+        model = SendSectionFile
+        fields = ["id", 'section_file', "score", "description", "zip_file"]
+        extra_kwargs = {
+            "score": {"read_only": True},
+        }
 
     def create(self, validated_data):
-        practice_pk = self.context['practice_pk']
-        return SendPractice.objects.create(practice_id=practice_pk, **validated_data)
+        return SendSectionFile.objects.create(student=self.context['request'].user.student, **validated_data)
+
+    def validate(self, data):
+        user = self.context['request'].user
+        section_file = data.get("section_file")
+
+        if section_file:
+            if SendSectionFile.objects.filter(section_file_id=data['section_file'], student__user=user).exists():
+                raise exceptions.ValidationError({"message": "you have already file"})
+        return data
 
 
-class StudentListRetrieveSendPracticeSerializer(serializers.ModelSerializer):
+class StudentSectionFileSerializer(serializers.ModelSerializer):
     class Meta:
-        model = SendPractice
-        fields = ['question_file', "created_at", "score"]
+        model = SectionFile
+        fields = ['id', "title"]

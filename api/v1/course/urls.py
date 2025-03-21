@@ -6,22 +6,15 @@ from . import views
 
 router = routers.DefaultRouter()
 router.register("student_lesson_course", views.PurchasesViewSet, basename="student_lesson_course")
-router.register("student_access_section", views.StudentAccessSectionViewSet, basename="student_access_section")
-router.register("practice", views.PracticeViewSet, basename="practice")
+router.register('student_send_file', views.StudentSendfileViewSet, basename="student_send_file")
 
 lesson_course_router = routers.NestedDefaultRouter(router, "student_lesson_course",
                                                    lookup="student_lesson_course")
-student_access_section_router = routers.NestedDefaultRouter(router, "student_access_section",
-                                                            lookup="student_access_section")
-student_access_section_router.register("student_present_absent", views.StudentPresentAbsentViewSet,
-                                       basename="student_present_absent")
-practice_router = routers.NestedDefaultRouter(router, "practice", lookup="practice")
-practice_router.register("send_practice", views.StudentSendPracticeViewSet, basename="send_practice")
+
 
 app_name = 'course'
 urlpatterns = [
     path("", include(lesson_course_router.urls)),
-    path("", include(student_access_section_router.urls)),
-    path("", include(practice_router.urls))
+    path('section_files/', views.StudentSectionFileApiView.as_view(), name='section_files'),
 ]
 urlpatterns += router.urls

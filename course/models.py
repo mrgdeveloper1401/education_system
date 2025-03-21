@@ -8,6 +8,7 @@ from treebeard.mp_tree import MP_Node
 from django.utils import timezone
 
 from course.enums import ProgresChoices
+from course.utils import student_send_section_file
 from course.validators import max_upload_image_validator
 
 
@@ -99,18 +100,9 @@ class SectionFile(CreateMixin, UpdateMixin, SoftDeleteMixin):
     zip_file = models.FileField(upload_to="section_file/%Y/%m/%d", validators=[FileExtensionValidator(["zip", "rar"])],
                                 blank=True)
     is_publish = models.BooleanField(default=True)
-    expired_data = models.DateTimeField(help_text=_("زمان انتقضای تمرین"))
-    is_close = models.BooleanField(default=False)
 
     def __str__(self):
         return f'{self.section_id} {self.is_publish}'
-
-    def save(self, *args, **kwargs):
-        if self.expired_data < timezone.now():
-            self.is_close = True
-        else:
-            self.is_close = False
-        super().save(*args, **kwargs)
 
     class Meta:
         db_table = "course_section_file"
@@ -129,8 +121,9 @@ class StudentAccessSection(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 
 class PresentAbsent(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    section = models.ForeignKey(StudentAccessSection, on_delete=models.DO_NOTHING,
-                                related_name="section_present_absent")
+    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING,
+                                related_name="section_present_absent",
+                                limit_choices_to={'is_publish': True})
     student = models.ForeignKey(Student, on_delete=models.DO_NOTHING, related_name="student_present_absent",
                                 limit_choices_to={"is_active": True})
     is_present = models.BooleanField(default=False)
@@ -159,9 +152,11 @@ class StudentSectionScore(CreateMixin, UpdateMixin, SoftDeleteMixin):
 class SendSectionFile(CreateMixin, UpdateMixin, SoftDeleteMixin):
     student = models.ForeignKey("accounts.Student", on_delete=models.DO_NOTHING, related_name="send_section_files",
                                 limit_choices_to={"is_active": True})
-    section_file = models.ForeignKey(SectionFile, on_delete=models.DO_NOTHING, related_name='section_files',
-                                     validators=[FileExtensionValidator(["rar", "zip"])])
-    zip_file = models.FileField(help_text=_("فایل ارسالی"))
+    section_file = models.ForeignKey(SectionFile, on_delete=models.DO_NOTHING, related_name='section_files')
+    zip_file = models.FileField(help_text=_("فایل ارسالی"), upload_to=student_send_section_file)
+    description = models.TextField(help_text=_("توضیحی در مورد تمرین ارسالی"), null=True)
+    score = models.FloatField(help_text=_("نمره تکلیف ارسالی"), blank=True, null=True,
+                              validators=[MinValueValidator(0), MaxValueValidator(100)])
 
     class Meta:
         db_table = "send_file"
@@ -174,35 +169,10 @@ class Certificate(CreateMixin, UpdateMixin, SoftDeleteMixin):
     student = models.ForeignKey("accounts.Student", on_delete=models.DO_NOTHING, related_name="student_certificates",
                                 limit_choices_to={"is_active": True})
     is_active = models.BooleanField(default=True)
-    pdf_file = models.FileField(validators=[FileExtensionValidator(".pdf", )])
+    pdf_file = models.FileField(validators=[FileExtensionValidator(("rar", "zip"))])
 
     class Meta:
         db_table = 'course_certificate'
-
-
-class Practice(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    practice_title = models.CharField(max_length=100, help_text=_("عنوان تمرین"))
-    is_publish = models.BooleanField(default=True)
-    start_date = models.DateTimeField(help_text=_("تاریخ شروع"))
-    end_date = models.DateTimeField(help_text=_("تاریخ پایان"))
-    practice_file = models.FileField(upload_to="practice_file/%Y/%m/%d")
-    is_close = models.BooleanField(default=False, help_text=_("تمرین بسته شده هست یا خیر"))
-
-    class Meta:
-        db_table = 'practice'
-
-
-class SendPractice(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    practice = models.ForeignKey(Practice, on_delete=models.DO_NOTHING, related_name="send_practice",
-                                 limit_choices_to={"is_publish": True})
-    student = models.ForeignKey("accounts.Student", on_delete=models.DO_NOTHING, related_name="student_practice",
-                                limit_choices_to={"is_active": True})
-    question_file = models.FileField(validators=[FileExtensionValidator(["rar", "zip"])],
-                                     upload_to="sen_practice/%Y/%m/%d")
-    score = models.FloatField(help_text=_("نمره تکلیف"), blank=True, null=True)
-
-    class Meta:
-        db_table = "send_practice"
 
 
 class Comment(CreateMixin, UpdateMixin, SoftDeleteMixin):
