@@ -1,4 +1,4 @@
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import mixins, viewsets, permissions, decorators, response, status, exceptions, generics
@@ -40,7 +40,8 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         query = LessonCourse.objects.filter(
-            students__user=self.request.user, is_active=True, course__is_deleted=False
+            students__user=self.request.user, is_active=True).filter(
+            Q(course__is_deleted=False) | Q(course__is_deleted=None)
         ).select_related(
             "course", "coach__user"
         ).only(
