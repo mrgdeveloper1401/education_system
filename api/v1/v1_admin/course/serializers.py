@@ -1,6 +1,9 @@
+from argparse import FileType
+
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
+from course.enums import SectionFileType
 from course.models import Category, Course, Section, SectionFile, SectionVideo, LessonCourse, Certificate
 from drf_extra_fields.fields import Base64ImageField
 
@@ -88,9 +91,10 @@ class AdminListCourseSectionSerializer(serializers.ModelSerializer):
 
 
 class AdminCreateCourseSectionFileSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = SectionFile
-        fields = ["is_publish", "zip_file", "title"]
+        fields = ["is_publish", "zip_file", "title", "file_type", "answer"]
 
     def create(self, validated_data):
         return SectionFile.objects.create(section_id=int(self.context['section_pk']), **validated_data)

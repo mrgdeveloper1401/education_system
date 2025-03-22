@@ -18,6 +18,13 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     pagination_class = CourseCategoryPagination
 
+    def get_serializer_class(self):
+        if self.action == "student_send_file" and self.request.method == 'POST':
+            return serializers.SendFileSerializer
+        if self.action == "detail_send_file" and self.request.method in ['PUT', 'PATCH']:
+            return serializers.SendFileSerializer
+        return super().get_serializer_class()
+
     @extend_schema(
         parameters=[
             OpenApiParameter(
@@ -98,7 +105,8 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
         return response.Response(serializer.data)
 
     @extend_schema(
-        responses={200: serializers.CourseSectionFileSerializer}
+        responses={200: serializers.CourseSectionFileSerializer},
+        description="file_type --> main or more (mian = اصلی) (more = اضافی) (gold = طلایی)"
     )
     @decorators.action(detail=True, methods=['GET'], url_path='sections/(?P<section_pk>[^/.]+)/section_file')
     def section_file(self, request, pk=None, section_pk=None):
@@ -106,9 +114,102 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
         section_file = SectionFile.objects.filter(
             section_id=section_pk, section__course=lesson_course.course, is_publish=True,
             section__is_publish=True, section__student_section__is_access=True
-        ).only("zip_file", "title")
+        ).only("zip_file", "title", "file_type")
         serializer = serializers.CourseSectionFileSerializer(section_file, many=True)
         return response.Response(serializer.data)
+
+    @extend_schema(
+        responses={200: serializers.CourseSectionFileSerializer},
+        description="file_type --> main or more (mian = اصلی) (more = اضافی) (gold = طلایی)"
+    )
+    @decorators.action(
+        detail=True,
+        methods=['GET'],
+        url_path="sections/(?P<section_pk>[^/.]+)/section_file/(?P<section_file_pk>[^/.]+)"
+    )
+    def detail_section_file(self, request, pk=None, section_pk=None, section_file_pk=None):
+        lesson_course = self.get_object()
+        section_file = SectionFile.objects.filter(
+            section_id=section_pk, section__course=lesson_course.course, is_publish=True,
+            section__is_publish=True, section__student_section__is_access=True, id=section_file_pk
+        ).only("zip_file", "title", "file_type").first()
+        serializer = serializers.CourseSectionFileSerializer(section_file)
+        return response.Response(serializer.data)
+
+    @extend_schema(
+        responses={
+            200: serializers.SendFileSerializer
+        }
+    )
+    @decorators.action(
+        detail=True,
+        methods=['GET', 'POST'],
+        url_path="sections/(?P<section_pk>[^/.]+)/section_file/(?P<section_file_pk>[^/.]+)/send_file"
+    )
+    def student_send_file(self, request, pk=None, section_pk=None, section_file_pk=None):
+        lesson_course = self.get_object()
+        ser = serializers.SendFileSerializer
+
+        if request.method == 'GET':
+            send_file = SendSectionFile.objects.filter(
+                student__user=request.user,
+                section_file_id=section_file_pk,
+                section_file__section__course=lesson_course.course,
+                section_file__section__is_publish=True,
+                section_file__section__student_section__is_access=True,
+                section_file__section_id=section_pk
+            ).only("score", 'description', "zip_file", "section_file")
+            serializer = ser(send_file, many=True)
+            return response.Response(serializer.data)
+
+        elif request.method == 'POST':
+            serializer = ser(data=request.data, context={"section_file_pk": section_file_pk})
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return response.Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            raise exceptions.MethodNotAllowed(request.method)
+
+    @extend_schema(responses={200: serializers.SendFileSerializer})
+    @decorators.action(
+        detail=True,
+        methods=['GET', "PUT", 'PATCH', 'DELETE'],
+        url_path="sections/(?P<section_pk>[^/.]+)/section_file/(?P<section_file_pk>[^/.]+)/send_file/"
+                 "(?P<send_file_pk>[^/.]+)"
+    )
+    def detail_send_file(self, request, pk=None, section_pk=None, section_file_pk=None, send_file_pk=None):
+        lesson_course = self.get_object()
+        send_file = SendSectionFile.objects.filter(
+            id=send_file_pk,
+            section_file_id=section_file_pk,
+            section_file__section_id=section_pk,
+            section_file__section__course=lesson_course.course,
+            section_file__section__is_publish=True,
+            section_file__section__student_section__is_access=True,
+        ).only("score", 'description', "zip_file", "section_file").first()
+        ser = serializers.SendFileSerializer
+
+        if request.method == 'GET':
+            serializer = ser(send_file)
+            return response.Response(serializer.data)
+
+        elif request.method == 'PUT':
+            serializer = ser(send_file, data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return response.Response(serializer.data)
+
+        elif request.method == 'PATCH':
+            serializer = ser(send_file, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return response.Response(serializer.data)
+
+        elif request.method == 'DELETE':
+            send_file.delete()
+            return response.Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            raise exceptions.MethodNotAllowed(request.method)
 
     @extend_schema(
         responses={
@@ -178,6 +279,18 @@ class StudentLessonCourseViewSet(mixins.ListModelMixin, viewsets.GenericViewSet)
         return super().list(request, *args, **kwargs)
 
 
+class StudentListPresentAbsentViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = serializers.StudentListPresentAbsentSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return PresentAbsent.objects.filter(
+            student__user=self.request.user,
+            section__course__lesson_course__exact=self.kwargs["student_lesson_course_pk"],
+
+        ).select_related("section").only('section_id', "is_present", "section__title")
+
+
 class CommentViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.RetrieveModelMixin,
                      viewsets.GenericViewSet):
     serializer_class = serializers.CommentSerializer
@@ -192,37 +305,6 @@ class CommentViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.Retr
             "user": self.request.user,
             "course_pk": self.kwargs["course_pk"]
         }
-
-
-class StudentSendfileViewSet(viewsets.ModelViewSet):
-    serializer_class = serializers.SendFileSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get_queryset(self):
-        return SendSectionFile.objects.filter(student__user=self.request.user).only(
-            "section_file", "score", "description", "zip_file"
-        )
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        if "pk" in self.kwargs:
-            context['section_file_pk'] = self.kwargs['pk']
-        return context
-
-    @extend_schema(
-        request={
-            "application/json": {
-                "type": "object",
-                "properties": {
-                    "section_file": {"type": "integer", "format": "int32"},
-                    "description": {"type": "string", "format": "string"},
-                    "zip_file": {"type": "string", "format": "binary"},
-                }
-            }
-        }
-    )
-    def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
 
 
 class CoachLessonCourseViewSet(viewsets.ReadOnlyModelViewSet):

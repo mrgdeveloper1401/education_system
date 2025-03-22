@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from django.core.validators import FileExtensionValidator, MinValueValidator, MaxValueValidator
 from treebeard.mp_tree import MP_Node
 
-from course.enums import ProgresChoices
+from course.enums import ProgresChoices, SectionFileType
 from course.utils import student_send_section_file
 from course.validators import max_upload_image_validator
 
@@ -98,7 +98,10 @@ class SectionFile(CreateMixin, UpdateMixin, SoftDeleteMixin):
                                 limit_choices_to={"is_publish": True})
     zip_file = models.FileField(upload_to="section_file/%Y/%m/%d", validators=[FileExtensionValidator(["zip", "rar"])],
                                 blank=True)
-    # answer = models.FileField(help_text=_("جواب تمرینات"), null=True, blank=True)
+    file_type = models.CharField(choices=SectionFileType, max_length=9, null=True)
+    answer = models.FileField(upload_to="answer/section_file/%Y/%m/%d",
+                              validators=[FileExtensionValidator(["zip", "rar"])],
+                              blank=True, null=True)
     is_publish = models.BooleanField(default=True)
 
     def __str__(self):

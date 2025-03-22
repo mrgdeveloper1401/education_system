@@ -69,6 +69,9 @@ class AdminCourseSectionViewSet(viewsets.ModelViewSet):
 
 
 class AdminSectionFileViewSet(viewsets.ModelViewSet):
+    """
+    file_type --> main or more or gold
+    """
     permission_classes = [permissions.IsAdminUser]
 
     def get_serializer_class(self):
@@ -79,7 +82,7 @@ class AdminSectionFileViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return SectionFile.objects.filter(section_id=self.kwargs["section_pk"]).only(
-            "id", "created_at", "updated_at", "zip_file", "section_id", "is_publish", "title"
+            "id", "created_at", "updated_at", "zip_file", "section_id", "is_publish", "title", "answer"
         )
 
     def get_serializer_context(self):

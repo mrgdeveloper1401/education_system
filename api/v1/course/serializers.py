@@ -68,7 +68,7 @@ class CourseSectionVideoSerializer(serializers.ModelSerializer):
 class CourseSectionFileSerializer(serializers.ModelSerializer):
     class Meta:
         model = SectionFile
-        fields = ["id", "zip_file", "title"]
+        fields = ["id", "zip_file", "title", "file_type"]
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -132,19 +132,20 @@ class StudentPresentAbsentSerializer(serializers.ModelSerializer):
 
 
 class SendFileSerializer(serializers.ModelSerializer):
-    section_file = serializers.PrimaryKeyRelatedField(
-        queryset=SectionFile.objects.filter(is_publish=True).only("id", "is_publish", "section_id")
-    )
 
     class Meta:
         model = SendSectionFile
-        fields = ["id", 'section_file', "score", "description", "zip_file"]
+        fields = ["id", "score", "description", "zip_file"]
         extra_kwargs = {
             "score": {"read_only": True},
         }
 
     def create(self, validated_data):
-        return SendSectionFile.objects.create(student=self.context['request'].user.student, **validated_data)
+        return SendSectionFile.objects.create(
+            student=self.context['request'].user.student,
+            section_file_id=self.context['section_file_pk'],
+            **validated_data
+        )
 
     def validate(self, data):
         user = self.context['request'].user
@@ -176,3 +177,14 @@ class CoachPresentAbsentSerializer(serializers.ModelSerializer):
     class Meta:
         model = PresentAbsent
         fields = ['id', "student", "is_present", "section"]
+
+
+class StudentListPresentAbsentSerializer(serializers.ModelSerializer):
+    section_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = PresentAbsent
+        fields = ['section', "is_present", "section_name"]
+
+    def get_section_name(self, obj):
+        return obj.section.title
