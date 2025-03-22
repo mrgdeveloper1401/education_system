@@ -103,7 +103,7 @@ class SendSectionFileAdmin(admin.ModelAdmin):
 
 @admin.register(models.StudentAccessSection)
 class StudentAccessSectionAdmin(admin.ModelAdmin):
-    list_display = ['student', "section", "get_section_name", "is_access", "created_at"]
+    list_display = ['student', "section", "get_section_name", "get_section_course_name", "is_access", "created_at"]
     list_editable = ['is_access']
     list_per_page = 20
     list_filter = ['is_access']
@@ -120,6 +120,7 @@ class StudentAccessSectionAdmin(admin.ModelAdmin):
             "section__title",
             "is_access",
             "created_at",
+            "section__course__course_name",
             "section__course__category__category_name",
             "student__user__first_name",
             "student__user__last_name",
@@ -128,3 +129,14 @@ class StudentAccessSectionAdmin(admin.ModelAdmin):
 
     def get_section_name(self, obj):
         return obj.section.title
+
+    def get_section_course_name(self, obj):
+        return obj.section.course.course_name
+
+
+@admin.register(models.OnlineLink)
+class OnlineLinkAdmin(admin.ModelAdmin):
+    list_display = ['class_room', "is_publish", "created_at", "updated_at"]
+    raw_id_fields = ['class_room']
+    list_filter = ['is_publish']
+    list_per_page = 20

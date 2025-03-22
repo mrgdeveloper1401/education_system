@@ -6,7 +6,10 @@ from . import views
 
 router = routers.DefaultRouter()
 router.register("student_lesson_course", views.PurchasesViewSet, basename="student_lesson_course")
+router.register("coach_lesson_course", views.CoachLessonCourseViewSet, basename="coach_lesson_course")
 router.register('student_send_file', views.StudentSendfileViewSet, basename="student_send_file")
+router.register("student_coach_lesson_course", views.StudentLessonCourseViewSet, basename="student_coach_lesson_course")
+router.register("online_link", views.OnlineLinkViewSet, basename="online_link")
 
 lesson_course_router = routers.NestedDefaultRouter(router, "student_lesson_course",
                                                    lookup="student_lesson_course")

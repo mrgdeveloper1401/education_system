@@ -2,7 +2,7 @@ from rest_framework import serializers, exceptions
 
 from accounts.models import Student
 from course.models import Course, Category, Comment, Section, SectionVideo, SectionFile, SendSectionFile, LessonCourse, \
-    StudentSectionScore, PresentAbsent, StudentAccessSection
+    StudentSectionScore, PresentAbsent, StudentAccessSection, OnlineLink
 from drf_spectacular.utils import extend_schema_field
 
 
@@ -32,6 +32,14 @@ class StudentAccessSectionSerializer(serializers.ModelSerializer):
         fields = ['section', "is_access"]
 
 
+class CoachAccessSectionSerializer(serializers.ModelSerializer):
+    section = CourseSectionSerializer()
+
+    class Meta:
+        model = StudentAccessSection
+        fields = ["id", "section", "is_access", "student"]
+
+
 class CourseSectionDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Section
@@ -51,7 +59,7 @@ class CourseSectionVideoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SectionVideo
-        fields = ["video", "title", "section_cover_image"]
+        fields = ["id", "video", "title", "section_cover_image"]
 
     def get_section_cover_image(self, obj):
         return obj.section.cover_image.url
@@ -60,7 +68,7 @@ class CourseSectionVideoSerializer(serializers.ModelSerializer):
 class CourseSectionFileSerializer(serializers.ModelSerializer):
     class Meta:
         model = SectionFile
-        fields = ["zip_file", "title"]
+        fields = ["id", "zip_file", "title"]
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -114,7 +122,7 @@ class StudentLessonCourseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = LessonCourse
-        fields = ['students']
+        fields = ["class_name", 'students']
 
 
 class StudentPresentAbsentSerializer(serializers.ModelSerializer):
@@ -146,3 +154,19 @@ class SendFileSerializer(serializers.ModelSerializer):
             if SendSectionFile.objects.filter(section_file_id=data['section_file'], student__user=user).exists():
                 raise exceptions.ValidationError({"message": "you have already file"})
         return data
+
+
+class CoachSectionScoreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StudentSectionScore
+        fields = ['id', "score", "student"]
+
+
+class OnlineLinkSerializer(serializers.ModelSerializer):
+    class_room = serializers.PrimaryKeyRelatedField(
+        queryset=LessonCourse.objects.filter(is_active=True)
+    )
+
+    class Meta:
+        model = OnlineLink
+        exclude = ['is_deleted', "deleted_at"]

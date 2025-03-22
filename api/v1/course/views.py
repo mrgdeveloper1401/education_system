@@ -5,9 +5,9 @@ from rest_framework import mixins, viewsets, permissions, decorators, response, 
 
 from accounts.models import Student
 from course.models import Comment, Section, SectionVideo, SectionFile, LessonCourse, StudentSectionScore, \
-    PresentAbsent, StudentAccessSection, SendSectionFile
+    PresentAbsent, StudentAccessSection, SendSectionFile, OnlineLink
 from .pagination import CommentPagination
-from .paginations import CourseCategoryPagination
+from .paginations import CourseCategoryPagination, CommonPagination
 
 from . import serializers
 from .permissions import IsCoachPermission, CoachPermissionOrReadOnly
@@ -40,7 +40,7 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         query = LessonCourse.objects.filter(
-            students__user=self.request.user, is_active= True).filter(
+            students__user=self.request.user, is_active=True).filter(
             Q(course__is_deleted=False) | Q(course__is_deleted=None)
         ).select_related(
             "course", "coach__user"
@@ -163,13 +163,19 @@ class StudentLessonCourseViewSet(mixins.ListModelMixin, viewsets.GenericViewSet)
     serializer_class = serializers.StudentLessonCourseSerializer
 
     def get_queryset(self):
-        return LessonCourse.objects.filter(id=self.kwargs['lesson_course_pk']).only(
-            "students"
+        return LessonCourse.objects.filter(coach__user=self.request.user).only(
+            "students", "class_name"
         ).prefetch_related(
             Prefetch("students", Student.objects.filter(is_active=True).select_related("user").only(
                 "student_number", "user__first_name", "user__last_name"
             ))
         )
+
+    @extend_schema(
+        tags=['api_coach_course']
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
 
 class CommentViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.RetrieveModelMixin,
@@ -217,3 +223,227 @@ class StudentSendfileViewSet(viewsets.ModelViewSet):
     )
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
+
+
+class CoachLessonCourseViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = serializers.LessonCourseSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    pagination_class = CommonPagination
+
+    def get_serializer_class(self):
+        if self.action == "coach_section_score" and self.request.method == 'POST':
+            return serializers.CoachSectionScoreSerializer
+        elif self.action == "detail_section_score" and self.request.method in ['PUT', 'PATCH']:
+            return serializers.CoachSectionScoreSerializer
+        return super().get_serializer_class()
+
+    def get_queryset(self):
+        query = LessonCourse.objects.filter(coach__user=self.request.user).select_related(
+            "course", "coach__user"
+        ).only(
+            "course__course_name",
+            "course__course_image",
+            "course__project_counter",
+            "progress",
+            "coach__user__first_name",
+            "coach__user__last_name",
+            "class_name"
+        )
+
+        class_name = self.request.query_params.get("class_name")
+        progress_lesson = self.request.query_params.get("progress_lesson")
+
+        if class_name and progress_lesson:
+            query = query.filter(class_name__icontains=class_name, progress__exact=progress_lesson)
+        if class_name:
+            query = query.filter(class_name__icontains=class_name)
+        if progress_lesson:
+            query = query.filter(progress__exact=progress_lesson)
+        return query
+
+    @extend_schema(
+        tags=['api_coach_course'],
+        parameters=[
+            OpenApiParameter(
+                name="class_name",
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.QUERY,
+                description="The name of the purchase.",
+            ),
+            OpenApiParameter(
+                name="progress_lesson",
+                type=OpenApiTypes.STR,
+                location=OpenApiParameter.QUERY,
+                description="The name of the progress lesson.",
+            )
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @extend_schema(
+        tags=['api_coach_course']
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+    @extend_schema(
+        responses={
+            200: serializers.CoachAccessSectionSerializer
+        },
+        tags=['api_coach_course']
+    )
+    @decorators.action(detail=True, methods=['GET'], url_path="sections")
+    def get_coach_section(self, request, pk=None):
+        lesson_course = self.get_object()
+        sections = StudentAccessSection.objects.filter(
+            section__course=lesson_course.course
+        ).select_related("section").only('section__title', "section__cover_image", "is_access", "student_id")
+        serializer = serializers.CoachAccessSectionSerializer(sections, many=True)
+        return response.Response(serializer.data)
+
+    @extend_schema(
+        responses={
+            200: serializers.CoachAccessSectionSerializer
+        },
+        tags = ['api_coach_course']
+    )
+    @decorators.action(detail=True, methods=['GET'], url_path="sections/(?P<section_pk>[^/.]+)")
+    def detail_coach_section(self, request, pk=None, section_pk=None):
+        lesson_course = self.get_object()
+        section = StudentAccessSection.objects.filter(
+            section__course=lesson_course.course, id=section_pk
+        ).select_related("section").only('section__title', "section__cover_image", "is_access", "student_id").first()
+        serializer = serializers.CoachAccessSectionSerializer(section)
+        return response.Response(serializer.data)
+
+    @extend_schema(
+        responses={
+            200: serializers.CourseSectionVideoSerializer
+        },
+        tags=['api_coach_course']
+    )
+    @decorators.action(detail=True, methods=['GET'], url_path="sections/(?P<section_pk>[^/.]+)/videos")
+    def get_coach_video(self, request, pk=None, section_pk=None):
+        access_section = StudentAccessSection.objects.select_related("section__course").only(
+            "id", "section_id", "section__course_id",
+        ).get(id=section_pk)
+        section_video = SectionVideo.objects.filter(
+            section=access_section.section, is_publish=True, section__course=access_section.section.course
+        ).select_related("section").only("video", "title", "section__cover_image")
+        serializer = serializers.CourseSectionVideoSerializer(section_video, many=True)
+        return response.Response(serializer.data)
+
+    @extend_schema(
+        responses={
+            200: serializers.CourseSectionVideoSerializer
+        },
+        tags=['api_coach_course']
+    )
+    @decorators.action(
+        detail=True,
+        methods=['GET'],
+        url_path="sections/(?P<section_pk>[^/.]+)/videos/(?P<video_pk>[^/.]+)")
+    def detail_coach_video(self, request, pk=None, section_pk=None, video_pk=None):
+        access_section = StudentAccessSection.objects.select_related("section__course").only(
+            "id", "section_id", "section__course_id",
+        ).get(id=section_pk)
+        section_video = SectionVideo.objects.filter(
+            section=access_section.section, is_publish=True, section__course=access_section.section.course,
+            id=video_pk).select_related("section").only("video", "title", "section__cover_image").first()
+        serializer = serializers.CourseSectionVideoSerializer(section_video)
+        return response.Response(serializer.data)
+
+    @extend_schema(
+        tags=['api_coach_course'],
+        responses={
+            200: serializers.CoachSectionScoreSerializer,
+            201: serializers.CoachSectionScoreSerializer,
+        }
+    )
+    @decorators.action(detail=True, methods=['GET', 'POST'], url_path="sections/(?P<section_pk>[^/.]+)/score")
+    def coach_section_score(self, request, pk=None, section_pk=None):
+        access_section = StudentAccessSection.objects.select_related("section__course").only(
+            "id", "section_id", "section__course_id",
+        ).get(id=section_pk)
+        section_score = StudentSectionScore.objects.filter(
+            section=access_section.section
+        )
+
+        if request.method == "GET":
+            serializer = serializers.CoachSectionScoreSerializer(section_score, many=True)
+            return response.Response(serializer.data)
+
+        elif request.method == "POST":
+            serializer = serializers.CoachSectionScoreSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return response.Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        else:
+            raise exceptions.MethodNotAllowed(request.method)
+
+    @extend_schema(
+        tags=['api_coach_course'],
+        responses={
+            200: serializers.CoachSectionScoreSerializer
+        }
+    )
+    @decorators.action(
+        methods=['GET', 'PATCH', "PUT", 'DELETE'],
+        detail=True,
+        url_path="sections/(?P<section_pk>[^/.]+)/score/(?P<score_pk>[^/.]+)"
+    )
+    def detail_section_score(self, request, pk=None, section_pk=None, section_score=None):
+        access_section = StudentAccessSection.objects.select_related("section__course").only(
+            "id", "section_id", "section__course_id",
+        ).get(id=section_pk)
+        section_score = StudentSectionScore.objects.filter(
+            section=access_section.section
+        )
+
+        if request.method == "GET":
+            serializer = serializers.CoachSectionScoreSerializer(section_score, many=True)
+            return response.Response(serializer.data)
+
+        elif request.method == "PUT":
+            if not section_score.exists():
+                raise exceptions.NotFound("No score found for this section.")
+
+            score_instance = section_score.first()
+            serializer = serializers.CoachSectionScoreSerializer(score_instance, data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return response.Response(serializer.data)
+
+        elif request.method == "PATCH":
+            if not section_score.exists():
+                raise exceptions.NotFound("No score found for this section.")
+
+            score_instance = section_score.first()
+            serializer = serializers.CoachSectionScoreSerializer(score_instance, data=request.data, partial=True)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return response.Response(serializer.data)
+
+        elif request.method == "DELETE":
+            if not section_score.exists():
+                raise exceptions.NotFound("No score found for this section.")
+
+            score_instance = section_score.first()
+            score_instance.delete()
+            return response.Response(status=status.HTTP_204_NO_CONTENT)
+
+        else:
+            raise exceptions.MethodNotAllowed(request.method)
+
+
+class OnlineLinkViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.OnlineLinkSerializer
+    permission_classes = [IsCoachPermission]
+    pagination_class = CommonPagination
+
+    def get_queryset(self):
+        return OnlineLink.objects.filter(class_room__coach__user=self.request.user).defer(
+            "deleted_at", "is_deleted"
+        )

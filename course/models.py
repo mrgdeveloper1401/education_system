@@ -5,7 +5,6 @@ from core.models import UpdateMixin, CreateMixin, SoftDeleteMixin
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import FileExtensionValidator, MinValueValidator, MaxValueValidator
 from treebeard.mp_tree import MP_Node
-from django.utils import timezone
 
 from course.enums import ProgresChoices
 from course.utils import student_send_section_file
@@ -99,6 +98,7 @@ class SectionFile(CreateMixin, UpdateMixin, SoftDeleteMixin):
                                 limit_choices_to={"is_publish": True})
     zip_file = models.FileField(upload_to="section_file/%Y/%m/%d", validators=[FileExtensionValidator(["zip", "rar"])],
                                 blank=True)
+    # answer = models.FileField(help_text=_("جواب تمرینات"), null=True, blank=True)
     is_publish = models.BooleanField(default=True)
 
     def __str__(self):
@@ -183,3 +183,12 @@ class Comment(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = 'comment'
+
+
+class OnlineLink(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    class_room = models.ForeignKey(LessonCourse, on_delete=models.DO_NOTHING, related_name="online_link")
+    link = models.URLField()
+    is_publish = models.BooleanField(default=True)
+
+    class Meta:
+        db_table = "online_link"
