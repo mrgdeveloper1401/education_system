@@ -10,6 +10,7 @@ router.register("coach_lesson_course", views.CoachLessonCourseViewSet, basename=
 router.register('student_send_file', views.StudentSendfileViewSet, basename="student_send_file")
 router.register("student_coach_lesson_course", views.StudentLessonCourseViewSet, basename="student_coach_lesson_course")
 router.register("online_link", views.OnlineLinkViewSet, basename="online_link")
+router.register("coach_present_absent", views.PresentAbsentViewSet, basename="coach_present_absent")
 
 lesson_course_router = routers.NestedDefaultRouter(router, "student_lesson_course",
                                                    lookup="student_lesson_course")

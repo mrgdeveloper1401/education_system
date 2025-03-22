@@ -170,3 +170,9 @@ class OnlineLinkSerializer(serializers.ModelSerializer):
     class Meta:
         model = OnlineLink
         exclude = ['is_deleted', "deleted_at"]
+
+
+class CoachPresentAbsentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PresentAbsent
+        fields = ['id', "student", "is_present", "section"]
