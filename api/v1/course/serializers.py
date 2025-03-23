@@ -37,7 +37,7 @@ class CoachAccessSectionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StudentAccessSection
-        fields = ["id", "section", "is_access", "student"]
+        fields = ["id", "section", "is_access"]
 
 
 class CourseSectionDetailSerializer(serializers.ModelSerializer):
@@ -122,7 +122,7 @@ class StudentLessonCourseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = LessonCourse
-        fields = ["class_name", 'students']
+        fields = ["id", "class_name", 'students']
 
 
 class StudentPresentAbsentSerializer(serializers.ModelSerializer):
@@ -135,7 +135,7 @@ class SendFileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SendSectionFile
-        fields = ["id", "score", "description", "zip_file"]
+        fields = ["id", "score", "description", "zip_file", "created_at"]
         extra_kwargs = {
             "score": {"read_only": True},
         }
@@ -149,10 +149,11 @@ class SendFileSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         user = self.context['request'].user
-        section_file = data.get("section_file")
+        zip_file = data.get("zip_file")
+        section_file_pk = self.context['section_file_pk']
 
-        if section_file:
-            if SendSectionFile.objects.filter(section_file_id=data['section_file'], student__user=user).exists():
+        if zip_file:
+            if SendSectionFile.objects.filter(section_file_id=section_file_pk, student__user=user).exists():
                 raise exceptions.ValidationError({"message": "you have already file"})
         return data
 
@@ -188,3 +189,15 @@ class StudentListPresentAbsentSerializer(serializers.ModelSerializer):
 
     def get_section_name(self, obj):
         return obj.section.title
+
+
+class CoachSectionFileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SectionFile
+        fields = ["id", 'zip_file', 'answer', "title", "file_type", "is_publish"]
+
+
+class StudentOnlineLinkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OnlineLink
+        fields = ['id', "link"]

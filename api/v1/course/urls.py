@@ -15,6 +15,7 @@ lesson_course_router = routers.NestedDefaultRouter(router, "student_lesson_cours
                                                    lookup="student_lesson_course")
 lesson_course_router.register("student_list_present_absent", views.StudentListPresentAbsentViewSet,
                               basename="student_list_present_absent")
+lesson_course_router.register("student_online_link", views.StudentOnlineLinkViewSet, basename="student_online_link")
 
 app_name = 'course'
 urlpatterns = [

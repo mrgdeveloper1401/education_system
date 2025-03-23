@@ -120,7 +120,7 @@ class StudentAccessSection(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = "student_access_section"
-        ordering = ("-created_at",)
+        ordering = ("created_at",)
 
 
 class PresentAbsent(CreateMixin, UpdateMixin, SoftDeleteMixin):

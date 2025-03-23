@@ -56,7 +56,7 @@ class SectionVideoAdmin(admin.ModelAdmin):
 @admin.register(models.SectionFile)
 class SectionFileAdmin(admin.ModelAdmin):
     raw_id_fields = ['section']
-    list_display = ['section', "is_publish", "created_at"]
+    list_display = ["id", 'section', "is_publish", "created_at"]
     list_select_related = ['section']
     list_per_page = 20
     list_filter = ['is_publish', "created_at"]
