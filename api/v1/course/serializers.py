@@ -128,7 +128,7 @@ class StudentLessonCourseSerializer(serializers.ModelSerializer):
 class StudentPresentAbsentSerializer(serializers.ModelSerializer):
     class Meta:
         model = PresentAbsent
-        fields = ['is_present']
+        fields = ['student_status']
 
 
 class SendFileSerializer(serializers.ModelSerializer):
@@ -175,9 +175,16 @@ class OnlineLinkSerializer(serializers.ModelSerializer):
 
 
 class CoachPresentAbsentSerializer(serializers.ModelSerializer):
+    student = serializers.PrimaryKeyRelatedField(
+        queryset=Student.objects.filter(is_active=True).only("student_number", "user__first_name", "user__last_name")
+    )
+    section = serializers.PrimaryKeyRelatedField(
+        queryset=Section.objects.filter(is_publish=True).only("id", "title")
+    )
+
     class Meta:
         model = PresentAbsent
-        fields = ['id', "student", "is_present", "section"]
+        fields = ['id', "student", "student_status", "section"]
 
 
 class StudentListPresentAbsentSerializer(serializers.ModelSerializer):
@@ -185,7 +192,7 @@ class StudentListPresentAbsentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PresentAbsent
-        fields = ['section', "is_present", "section_name"]
+        fields = ["id", "student_status", "section_name"]
 
     def get_section_name(self, obj):
         return obj.section.title

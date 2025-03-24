@@ -88,10 +88,11 @@ class SectionScoreAdmin(admin.ModelAdmin):
 
 @admin.register(models.PresentAbsent)
 class PresentAbsentAdmin(admin.ModelAdmin):
-    list_display = ['section', "student", "is_present"]
+    list_display = ['section', "student", "student_status", "created_at", "updated_at"]
     list_per_page = 20
     raw_id_fields = ['section', "student"]
-    list_filter = ['is_present']
+    list_filter = ['student_status']
+    list_editable = ['student_status']
 
 
 @admin.register(models.SendSectionFile)

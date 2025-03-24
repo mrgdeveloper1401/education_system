@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from django.core.validators import FileExtensionValidator, MinValueValidator, MaxValueValidator
 from treebeard.mp_tree import MP_Node
 
-from course.enums import ProgresChoices, SectionFileType
+from course.enums import ProgresChoices, SectionFileType, StudentStatusChoices
 from course.utils import student_send_section_file
 from course.validators import max_upload_image_validator
 
@@ -129,7 +129,7 @@ class PresentAbsent(CreateMixin, UpdateMixin, SoftDeleteMixin):
                                 limit_choices_to={'is_publish': True})
     student = models.ForeignKey(Student, on_delete=models.DO_NOTHING, related_name="student_present_absent",
                                 limit_choices_to={"is_active": True})
-    is_present = models.BooleanField(default=False)
+    student_status = models.CharField(choices=StudentStatusChoices.choices, default=StudentStatusChoices.present)
 
     class Meta:
         db_table = "course_section_present_absent"

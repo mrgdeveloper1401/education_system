@@ -255,7 +255,7 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
         present_absent = PresentAbsent.objects.filter(
             section_id=section_pk, student__user=request.user, section__is_publish=True,
             section__student_section__is_access=True
-        ).only("is_present")
+        ).only("student_status")
         serializer = serializers.StudentPresentAbsentSerializer(present_absent, many=True)
         return response.Response(serializer.data)
 
@@ -289,7 +289,7 @@ class StudentListPresentAbsentViewSet(viewsets.ReadOnlyModelViewSet):
             student__user=self.request.user,
             section__course__lesson_course__exact=self.kwargs["student_lesson_course_pk"],
 
-        ).select_related("section").only('section_id', "is_present", "section__title")
+        ).select_related("section").only("student_status", "section__title")
 
 
 class CommentViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.RetrieveModelMixin,

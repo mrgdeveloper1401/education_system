@@ -12,3 +12,10 @@ class SectionFileType(models.TextChoices):
     main = "main", _("تمرین اصلی")
     more_then = "more", _("تمرین اضافی")
     gold = "gold", _("طلایی")
+
+
+class StudentStatusChoices(models.TextChoices):
+    present = "present", _("حاضر")
+    absent = "absent", _("غایب")
+    late_attendance = "late_attendance", _("حضور با تاخیر")
+    inactivity = "inactivity", _("عدم فعالیت")
