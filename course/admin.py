@@ -141,3 +141,20 @@ class OnlineLinkAdmin(admin.ModelAdmin):
     raw_id_fields = ['class_room']
     list_filter = ['is_publish']
     list_per_page = 20
+
+
+@admin.register(models.SectionQuestion)
+class SectionQuestion(admin.ModelAdmin):
+    list_display = ["question_title", "section", "is_publish", "created_at"]
+    list_per_page = 20
+    raw_id_fields = ['section']
+    list_filter = ['is_publish']
+
+
+@admin.register(models.AnswerQuestion)
+class AnswerQuestionAdmin(admin.ModelAdmin):
+    list_display = ['student', "section_question", "rate", "created_at"]
+    list_editable = ['rate']
+    list_filter = ['rate']
+    list_per_page = 20
+    raw_id_fields = ['student', "section_question"]

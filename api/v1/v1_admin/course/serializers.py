@@ -1,10 +1,9 @@
-from argparse import FileType
-
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
-from course.enums import SectionFileType
-from course.models import Category, Course, Section, SectionFile, SectionVideo, LessonCourse, Certificate
+from accounts.models import Student
+from course.models import Category, Course, Section, SectionFile, SectionVideo, LessonCourse, Certificate, \
+    PresentAbsent, SectionQuestion, AnswerQuestion
 from drf_extra_fields.fields import Base64ImageField
 
 
@@ -143,3 +142,51 @@ class AdminCertificateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Certificate
         exclude = ['is_deleted', "deleted_at", "updated_at", "created_at"]
+
+
+class AdminStudentPresentAbsentSerializer(serializers.ModelSerializer):
+    student_name = serializers.SerializerMethodField()
+    section_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = PresentAbsent
+        fields = ['id', "student_status", "student_name", "section_name", "created_at"]
+
+    def get_student_name(self, obj):
+        return obj.student.student_name
+
+    def get_section_name(self, obj):
+        return obj.section.title
+
+
+class AdminSectionQuestionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SectionQuestion
+        fields = ['id', "question_title", "is_publish", "created_at"]
+
+    def create(self, validated_data):
+        section_pk = self.context['section_pk']
+        return SectionQuestion.objects.create(section_id=section_pk, **validated_data)
+
+
+class AnswerQuestionSerializer(serializers.ModelSerializer):
+    student = serializers.PrimaryKeyRelatedField(queryset=Student.objects.only("student_number"))
+
+    class Meta:
+        model = AnswerQuestion
+        fields = ['id', "student", "created_at", "rate"]
+
+
+class AdminCoachRankingSerializer(serializers.ModelSerializer):
+    question_title = serializers.SerializerMethodField()
+    student_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = AnswerQuestion
+        fields = ['rate', "question_title", "student_name"]
+
+    def get_question_title(self, obj):
+        return obj.section_question.question_title
+
+    def get_student_name(self, obj):
+        return obj.student.student_name

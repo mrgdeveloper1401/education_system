@@ -8,24 +8,30 @@ app_name = 'admin_category'
 
 router = routers.DefaultRouter()
 
-router.register('category', views.CategoryViewSet, basename='category')
-router.register("certificate", views.AdminCertificateViewSet, basename='admin_certificate')
+router.register('category', views.CategoryViewSet, basename='admin_category')
+# router.register("certificate", views.AdminCertificateViewSet, basename='admin_certificate')
+router.register("present_absent", views.AdminStudentPresentAbsentViewSet, basename='admin_present_absent')
 
 category_router = routers.NestedSimpleRouter(router, r'category', lookup='category')
-category_router.register("course", views.AdminCourseViewSet, basename='course')
+category_router.register("course", views.AdminCourseViewSet, basename='admin_course')
 
 course_router = routers.NestedDefaultRouter(category_router, r'course', lookup='course')
-course_router.register("course_section", views.AdminCourseSectionViewSet, basename='course_section')
-course_router.register("class_room", views.AdminLessonCourseViewSet, basename='class_room')
+course_router.register("course_section", views.AdminCourseSectionViewSet, basename='admin_course_section')
+course_router.register("class_room", views.AdminLessonCourseViewSet, basename='admin_class_room')
 
 section_router = routers.NestedDefaultRouter(course_router, r'course_section', lookup='section')
-section_router.register('section_file', views.AdminSectionFileViewSet, basename='section_file')
-section_router.register("section_video", views.AdminSectionVideoViewSet, basename='section_video')
+section_router.register('section_file', views.AdminSectionFileViewSet, basename='admin_section_file')
+section_router.register("section_video", views.AdminSectionVideoViewSet, basename='admin_section_video')
+section_router.register("section_question", views.AdminSectionQuestionViewSet, basename='admin_section_question')
+
+section_question_router = routers.NestedDefaultRouter(section_router, r'section_question', lookup='section_question')
+section_question_router.register("poll_answer", views.AdminAnswerQuestionViewSet, basename='admin_poll_answer')
 
 urlpatterns = [
     path("", include(category_router.urls)),
     path('', include(course_router.urls)),
     path("", include(section_router.urls)),
+    path("", include(section_question_router.urls)),
     path('course_list/', views.AdminCourseListApiView.as_view(), name='course_list')
 ]
 urlpatterns += router.urls

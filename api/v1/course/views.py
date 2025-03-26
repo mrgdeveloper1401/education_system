@@ -1,16 +1,16 @@
 from django.db.models import Prefetch, Q
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
-from rest_framework import mixins, viewsets, permissions, decorators, response, status, exceptions, generics
+from rest_framework import mixins, viewsets, permissions, decorators, response, status, exceptions, views
 
 from accounts.models import Student
-from course.models import Comment, Section, SectionVideo, SectionFile, LessonCourse, StudentSectionScore, \
-    PresentAbsent, StudentAccessSection, SendSectionFile, OnlineLink
+from course.models import Comment, SectionVideo, SectionFile, LessonCourse, StudentSectionScore, \
+    PresentAbsent, StudentAccessSection, SendSectionFile, OnlineLink, SectionQuestion, AnswerQuestion
 from .pagination import CommentPagination
 from .paginations import CourseCategoryPagination, CommonPagination
 
 from . import serializers
-from .permissions import IsCoachPermission, CoachPermissionOrReadOnly
+from .permissions import IsCoachPermission
 
 
 class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
@@ -23,6 +23,8 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
             return serializers.SendFileSerializer
         if self.action == "detail_send_file" and self.request.method in ['PUT', 'PATCH']:
             return serializers.SendFileSerializer
+        if self.action == "poll_answer" and self.request.method == 'POST':
+            return serializers.AnswerSectionQuestionSerializer
         return super().get_serializer_class()
 
     @extend_schema(
@@ -74,9 +76,8 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
     )
     @decorators.action(detail=True, methods=["GET"])
     def sections(self, request, pk=None):
-        lesson_course = self.get_object()
         sections = StudentAccessSection.objects.filter(
-            section__course=lesson_course.course, student__user=request.user, section__is_publish=True
+            section__course__lesson_course__exact=pk, student__user=request.user, section__is_publish=True
         ).only(
             "section__cover_image", "section__title", 'is_access'
         ).select_related("section").order_by("created_at")
@@ -88,9 +89,8 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
     )
     @decorators.action(detail=True, methods=['GET'], url_path='sections/(?P<section_pk>[^/.]+)')
     def section_detail(self, request, pk=None, section_pk=None):
-        lesson_course = self.get_object()
         section = (StudentAccessSection.objects.filter(
-            section__course=lesson_course.course, student__user=request.user, section_id=section_pk,
+            section__course__lesson_course__exact=pk, student__user=request.user, section_id=section_pk,
             section__is_publish=True
         ).only('section__created_at', "section__cover_image", "section__title", "section__description", "is_access").
                    select_related("section").first())
@@ -104,15 +104,23 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = serializers.StudentAccessSectionDetailSerializer(section)
         return response.Response(serializer.data)
 
+    @extend_schema(responses={200: serializers.SectionQuestionSerializer})
+    @decorators.action(detail=True, methods=['GET'], url_path="sections/(?P<section_pk>[^/.]+)/poll")
+    def poll(self, request, pk=None, section_pk=None):
+        section_question = SectionQuestion.objects.filter(
+            section_id=section_pk, section__course__lesson_course__exact=pk
+        ).only("question_title")
+        serializer = serializers.SectionQuestionSerializer(section_question, many=True)
+        return response.Response(serializer.data)
+
     @extend_schema(
         responses={200: serializers.CourseSectionFileSerializer},
         description="file_type --> main or more (mian = اصلی) (more = اضافی) (gold = طلایی)"
     )
     @decorators.action(detail=True, methods=['GET'], url_path='sections/(?P<section_pk>[^/.]+)/section_file')
     def section_file(self, request, pk=None, section_pk=None):
-        lesson_course = self.get_object()
         section_file = SectionFile.objects.filter(
-            section_id=section_pk, section__course=lesson_course.course, is_publish=True,
+            section_id=section_pk, section__course__lesson_course__exact=pk, is_publish=True,
             section__is_publish=True, section__student_section__is_access=True
         ).only("zip_file", "title", "file_type")
         serializer = serializers.CourseSectionFileSerializer(section_file, many=True)
@@ -128,11 +136,14 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
         url_path="sections/(?P<section_pk>[^/.]+)/section_file/(?P<section_file_pk>[^/.]+)"
     )
     def detail_section_file(self, request, pk=None, section_pk=None, section_file_pk=None):
-        lesson_course = self.get_object()
         section_file = SectionFile.objects.filter(
-            section_id=section_pk, section__course=lesson_course.course, is_publish=True,
+            section_id=section_pk, section__course__lesson_course__exact=pk, is_publish=True,
             section__is_publish=True, section__student_section__is_access=True, id=section_file_pk
         ).only("zip_file", "title", "file_type").first()
+
+        if not section_file:
+            raise exceptions.NotFound()
+
         serializer = serializers.CourseSectionFileSerializer(section_file)
         return response.Response(serializer.data)
 
@@ -147,14 +158,13 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
         url_path="sections/(?P<section_pk>[^/.]+)/section_file/(?P<section_file_pk>[^/.]+)/send_file"
     )
     def student_send_file(self, request, pk=None, section_pk=None, section_file_pk=None):
-        lesson_course = self.get_object()
         ser = serializers.SendFileSerializer
 
         if request.method == 'GET':
             send_file = SendSectionFile.objects.filter(
                 student__user=request.user,
                 section_file_id=section_file_pk,
-                section_file__section__course=lesson_course.course,
+                section_file__section__course__lesson_course__exact=pk,
                 section_file__section__is_publish=True,
                 section_file__section__student_section__is_access=True,
                 section_file__section_id=section_pk
@@ -178,12 +188,11 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
                  "(?P<send_file_pk>[^/.]+)"
     )
     def detail_send_file(self, request, pk=None, section_pk=None, section_file_pk=None, send_file_pk=None):
-        lesson_course = self.get_object()
         send_file = SendSectionFile.objects.filter(
             id=send_file_pk,
             section_file_id=section_file_pk,
             section_file__section_id=section_pk,
-            section_file__section__course=lesson_course.course,
+            section_file__section__course__lesson_course__exact=pk,
             section_file__section__is_publish=True,
             section_file__section__student_section__is_access=True,
         ).only("score", 'description', "zip_file", "section_file").first()
@@ -220,7 +229,11 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
     @decorators.action(detail=True, methods=['GET'], url_path="sections/(?P<section_pk>[^/.]+)/videos")
     def section_video(self, request, pk=None, section_pk=None):
         section_video = SectionVideo.objects.filter(
-            section_id=section_pk, is_publish=True, section__is_publish=True, section__student_section__is_access=True
+            section_id=section_pk,
+            is_publish=True,
+            section__is_publish=True,
+            section__student_section__is_access=True,
+            section__course__lesson_course__exact=pk
         ).only("video", "title", "section__cover_image")
         serializer = serializers.CourseSectionVideoSerializer(section_video, many=True)
         return response.Response(serializer.data)
@@ -235,9 +248,8 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
         methods=['GET'],
         url_path='sections/(?P<section_pk>[^/.]+)/score')
     def section_score(self, request, pk=None, section_pk=None):
-        lesson_course = self.get_object()
         score = StudentSectionScore.objects.filter(
-            section_id=section_pk, section__course=lesson_course.course, student__user=request.user,
+            section_id=section_pk, section__course__lesson_course__exact=pk, student__user=request.user,
             section__is_publish=True, section__student_section__is_access=True
         ).only(
             "score"
@@ -253,11 +265,19 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
     @decorators.action(detail=True, methods=['GET'], url_path="sections/(?P<section_pk>[^/.]+)/present_absent")
     def section_present_absent(self, request, pk=None, section_pk=None):
         present_absent = PresentAbsent.objects.filter(
-            section_id=section_pk, student__user=request.user, section__is_publish=True,
-            section__student_section__is_access=True
-        ).only("student_status")
+            section_id=section_pk,
+            student__user=request.user,
+            section__is_publish=True,
+            section__student_section__is_access=True,
+            section__course__lesson_course__exact=pk
+        ).only("student_status", "created_at")
         serializer = serializers.StudentPresentAbsentSerializer(present_absent, many=True)
         return response.Response(serializer.data)
+
+
+class StudentPollAnswer(mixins.CreateModelMixin, viewsets.GenericViewSet):
+    serializer_class = serializers.AnswerSectionQuestionSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
 
 class StudentLessonCourseViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -289,7 +309,7 @@ class StudentListPresentAbsentViewSet(viewsets.ReadOnlyModelViewSet):
             student__user=self.request.user,
             section__course__lesson_course__exact=self.kwargs["student_lesson_course_pk"],
 
-        ).select_related("section").only("student_status", "section__title")
+        ).select_related("section").only("student_status", "section__title", "created_at")
 
 
 class CommentViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.RetrieveModelMixin,
@@ -317,7 +337,7 @@ class CoachLessonCourseViewSet(viewsets.ReadOnlyModelViewSet):
         if self.action == "coach_section_score" and self.request.method == 'POST':
             return serializers.CoachSectionScoreSerializer
         elif self.action == "detail_section_score" and self.request.method in ['PUT', 'PATCH']:
-            return serializers.CoachSectionScoreSerializer
+            return serializers.NestedCoachSectionScoreSerializer
         return super().get_serializer_class()
 
     def get_queryset(self):
@@ -378,9 +398,8 @@ class CoachLessonCourseViewSet(viewsets.ReadOnlyModelViewSet):
     )
     @decorators.action(detail=True, methods=['GET'], url_path="sections")
     def get_coach_section(self, request, pk=None):
-        lesson_course = self.get_object()
         sections = StudentAccessSection.objects.filter(
-            section__course=lesson_course.course
+            section__course__lesson_course__exact=pk
         ).select_related("section").only('section__title', "section__cover_image", "is_access")
         serializer = serializers.CoachAccessSectionSerializer(sections, many=True)
         return response.Response(serializer.data)
@@ -389,13 +408,12 @@ class CoachLessonCourseViewSet(viewsets.ReadOnlyModelViewSet):
         responses={
             200: serializers.CoachAccessSectionSerializer
         },
-        tags = ['api_coach_course']
+        tags=['api_coach_course']
     )
     @decorators.action(detail=True, methods=['GET'], url_path="sections/(?P<section_pk>[^/.]+)")
     def detail_coach_section(self, request, pk=None, section_pk=None):
-        lesson_course = self.get_object()
         section = StudentAccessSection.objects.filter(
-            section__course=lesson_course.course, id=section_pk
+            section__course__lesson_course__exact=pk, id=section_pk
         ).select_related("section").only('section__title', "section__cover_image", "is_access", "student_id").first()
         serializer = serializers.CoachAccessSectionSerializer(section)
         return response.Response(serializer.data)
@@ -416,7 +434,7 @@ class CoachLessonCourseViewSet(viewsets.ReadOnlyModelViewSet):
             raise exceptions.NotFound()
 
         section_video = SectionVideo.objects.filter(
-            section=access_section.section, is_publish=True, section__course=access_section.section.course
+            section=access_section.section, is_publish=True, section__course__lesson_course__exact=pk
         ).select_related("section").only("video", "title", "section__cover_image")
         serializer = serializers.CourseSectionVideoSerializer(section_video, many=True)
         return response.Response(serializer.data)
@@ -438,6 +456,10 @@ class CoachLessonCourseViewSet(viewsets.ReadOnlyModelViewSet):
         section_video = SectionVideo.objects.filter(
             section=access_section.section, is_publish=True, section__course=access_section.section.course,
             id=video_pk).select_related("section").only("video", "title", "section__cover_image").first()
+
+        if not section_video:
+            raise exceptions.NotFound()
+
         serializer = serializers.CourseSectionVideoSerializer(section_video)
         return response.Response(serializer.data)
 
@@ -455,10 +477,15 @@ class CoachLessonCourseViewSet(viewsets.ReadOnlyModelViewSet):
         ).get(id=section_pk)
         section_score = StudentSectionScore.objects.filter(
             section=access_section.section
+        ).select_related("student__user").only(
+            "student__user__first_name",
+            "student__user__last_name",
+            "student_id",
+            "score"
         )
 
         if request.method == "GET":
-            serializer = serializers.CoachSectionScoreSerializer(section_score, many=True)
+            serializer = serializers.NestedCoachSectionScoreSerializer(section_score, many=True)
             return response.Response(serializer.data)
 
         elif request.method == "POST":
@@ -473,7 +500,7 @@ class CoachLessonCourseViewSet(viewsets.ReadOnlyModelViewSet):
     @extend_schema(
         tags=['api_coach_course'],
         responses={
-            200: serializers.CoachSectionScoreSerializer
+            200: serializers.NestedCoachSectionScoreSerializer
         }
     )
     @decorators.action(
@@ -481,16 +508,19 @@ class CoachLessonCourseViewSet(viewsets.ReadOnlyModelViewSet):
         detail=True,
         url_path="sections/(?P<section_pk>[^/.]+)/score/(?P<score_pk>[^/.]+)"
     )
-    def detail_section_score(self, request, pk=None, section_pk=None, section_score=None):
+    def detail_section_score(self, request, pk=None, section_pk=None, section_score=None, score_pk=None):
         access_section = StudentAccessSection.objects.select_related("section__course").only(
             "id", "section_id", "section__course_id",
         ).get(id=section_pk)
         section_score = StudentSectionScore.objects.filter(
             section=access_section.section
+        ).select_related("student__user").only(
+            "student__user__first_name", "student__user__last_name", 'score', "student_id"
         )
+        ser = serializers.NestedCoachSectionScoreSerializer
 
         if request.method == "GET":
-            serializer = serializers.CoachSectionScoreSerializer(section_score, many=True)
+            serializer = ser(section_score, many=True)
             return response.Response(serializer.data)
 
         elif request.method == "PUT":
@@ -498,7 +528,7 @@ class CoachLessonCourseViewSet(viewsets.ReadOnlyModelViewSet):
                 raise exceptions.NotFound("No score found for this section.")
 
             score_instance = section_score.first()
-            serializer = serializers.CoachSectionScoreSerializer(score_instance, data=request.data)
+            serializer = ser(score_instance, data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return response.Response(serializer.data)
@@ -508,7 +538,7 @@ class CoachLessonCourseViewSet(viewsets.ReadOnlyModelViewSet):
                 raise exceptions.NotFound("No score found for this section.")
 
             score_instance = section_score.first()
-            serializer = serializers.CoachSectionScoreSerializer(score_instance, data=request.data, partial=True)
+            serializer = ser(score_instance, data=request.data, partial=True)
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return response.Response(serializer.data)
@@ -528,7 +558,8 @@ class CoachLessonCourseViewSet(viewsets.ReadOnlyModelViewSet):
     @decorators.action(detail=True, methods=['GET'], url_path="sections/(?P<section_pk>[^/.]+)/section_file")
     def get_coach_section_file(self, request, pk=None, section_pk=None):
         section_file = SectionFile.objects.filter(
-            section__student_section__exact=section_pk
+            section__student_section__exact=section_pk,
+            section__course__lesson_course__exact=pk
         ).only(
             'zip_file', 'answer', "title", "file_type", "is_publish"
         )
@@ -542,10 +573,14 @@ class CoachLessonCourseViewSet(viewsets.ReadOnlyModelViewSet):
         url_path="sections/(?P<section_pk>[^/.]+)/section_file/(?P<section_file_pk>[^/.]+)")
     def detail_section_file(self, request, pk=None, section_pk=None, section_file_pk=None):
         section_file = SectionFile.objects.filter(
-            id=section_file_pk
+            id=section_file_pk, section__course__lesson_course__exact=pk
         ).only(
             'zip_file', 'answer', "title", "file_type", "is_publish"
         ).first()
+
+        if not section_file:
+            raise exceptions.NotFound()
+
         serializer = serializers.CoachSectionFileSerializer(section_file)
         return response.Response(serializer.data)
 
@@ -555,9 +590,16 @@ class OnlineLinkViewSet(viewsets.ModelViewSet):
     permission_classes = [IsCoachPermission]
     pagination_class = CommonPagination
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['coach_lesson_course_pk'] = self.kwargs['coach_lesson_course_pk']
+        return context
+
     def get_queryset(self):
-        return OnlineLink.objects.filter(class_room__coach__user=self.request.user).defer(
-            "deleted_at", "is_deleted"
+        return OnlineLink.objects.filter(
+            class_room__coach__user=self.request.user, class_room_id=self.kwargs['coach_lesson_course_pk']
+        ).defer(
+            "deleted_at", "is_deleted", "updated_at"
         )
 
     @extend_schema(
@@ -601,7 +643,7 @@ class PresentAbsentViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CoachPresentAbsentSerializer
     permission_classes = [IsCoachPermission]
     pagination_class = CommonPagination
-    queryset = PresentAbsent.objects.all()
+    queryset = PresentAbsent.objects.only("created_at", "student_status", "section_id", "student_id")
 
     @extend_schema(
         tags=['api_coach_course']
@@ -640,11 +682,18 @@ class PresentAbsentViewSet(viewsets.ModelViewSet):
         return super().destroy(request, *args, **kwargs)
 
 
-class StudentOnlineLinkViewSet(viewsets.ReadOnlyModelViewSet):
+class StudentOnlineLinkApiView(views.APIView):
     serializer_class = serializers.StudentOnlineLinkSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return OnlineLink.objects.filter(class_room_id=self.kwargs['student_lesson_course_pk']).only(
-            "link"
-        )
+        return OnlineLink.objects.filter(
+            class_room_id=self.kwargs['student_lesson_course_pk'], is_publish=True
+        ).only(
+            "link", "created_at"
+        ).last()
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.serializer_class(queryset)
+        return response.Response(serializer.data)

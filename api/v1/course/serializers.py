@@ -1,8 +1,8 @@
 from rest_framework import serializers, exceptions
-
 from accounts.models import Student
+from course.enums import RateChoices
 from course.models import Course, Category, Comment, Section, SectionVideo, SectionFile, SendSectionFile, LessonCourse, \
-    StudentSectionScore, PresentAbsent, StudentAccessSection, OnlineLink
+    StudentSectionScore, PresentAbsent, StudentAccessSection, OnlineLink, SectionQuestion, AnswerQuestion
 from drf_spectacular.utils import extend_schema_field
 
 
@@ -128,7 +128,7 @@ class StudentLessonCourseSerializer(serializers.ModelSerializer):
 class StudentPresentAbsentSerializer(serializers.ModelSerializer):
     class Meta:
         model = PresentAbsent
-        fields = ['student_status']
+        fields = ['student_status', "created_at"]
 
 
 class SendFileSerializer(serializers.ModelSerializer):
@@ -155,23 +155,68 @@ class SendFileSerializer(serializers.ModelSerializer):
         if zip_file:
             if SendSectionFile.objects.filter(section_file_id=section_file_pk, student__user=user).exists():
                 raise exceptions.ValidationError({"message": "you have already file"})
+
+        if not SectionFile.objects.filter(id=section_file_pk).exists():
+            raise exceptions.NotFound()
+
         return data
 
 
-class CoachSectionScoreSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = StudentSectionScore
-        fields = ['id', "score", "student"]
-
-
-class OnlineLinkSerializer(serializers.ModelSerializer):
-    class_room = serializers.PrimaryKeyRelatedField(
-        queryset=LessonCourse.objects.filter(is_active=True)
+class NestedCoachSectionScoreSerializer(serializers.ModelSerializer):
+    student_name = serializers.SerializerMethodField()
+    student = serializers.PrimaryKeyRelatedField(
+        queryset=Student.objects.filter(is_active=True).only("student_number")
     )
 
     class Meta:
+        model = StudentSectionScore
+        fields = ['score', "student", "student_name", "id"]
+
+    def get_student_name(self, obj):
+        return obj.student.student_name
+
+
+class CoachSectionScoreSerializer(serializers.Serializer):
+    scores = NestedCoachSectionScoreSerializer(many=True)
+
+    def create(self, validated_data):
+        score_list = []
+
+        for item in validated_data['scores']:
+            student_score = StudentSectionScore(
+                student=item["student"],
+                score=item["score"],
+            )
+            score_list.append(student_score)
+        created = StudentSectionScore.objects.bulk_create(score_list)
+        return {
+            "score": [
+                {
+                    "score": i.score,
+                    "student": i.student
+                }
+                for i in created
+            ]
+        }
+
+
+class OnlineLinkSerializer(serializers.ModelSerializer):
+    class Meta:
         model = OnlineLink
-        exclude = ['is_deleted', "deleted_at"]
+        exclude = ['is_deleted', "deleted_at", "class_room", "updated_at"]
+
+    def create(self, validated_data):
+        coach_lesson_course_pk = self.context['coach_lesson_course_pk']
+        return OnlineLink.objects.create(class_room_id=coach_lesson_course_pk, **validated_data)
+
+    def validate(self, attrs):
+        class_room_pk = self.context['coach_lesson_course_pk']
+        is_publish = attrs.get('is_publish')
+
+        if is_publish:
+            if OnlineLink.objects.filter(is_publish=True, class_room_id=class_room_pk).exists():
+                raise exceptions.ValidationError({"message": "you have already publish"})
+        return attrs
 
 
 class CoachPresentAbsentSerializer(serializers.ModelSerializer):
@@ -184,7 +229,7 @@ class CoachPresentAbsentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PresentAbsent
-        fields = ['id', "student", "student_status", "section"]
+        fields = ['id', "student", "student_status", "section", "created_at"]
 
 
 class StudentListPresentAbsentSerializer(serializers.ModelSerializer):
@@ -192,7 +237,7 @@ class StudentListPresentAbsentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PresentAbsent
-        fields = ["id", "student_status", "section_name"]
+        fields = ["id", "student_status", "section_name", "created_at"]
 
     def get_section_name(self, obj):
         return obj.section.title
@@ -207,4 +252,40 @@ class CoachSectionFileSerializer(serializers.ModelSerializer):
 class StudentOnlineLinkSerializer(serializers.ModelSerializer):
     class Meta:
         model = OnlineLink
-        fields = ['id', "link"]
+        fields = ['id', "link", "created_at"]
+
+
+class SectionQuestionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SectionQuestion
+        fields = ['id', "question_title"]
+
+
+class RateAnswerSerializer(serializers.Serializer):
+    rate = serializers.ChoiceField(choices=RateChoices.choices)
+    section_question_id = serializers.IntegerField()
+
+
+class AnswerSectionQuestionSerializer(serializers.Serializer):
+    rates = RateAnswerSerializer(many=True)
+
+    def create(self, validated_data):
+        student = self.context['request'].user.student
+        answers = []
+        for item in validated_data['rates']:
+            answer = AnswerQuestion(
+                student=student,
+                section_question_id=item['section_question_id'],
+                rate=item['rate'],
+            )
+            answers.append(answer)
+        created = AnswerQuestion.objects.bulk_create(answers)
+        return {
+            "rates": [
+                {
+                    "rate": i.rate,
+                    "section_question_id": i.section_question_id,
+                }
+                for i in created
+            ]
+        }

@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from django.core.validators import FileExtensionValidator, MinValueValidator, MaxValueValidator
 from treebeard.mp_tree import MP_Node
 
-from course.enums import ProgresChoices, SectionFileType, StudentStatusChoices
+from course.enums import ProgresChoices, SectionFileType, StudentStatusChoices, RateChoices
 from course.utils import student_send_section_file
 from course.validators import max_upload_image_validator
 
@@ -195,3 +195,35 @@ class OnlineLink(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = "online_link"
+        ordering = ("-created_at",)
+
+
+class Question(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    title = models.CharField(max_length=255)
+    is_publish = models.BooleanField(default=True)
+
+    class Meta:
+        db_table = "poll_question"
+        ordering = ("-created_at",)
+
+
+class SectionQuestion(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    question_title = models.CharField(max_length=255, null=True)
+    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="section_question",
+                                limit_choices_to={"is_publish": True})
+    is_publish = models.BooleanField(default=True)
+
+    class Meta:
+        db_table = "section_question"
+        ordering = ("-created_at",)
+
+
+class AnswerQuestion(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    student = models.ForeignKey("accounts.Student", on_delete=models.DO_NOTHING, related_name="student_poll_answer",
+                                limit_choices_to={"is_active": True})
+    section_question = models.ForeignKey(SectionQuestion, on_delete=models.DO_NOTHING, related_name="section_question")
+    rate = models.CharField(choices=RateChoices.choices)
+
+    class Meta:
+        db_table = "poll_answer"
+        ordering = ("-created_at",)

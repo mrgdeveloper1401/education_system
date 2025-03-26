@@ -1,10 +1,11 @@
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
-from rest_framework import viewsets, permissions, exceptions, generics, filters
+from rest_framework import viewsets, permissions, exceptions, generics, filters, decorators, response
+from drf_spectacular.views import extend_schema
 
 from . import serializers
 from course.models import Category, Course, Section, SectionFile, SectionVideo, LessonCourse, Certificate, \
-    StudentSectionScore
+    PresentAbsent, Question, SectionQuestion, AnswerQuestion
 from .paginations import AdminPagination
 
 
@@ -145,8 +146,69 @@ class AdminLessonCourseViewSet(viewsets.ModelViewSet):
         res = super().list(request, *args, **kwargs)
         return res
 
+    @extend_schema(responses={200: serializers.AdminCoachRankingSerializer})
+    @decorators.action(detail=True, methods=['GET'], url_path="student_poll_answer")
+    def student_poll_answer(self, request, category_pk=None, course_pk=None, pk=None):
+        answer_poll = AnswerQuestion.objects.filter(
+            section_question__section__course_id=course_pk
+        ).select_related("student__user", "section_question").only(
+            "student__user__first_name", "student__user__last_name", "section_question__question_title", "rate"
+        )
+        serializer = serializers.AdminCoachRankingSerializer(answer_poll, many=True)
+        return response.Response(serializer.data)
+
 
 class AdminCertificateViewSet(viewsets.ModelViewSet):
     queryset = Certificate.objects.defer("deleted_at", "is_deleted", "created_at", "updated_at")
     serializer_class = serializers.AdminCertificateSerializer
     permission_classes = [permissions.IsAdminUser]
+
+
+class AdminStudentPresentAbsentViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = serializers.AdminStudentPresentAbsentSerializer
+    permission_classes = [permissions.IsAdminUser]
+    pagination_class = AdminPagination
+
+    def get_queryset(self):
+        query = PresentAbsent.objects.only(
+            "student_status", "student__user__first_name", "student__user__last_name", "section__title", "created_at"
+        ).select_related("student__user", "section")
+        first_name = self.request.query_params.get('first_name')
+        last_name = self.request.query_params.get('last_name')
+
+        if first_name:
+            query = query.filter(student__user__first_name__icontains=first_name)
+        elif last_name:
+            query = query.filter(student__user__last_name__icontains=last_name)
+        elif first_name and last_name:
+            query = query.filter(
+                student__user__last_name__icontains=first_name, student__user__first_name__icontains=last_name
+            )
+        else:
+            query = query
+        return query
+
+
+class AdminSectionQuestionViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.AdminSectionQuestionSerializer
+    permission_classes = [permissions.IsAdminUser]
+
+    def get_queryset(self):
+        return SectionQuestion.objects.filter(section_id=self.kwargs['section_pk']).only(
+            "question_title", "section", "is_publish", "created_at"
+        )
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['section_pk'] = self.kwargs['section_pk']
+        return context
+
+
+class AdminAnswerQuestionViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = serializers.AnswerQuestionSerializer
+    permission_classes = [permissions.IsAdminUser]
+
+    def get_queryset(self):
+        return AnswerQuestion.objects.filter(section_question_id=self.kwargs['section_question_pk']).only(
+            "student", "section_question", "created_at", "rate"
+        )

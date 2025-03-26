@@ -19,3 +19,16 @@ class StudentStatusChoices(models.TextChoices):
     absent = "absent", _("غایب")
     late_attendance = "late_attendance", _("حضور با تاخیر")
     inactivity = "inactivity", _("عدم فعالیت")
+
+
+class RateChoices(models.TextChoices):
+    one = "1", _("1")
+    two = "2", _("2")
+    three = "3", _("3")
+    four = "4", _("4")
+    five = "5", _("5")
+    six = "6", _("6")
+    seven = "7", _("7")
+    eight = "8", _("8")
+    nine = "9", _("9")
+    ten = "10", _("10")
