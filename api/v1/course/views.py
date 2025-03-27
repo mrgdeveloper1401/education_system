@@ -77,7 +77,9 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
     @decorators.action(detail=True, methods=["GET"])
     def sections(self, request, pk=None):
         sections = StudentAccessSection.objects.filter(
-            section__course__lesson_course__exact=pk, student__user=request.user, section__is_publish=True
+            section__course__lesson_course__exact=pk,
+            student__user=request.user,
+            section__is_publish=True,
         ).only(
             "section__cover_image", "section__title", 'is_access'
         ).select_related("section").order_by("created_at")

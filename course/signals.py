@@ -1,24 +1,47 @@
-from django.db.models.signals import post_save
+from django.db.models.signals import m2m_changed
 from django.dispatch import receiver
-from .models import Section, LessonCourse, StudentAccessSection
+from .models import LessonCourse, StudentAccessSection
 
 
-@receiver(post_save, sender=LessonCourse)
-def create_student_section(sender, instance, created, **kwargs):
-    if instance.is_active:
+@receiver(m2m_changed, sender=LessonCourse.students.through)
+def handle_student_changes(sender, instance, action, pk_set, **kwargs):
+    if action == "post_add":
         course = instance.course
-        students = instance.students.all()
-        course_sections = course.sections.all()
+        students = instance.students.filter(id__in=pk_set)
+        sections = course.sections.filter(is_publish=True)
 
-        lst = []
+        access_list = [
+            StudentAccessSection(student=student, section=section)
+            for student in students
+            for section in sections
+            if not StudentAccessSection.objects.filter(
+                student=student,
+                section=section
+            ).exists()
+        ]
+        StudentAccessSection.objects.bulk_create(access_list)
 
-        for i in students:
-            for j in course_sections:
-                if not StudentAccessSection.objects.filter(student=i, section=j).exists():
-                    lst.append(
-                        StudentAccessSection(
-                            student=i,
-                            section=j,
-                        )
-                    )
-        StudentAccessSection.objects.bulk_create(lst)
+
+@receiver(m2m_changed, sender=LessonCourse.students.through)
+def student_access_section(sender, instance, action, pk_set, **kwargs):
+    if action == "post_add":
+        std_access = StudentAccessSection.objects.filter(
+            student_id__in=pk_set,
+            section__course=instance.course,
+            section__is_publish=True,
+            section__course__is_publish=True
+        ).order_by('created_at').first()
+
+        if std_access:
+            std_access.is_access = True
+            std_access.save()
+
+
+@receiver(m2m_changed, sender=LessonCourse.students.through)
+def remove_access_student(sender, instance, action, pk_set, **kwargs):
+    if action == "post_remove":
+        StudentAccessSection.objects.filter(
+            student_id__in=pk_set,
+            section__course=instance.course,
+            is_access=True,
+        ).update(is_access=False)
