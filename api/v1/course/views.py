@@ -19,7 +19,7 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = CourseCategoryPagination
 
     def get_serializer_class(self):
-        if self.action == "student_send_file" and self.request.method == 'POST':
+        if self.action == "send_file" and self.request.method == 'POST':
             return serializers.SendFileSerializer
         if self.action == "detail_send_file" and self.request.method in ['PUT', 'PATCH']:
             return serializers.SendFileSerializer
@@ -110,7 +110,8 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
     @decorators.action(detail=True, methods=['GET'], url_path="sections/(?P<section_pk>[^/.]+)/poll")
     def poll(self, request, pk=None, section_pk=None):
         section_question = SectionQuestion.objects.filter(
-            section_id=section_pk, section__course__lesson_course__exact=pk
+            section_id=section_pk,
+            section__course__lesson_course__exact=pk
         ).only("question_title")
         serializer = serializers.SectionQuestionSerializer(section_question, many=True)
         return response.Response(serializer.data)
@@ -122,8 +123,10 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
     @decorators.action(detail=True, methods=['GET'], url_path='sections/(?P<section_pk>[^/.]+)/section_file')
     def section_file(self, request, pk=None, section_pk=None):
         section_file = SectionFile.objects.filter(
-            section_id=section_pk, section__course__lesson_course__exact=pk, is_publish=True,
-            section__is_publish=True, section__student_section__is_access=True
+            section_id=section_pk,
+            section__course__lesson_course__exact=pk,
+            is_publish=True,
+            section__is_publish=True
         ).only("zip_file", "title", "file_type")
         serializer = serializers.CourseSectionFileSerializer(section_file, many=True)
         return response.Response(serializer.data)
@@ -139,8 +142,11 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
     )
     def detail_section_file(self, request, pk=None, section_pk=None, section_file_pk=None):
         section_file = SectionFile.objects.filter(
-            section_id=section_pk, section__course__lesson_course__exact=pk, is_publish=True,
-            section__is_publish=True, section__student_section__is_access=True, id=section_file_pk
+            section_id=section_pk,
+            section__course__lesson_course__exact=pk,
+            is_publish=True,
+            section__is_publish=True,
+            id=section_file_pk
         ).only("zip_file", "title", "file_type").first()
 
         if not section_file:
@@ -159,7 +165,7 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
         methods=['GET', 'POST'],
         url_path="sections/(?P<section_pk>[^/.]+)/section_file/(?P<section_file_pk>[^/.]+)/send_file"
     )
-    def student_send_file(self, request, pk=None, section_pk=None, section_file_pk=None):
+    def send_file(self, request, pk=None, section_pk=None, section_file_pk=None):
         ser = serializers.SendFileSerializer
 
         if request.method == 'GET':
@@ -168,7 +174,6 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
                 section_file_id=section_file_pk,
                 section_file__section__course__lesson_course__exact=pk,
                 section_file__section__is_publish=True,
-                section_file__section__student_section__is_access=True,
                 section_file__section_id=section_pk
             ).only("score", 'comment_student', "zip_file", "section_file", "created_at")
             serializer = ser(send_file, many=True)
@@ -197,7 +202,8 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
             section_file__section__course__lesson_course__exact=pk,
             section_file__section__is_publish=True,
             section_file__section__student_section__is_access=True,
-        ).only("score", 'description', "zip_file", "section_file").first()
+            student__user=request.user
+        ).only("score", 'comment_student', "zip_file", "section_file").first()
         ser = serializers.SendFileSerializer
         ser.context = {"request": request, "section_file_pk": section_file_pk}
 
@@ -234,7 +240,6 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
             section_id=section_pk,
             is_publish=True,
             section__is_publish=True,
-            section__student_section__is_access=True,
             section__course__lesson_course__exact=pk
         ).only("video", "title", "section__cover_image")
         serializer = serializers.CourseSectionVideoSerializer(section_video, many=True)
@@ -251,8 +256,10 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
         url_path='sections/(?P<section_pk>[^/.]+)/score')
     def section_score(self, request, pk=None, section_pk=None):
         score = StudentSectionScore.objects.filter(
-            section_id=section_pk, section__course__lesson_course__exact=pk, student__user=request.user,
-            section__is_publish=True, section__student_section__is_access=True
+            section_id=section_pk,
+            section__course__lesson_course__exact=pk,
+            student__user=request.user,
+            section__is_publish=True,
         ).only(
             "score"
         )
@@ -270,7 +277,6 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
             section_id=section_pk,
             student__user=request.user,
             section__is_publish=True,
-            section__student_section__is_access=True,
             section__course__lesson_course__exact=pk
         ).only("student_status", "created_at")
         serializer = serializers.StudentPresentAbsentSerializer(present_absent, many=True)
@@ -467,6 +473,14 @@ class CoachLessonCourseViewSet(viewsets.ReadOnlyModelViewSet):
 
     @extend_schema(
         tags=['api_coach_course'],
+        parameters=[
+            OpenApiParameter(
+                name="file_type",
+                description="searching the file type --> [main, more_then]",
+                location=OpenApiParameter.QUERY,
+                type=OpenApiTypes.STR,
+            )
+        ],
         responses={200: serializers.CoachStudentSendFileSerializer})
     @decorators.action(
         detail=True,
@@ -496,6 +510,12 @@ class CoachLessonCourseViewSet(viewsets.ReadOnlyModelViewSet):
         )
 
         if request.method == "GET":
+
+            file_type = request.query_params.get("file_type")
+
+            if file_type:
+                section_score = section_score.filter(section_file__file_type=file_type)
+
             serializer = serializers.CoachStudentSendFileSerializer(section_score, many=True)
             return response.Response(serializer.data)
 
