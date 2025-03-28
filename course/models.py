@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from django.core.validators import FileExtensionValidator, MinValueValidator, MaxValueValidator
 from treebeard.mp_tree import MP_Node
 
-from course.enums import ProgresChoices, SectionFileType, StudentStatusChoices, RateChoices
+from course.enums import ProgresChoices, SectionFileType, StudentStatusChoices, RateChoices, SendFileChoices
 from course.utils import student_send_section_file
 from course.validators import max_upload_image_validator
 
@@ -141,23 +141,21 @@ class StudentSectionScore(CreateMixin, UpdateMixin, SoftDeleteMixin):
                                 limit_choices_to={"is_publish": True})
     score = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(100)])
     student = models.ForeignKey(Student, on_delete=models.DO_NOTHING, related_name="student_section_score", null=True)
-    is_completed = models.BooleanField(default=False)
 
     class Meta:
         db_table = "course_section_score"
-
-    def save(self, *args, **kwargs):
-        if self.score >= 60:
-            self.is_completed = True
-        super().save(*args, **kwargs)
 
 
 class SendSectionFile(CreateMixin, UpdateMixin, SoftDeleteMixin):
     student = models.ForeignKey("accounts.Student", on_delete=models.DO_NOTHING, related_name="send_section_files",
                                 limit_choices_to={"is_active": True})
     section_file = models.ForeignKey(SectionFile, on_delete=models.DO_NOTHING, related_name='section_files')
+    send_file_status = models.CharField(choices=SendFileChoices.choices, max_length=14, help_text=_("وضعیت فایل ارسالی"),
+                                        default=SendFileChoices.accept_to_wait, null=True, blank=True)
     zip_file = models.FileField(help_text=_("فایل ارسالی"), upload_to=student_send_section_file)
-    description = models.TextField(help_text=_("توضیحی در مورد تمرین ارسالی"), null=True)
+    comment_student = models.TextField(help_text=_("توضیحی در مورد تمرین ارسالی"), null=True)
+    comment_teacher = models.CharField(max_length=255, help_text=_("توضیح مربی در مورد فایل ارسال شده دانشجو"),
+                                       null=True, blank=True)
     score = models.FloatField(help_text=_("نمره تکلیف ارسالی"), blank=True, null=True,
                               validators=[MinValueValidator(0), MaxValueValidator(100)])
 

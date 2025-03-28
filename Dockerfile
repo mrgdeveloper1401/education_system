@@ -16,7 +16,7 @@ RUN adduser -D -H mohammad && \
     mkdir -p /vol/static && \
     chown -R mohammad:mohammad /vol && \
     chown -R mohammad:mohammad /home/app && \
-    chmod +x ./start.sh
+    chmod +x /home/app/start.sh
 
 USER mohammad
 

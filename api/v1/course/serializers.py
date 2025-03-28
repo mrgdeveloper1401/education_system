@@ -135,7 +135,7 @@ class SendFileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SendSectionFile
-        fields = ["id", "score", "description", "zip_file", "created_at"]
+        fields = ["id", "score", "comment_student", "zip_file", "created_at"]
         extra_kwargs = {
             "score": {"read_only": True},
         }
@@ -169,11 +169,11 @@ class NestedCoachSectionScoreSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = StudentSectionScore
-        fields = ['score', "student", "student_name", "id"]
+        model = SendSectionFile
+        fields = ['score', "student", "student_name", "comment_teacher"]
 
     def get_student_name(self, obj):
-        return obj.student.student_name
+        return obj.student.student_name if obj.student else None
 
 
 class CoachSectionScoreSerializer(serializers.Serializer):
@@ -183,9 +183,10 @@ class CoachSectionScoreSerializer(serializers.Serializer):
         score_list = []
 
         for item in validated_data['scores']:
-            student_score = StudentSectionScore(
+            student_score = SendSectionFile(
                 student=item["student"],
                 score=item["score"],
+                comment_teacher=item["comment_teacher"],
             )
             score_list.append(student_score)
         created = StudentSectionScore.objects.bulk_create(score_list)
@@ -193,7 +194,8 @@ class CoachSectionScoreSerializer(serializers.Serializer):
             "score": [
                 {
                     "score": i.score,
-                    "student": i.student
+                    "student": i.student,
+                    "comment_teacher": i.comment_teacher,
                 }
                 for i in created
             ]
@@ -289,3 +291,35 @@ class AnswerSectionQuestionSerializer(serializers.Serializer):
                 for i in created
             ]
         }
+
+
+class CoachStudentSendFileSerializer(serializers.ModelSerializer):
+    file_type = serializers.SerializerMethodField()
+    student_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = SendSectionFile
+        fields = (
+            "id",
+            'student_name',
+            "zip_file",
+            "comment_student",
+            "file_type",
+            "send_file_status",
+            'score',
+            "created_at",
+            "updated_at",
+            "comment_teacher"
+        )
+
+    def get_file_type(self, obj):
+        return obj.section_file.file_type
+
+    def get_student_name(self, obj):
+        return obj.student.student_name
+
+
+class ScoreIntoStudentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SendSectionFile
+        fields = ['score', "student", "comment_teacher"]

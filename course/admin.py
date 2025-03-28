@@ -97,9 +97,10 @@ class PresentAbsentAdmin(admin.ModelAdmin):
 
 @admin.register(models.SendSectionFile)
 class SendSectionFileAdmin(admin.ModelAdmin):
-    list_display = ['student', "section_file", "created_at"]
+    list_display = ['student', "section_file", "created_at", 'send_file_status']
     raw_id_fields = ['student', "section_file"]
     list_per_page = 20
+    list_filter = ['send_file_status']
 
 
 @admin.register(models.StudentAccessSection)

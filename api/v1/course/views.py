@@ -170,7 +170,7 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
                 section_file__section__is_publish=True,
                 section_file__section__student_section__is_access=True,
                 section_file__section_id=section_pk
-            ).only("score", 'description', "zip_file", "section_file", "created_at")
+            ).only("score", 'comment_student', "zip_file", "section_file", "created_at")
             serializer = ser(send_file, many=True)
             return response.Response(serializer.data)
 
@@ -467,27 +467,36 @@ class CoachLessonCourseViewSet(viewsets.ReadOnlyModelViewSet):
 
     @extend_schema(
         tags=['api_coach_course'],
-        responses={
-            200: serializers.CoachSectionScoreSerializer,
-            201: serializers.CoachSectionScoreSerializer,
-        }
-    )
-    @decorators.action(detail=True, methods=['GET', 'POST'], url_path="sections/(?P<section_pk>[^/.]+)/score")
+        responses={200: serializers.CoachStudentSendFileSerializer})
+    @decorators.action(
+        detail=True,
+        methods=['GET', 'POST'],
+        url_path="sections/(?P<section_pk>[^/.]+)/student_send_file")
     def coach_section_score(self, request, pk=None, section_pk=None):
         access_section = StudentAccessSection.objects.select_related("section__course").only(
             "id", "section_id", "section__course_id",
-        ).get(id=section_pk)
-        section_score = StudentSectionScore.objects.filter(
-            section=access_section.section
-        ).select_related("student__user").only(
+        ).filter(id=section_pk).first()
+
+        if not access_section:
+            raise exceptions.NotFound()
+
+        section_score = SendSectionFile.objects.filter(
+            section_file__section=access_section.section
+        ).select_related("student__user", "section_file").only(
             "student__user__first_name",
             "student__user__last_name",
-            "student_id",
-            "score"
+            "score",
+            "comment_student",
+            "comment_teacher",
+            "created_at",
+            "updated_at",
+            "send_file_status",
+            "zip_file",
+            "section_file__file_type"
         )
 
         if request.method == "GET":
-            serializer = serializers.NestedCoachSectionScoreSerializer(section_score, many=True)
+            serializer = serializers.CoachStudentSendFileSerializer(section_score, many=True)
             return response.Response(serializer.data)
 
         elif request.method == "POST":

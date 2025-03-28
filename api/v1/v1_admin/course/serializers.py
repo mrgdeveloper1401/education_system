@@ -180,13 +180,17 @@ class AnswerQuestionSerializer(serializers.ModelSerializer):
 class AdminCoachRankingSerializer(serializers.ModelSerializer):
     question_title = serializers.SerializerMethodField()
     student_name = serializers.SerializerMethodField()
+    section_name = serializers.SerializerMethodField()
 
     class Meta:
         model = AnswerQuestion
-        fields = ['rate', "question_title", "student_name"]
+        fields = ['rate', "question_title", "student_name", "section_name"]
 
     def get_question_title(self, obj):
         return obj.section_question.question_title
 
     def get_student_name(self, obj):
         return obj.student.student_name
+
+    def get_section_name(self, obj):
+        return obj.section_question.section.title

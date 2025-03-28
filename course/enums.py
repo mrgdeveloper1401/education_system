@@ -11,7 +11,7 @@ class ProgresChoices(models.TextChoices):
 class SectionFileType(models.TextChoices):
     main = "main", _("تمرین اصلی")
     more_then = "more", _("تمرین اضافی")
-    gold = "gold", _("طلایی")
+    # gold = "gold", _("طلایی")
 
 
 class StudentStatusChoices(models.TextChoices):
@@ -32,3 +32,9 @@ class RateChoices(models.TextChoices):
     eight = "8", _("8")
     nine = "9", _("9")
     ten = "10", _("10")
+
+
+class SendFileChoices(models.TextChoices):
+    sending = "sending", _("ارسال شده")
+    accept_to_wait = "accept_to_wait", _("در انتظا تایید")
+    accepted = "accepted", _("تایید شده")

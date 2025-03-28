@@ -151,8 +151,9 @@ class AdminLessonCourseViewSet(viewsets.ModelViewSet):
     def student_poll_answer(self, request, category_pk=None, course_pk=None, pk=None):
         answer_poll = AnswerQuestion.objects.filter(
             section_question__section__course_id=course_pk
-        ).select_related("student__user", "section_question").only(
-            "student__user__first_name", "student__user__last_name", "section_question__question_title", "rate"
+        ).select_related("student__user", "section_question__section").only(
+            "student__user__first_name", "student__user__last_name", "section_question__question_title", "rate",
+            "section_question__section__title"
         )
         serializer = serializers.AdminCoachRankingSerializer(answer_poll, many=True)
         return response.Response(serializer.data)

@@ -1,6 +1,8 @@
-from django.db.models.signals import m2m_changed
+from django.db.models.signals import m2m_changed, post_save
 from django.dispatch import receiver
-from .models import LessonCourse, StudentAccessSection
+
+from .enums import SendFileChoices
+from .models import LessonCourse, StudentAccessSection, SendSectionFile
 
 
 @receiver(m2m_changed, sender=LessonCourse.students.through)
@@ -45,3 +47,17 @@ def remove_access_student(sender, instance, action, pk_set, **kwargs):
             section__course=instance.course,
             is_access=True,
         ).update(is_access=False)
+
+
+@receiver(post_save, sender=SendSectionFile)
+def next_section_access(sender, instance, **kwargs):
+    if instance.send_file_status == SendFileChoices.accepted and instance.score > 60:
+        get_student_section_access = StudentAccessSection.objects.filter(
+            student=instance.student,
+            section=instance.section_file.section
+        ).first()
+
+        if get_student_section_access:
+            StudentAccessSection.objects.filter(id=get_student_section_access.id + 1).update(
+                is_access=True,
+            )
