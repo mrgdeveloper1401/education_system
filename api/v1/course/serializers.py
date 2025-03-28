@@ -1,4 +1,5 @@
 from rest_framework import serializers, exceptions
+from django.db.models import F
 from accounts.models import Student
 from course.enums import RateChoices
 from course.models import Course, Category, Comment, Section, SectionVideo, SectionFile, SendSectionFile, LessonCourse, \
@@ -32,12 +33,11 @@ class StudentAccessSectionSerializer(serializers.ModelSerializer):
         fields = ['section', "is_access"]
 
 
-class CoachAccessSectionSerializer(serializers.ModelSerializer):
-    section = CourseSectionSerializer()
+class CoachSectionSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = StudentAccessSection
-        fields = ["id", "section", "is_access"]
+        model = Section
+        fields = ["id", "title", "description", "cover_image", "created_at"]
 
 
 class CourseSectionDetailSerializer(serializers.ModelSerializer):
@@ -162,7 +162,7 @@ class SendFileSerializer(serializers.ModelSerializer):
         return data
 
 
-class NestedCoachSectionScoreSerializer(serializers.ModelSerializer):
+class CoachSendFileSerializer(serializers.ModelSerializer):
     student_name = serializers.SerializerMethodField()
     student = serializers.PrimaryKeyRelatedField(
         queryset=Student.objects.filter(is_active=True).only("student_number")
@@ -170,36 +170,10 @@ class NestedCoachSectionScoreSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SendSectionFile
-        fields = ['score', "student", "student_name", "comment_teacher"]
+        fields = ['score', "student", "student_name", "comment_teacher", "send_file_status"]
 
     def get_student_name(self, obj):
         return obj.student.student_name if obj.student else None
-
-
-class CoachSectionScoreSerializer(serializers.Serializer):
-    scores = NestedCoachSectionScoreSerializer(many=True)
-
-    def create(self, validated_data):
-        score_list = []
-
-        for item in validated_data['scores']:
-            student_score = SendSectionFile(
-                student=item["student"],
-                score=item["score"],
-                comment_teacher=item["comment_teacher"],
-            )
-            score_list.append(student_score)
-        created = StudentSectionScore.objects.bulk_create(score_list)
-        return {
-            "score": [
-                {
-                    "score": i.score,
-                    "student": i.student,
-                    "comment_teacher": i.comment_teacher,
-                }
-                for i in created
-            ]
-        }
 
 
 class OnlineLinkSerializer(serializers.ModelSerializer):
@@ -300,6 +274,7 @@ class CoachStudentSendFileSerializer(serializers.ModelSerializer):
     class Meta:
         model = SendSectionFile
         fields = (
+            "student",
             "id",
             'student_name',
             "zip_file",

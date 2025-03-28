@@ -149,7 +149,7 @@ class StudentSectionScore(CreateMixin, UpdateMixin, SoftDeleteMixin):
 class SendSectionFile(CreateMixin, UpdateMixin, SoftDeleteMixin):
     student = models.ForeignKey("accounts.Student", on_delete=models.DO_NOTHING, related_name="send_section_files",
                                 limit_choices_to={"is_active": True})
-    section_file = models.ForeignKey(SectionFile, on_delete=models.DO_NOTHING, related_name='section_files')
+    section_file = models.ForeignKey(SectionFile, on_delete=models.CASCADE, related_name='section_files')
     send_file_status = models.CharField(choices=SendFileChoices.choices, max_length=14, help_text=_("وضعیت فایل ارسالی"),
                                         default=SendFileChoices.accept_to_wait, null=True, blank=True)
     zip_file = models.FileField(help_text=_("فایل ارسالی"), upload_to=student_send_section_file)
