@@ -133,7 +133,8 @@ class StudentPresentAbsentSerializer(serializers.ModelSerializer):
 class SendFileSerializer(serializers.ModelSerializer):
     class Meta:
         model = SendSectionFile
-        fields = ["id", "score", "comment_student", "zip_file", "created_at", "comment_teacher", "send_file_status"]
+        fields = ["id", "score", "comment_student", "zip_file", "created_at", "comment_teacher", "send_file_status",
+                  "updated_at"]
         extra_kwargs = {
             "score": {"read_only": True},
             "comment_teacher": {"read_only": True},
