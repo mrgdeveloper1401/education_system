@@ -35,6 +35,6 @@ class RateChoices(models.TextChoices):
 
 
 class SendFileChoices(models.TextChoices):
-    sending = "sending", _("ارسال شده")
+    rejected = "rejected", _("رد شده")
     accept_to_wait = "accept_to_wait", _("در انتظا تایید")
     accepted = "accepted", _("تایید شده")

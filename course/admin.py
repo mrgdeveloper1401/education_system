@@ -27,11 +27,12 @@ class CategoryTreeAdmin(TreeAdmin, ImportExportModelAdmin):
 class SectionAdmin(admin.ModelAdmin):
     raw_id_fields = ['course']
     list_select_related = ['course']
-    list_display = ["id", 'course', "title"]
+    list_display = ["id", 'course', "title", "is_publish"]
     list_filter = ['created_at']
     list_per_page = 20
     search_fields = ['title']
     list_display_links = ['id', "course"]
+    list_editable = ['is_publish']
 
 
 @admin.register(models.Comment)

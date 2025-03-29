@@ -163,6 +163,14 @@ class SendSectionFile(CreateMixin, UpdateMixin, SoftDeleteMixin):
         db_table = "send_file"
         ordering = ('-created_at',)
 
+    def save(self, *args, **kwargs):
+        if self.score:
+            if self.score >= 60:
+                self.send_file_status = SendFileChoices.accepted
+            else:
+                self.send_file_status = SendFileChoices.rejected
+        super().save(*args, **kwargs)
+
 
 class Certificate(CreateMixin, UpdateMixin, SoftDeleteMixin):
     course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name="course_certificates",

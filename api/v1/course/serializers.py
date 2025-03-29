@@ -34,10 +34,9 @@ class StudentAccessSectionSerializer(serializers.ModelSerializer):
 
 
 class CoachSectionSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Section
-        fields = ["id", "title", "description", "cover_image", "created_at"]
+        fields = ["id", "title", "description", "cover_image"]
 
 
 class CourseSectionDetailSerializer(serializers.ModelSerializer):
@@ -132,12 +131,12 @@ class StudentPresentAbsentSerializer(serializers.ModelSerializer):
 
 
 class SendFileSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = SendSectionFile
-        fields = ["id", "score", "comment_student", "zip_file", "created_at"]
+        fields = ["id", "score", "comment_student", "zip_file", "created_at", "comment_teacher", "send_file_status"]
         extra_kwargs = {
             "score": {"read_only": True},
+            "comment_teacher": {"read_only": True},
         }
 
     def create(self, validated_data):
@@ -267,31 +266,26 @@ class AnswerSectionQuestionSerializer(serializers.Serializer):
         }
 
 
-class CoachStudentSendFileSerializer(serializers.ModelSerializer):
+class CoachStudentSendFilesSerializer(serializers.ModelSerializer):
     file_type = serializers.SerializerMethodField()
-    student_name = serializers.SerializerMethodField()
+    std_name = serializers.SerializerMethodField()
 
     class Meta:
         model = SendSectionFile
-        fields = (
-            "student",
-            "id",
-            'student_name',
-            "zip_file",
-            "comment_student",
-            "file_type",
-            "send_file_status",
-            'score',
-            "created_at",
-            "updated_at",
-            "comment_teacher"
-        )
+        fields = ("student", "id", 'std_name', "zip_file", "comment_student", "file_type", "send_file_status",
+                  'score', "created_at", "updated_at", "comment_teacher")
 
     def get_file_type(self, obj):
         return obj.section_file.file_type
 
-    def get_student_name(self, obj):
+    def get_std_name(self, obj):
         return obj.student.student_name
+
+
+class UpdateCoachStudentSendFilesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SendSectionFile
+        fields = ['id', "score", "comment_teacher"]
 
 
 class ScoreIntoStudentSerializer(serializers.ModelSerializer):
