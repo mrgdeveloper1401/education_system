@@ -192,7 +192,7 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
                 section_file__section__is_publish=True,
                 section_file__section_id=section_pk
             ).only("score", 'comment_student', "zip_file", "section_file", "created_at", "comment_teacher",
-                   "send_file_status")
+                   "send_file_status", "updated_at")
             serializer = ser(send_file, many=True)
             return response.Response(serializer.data)
 
@@ -220,7 +220,8 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
             section_file__section__is_publish=True,
             section_file__section__student_section__is_access=True,
             student__user=request.user
-        ).only("score", 'comment_student', "zip_file", "section_file").first()
+        ).only("score", 'comment_student', "zip_file", "section_file", "created_at", "comment_teacher",
+                   "send_file_status", "updated_at").first()
         ser = serializers.SendFileSerializer
         ser.context = {"request": request, "section_file_pk": section_file_pk}
 
