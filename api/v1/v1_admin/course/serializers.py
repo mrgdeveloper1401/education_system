@@ -184,7 +184,7 @@ class AdminCoachRankingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AnswerQuestion
-        fields = ['rate', "question_title", "student_name", "section_name"]
+        fields = ['rate', "question_title", "student_name", "section_name", 'section_question']
 
     def get_question_title(self, obj):
         return obj.section_question.question_title

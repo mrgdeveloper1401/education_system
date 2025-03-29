@@ -153,7 +153,7 @@ class AdminLessonCourseViewSet(viewsets.ModelViewSet):
             section_question__section__course_id=course_pk
         ).select_related("student__user", "section_question__section").only(
             "student__user__first_name", "student__user__last_name", "section_question__question_title", "rate",
-            "section_question__section__title"
+            "section_question__section__title", "section_question"
         )
         serializer = serializers.AdminCoachRankingSerializer(answer_poll, many=True)
         return response.Response(serializer.data)

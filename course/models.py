@@ -232,4 +232,4 @@ class AnswerQuestion(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = "poll_answer"
-        ordering = ("-created_at",)
+        ordering = ("created_at",)
