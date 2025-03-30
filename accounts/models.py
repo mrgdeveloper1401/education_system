@@ -266,3 +266,11 @@ class BestStudent(CreateMixin, UpdateMixin, SoftDeleteMixin):
     class Meta:
         db_table = 'best_student'
         ordering = ['-created_at']
+
+
+class PrivateNotification(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="notifications")
+    body = models.CharField(max_length=255)
+
+    class Meta:
+        db_table = 'private_notification'

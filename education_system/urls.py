@@ -23,8 +23,8 @@ api_url = [
     path('api_auth_user/', include('api.v1.user.urls', namespace='user')),
     path('api_advertise/', include('api.v1.advertise.urls', namespace='advertise')),
     path('api_course/', include('api.v1.course.urls', namespace='course')),
-    path('api_blog/', include("api.v1.blogs.urls", namespace='blogs')),
-    path('api_exam/', include("api.v1.exam.urls", namespace='api_exam')),
+    # path('api_blog/', include("api.v1.blogs.urls", namespace='blogs')),
+    # path('api_exam/', include("api.v1.exam.urls", namespace='api_exam')),
 ]
 
 api_admin = [

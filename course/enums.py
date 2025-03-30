@@ -16,6 +16,7 @@ class SectionFileType(models.TextChoices):
 
 class StudentStatusChoices(models.TextChoices):
     present = "present", _("حاضر")
+    activity = "activity", _("حضور فعال")
     absent = "absent", _("غایب")
     late_attendance = "late_attendance", _("حضور با تاخیر")
     inactivity = "inactivity", _("عدم فعالیت")

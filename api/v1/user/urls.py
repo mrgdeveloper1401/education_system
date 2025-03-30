@@ -8,6 +8,7 @@ from . import views
 router = routers.DefaultRouter()
 router.register('user', views.UserViewSet, basename='create')
 router.register("best_student", views.BestStudentViewSet, basename="best_student")
+router.register("user_notification", views.UserNotificationViewSet, basename="user_notification")
 
 router.register("ticket_room", views.TicketRoomViewSet, basename='ticket_room')
 

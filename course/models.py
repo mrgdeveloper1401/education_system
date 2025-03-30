@@ -139,7 +139,7 @@ class StudentAccessSection(CreateMixin, UpdateMixin, SoftDeleteMixin):
         ordering = ("created_at",)
 
 
-class PresentAbsent(CreateMixin, UpdateMixin, SoftDeleteMixin):
+class PresentAbsent(CreateMixin, UpdateMixin):
     section = models.ForeignKey(Section, on_delete=models.DO_NOTHING,
                                 related_name="section_present_absent",
                                 limit_choices_to={'is_publish': True})
@@ -150,6 +150,9 @@ class PresentAbsent(CreateMixin, UpdateMixin, SoftDeleteMixin):
     class Meta:
         db_table = "course_section_present_absent"
         ordering = ("-created_at",)
+        constraints = [
+            models.UniqueConstraint(fields=['section', "student"], name="unique_section_student")
+        ]
 
 
 class StudentSectionScore(CreateMixin, UpdateMixin, SoftDeleteMixin):
@@ -200,14 +203,16 @@ class Certificate(CreateMixin, UpdateMixin, SoftDeleteMixin):
         db_table = 'course_certificate'
 
 
-class Comment(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    user = models.ForeignKey('accounts.User', on_delete=models.DO_NOTHING, related_name='user_comment')
-    course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name='comments')
+class Comment(MP_Node, CreateMixin, UpdateMixin, SoftDeleteMixin):
+    user = models.ForeignKey('accounts.User', on_delete=models.DO_NOTHING, related_name='user_comment',
+                             limit_choices_to={"is_active": True})
+    category = models.ForeignKey(Category, on_delete=models.DO_NOTHING, related_name='category_comments')
     comment_body = models.TextField(_("متن کامنت"))
     is_publish = models.BooleanField(default=True)
 
     class Meta:
         db_table = 'comment'
+        ordering = ("-created_at",)
 
 
 class OnlineLink(CreateMixin, UpdateMixin, SoftDeleteMixin):

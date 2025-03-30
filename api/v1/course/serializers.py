@@ -1,9 +1,12 @@
 from rest_framework import serializers, exceptions
+from django.db import IntegrityError
+from drf_spectacular.utils import extend_schema_field
+from django.utils.translation import gettext_lazy as _
+
 from accounts.models import Student
 from course.enums import RateChoices, StudentStatusChoices
 from course.models import Course, Category, Comment, Section, SectionVideo, SectionFile, SendSectionFile, LessonCourse, \
     StudentSectionScore, PresentAbsent, StudentAccessSection, OnlineLink, SectionQuestion, AnswerQuestion
-from drf_spectacular.utils import extend_schema_field
 
 
 class CategoryTreeNodeSerializer(serializers.ModelSerializer):
@@ -91,6 +94,12 @@ class SimpleLessonCourseSerializer(serializers.ModelSerializer):
         fields = ['course_name', "course_image", "project_counter"]
 
 
+class SimpleStudentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Student
+        fields = ['id', "student_name"]
+
+
 class LessonCourseSerializer(serializers.ModelSerializer):
     course = SimpleLessonCourseSerializer()
     coach_name = serializers.SerializerMethodField()
@@ -102,9 +111,23 @@ class LessonCourseSerializer(serializers.ModelSerializer):
 
     def get_coach_name(self, obj):
         return obj.coach.get_coach_name
-    
+
     def get_progress_bar(self, obj):
         return obj.progress_bar
+
+
+class ListCoachLessonCourseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LessonCourse
+        fields = ['id', "course", "progress", "class_name"]
+
+
+class RetrieveLessonCourseSerializer(serializers.ModelSerializer):
+    students = SimpleStudentSerializer(many=True)
+
+    class Meta:
+        model = LessonCourse
+        fields = ['progress', "class_name", "students"]
 
 
 class SectionScoreSerializer(serializers.ModelSerializer):
@@ -214,11 +237,20 @@ class CreateCoachPresentAbsentSerializer(serializers.Serializer):
     def create(self, validated_data):
         lst = []
         for item in validated_data['present_absent']:
-            present_absent = PresentAbsent(
-                student=item['student'], section=item['section'], student_status=item['student_status']
+
+            if PresentAbsent.objects.filter(section=item['section'], student=item['student']).exists():
+                continue
+
+            lst.append(
+                PresentAbsent(
+                    section=item['section'], student=item['student'], student_status=item['student_status']
+                )
             )
-            lst.append(present_absent)
-        PresentAbsent.objects.bulk_create(lst)
+
+        if lst:
+            PresentAbsent.objects.bulk_create(lst)
+        else:
+            raise serializers.ValidationError({"message": "list is empty"})
 
         return {"present_absent": lst}
 

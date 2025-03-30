@@ -1,7 +1,7 @@
 import jwt
 from django_filters.rest_framework.backends import DjangoFilterBackend
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
-from rest_framework.mixins import CreateModelMixin
+from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK
@@ -15,7 +15,7 @@ from django.contrib.auth import authenticate
 from django.conf import settings
 from rest_framework.validators import ValidationError
 
-from accounts.models import User, State, City, Student, Coach, Ticket, TicketRoom, BestStudent
+from accounts.models import User, State, City, Student, Coach, Ticket, TicketRoom, BestStudent, PrivateNotification
 from utils.filters import UserFilter
 from utils.pagination import StudentCoachTicketPagination, ListUserPagination
 from utils.permissions import NotAuthenticate
@@ -24,6 +24,7 @@ from .permissions import TicketRoomPermission
 from education_system.base import SIMPLE_JWT
 from . import serializers
 from .utils import get_token_for_user
+from ..course.paginations import CommonPagination
 
 
 class UserLoginApiView(APIView):
@@ -236,3 +237,12 @@ class ValidateTokenApiView(APIView):
             response.data = 'valid token'
             response.status_code = HTTP_200_OK
             return response
+
+
+class UserNotificationViewSet(GenericViewSet, ListModelMixin, RetrieveModelMixin):
+    serializer_class = serializers.UserNotificationSerializer
+    permission_classes = [IsAuthenticated]
+    pagination_class = CommonPagination
+
+    def get_queryset(self):
+        return PrivateNotification.objects.filter(user=self.request.user).only("body", "created_at")

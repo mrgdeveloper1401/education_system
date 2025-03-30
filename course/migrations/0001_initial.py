@@ -116,45 +116,6 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-            name="Comment",
-            fields=[
-                (
-                    "id",
-                    models.BigAutoField(
-                        auto_created=True,
-                        primary_key=True,
-                        serialize=False,
-                        verbose_name="ID",
-                    ),
-                ),
-                ("created_at", models.DateTimeField(auto_now_add=True)),
-                ("updated_at", models.DateTimeField(auto_now=True)),
-                ("deleted_at", models.DateTimeField(editable=False, null=True)),
-                ("is_deleted", models.BooleanField(editable=False, null=True)),
-                ("comment_body", models.TextField(verbose_name="متن کامنت")),
-                ("is_publish", models.BooleanField(default=True)),
-                (
-                    "user",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.DO_NOTHING,
-                        related_name="user_comment",
-                        to=settings.AUTH_USER_MODEL,
-                    ),
-                ),
-                (
-                    "course",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.DO_NOTHING,
-                        related_name="comments",
-                        to="course.course",
-                    ),
-                ),
-            ],
-            options={
-                "db_table": "comment",
-            },
-        ),
-        migrations.CreateModel(
             name="Certificate",
             fields=[
                 (

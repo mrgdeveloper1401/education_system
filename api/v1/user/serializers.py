@@ -10,7 +10,7 @@ from rest_framework import exceptions
 
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from accounts.models import User, Otp, State, City, Student, Coach, Ticket, TicketRoom, BestStudent
+from accounts.models import User, Otp, State, City, Student, Coach, Ticket, TicketRoom, BestStudent, PrivateNotification
 from accounts.validators import MobileRegexValidator
 
 
@@ -249,3 +249,9 @@ class ListBestStudentSerializer(serializers.ModelSerializer):
 
 class ValidateTokenSerializer(serializers.Serializer):
     token = serializers.CharField()
+
+
+class UserNotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PrivateNotification
+        fields = ['body', "created_at"]

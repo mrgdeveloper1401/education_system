@@ -64,15 +64,18 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
         return res
 
     def get_queryset(self):
-        query = LessonCourse.objects.filter(
+        query = (LessonCourse.objects.filter(
             students__user=self.request.user, is_active=True).filter(
             Q(course__is_deleted=False) | Q(course__is_deleted=None)
         ).select_related(
             "course", "coach__user"
+        ).prefetch_related(
+            Prefetch("students",
+                     Student.objects.select_related("user").only("user__first_name", "user__last_name"))
         ).only(
             "course__course_name", "course__course_image", "course__project_counter", "coach__user__last_name",
             "coach__user__first_name", "progress", "class_name"
-        )
+        ))
 
         class_name = self.request.query_params.get("class_name")
         progress_lesson = self.request.query_params.get("progress_lesson")
@@ -221,7 +224,7 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
             section_file__section__student_section__is_access=True,
             student__user=request.user
         ).only("score", 'comment_student', "zip_file", "section_file", "created_at", "comment_teacher",
-                "send_file_status", "updated_at").first()
+               "send_file_status", "updated_at").first()
         ser = serializers.SendFileSerializer
         ser.context = {"request": request, "section_file_pk": section_file_pk}
 
@@ -355,7 +358,7 @@ class CommentViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.Retr
 
 
 class CoachLessonCourseViewSet(viewsets.ReadOnlyModelViewSet):
-    serializer_class = serializers.LessonCourseSerializer
+    serializer_class = serializers.ListCoachLessonCourseSerializer
     permission_classes = [permissions.IsAuthenticated]
     pagination_class = CommonPagination
 
@@ -366,6 +369,8 @@ class CoachLessonCourseViewSet(viewsets.ReadOnlyModelViewSet):
             return serializers.CreateCoachPresentAbsentSerializer
         if self.action == "detail_coach_present_absent" and self.request.method in ['PUT', 'PATCH']:
             return serializers.CoachPresentAbsentSerializer
+        if self.action == "retrieve":
+            return serializers.RetrieveLessonCourseSerializer
         return super().get_serializer_class()
 
     def get_queryset(self):
@@ -380,6 +385,12 @@ class CoachLessonCourseViewSet(viewsets.ReadOnlyModelViewSet):
             "coach__user__last_name",
             "class_name"
         )
+
+        if "pk" in self.kwargs:
+            query = query.prefetch_related(
+                Prefetch("students",
+                         queryset=Student.objects.select_related("user").only("user__first_name", "user__last_name"))
+            )
 
         class_name = self.request.query_params.get("class_name")
         progress_lesson = self.request.query_params.get("progress_lesson")

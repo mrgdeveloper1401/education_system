@@ -1,6 +1,7 @@
 from django.db.models.signals import m2m_changed, post_save
 from django.dispatch import receiver
 
+from accounts.models import PrivateNotification
 from .enums import SendFileChoices
 from .models import LessonCourse, StudentAccessSection, SendSectionFile
 
@@ -61,3 +62,12 @@ def next_section_access(sender, instance, **kwargs):
             StudentAccessSection.objects.filter(id=get_student_section_access.id + 1).update(
                 is_access=True,
             )
+
+
+@receiver(post_save, sender=SendSectionFile)
+def send_notification_when_score_is_accepted(sender, instance, **kwargs):
+    if instance.score:
+        PrivateNotification.objects.create(
+            user=instance.students.user,
+            body="دانشجوی محترم نمره شما ثبت و ویرایش شده هست"
+        )

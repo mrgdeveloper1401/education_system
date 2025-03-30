@@ -36,13 +36,13 @@ class SectionAdmin(admin.ModelAdmin):
 
 
 @admin.register(models.Comment)
-class CommentAdmin(admin.ModelAdmin):
-    list_display = ['user', "course", "is_publish", "created_at", "updated_at"]
-    list_select_related = ['user', "course"]
+class CommentAdmin(TreeAdmin):
+    list_display = ['user', "category", "is_publish", "created_at"]
     list_editable = ['is_publish']
-    raw_id_fields = ['user', "course"]
-    list_filter = ['created_at']
+    raw_id_fields = ['user', "category"]
+    list_filter = ['is_publish']
     search_fields = ['user__mobile_phone']
+    form = movenodeform_factory(models.Comment)
 
 
 @admin.register(models.SectionVideo)

@@ -176,3 +176,9 @@ class CoachAdmin(admin.ModelAdmin):
 @admin.register(models.BestStudent)
 class BestStudentAdmin(admin.ModelAdmin):
     pass
+
+
+@admin.register(models.PrivateNotification)
+class PrivateNotificationAdmin(admin.ModelAdmin):
+    list_display = ['user', "created_at"]
+    raw_id_fields = ['user']
