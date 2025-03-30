@@ -19,6 +19,7 @@ class StudentStatusChoices(models.TextChoices):
     absent = "absent", _("غایب")
     late_attendance = "late_attendance", _("حضور با تاخیر")
     inactivity = "inactivity", _("عدم فعالیت")
+    nothing = "nothing", _("خالی")
 
 
 class RateChoices(models.TextChoices):

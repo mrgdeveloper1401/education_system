@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Count
 
 from accounts.models import Student
 from core.models import UpdateMixin, CreateMixin, SoftDeleteMixin
@@ -55,6 +56,21 @@ class LessonCourse(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     def __str__(self):
         return self.class_name
+
+    @property
+    def progress_bar(self):
+        accessed_section_count = StudentAccessSection.objects.filter(
+            student__in=self.students.all(),
+            section__course=self.course,
+            is_access=True
+        ).count()
+        total_section_count = self.course.sections.count()
+
+        if total_section_count == 0:
+            return 0
+
+        progress_percentage = (accessed_section_count / total_section_count) * 100
+        return round(progress_percentage, 2)
 
     class Meta:
         db_table = 'lesson_course'
@@ -129,7 +145,7 @@ class PresentAbsent(CreateMixin, UpdateMixin, SoftDeleteMixin):
                                 limit_choices_to={'is_publish': True})
     student = models.ForeignKey(Student, on_delete=models.DO_NOTHING, related_name="student_present_absent",
                                 limit_choices_to={"is_active": True})
-    student_status = models.CharField(choices=StudentStatusChoices.choices, default=StudentStatusChoices.present)
+    student_status = models.CharField(choices=StudentStatusChoices.choices, default=StudentStatusChoices.nothing)
 
     class Meta:
         db_table = "course_section_present_absent"
