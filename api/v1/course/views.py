@@ -1,7 +1,7 @@
 from django.db.models import Prefetch, Q
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
-from rest_framework import mixins, viewsets, permissions, decorators, response, status, exceptions, views
+from rest_framework import mixins, viewsets, permissions, decorators, response, status, exceptions, views, generics
 from rest_framework.permissions import IsAuthenticated
 
 from accounts.models import Student
@@ -348,13 +348,14 @@ class CommentViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.Retr
     pagination_class = CommentPagination
 
     def get_queryset(self):
-        return Comment.objects.filter(course_id=self.kwargs['course_pk'])
+        return Comment.objects.filter(class_room_id=self.kwargs['student_lesson_course_pk']).select_related(
+            "user"
+        ).only("comment_body", "user__first_name", "user__last_name", "created_at", "numchild", 'depth', "path")
 
     def get_serializer_context(self):
-        return {
-            "user": self.request.user,
-            "course_pk": self.kwargs["course_pk"]
-        }
+        context = super().get_serializer_context()
+        context['student_lesson_course_pk'] = self.kwargs['student_lesson_course_pk']
+        return context
 
 
 class CoachLessonCourseViewSet(viewsets.ReadOnlyModelViewSet):
@@ -748,3 +749,9 @@ class StudentOnlineLinkApiView(views.APIView):
         queryset = self.get_queryset()
         serializer = self.serializer_class(queryset)
         return response.Response(serializer.data)
+
+
+class ListIdLessonCourseApiView(generics.ListAPIView):
+    queryset = LessonCourse.objects.only("id")
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = serializers.ListIdLessonCourseSerializer

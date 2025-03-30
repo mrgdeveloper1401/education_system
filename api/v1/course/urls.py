@@ -14,6 +14,7 @@ lesson_course_router = routers.NestedDefaultRouter(router, "student_lesson_cours
                                                    lookup="student_lesson_course")
 lesson_course_router.register("student_list_present_absent", views.StudentListPresentAbsentViewSet,
                               basename="student_list_present_absent")
+lesson_course_router.register("comment", views.CommentViewSet, basename="comment")
 coach_lesson_course_router = routers.NestedDefaultRouter(router, "coach_lesson_course",
                                                          lookup="coach_lesson_course")
 coach_lesson_course_router.register("online_link", views.OnlineLinkViewSet, basename="coach_online_link")
@@ -24,5 +25,6 @@ urlpatterns = [
     path("", include(coach_lesson_course_router.urls)),
     path("student_lesson_course/<int:student_lesson_course_pk>/student_online_link/",
          views.StudentOnlineLinkApiView.as_view(), name="student_online_link"),
+    path("list_id_lesson_course/", views.ListIdLessonCourseApiView.as_view(), name="list_id_lesson_course"),
 ]
 urlpatterns += router.urls

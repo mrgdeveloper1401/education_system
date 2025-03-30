@@ -2,6 +2,7 @@ from rest_framework import serializers, exceptions
 from django.db import IntegrityError
 from drf_spectacular.utils import extend_schema_field
 from django.utils.translation import gettext_lazy as _
+from rest_framework.generics import get_object_or_404
 
 from accounts.models import Student
 from course.enums import RateChoices, StudentStatusChoices
@@ -73,19 +74,51 @@ class CourseSectionFileSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    student = serializers.CharField(read_only=True)
+    parent = serializers.IntegerField(required=False)
+    user_name = serializers.SerializerMethodField()
+    children = serializers.SerializerMethodField()
 
     class Meta:
         model = Comment
-        exclude = ['is_deleted', "deleted_at", "user", "is_publish", "updated_at", "course"]
-        extra_kwargs = {
-            "is_publish": {'read_only': True},
-        }
+        fields = ["id", 'comment_body', "parent", "created_at", "user_name", "children"]
+
+    def validate(self, data):
+        user = self.context['request'].user
+        class_room_id = self.context['student_lesson_course_pk']
+        if hasattr(user, "student"):
+            is_exists = LessonCourse.objects.filter(students__user=user, id=class_room_id).exists()
+        else:
+            is_exists = LessonCourse.objects.filter(coach__user=user, id=class_room_id).exists()
+
+        if not is_exists:
+            raise serializers.ValidationError({"message": "you do not permission this action"})
+
+        return data
+
+    def get_user_name(self, obj):
+        return obj.user.get_full_name
+
+    @extend_schema_field(
+        serializers.ListField(child=serializers.DictField())
+    )
+    def get_children(self, obj):
+        return obj.get_children().values('id')
 
     def create(self, validated_data):
-        user = self.context['user']
-        course_pk = self.context['course_pk']
-        return Comment.objects.create(course_id=course_pk, user=user, **validated_data)
+        user = self.context['request'].user
+        class_room_pk = LessonCourse.objects.filter(id=self.context['student_lesson_course_pk']).only('id').first().id
+
+        if not class_room_pk:
+            raise exceptions.NotFound()
+
+        parent = validated_data.pop("parent", None)
+
+        if parent:
+            comment_node = get_object_or_404(Comment, pk=parent)
+            return comment_node.add_child(user=user, class_room_id=class_room_pk, **validated_data)
+        else:
+            comment = Comment.add_root(class_room_id=class_room_pk, user=user, **validated_data)
+        return comment
 
 
 class SimpleLessonCourseSerializer(serializers.ModelSerializer):
@@ -363,3 +396,9 @@ class ScoreIntoStudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = SendSectionFile
         fields = ['score', "student", "comment_teacher"]
+
+
+class ListIdLessonCourseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LessonCourse
+        fields = ['id']

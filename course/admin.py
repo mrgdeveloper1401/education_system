@@ -37,9 +37,9 @@ class SectionAdmin(admin.ModelAdmin):
 
 @admin.register(models.Comment)
 class CommentAdmin(TreeAdmin):
-    list_display = ['user', "category", "is_publish", "created_at"]
+    list_display = ['user', "class_room", "is_publish", "created_at"]
     list_editable = ['is_publish']
-    raw_id_fields = ['user', "category"]
+    raw_id_fields = ['user', "class_room"]
     list_filter = ['is_publish']
     search_fields = ['user__mobile_phone']
     form = movenodeform_factory(models.Comment)
