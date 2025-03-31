@@ -206,7 +206,7 @@ class Certificate(CreateMixin, UpdateMixin, SoftDeleteMixin):
 class Comment(MP_Node, CreateMixin, UpdateMixin, SoftDeleteMixin):
     user = models.ForeignKey('accounts.User', on_delete=models.DO_NOTHING, related_name='user_comment',
                              limit_choices_to={"is_active": True})
-    class_room = models.ForeignKey("LessonCourse", on_delete=models.DO_NOTHING, related_name='class_room_comments')
+    category = models.ForeignKey(Category, on_delete=models.DO_NOTHING, related_name='category_comments')
     comment_body = models.TextField(_("متن کامنت"))
     is_publish = models.BooleanField(default=True)
 

@@ -14,6 +14,7 @@ router.register("present_absent", views.AdminStudentPresentAbsentViewSet, basena
 
 category_router = routers.NestedSimpleRouter(router, r'category', lookup='category')
 category_router.register("course", views.AdminCourseViewSet, basename='admin_course')
+category_router.register("admin_comment", views.AdminCommentViewSet, basename='admin_comment')
 
 course_router = routers.NestedDefaultRouter(category_router, r'course', lookup='course')
 course_router.register("course_section", views.AdminCourseSectionViewSet, basename='admin_course_section')

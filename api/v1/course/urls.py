@@ -9,22 +9,26 @@ router.register("student_lesson_course", views.PurchasesViewSet, basename="stude
 router.register("coach_lesson_course", views.CoachLessonCourseViewSet, basename="coach_lesson_course")
 router.register("student_coach_lesson_course", views.StudentLessonCourseViewSet, basename="student_coach_lesson_course")
 router.register("poll_answer", views.StudentPollAnswer, basename="student_poll_answer")
+router.register("list_id_category", views.ListIdCategoryViewSet, basename="list_id_category")
 
 lesson_course_router = routers.NestedDefaultRouter(router, "student_lesson_course",
                                                    lookup="student_lesson_course")
 lesson_course_router.register("student_list_present_absent", views.StudentListPresentAbsentViewSet,
                               basename="student_list_present_absent")
-lesson_course_router.register("comment", views.CommentViewSet, basename="comment")
 coach_lesson_course_router = routers.NestedDefaultRouter(router, "coach_lesson_course",
                                                          lookup="coach_lesson_course")
 coach_lesson_course_router.register("online_link", views.OnlineLinkViewSet, basename="coach_online_link")
+
+
+list_id_category_router = routers.NestedDefaultRouter(router, "list_id_category", lookup="category")
+list_id_category_router.register("comment", views.CommentViewSet, basename="comment")
 
 app_name = 'course'
 urlpatterns = [
     path("", include(lesson_course_router.urls)),
     path("", include(coach_lesson_course_router.urls)),
+    path("", include(list_id_category_router.urls)),
     path("student_lesson_course/<int:student_lesson_course_pk>/student_online_link/",
          views.StudentOnlineLinkApiView.as_view(), name="student_online_link"),
-    path("list_id_lesson_course/", views.ListIdLessonCourseApiView.as_view(), name="list_id_lesson_course"),
 ]
 urlpatterns += router.urls

@@ -5,7 +5,7 @@ from drf_spectacular.views import extend_schema
 
 from . import serializers
 from course.models import Category, Course, Section, SectionFile, SectionVideo, LessonCourse, Certificate, \
-    PresentAbsent, Question, SectionQuestion, AnswerQuestion
+    PresentAbsent, Question, SectionQuestion, AnswerQuestion, Comment
 from .paginations import AdminPagination
 
 
@@ -213,3 +213,21 @@ class AdminAnswerQuestionViewSet(viewsets.ReadOnlyModelViewSet):
         return AnswerQuestion.objects.filter(section_question_id=self.kwargs['section_question_pk']).only(
             "student", "section_question", "created_at", "rate"
         )
+
+
+class AdminCommentViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.AdminCommentSerializer
+    pagination_class = AdminPagination
+    permission_classes = [permissions.IsAdminUser]
+
+    def get_queryset(self):
+        return Comment.objects.filter(
+            category_id=self.kwargs['category_pk']
+        ).only(
+            "is_publish", "comment_body", "category", "path", "numchild", "depth", "user__first_name", "user__last_name"
+        ).select_related("user")
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['category_pk'] = self.kwargs['category_pk']
+        return context

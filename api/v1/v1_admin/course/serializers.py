@@ -3,7 +3,7 @@ from rest_framework import serializers
 
 from accounts.models import Student
 from course.models import Category, Course, Section, SectionFile, SectionVideo, LessonCourse, Certificate, \
-    PresentAbsent, SectionQuestion, AnswerQuestion
+    PresentAbsent, SectionQuestion, AnswerQuestion, Comment
 from drf_extra_fields.fields import Base64ImageField
 
 
@@ -194,3 +194,27 @@ class AdminCoachRankingSerializer(serializers.ModelSerializer):
 
     def get_section_name(self, obj):
         return obj.section_question.section.title
+
+
+class AdminCommentSerializer(serializers.ModelSerializer):
+    parent = serializers.IntegerField(required=False)
+    user_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Comment
+        fields = ['id', "is_publish", "comment_body", "path", "numchild", "depth", "parent", "user_name"]
+        read_only_fields = ["path", "numchild", "depth"]
+
+    def get_user_name(self, obj):
+        return obj.user.get_full_name
+
+    def create(self, validated_data):
+        parent = validated_data.pop("parent", None)
+        user = self.context['request'].user
+        category_pk = self.context['category_pk']
+
+        if parent:
+            comment_node = get_object_or_404(Comment, id=parent)
+            return comment_node.add_child(user=user, category_id=category_pk, **validated_data)
+        else:
+            return Comment.add_root(user=user, category_id=category_pk, **validated_data)

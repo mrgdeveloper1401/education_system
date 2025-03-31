@@ -21,3 +21,8 @@ class IsAccessPermission(permissions.BasePermission):
                 is_access=True
             ).exists()
         return has_access
+
+
+class IsOwnerOrReadOnly(permissions.IsAuthenticated):
+    def has_object_permission(self, request, view, obj):
+        return bool(obj.user == request.user)

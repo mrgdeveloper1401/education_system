@@ -6,12 +6,12 @@ from rest_framework.permissions import IsAuthenticated
 
 from accounts.models import Student
 from course.models import Comment, SectionVideo, SectionFile, LessonCourse, StudentSectionScore, \
-    PresentAbsent, StudentAccessSection, SendSectionFile, OnlineLink, SectionQuestion, AnswerQuestion, Section
+    PresentAbsent, StudentAccessSection, SendSectionFile, OnlineLink, SectionQuestion, AnswerQuestion, Section, Category
 from .pagination import CommentPagination
 from .paginations import CourseCategoryPagination, CommonPagination
 
 from . import serializers
-from .permissions import IsCoachPermission, IsAccessPermission
+from .permissions import IsCoachPermission, IsAccessPermission, IsOwnerOrReadOnly
 
 
 class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
@@ -341,20 +341,21 @@ class StudentListPresentAbsentViewSet(viewsets.ReadOnlyModelViewSet):
         ).select_related("section").only("student_status", "section__title", "created_at")
 
 
-class CommentViewSet(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.RetrieveModelMixin,
-                     viewsets.GenericViewSet):
+class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CommentSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsOwnerOrReadOnly]
     pagination_class = CommentPagination
 
     def get_queryset(self):
-        return Comment.objects.filter(class_room_id=self.kwargs['student_lesson_course_pk']).select_related(
-            "user"
-        ).only("comment_body", "user__first_name", "user__last_name", "created_at", "numchild", 'depth', "path")
+        return Comment.objects.filter(
+            category_id=self.kwargs['category_pk'], is_publish=True
+            ).select_related("user").only(
+            "comment_body", "user__first_name", "user__last_name", "created_at", "numchild", 'depth', "path",
+               "numchild", "depth", "path", "user__image")
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        context['student_lesson_course_pk'] = self.kwargs['student_lesson_course_pk']
+        context['category_pk'] = self.kwargs['category_pk']
         return context
 
 
@@ -751,7 +752,7 @@ class StudentOnlineLinkApiView(views.APIView):
         return response.Response(serializer.data)
 
 
-class ListIdLessonCourseApiView(generics.ListAPIView):
-    queryset = LessonCourse.objects.only("id")
+class ListIdCategoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+    queryset = Category.objects.only("id", "category_name")
     permission_classes = [permissions.IsAuthenticated]
-    serializer_class = serializers.ListIdLessonCourseSerializer
+    serializer_class = serializers.ListIdCategorySerializer
