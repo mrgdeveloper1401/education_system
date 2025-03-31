@@ -77,20 +77,29 @@ class CommentSerializer(serializers.ModelSerializer):
     parent = serializers.IntegerField(required=False)
     user_name = serializers.SerializerMethodField()
     user_image = serializers.SerializerMethodField()
-    # children = serializers.SerializerMethodField()
+    category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.only("category_name"))
 
     class Meta:
         model = Comment
-        fields = ["id", 'comment_body', "parent", "created_at", "user_name", "user_image", "numchild", 'depth', "path"]
+        fields = ["id", 'comment_body', "parent", "created_at", "user_name", "user_image", "numchild", 'depth', "path",
+                  "category"]
         read_only_fields = ['numchild', "depth", "path"]
 
     def validate(self, data):
         user = self.context['request'].user
-        category_id = self.context['category_pk']
+        category_id = data['category']
+
         if hasattr(user, "student"):
-            is_exists = LessonCourse.objects.filter(students__user=user, course__category_id=category_id)
+            is_exists = LessonCourse.objects.filter(
+                students__user=user,
+                course__category_id=category_id
+            )
+
         else:
-            is_exists = LessonCourse.objects.filter(coach__user=user, course__category_id=category_id)
+            is_exists = LessonCourse.objects.filter(
+                coach__user=user,
+                course__category_id=category_id
+            )
 
         if not is_exists:
             raise serializers.ValidationError({"message": "you do not permission this action"})
@@ -103,26 +112,16 @@ class CommentSerializer(serializers.ModelSerializer):
     def get_user_image(self, obj):
         return obj.user.image.url if obj.user.image else None
 
-    # @extend_schema_field(
-    #     serializers.ListField(child=serializers.IntegerField())
-    # )
-    # def get_children(self, obj):
-    #     return obj.get_children().values('id')
-
     def create(self, validated_data):
         user = self.context['request'].user
-        category_id = Category.objects.filter(id=self.context['category_pk']).only('id').first().id
-
-        if not category_id:
-            raise exceptions.NotFound()
 
         parent = validated_data.pop("parent", None)
 
         if parent:
             comment_node = get_object_or_404(Comment, pk=parent)
-            return comment_node.add_child(user=user, category_id=category_id, **validated_data)
+            return comment_node.add_child(user=user, **validated_data)
         else:
-            comment = Comment.add_root(category_id=category_id, user=user, **validated_data)
+            comment = Comment.add_root(user=user, **validated_data)
         return comment
 
 
@@ -142,10 +141,11 @@ class LessonCourseSerializer(serializers.ModelSerializer):
     course = SimpleLessonCourseSerializer()
     coach_name = serializers.SerializerMethodField()
     progress_bar = serializers.SerializerMethodField()
+    course_category = serializers.SerializerMethodField()
 
     class Meta:
         model = LessonCourse
-        fields = ["id", "course", "progress", "coach_name", "class_name", "progress_bar"]
+        fields = ["id", "course", "course_category", "progress", "coach_name", "class_name", "progress_bar"]
 
     def get_coach_name(self, obj):
         return obj.coach.get_coach_name
@@ -153,11 +153,23 @@ class LessonCourseSerializer(serializers.ModelSerializer):
     def get_progress_bar(self, obj):
         return obj.progress_bar
 
+    def get_course_category(self, obj):
+        return obj.course.category_id
+
 
 class ListCoachLessonCourseSerializer(serializers.ModelSerializer):
+    course_category = serializers.SerializerMethodField()
+    course_image = serializers.SerializerMethodField()
+
     class Meta:
         model = LessonCourse
-        fields = ['id', "course", "progress", "class_name"]
+        fields = ['id', "course", "course_category", "progress", "class_name", "course_image"]
+
+    def get_course_category(self, obj):
+        return obj.course.category_id
+
+    def get_course_image(self, obj):
+        return obj.course.course_image.url
 
 
 class RetrieveLessonCourseSerializer(serializers.ModelSerializer):
@@ -401,9 +413,3 @@ class ScoreIntoStudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = SendSectionFile
         fields = ['score', "student", "comment_teacher"]
-
-
-class ListIdCategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Category
-        fields = ['id', "category_name"]

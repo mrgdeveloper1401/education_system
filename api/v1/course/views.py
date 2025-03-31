@@ -68,13 +68,10 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
             students__user=self.request.user, is_active=True).filter(
             Q(course__is_deleted=False) | Q(course__is_deleted=None)
         ).select_related(
-            "course", "coach__user"
-        ).prefetch_related(
-            Prefetch("students",
-                     Student.objects.select_related("user").only("user__first_name", "user__last_name"))
+            "course__category", "coach__user"
         ).only(
             "course__course_name", "course__course_image", "course__project_counter", "coach__user__last_name",
-            "coach__user__first_name", "progress", "class_name"
+            "coach__user__first_name", "progress", "class_name", "course__category__category_name"
         ))
 
         class_name = self.request.query_params.get("class_name")
@@ -347,16 +344,24 @@ class CommentViewSet(viewsets.ModelViewSet):
     pagination_class = CommentPagination
 
     def get_queryset(self):
-        return Comment.objects.filter(
-            category_id=self.kwargs['category_pk'], is_publish=True
-            ).select_related("user").only(
+        is_student = getattr(self.request.user, "is_student")
+        query = Comment.objects.select_related("user").filter(is_publish=True).only(
             "comment_body", "user__first_name", "user__last_name", "created_at", "numchild", 'depth', "path",
-               "numchild", "depth", "path", "user__image")
+            "numchild", "depth", "path", "user__image", "category_id"
+        )
 
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context['category_pk'] = self.kwargs['category_pk']
-        return context
+        if is_student:
+            return query.filter(
+                category__course_category__lesson_course__exact=self.kwargs['student_lesson_course_pk']
+            )
+        else:
+            return query.filter(
+                category__course_category__lesson_course__exact=self.kwargs['coach_lesson_course_pk']
+            )
+
+    # def get_serializer_context(self):
+    #     context = super().get_serializer_context()
+    #
 
 
 class CoachLessonCourseViewSet(viewsets.ReadOnlyModelViewSet):
@@ -377,7 +382,7 @@ class CoachLessonCourseViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         query = LessonCourse.objects.filter(coach__user=self.request.user).select_related(
-            "course", "coach__user"
+            "course__category", "coach__user"
         ).only(
             "course__course_name",
             "course__course_image",
@@ -385,7 +390,8 @@ class CoachLessonCourseViewSet(viewsets.ReadOnlyModelViewSet):
             "progress",
             "coach__user__first_name",
             "coach__user__last_name",
-            "class_name"
+            "class_name",
+            "course__category_id"
         )
 
         if "pk" in self.kwargs:
@@ -750,9 +756,3 @@ class StudentOnlineLinkApiView(views.APIView):
         queryset = self.get_queryset()
         serializer = self.serializer_class(queryset)
         return response.Response(serializer.data)
-
-
-class ListIdCategoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
-    queryset = Category.objects.only("id", "category_name")
-    permission_classes = [permissions.IsAuthenticated]
-    serializer_class = serializers.ListIdCategorySerializer
