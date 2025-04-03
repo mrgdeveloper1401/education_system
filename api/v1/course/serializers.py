@@ -78,11 +78,12 @@ class CommentSerializer(serializers.ModelSerializer):
     user_name = serializers.SerializerMethodField()
     user_image = serializers.SerializerMethodField()
     category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.only("category_name"))
+    user_type = serializers.SerializerMethodField()
 
     class Meta:
         model = Comment
         fields = ["id", 'comment_body', "parent", "created_at", "user_name", "user_image", "numchild", 'depth', "path",
-                  "category"]
+                  "category", "user_type"]
         read_only_fields = ['numchild', "depth", "path"]
 
     def validate(self, data):
@@ -111,6 +112,9 @@ class CommentSerializer(serializers.ModelSerializer):
 
     def get_user_image(self, obj):
         return obj.user.image.url if obj.user.image else None
+
+    def get_user_type(self, obj):
+        return obj.user.is_coach
 
     def create(self, validated_data):
         user = self.context['request'].user

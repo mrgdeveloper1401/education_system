@@ -347,7 +347,7 @@ class CommentViewSet(viewsets.ModelViewSet):
         is_student = getattr(self.request.user, "is_student")
         query = Comment.objects.select_related("user").filter(is_publish=True).only(
             "comment_body", "user__first_name", "user__last_name", "created_at", "numchild", 'depth', "path",
-            "numchild", "depth", "path", "user__image", "category_id"
+            "numchild", "depth", "path", "user__image", "category_id", "user__is_coach"
         )
 
         if is_student:
