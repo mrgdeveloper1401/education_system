@@ -224,7 +224,8 @@ class AdminCommentViewSet(viewsets.ModelViewSet):
         return Comment.objects.filter(
             category_id=self.kwargs['category_pk']
         ).only(
-            "is_publish", "comment_body", "category", "path", "numchild", "depth", "user__first_name", "user__last_name"
+            "is_publish", "comment_body", "category", "path", "numchild", "depth", "user__first_name", "user__last_name",
+            "created_at"
         ).select_related("user")
 
     def get_serializer_context(self):

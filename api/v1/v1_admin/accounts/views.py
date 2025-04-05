@@ -1,22 +1,9 @@
 from rest_framework import viewsets, generics, permissions
 from rest_framework import filters
 
-from accounts.models import TicketReply, BestStudent, Student, Coach, User
+from accounts.models import BestStudent, Student, Coach, User
 from . import serializers
 from .pagination import BestStudentPagination
-
-
-class TicketReplyViewSet(viewsets.ModelViewSet):
-    serializer_class = serializers.AdminCreateTicketReplySerializer
-    permission_classes = [permissions.IsAdminUser]
-    queryset = TicketReply.objects.filter(is_active=True).only(
-        "message", "image", "ticket", "id", "created_at"
-    )
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context['ticket_chat_pk'] = self.kwargs['ticket_chat_pk']
-        return context
 
 
 class AdminBestStudentViewSet(viewsets.ModelViewSet):

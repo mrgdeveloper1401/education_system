@@ -6,10 +6,11 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from django.contrib.postgres.fields.array import ArrayField
+from treebeard.mp_tree import MP_Node
 
 from accounts.managers import UserManager, SoftManager
 from accounts.validators import MobileRegexValidator, NationCodeRegexValidator, validate_upload_image_user
-from api.v1.user.utils import ticket_validate_image, ticket_image_upload_url
+from api.v1.user.utils import ticket_file_upload_url
 from core.models import UpdateMixin, SoftDeleteMixin, CreateMixin
 from utils.model_choices import Grade
 
@@ -147,6 +148,8 @@ class TicketRoom(CreateMixin, UpdateMixin, SoftDeleteMixin):
     user = models.ForeignKey('accounts.User', on_delete=models.DO_NOTHING, related_name="ticker_room",
                              limit_choices_to={'is_active': True})
     title_room = models.CharField(max_length=50, help_text=_("عنوان چت روم تیکت"))
+    # TODO , when clean migration , null will remove
+    subject_room = models.CharField(max_length=50, help_text=_("موضوع تیکت"), null=True)
     is_active = models.BooleanField(default=True)
     is_close = models.BooleanField(default=False)
 
@@ -158,16 +161,18 @@ class TicketRoom(CreateMixin, UpdateMixin, SoftDeleteMixin):
         ordering = ("-created_at",)
 
 
-class Ticket(CreateMixin, UpdateMixin, SoftDeleteMixin):
+class Ticket(MP_Node, CreateMixin, UpdateMixin, SoftDeleteMixin):
     """
     send ticket to admin
     """
-    room = models.ForeignKey(TicketRoom, on_delete=models.DO_NOTHING, related_name="room")
+    room = models.ForeignKey(TicketRoom, on_delete=models.DO_NOTHING, related_name="room",
+                             limit_choices_to={"is_active": True})
     sender = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='sender',
                                limit_choices_to={"is_active": True})
+    reply = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="ticket_reply", blank=True, null=True,
+                              limit_choices_to={"is_staff": True, "is_active": True})
     ticket_body = models.TextField(_("متن تیکت"))
-    ticket_image = models.ImageField(upload_to=ticket_image_upload_url, validators=[ticket_validate_image],
-                                     blank=True, null=True)
+    ticket_file = models.FileField(upload_to=ticket_file_upload_url, blank=True, null=True)
     is_publish = models.BooleanField(default=True)
 
     def __str__(self):
@@ -175,25 +180,8 @@ class Ticket(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = 'ticket'
-        ordering = ['created_at']
         verbose_name = _("تیکت")
         verbose_name_plural = _("تیکت ها")
-
-
-class TicketReply(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    ticket = models.ForeignKey(Ticket, on_delete=models.DO_NOTHING, related_name="reply")
-    sender = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='reply_sender',
-                               limit_choices_to={'is_staff': True})
-    message = models.TextField()
-    image = models.ImageField(upload_to=ticket_image_upload_url, blank=True, null=True)
-    is_active = models.BooleanField(default=True)
-
-    def __str__(self):
-        return f"{self.sender.mobile_phone} {self.is_active}"
-
-    class Meta:
-        db_table = "ticket_reply"
-        ordering = ['created_at']
 
 
 class Coach(CreateMixin, UpdateMixin, SoftDeleteMixin):

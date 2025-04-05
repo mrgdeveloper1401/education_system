@@ -2,7 +2,7 @@ import jwt
 from django_filters.rest_framework.backends import DjangoFilterBackend
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
-from rest_framework.permissions import IsAdminUser, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK
 from rest_framework.views import APIView
@@ -17,7 +17,7 @@ from rest_framework.validators import ValidationError
 
 from accounts.models import User, State, City, Student, Coach, Ticket, TicketRoom, BestStudent, PrivateNotification
 from utils.filters import UserFilter
-from utils.pagination import StudentCoachTicketPagination, ListUserPagination
+from utils.pagination import StudentCoachTicketPagination
 from utils.permissions import NotAuthenticate
 from .pagination import UserPagination, CityPagination, BestStudentPagination
 from .permissions import TicketRoomPermission
@@ -81,7 +81,7 @@ class UserViewSet(viewsets.ModelViewSet):
         if self.request.method in ['PUT', "PATCH"]:
             return serializers.UpdateUserSerializer
         return super().get_serializer_class()
-    
+
     def get_serializer_context(self):
         return super().get_serializer_context()
 
@@ -170,31 +170,21 @@ class CoachViewSet(ModelViewSet):
 
 class TicketRoomViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated]
+    pagination_class = CommonPagination
     serializer_class = serializers.TickerRoomSerializer
 
     def get_queryset(self):
-        return TicketRoom.objects.filter(user=self.request.user).only("id", "title_room")
-
-    def get_serializer_context(self):
-        return {"user": self.request.user}
+        return TicketRoom.objects.filter(user=self.request.user, is_active=True).only(
+            "id", "title_room", "is_close", "created_at", "subject_room"
+        )
 
 
 class TicketChatViewSet(ModelViewSet):
     """
     send ticket user to admin
     """""
-    pagination_class = StudentCoachTicketPagination
     permission_classes = [TicketRoomPermission]
-
-    def get_serializer_class(self):
-        if self.action == "list":
-            return serializers.ListTicketChatSerializer
-        if self.action in ['update', "partial_update", "destroy", "retrieve"]:
-            return serializers.UpdateTicketChatSerializer
-        if self.action == "create":
-            return serializers.CreateTicketSerializer
-        else:
-            raise exceptions.NotAcceptable()
+    serializer_class = serializers.TicketSerializer
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -202,11 +192,18 @@ class TicketChatViewSet(ModelViewSet):
         return context
 
     def get_queryset(self):
-        if self.action == "list":
-            return Ticket.objects.filter(room_id=self.kwargs['ticket_room_pk'], room__is_close=False).only("id")
-        return Ticket.objects.filter(room_id=self.kwargs['ticket_room_pk'], room__is_close=False).only(
-            "id", "ticket_body", "ticket_image", "sender__mobile_phone", "created_at"
-        ).select_related("sender")
+        ticket = Ticket.objects.filter(
+            room_id=self.kwargs['ticket_room_pk'], is_publish=True, room__is_active=True).only(
+            "ticket_body", "ticket_file", "created_at", "sender__first_name", "sender__last_name", "depth", "path",
+            "numchild", "reply__first_name", "reply__last_name", "reply__mobile_phone"
+        ).select_related("sender", "reply")
+
+        user = self.request.user
+
+        if hasattr(user, "student") or hasattr(user, "coach"):
+            ticket = ticket.filter(sender=user)
+
+        return ticket
 
 
 class BestStudentViewSet(viewsets.ReadOnlyModelViewSet):

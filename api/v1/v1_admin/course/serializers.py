@@ -202,7 +202,7 @@ class AdminCommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ['id', "is_publish", "comment_body", "path", "numchild", "depth", "parent", "user_name"]
+        fields = ['id', "is_publish", "comment_body", "path", "numchild", "depth", "parent", "user_name", "created_at"]
         read_only_fields = ["path", "numchild", "depth"]
 
     def get_user_name(self, obj):

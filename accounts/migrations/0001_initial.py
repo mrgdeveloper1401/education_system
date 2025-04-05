@@ -477,7 +477,7 @@ class Migration(migrations.Migration):
                     models.ImageField(
                         blank=True,
                         null=True,
-                        upload_to=api.v1.user.utils.ticket_image_upload_url,
+                        upload_to=api.v1.user.utils.ticket_file_upload_url,
                         validators=[api.v1.user.utils.ticket_validate_image],
                     ),
                 ),
@@ -521,7 +521,7 @@ class Migration(migrations.Migration):
                     models.ImageField(
                         blank=True,
                         null=True,
-                        upload_to=api.v1.user.utils.ticket_image_upload_url,
+                        upload_to=api.v1.user.utils.ticket_file_upload_url,
                     ),
                 ),
                 ("is_active", models.BooleanField(default=True)),

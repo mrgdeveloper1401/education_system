@@ -3,7 +3,7 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework_simplejwt.tokens import RefreshToken
 
 
-def ticket_image_upload_url(instance, filename):
+def ticket_file_upload_url(instance, filename):
     user = instance.sender
     return f"ticket/%Y/%m/%d/{user}/"
 

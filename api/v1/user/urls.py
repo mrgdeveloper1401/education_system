@@ -2,7 +2,6 @@ from rest_framework_nested import routers
 from rest_framework.urls import path
 from django.urls import include
 
-from api.v1.v1_admin.accounts.views import TicketReplyViewSet
 from . import views
 
 router = routers.DefaultRouter()
@@ -16,10 +15,9 @@ ticket_room_router = routers.NestedDefaultRouter(router, "ticket_room", lookup='
 ticket_room_router.register("ticket_chat", views.TicketChatViewSet, basename='ticket_chat')
 
 ticket_chat_router = routers.NestedDefaultRouter(ticket_room_router, "ticket_chat", lookup='ticket_chat')
-ticket_chat_router.register("reply", TicketReplyViewSet, basename='reply_ticket')
-
 
 app_name = 'users'
+
 urlpatterns = [
     path('', include(ticket_room_router.urls)),
     path("", include(ticket_chat_router.urls)),

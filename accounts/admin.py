@@ -3,6 +3,8 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 from import_export.admin import ImportExportModelAdmin
+from treebeard.admin import TreeAdmin
+from treebeard.forms import movenodeform_factory
 
 from . import models
 
@@ -86,12 +88,13 @@ class CityAdmin(ImportExportModelAdmin):
 
 
 @admin.register(models.Ticket)
-class TicketAdmin(admin.ModelAdmin):
+class TicketAdmin(TreeAdmin):
     raw_id_fields = ['sender', "room"]
-    list_display = ['sender', "is_publish", "created_at"]
+    list_display = ["id", 'sender', "is_publish", "created_at"]
     list_select_related = ['sender']
     list_per_page = 30
     search_fields = ['user__mobile_phone', "subject_title"]
+    form = movenodeform_factory(models.Ticket)
 
 
 @admin.register(models.RecycleUser)
@@ -114,19 +117,16 @@ class TicketRoomAdmin(admin.ModelAdmin):
     raw_id_fields = ['user']
     list_display = ["id", 'user', "title_room", "is_active", "is_close", "created_at"]
     list_filter = ['is_active', "is_close"]
-    list_per_page = 30
+    list_per_page = 20
     list_select_related = ['user']
     list_editable = ['is_active', "is_close"]
     search_fields = ['title_room']
     list_display_links = ['id', "user"]
 
-
-@admin.register(models.TicketReply)
-class TicketReplyAdmin(admin.ModelAdmin):
-    list_display = ['id', "ticket", "sender", "is_active", "created_at"]
-    list_select_related = ['ticket', "sender"]
-    list_filter = ['is_active', "created_at"]
-    list_display_links = ['id', "ticket"]
+    def get_queryset(self, request):
+        return super().get_queryset(request).only(
+            "user__mobile_phone", "title_room", "is_active", "is_close", "created_at"
+        )
 
 
 class BestStudentAdmin(ImportExportModelAdmin):

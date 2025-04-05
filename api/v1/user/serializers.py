@@ -1,4 +1,3 @@
-import jwt
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework.exceptions import ValidationError
 from rest_framework import serializers
@@ -7,8 +6,6 @@ from django.contrib.auth.password_validation import validate_password
 
 from rest_framework import generics
 from rest_framework import exceptions
-
-from rest_framework_simplejwt.tokens import RefreshToken
 
 from accounts.models import User, Otp, State, City, Student, Coach, Ticket, TicketRoom, BestStudent, PrivateNotification
 from accounts.validators import MobileRegexValidator
@@ -197,48 +194,69 @@ class CoachSerializer(serializers.ModelSerializer):
 class TickerRoomSerializer(serializers.ModelSerializer):
     class Meta:
         model = TicketRoom
-        fields = ['id', "title_room"]
+        fields = ['id', "title_room", "subject_room", "is_close", "created_at"]
 
     def create(self, validated_data):
-        user = self.context['user']
+        user = self.context['request'].user
         return TicketRoom.objects.create(user=user, **validated_data)
 
 
-class CreateTicketSerializer(serializers.ModelSerializer):
-    ticket_image = Base64ImageField()
+class TicketSerializer(serializers.ModelSerializer):
+    sender_name = serializers.SerializerMethodField()
+    parent = serializers.IntegerField(required=False)
+    reply_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Ticket
-        fields = ['id', "ticket_body", "ticket_image"]
+        fields = ['id', "ticket_body", "ticket_file", "created_at", "sender_name", "parent", "depth", "path",
+                  "numchild", "reply", "reply_name", "sender"]
+        read_only_fields = ['depth', "path", "numchild", "reply", "sender"]
 
     def validate(self, attrs):
-        ticket_room = generics.get_object_or_404(
-            TicketRoom.objects.only("id", "user_id"),
-            pk=self.context['room_pk']
-        )
-        if ticket_room.user_id != self.context['request'].user.id:
-            raise exceptions.ValidationError(detail=exceptions.PermissionDenied)
+        request = self.context['request']
+        room_pk = self.context['room_pk']
+
+        room = TicketRoom.objects.filter(id=room_pk).only("id")
+
+        if not room:
+            raise exceptions.NotFound()
+
+        if hasattr(request.user, "student") or hasattr(request.user, "coach"):
+            get_room = TicketRoom.objects.filter(user_id=request.user.id, id=room_pk).only("id")
+
+            if not get_room:
+                raise exceptions.NotFound()
+
         return attrs
 
     def create(self, validated_data):
-        user_id = self.context['request'].user.id
+        parent = validated_data.pop('parent', None)
         room_id = self.context['room_pk']
-        return Ticket.objects.create(sender_id=user_id, room_id=room_id, **validated_data)
+        request = self.context['request']
 
+        if request.user.is_staff:
+            if parent:
+                ticket = generics.get_object_or_404(Ticket, id=parent)
+                return ticket.add_child(
+                    room_id=room_id, sender_id=ticket.sender_id, reply_id=request.user.id, **validated_data
+                )
+            else:
+                return Ticket.add_root(sender_id=request.user.id, room_id=room_id, **validated_data)
 
-class ListTicketChatSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Ticket
-        fields = ['id']
+        else:
+            if parent:
+                ticket = generics.get_object_or_404(Ticket, id=parent)
+                return ticket.add_child(
+                    room_id=ticket.room_id, sender_id=request.user.id, reply_id=request.user.id, **validated_data
+                )
+            else:
+                return Ticket.add_root(sender_id=request.user.id, room_id=room_id, **validated_data)
 
+    def get_sender_name(self, obj):
+        return obj.sender.get_full_name
 
-class UpdateTicketChatSerializer(serializers.ModelSerializer):
-    ticket_image = Base64ImageField()
-    sender = serializers.CharField(read_only=True, source="sender.mobile_phone")
-
-    class Meta:
-        model = Ticket
-        fields = ['ticket_body', "ticket_image", "sender", "created_at"]
+    def get_reply_name(self, obj):
+        return obj.reply.get_full_name if obj.reply else None
 
 
 class ListBestStudentSerializer(serializers.ModelSerializer):
