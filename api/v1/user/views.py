@@ -174,9 +174,14 @@ class TicketRoomViewSet(ModelViewSet):
     serializer_class = serializers.TickerRoomSerializer
 
     def get_queryset(self):
-        return TicketRoom.objects.filter(user=self.request.user, is_active=True).only(
+        room = TicketRoom.objects.filter(is_active=True).only(
             "id", "title_room", "is_close", "created_at", "subject_room"
         )
+
+        if self.request.user.is_staff is False:
+            room = room.filter(user=self.request.user)
+
+        return room
 
 
 class TicketChatViewSet(ModelViewSet):
