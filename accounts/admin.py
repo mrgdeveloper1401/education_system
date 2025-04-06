@@ -46,7 +46,7 @@ class UserAdmin(ImportExportModelAdmin, BaseUserAdmin):
     )
     list_display = ("id", "mobile_phone", "email", "first_name", "last_name", "is_staff", "is_active", "is_superuser",
                     "is_deleted", "deleted_at", "is_student", "is_coach")
-    list_filter = ("is_staff", "is_superuser", "is_active", "groups")
+    list_filter = ("is_staff", "is_superuser", "is_active", "is_coach")
     search_fields = ("mobile_phone", "first_name", "last_name", "email", "nation_code")
     ordering = ("-created_at",)
     filter_horizontal = (

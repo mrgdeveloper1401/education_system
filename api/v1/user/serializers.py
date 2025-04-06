@@ -221,7 +221,7 @@ class TicketSerializer(serializers.ModelSerializer):
         if not room:
             raise exceptions.NotFound()
 
-        if hasattr(request.user, "student") or hasattr(request.user, "coach"):
+        if hasattr(request.user, "student") or (hasattr(request.user, "coach") and not request.user.is_staff):
             get_room = TicketRoom.objects.filter(user_id=request.user.id, id=room_pk).only("id")
 
             if not get_room:
