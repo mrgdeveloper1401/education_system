@@ -205,8 +205,14 @@ class TicketChatViewSet(ModelViewSet):
 
         user = self.request.user
 
-        if hasattr(user, "student") or hasattr(user, "coach"):
+        if hasattr(user, "student"):
             ticket = ticket.filter(sender=user)
+
+        if hasattr(user, "coach") and not user.is_staff:
+            ticket = ticket.filter(sender=user)
+
+        if hasattr(user, "coach") and user.is_staff:
+            ticket = ticket
 
         return ticket
 
