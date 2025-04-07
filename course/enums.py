@@ -40,3 +40,9 @@ class SendFileChoices(models.TextChoices):
     rejected = "rejected", _("رد شده")
     accept_to_wait = "accept_to_wait", _("در انتظا تایید")
     accepted = "accepted", _("تایید شده")
+
+
+class CallStatusChoices(models.TextChoices):
+    successful = "successful", _("موفق")
+    un_successful = "un_successful", _("ناموفق")
+    nothing = "nothing", _("چیزی ثبت نشده هست")

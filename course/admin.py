@@ -153,7 +153,6 @@ class SectionQuestion(admin.ModelAdmin):
     raw_id_fields = ['section']
     list_filter = ['is_publish']
 
-
 @admin.register(models.AnswerQuestion)
 class AnswerQuestionAdmin(admin.ModelAdmin):
     list_display = ['student', "section_question", "rate", "created_at"]
@@ -161,3 +160,19 @@ class AnswerQuestionAdmin(admin.ModelAdmin):
     list_filter = ['rate']
     list_per_page = 20
     raw_id_fields = ['student', "section_question"]
+
+
+@admin.register(models.CallLessonCourse)
+class CallLessonCourseAdmin(admin.ModelAdmin):
+    lesson_course = ('call', "status", "call_answering", "project")
+    list_filter = ('cancellation_alert',)
+    search_fields = ('status', )
+    list_per_page = 20
+    raw_id_fields = ("lesson_course",)
+    list_select_related = ("lesson_course",)
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).only(
+            "cancellation_alert", "call", "call_answering", "project", "phase", "call_date", "result_call",
+            "lesson_course__class_name"
+        )

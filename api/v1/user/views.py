@@ -9,11 +9,12 @@ from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView
 from rest_framework.generics import get_object_or_404
 from rest_framework.filters import SearchFilter
-from rest_framework import exceptions, viewsets, status
+from rest_framework import viewsets, status
 from django.middleware import csrf
 from django.contrib.auth import authenticate
 from django.conf import settings
 from rest_framework.validators import ValidationError
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 
 from accounts.models import User, State, City, Student, Coach, Ticket, TicketRoom, BestStudent, PrivateNotification
 from utils.filters import UserFilter
@@ -173,6 +174,16 @@ class TicketRoomViewSet(ModelViewSet):
     pagination_class = CommonPagination
     serializer_class = serializers.TickerRoomSerializer
 
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                name="close", description="return all ticket room is close yes or no"
+            ),
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
     def get_queryset(self):
         room = TicketRoom.objects.filter(is_active=True).only(
             "id", "title_room", "is_close", "created_at", "subject_room"
@@ -180,6 +191,11 @@ class TicketRoomViewSet(ModelViewSet):
 
         if self.request.user.is_staff is False:
             room = room.filter(user=self.request.user)
+
+        room_close = self.request.query_params.get("close")
+
+        if room_close:
+            room = room.filter(is_close=room_close)
 
         return room
 

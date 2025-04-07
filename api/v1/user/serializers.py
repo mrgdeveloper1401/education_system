@@ -227,12 +227,18 @@ class TicketSerializer(serializers.ModelSerializer):
             if not get_room:
                 raise exceptions.NotFound()
 
+        attrs['validate_room'] = room
         return attrs
 
     def create(self, validated_data):
         parent = validated_data.pop('parent', None)
         room_id = self.context['room_pk']
         request = self.context['request']
+
+        room = validated_data.pop("validate_room")
+
+        if room.first().is_close:
+            raise exceptions.ValidationError({"message": "this room has been closed"})
 
         if request.user.is_staff:
             if parent:

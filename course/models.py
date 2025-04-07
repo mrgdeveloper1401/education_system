@@ -7,7 +7,8 @@ from django.utils.translation import gettext_lazy as _
 from django.core.validators import FileExtensionValidator, MinValueValidator, MaxValueValidator
 from treebeard.mp_tree import MP_Node
 
-from course.enums import ProgresChoices, SectionFileType, StudentStatusChoices, RateChoices, SendFileChoices
+from course.enums import ProgresChoices, SectionFileType, StudentStatusChoices, RateChoices, SendFileChoices, \
+    CallStatusChoices
 from course.utils import student_send_section_file
 from course.validators import max_upload_image_validator
 
@@ -169,7 +170,8 @@ class SendSectionFile(CreateMixin, UpdateMixin, SoftDeleteMixin):
     student = models.ForeignKey("accounts.Student", on_delete=models.DO_NOTHING, related_name="send_section_files",
                                 limit_choices_to={"is_active": True})
     section_file = models.ForeignKey(SectionFile, on_delete=models.CASCADE, related_name='section_files')
-    send_file_status = models.CharField(choices=SendFileChoices.choices, max_length=14, help_text=_("وضعیت فایل ارسالی"),
+    send_file_status = models.CharField(choices=SendFileChoices.choices, max_length=14,
+                                        help_text=_("وضعیت فایل ارسالی"),
                                         default=SendFileChoices.accept_to_wait, null=True, blank=True)
     zip_file = models.FileField(help_text=_("فایل ارسالی"), upload_to=student_send_section_file)
     comment_student = models.TextField(help_text=_("توضیحی در مورد تمرین ارسالی"), null=True)
@@ -254,3 +256,22 @@ class AnswerQuestion(CreateMixin, UpdateMixin, SoftDeleteMixin):
     class Meta:
         db_table = "poll_answer"
         ordering = ("created_at",)
+
+
+class CallLessonCourse(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    lesson_course = models.ForeignKey(LessonCourse, on_delete=models.DO_NOTHING, related_name="call")
+    call = models.CharField(max_length=50, help_text=_("تماس"))
+    status = models.CharField(max_length=13, help_text=_("وضعیت تماس"), choices=CallStatusChoices.choices,
+                              db_index=True)
+    call_answering = models.CharField(max_length=20, help_text=_("پاسخگوی تماس"))
+    project = models.CharField(max_length=30, help_text=_("بابت پروژه"))
+    phase = models.CharField(max_length=30, help_text=_("فاز"))
+    call_date = models.DateField(help_text=_("تاریخ مکالمه"))
+    result_call = models.TextField(help_text=_("نتیجه مکالمه"))
+    cancellation_alert = models.BooleanField(default=False, help_text=_("هشدار انصراف"))
+
+    def __str__(self):
+        return self.call
+
+    class Meta:
+        db_table = "call_lesson_course"

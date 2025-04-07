@@ -1,14 +1,15 @@
 from django.db.models import Prefetch, Q
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
-from rest_framework import mixins, viewsets, permissions, decorators, response, status, exceptions, views, generics
+from rest_framework import mixins, viewsets, permissions, decorators, response, status, exceptions, views
 from rest_framework.permissions import IsAuthenticated
 
 from accounts.models import Student
 from course.models import Comment, SectionVideo, SectionFile, LessonCourse, StudentSectionScore, \
-    PresentAbsent, StudentAccessSection, SendSectionFile, OnlineLink, SectionQuestion, AnswerQuestion, Section, Category
+    PresentAbsent, StudentAccessSection, SendSectionFile, OnlineLink, SectionQuestion, Section, \
+    Category, CallLessonCourse
 from .pagination import CommentPagination
-from .paginations import CourseCategoryPagination, CommonPagination
+from .paginations import CommonPagination
 
 from . import serializers
 from .permissions import IsCoachPermission, IsAccessPermission, IsOwnerOrReadOnly
@@ -17,7 +18,7 @@ from .permissions import IsCoachPermission, IsAccessPermission, IsOwnerOrReadOnl
 class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.LessonCourseSerializer
     permission_classes = [permissions.IsAuthenticated]
-    pagination_class = CourseCategoryPagination
+    pagination_class = CommonPagination
 
     def get_serializer_class(self):
         if self.action == "send_file" and self.request.method == 'POST':
@@ -756,3 +757,25 @@ class StudentOnlineLinkApiView(views.APIView):
         queryset = self.get_queryset()
         serializer = self.serializer_class(queryset)
         return response.Response(serializer.data)
+
+
+@extend_schema(
+    tags=['api_coach_course'], description="status --> [successful, un_successful]"
+)
+class CallLessonCourseViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.CallLessonCourseSerializer
+    permission_classes = (IsCoachPermission,)
+    pagination_class = CommonPagination
+
+    def get_queryset(self):
+        return CallLessonCourse.objects.filter(
+            lesson_course_id=self.kwargs['coach_lesson_course_pk'], lesson_course__is_active=True
+        ).only(
+            "cancellation_alert", "call", "call_answering", "project", "phase", "call_date", "result_call",
+            "lesson_course__class_name", "created_at", "updated_at", "status"
+        )
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["lesson_course_pk"] = self.kwargs['coach_lesson_course_pk']
+        return context

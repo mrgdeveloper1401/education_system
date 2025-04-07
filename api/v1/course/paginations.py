@@ -12,9 +12,5 @@ from rest_framework.pagination import PageNumberPagination, LimitOffsetPaginatio
 #     ordering = '-created_at'
 
 
-class CourseCategoryPagination(PageNumberPagination):
-    page_size = 20
-
-
 class CommonPagination(PageNumberPagination):
     page_size = 20

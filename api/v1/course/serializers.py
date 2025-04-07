@@ -7,7 +7,8 @@ from rest_framework.generics import get_object_or_404
 from accounts.models import Student
 from course.enums import RateChoices, StudentStatusChoices
 from course.models import Course, Category, Comment, Section, SectionVideo, SectionFile, SendSectionFile, LessonCourse, \
-    StudentSectionScore, PresentAbsent, StudentAccessSection, OnlineLink, SectionQuestion, AnswerQuestion
+    StudentSectionScore, PresentAbsent, StudentAccessSection, OnlineLink, SectionQuestion, AnswerQuestion, \
+    CallLessonCourse
 
 
 class CategoryTreeNodeSerializer(serializers.ModelSerializer):
@@ -418,3 +419,15 @@ class ScoreIntoStudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = SendSectionFile
         fields = ['score', "student", "comment_teacher"]
+
+
+class CallLessonCourseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CallLessonCourse
+        exclude = ('is_deleted', "deleted_at", "lesson_course")
+
+    def create(self, validated_data):
+        coach_lesson_course_pk = self.context['lesson_course_pk']
+        return CallLessonCourse.objects.create(
+            lesson_course_id=coach_lesson_course_pk, **validated_data
+        )
