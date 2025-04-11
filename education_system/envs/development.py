@@ -6,11 +6,11 @@ SECRET_KEY = config('DEVELOP_SECRET_KEY', cast=str)
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": 'education_system',
+        "NAME": 'educationdb',
         'USER': "postgres",
         "PASSWORD": "postgres",
         'HOST': "localhost",
-        "PORT": 5432,
+        "PORT": 5433,
     },
     # "chat_db": {
     #     "ENGINE": "djongo",

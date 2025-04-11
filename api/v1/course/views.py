@@ -392,7 +392,7 @@ class CoachLessonCourseViewSet(viewsets.ReadOnlyModelViewSet):
             "coach__user__first_name",
             "coach__user__last_name",
             "class_name",
-            "course__category_id"
+            "course__category__category_name"
         )
 
         if "pk" in self.kwargs:

@@ -269,9 +269,12 @@ class CallLessonCourse(CreateMixin, UpdateMixin, SoftDeleteMixin):
     call_date = models.DateField(help_text=_("تاریخ مکالمه"))
     result_call = models.TextField(help_text=_("نتیجه مکالمه"))
     cancellation_alert = models.BooleanField(default=False, help_text=_("هشدار انصراف"))
+    student = models.ForeignKey("accounts.Student", on_delete=models.DO_NOTHING, related_name="student_call",
+                                null=True)
 
     def __str__(self):
         return self.call
 
     class Meta:
         db_table = "call_lesson_course"
+        ordering = ("-created_at",)

@@ -168,11 +168,11 @@ class CallLessonCourseAdmin(admin.ModelAdmin):
     list_filter = ('cancellation_alert',)
     search_fields = ('status', )
     list_per_page = 20
-    raw_id_fields = ("lesson_course",)
-    list_select_related = ("lesson_course",)
+    raw_id_fields = ("lesson_course", "student")
+    list_select_related = ("lesson_course", "student")
 
     def get_queryset(self, request):
         return super().get_queryset(request).only(
             "cancellation_alert", "call", "call_answering", "project", "phase", "call_date", "result_call",
-            "lesson_course__class_name"
+            "lesson_course__class_name", "student__student_number"
         )

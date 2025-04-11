@@ -422,6 +422,10 @@ class ScoreIntoStudentSerializer(serializers.ModelSerializer):
 
 
 class CallLessonCourseSerializer(serializers.ModelSerializer):
+    student = serializers.PrimaryKeyRelatedField(
+        queryset=Student.objects.filter(is_active=True).only("student_number")
+    )
+
     class Meta:
         model = CallLessonCourse
         exclude = ('is_deleted', "deleted_at", "lesson_course")
@@ -431,3 +435,13 @@ class CallLessonCourseSerializer(serializers.ModelSerializer):
         return CallLessonCourse.objects.create(
             lesson_course_id=coach_lesson_course_pk, **validated_data
         )
+
+    def validate(self, attrs):
+        student_lesson_course = LessonCourse.objects.filter(
+            students__exact=attrs["student"], id=self.context['lesson_course_pk']
+        )
+
+        if not student_lesson_course:
+            raise exceptions.NotFound()
+
+        return attrs

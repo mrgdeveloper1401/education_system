@@ -207,7 +207,8 @@ class Coach(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 
 class Student(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    user = models.OneToOneField(User, on_delete=models.DO_NOTHING, related_name='student')
+    user = models.OneToOneField(User, on_delete=models.DO_NOTHING, related_name='student',
+                                limit_choices_to={"is_coach": False})
     student_number = models.CharField(max_length=11)
     is_active = models.BooleanField(default=True)
 
