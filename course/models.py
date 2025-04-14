@@ -265,7 +265,6 @@ class CallLessonCourse(CreateMixin, UpdateMixin, SoftDeleteMixin):
                               db_index=True)
     call_answering = models.CharField(max_length=20, help_text=_("پاسخگوی تماس"))
     project = models.CharField(max_length=30, help_text=_("بابت پروژه"))
-    phase = models.CharField(max_length=30, help_text=_("فاز"))
     call_date = models.DateField(help_text=_("تاریخ مکالمه"))
     result_call = models.TextField(help_text=_("نتیجه مکالمه"))
     cancellation_alert = models.BooleanField(default=False, help_text=_("هشدار انصراف"))

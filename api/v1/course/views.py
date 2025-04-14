@@ -1,6 +1,6 @@
 from django.db.models import Prefetch, Q
 from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.utils import extend_schema, OpenApiParameter, extend_schema_view
 from rest_framework import mixins, viewsets, permissions, decorators, response, status, exceptions, views
 from rest_framework.permissions import IsAuthenticated
 
@@ -307,8 +307,12 @@ class StudentPollAnswer(mixins.CreateModelMixin, viewsets.GenericViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
 
-class StudentLessonCourseViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-    permission_classes = [IsCoachPermission]
+@extend_schema_view(
+    list=extend_schema(tags=['api_coach_course']),
+    retrieve=extend_schema(tags=['api_coach_course']),
+)
+class StudentLessonCourseViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+    permission_classes = (IsCoachPermission,)
     serializer_class = serializers.StudentLessonCourseSerializer
 
     def get_queryset(self):
@@ -319,12 +323,6 @@ class StudentLessonCourseViewSet(mixins.ListModelMixin, viewsets.GenericViewSet)
                 "student_number", "user__first_name", "user__last_name"
             ))
         )
-
-    @extend_schema(
-        tags=['api_coach_course']
-    )
-    def list(self, request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)
 
 
 class StudentListPresentAbsentViewSet(viewsets.ReadOnlyModelViewSet):
@@ -771,7 +769,7 @@ class CallLessonCourseViewSet(viewsets.ModelViewSet):
         return CallLessonCourse.objects.filter(
             lesson_course_id=self.kwargs['coach_lesson_course_pk'], lesson_course__is_active=True
         ).only(
-            "cancellation_alert", "call", "call_answering", "project", "phase", "call_date", "result_call",
+            "cancellation_alert", "call", "call_answering", "project", "call_date", "result_call",
             "lesson_course__class_name", "created_at", "updated_at", "status"
         )
 

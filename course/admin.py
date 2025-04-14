@@ -173,6 +173,6 @@ class CallLessonCourseAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         return super().get_queryset(request).only(
-            "cancellation_alert", "call", "call_answering", "project", "phase", "call_date", "result_call",
+            "cancellation_alert", "call", "call_answering", "project", "call_date", "result_call",
             "lesson_course__class_name", "student__student_number"
         )
