@@ -44,7 +44,7 @@ THIRD_PARTY_APP = [
     "advertise.apps.AdvertiseConfig",
     "course.apps.CourseConfig",
     "subscription_app.apps.SubscriptionAppConfig",
-    # "main_settings.apps.MainSettingsConfig",
+    "main_settings.apps.MainSettingsConfig",
     "blog_app.apps.BlogAppConfig",
     "chat_app.apps.ChatAppConfig",
     "exam_app.apps.ExamAppConfig",

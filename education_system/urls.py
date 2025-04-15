@@ -38,6 +38,7 @@ api_admin = [
                 namespace='api_subscription_admin'
         )),
     path('api_admin_discount/', include("api.v1.v1_admin.discount.urls", namespace="admin_discount")),
+    path("api_admin_mian_settings/", include("api.v1.v1_admin.main_settings.urls", namespace="admin_settings")),
 ]
 
 urlpatterns = [

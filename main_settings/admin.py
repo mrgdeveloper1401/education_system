@@ -1,39 +1,14 @@
 from django.contrib import admin
 
-from .models import SiteSettings, FrequencyAskQuestion, HeaderSite, FooterLogo, FooterSocial, SliderImage
+from . import models
 
 
-# Register your models here.
+@admin.register(models.Banner)
+class BannerAdmin(admin.ModelAdmin):
+    list_display = ("title", "file", "is_publish", "created_at", "updated_at")
+    search_fields = ("title",)
+    list_editable = ("is_publish",)
+    list_per_page = 20
 
-@admin.register(SiteSettings)
-class SiteSettingsAdmin(admin.ModelAdmin):
-    list_display = ['location']
-
-
-@admin.register(HeaderSite)
-class HeaderSiteAdmin(admin.ModelAdmin):
-    list_display = ['header_title', "link", "created_at", "updated_at"]
-    search_fields = ['header_title']
-    list_filter = ['created_at', 'updated_at']
-
-
-@admin.register(FrequencyAskQuestion)
-class FrequencyAskQuestionAdmin(admin.ModelAdmin):
-    list_display = ['question', "created_at", "updated_at"]
-    search_fields = ['question']
-    list_filter = ['created_at', 'updated_at']
-
-
-@admin.register(FooterLogo)
-class FooterLogoAdmin(admin.ModelAdmin):
-    pass
-
-
-@admin.register(FooterSocial)
-class FooterSocialAdmin(admin.ModelAdmin):
-    pass
-
-
-@admin.register(SliderImage)
-class SliderImageAdmin(admin.ModelAdmin):
-    pass
+    def get_queryset(self, request):
+        return super().get_queryset(request).defer("is_deleted", "deleted_at")
