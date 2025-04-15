@@ -1,7 +1,5 @@
 from rest_framework import serializers, exceptions
-from django.db import IntegrityError
 from drf_spectacular.utils import extend_schema_field
-from django.utils.translation import gettext_lazy as _
 from rest_framework.generics import get_object_or_404
 
 from accounts.models import Student
@@ -445,3 +443,27 @@ class CallLessonCourseSerializer(serializers.ModelSerializer):
             raise exceptions.NotFound()
 
         return attrs
+
+
+class HomeCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        exclude = ("is_deleted", "deleted_at", "updated_at", "created_at")
+
+
+class HomeCourseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Course
+        fields = (
+            "course_name",
+            "course_image",
+            "course_description",
+            "project_counter",
+            "price",
+            "is_free",
+            "calc_discount_value",
+            "amount_discount",
+            "final_price",
+            "facilities",
+            "course_type"
+        )

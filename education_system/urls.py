@@ -37,7 +37,9 @@ api_admin = [
         include("api.v1.v1_admin.subscription.urls",
                 namespace='api_subscription_admin'
         )),
+    path('api_admin_discount/', include("api.v1.v1_admin.discount.urls", namespace="admin_discount")),
 ]
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("ckeditor5/", include('django_ckeditor_5.urls')),

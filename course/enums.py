@@ -61,3 +61,9 @@ class NumberOfDaysChoices(models.TextChoices):
     ten = "10", _("ده ماهه")
     eleven = "11", _("یازده ماهه")
     two_eleven = "12", _("دوازده ماهه")
+
+
+class CourseType(models.TextChoices):
+    basic = 'basic', _("مقدماتی")
+    indeterminate = "indeterminate", _("متوسط")
+    advanced = "advanced", _("پیشرفته")

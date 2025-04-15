@@ -48,7 +48,7 @@ THIRD_PARTY_APP = [
     "blog_app.apps.BlogAppConfig",
     "chat_app.apps.ChatAppConfig",
     "exam_app.apps.ExamAppConfig",
-    # "discount_app.apps.DiscountAppConfig",
+    "discount_app.apps.DiscountAppConfig",
 ]
 INSTALLED_APPS = [
     # "django.contrib.gis",

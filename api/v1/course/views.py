@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from accounts.models import Student
 from course.models import Comment, SectionVideo, SectionFile, LessonCourse, StudentSectionScore, \
     PresentAbsent, StudentAccessSection, SendSectionFile, OnlineLink, SectionQuestion, Section, \
-    Category, CallLessonCourse
+    Category, CallLessonCourse, Course
 from .pagination import CommentPagination
 from .paginations import CommonPagination
 
@@ -777,3 +777,29 @@ class CallLessonCourseViewSet(viewsets.ModelViewSet):
         context = super().get_serializer_context()
         context["lesson_course_pk"] = self.kwargs['coach_lesson_course_pk']
         return context
+
+
+class HomeCategoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+    queryset = Category.objects.defer("is_deleted", "deleted_at", "updated_at", "created_at")
+    serializer_class = serializers.HomeCategorySerializer
+
+
+class HomeCourseViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+    """
+    course_type is (basic, indeterminate, advanced), \n
+    for search filed you can use in url
+    ?course_type=basic or ?course_type=indeterminate or ?course_type=advanced
+    """
+    serializer_class = serializers.HomeCourseSerializer
+
+    def get_queryset(self):
+        query = Course.objects.filter(category_id=self.kwargs['home_category_pk']).defer(
+            "is_deleted", "deleted_at", "updated_at", "created_at"
+        )
+
+        course_type = self.request.query_params.get("course_type", None)
+
+        if course_type:
+            query = query.filter(course_type__exact=course_type)
+
+        return query
