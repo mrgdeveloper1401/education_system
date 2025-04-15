@@ -46,3 +46,18 @@ class CallStatusChoices(models.TextChoices):
     successful = "successful", _("موفق")
     un_successful = "un_successful", _("ناموفق")
     nothing = "nothing", _("چیزی ثبت نشده هست")
+
+
+class NumberOfDaysChoices(models.TextChoices):
+    one = "1", _("یک ماهه")
+    two = "2", _("دو ماهه")
+    three = "3", _("سه ماهه")
+    four = "4", _("چهار ماهه")
+    five = "5", _("پنج ماهه")
+    six = "6", _("شش ماه")
+    seven = "7", _("هفت ماه")
+    eight = "8", _("هشت ماه")
+    nine = "9", _("نه ماهه")
+    ten = "10", _("ده ماهه")
+    eleven = "11", _("یازده ماهه")
+    two_eleven = "12", _("دوازده ماهه")

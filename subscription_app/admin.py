@@ -10,7 +10,7 @@ class PlanAdmin(admin.ModelAdmin):
     list_display = ('plan_title', 'number_of_days', 'price', 'is_free', 'is_active', 'created_at')
     list_filter = ('is_free', 'is_active', 'created_at')
     search_fields = ('plan_title', 'description')
-    list_editable = ('is_active',)
+    list_editable = ('is_active', "number_of_days")
     fieldsets = (
         (None, {
             'fields': ('plan_title', 'description')

@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from django.core.validators import ValidationError, MinValueValidator
 from accounts.models import User
 from core.models import CreateMixin, UpdateMixin, SoftDeleteMixin
+from course.enums import NumberOfDaysChoices
 
 
 class Subscription(CreateMixin, UpdateMixin, SoftDeleteMixin):
@@ -76,7 +77,8 @@ class Subscription(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 class Plan(CreateMixin, UpdateMixin, SoftDeleteMixin):
     plan_title = models.CharField(help_text=_("عنوان پلن"))
-    number_of_days = models.PositiveSmallIntegerField(help_text=_("تعداد روز پلن"))
+    number_of_days = models.CharField(max_length=10, choices=NumberOfDaysChoices.choices,
+                                      default=NumberOfDaysChoices.one)
     price = models.FloatField(validators=[MinValueValidator(0)], help_text=_("قیمت"), blank=True, null=True)
     is_free = models.BooleanField(default=False, help_text=_("رایگان هست؟"))
     description = models.TextField(help_text=_("توضیحی در مورد پلن"))

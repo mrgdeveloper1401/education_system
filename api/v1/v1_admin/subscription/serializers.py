@@ -9,6 +9,7 @@ class PlanSerializer(serializers.ModelSerializer):
         model = Plan
         exclude = ("is_deleted", "deleted_at")
 
+
 class SubscriptionSerializer(serializers.ModelSerializer):
     # plan = PlanSerializer(read_only=True)
     # plan_id = serializers.PrimaryKeyRelatedField(
