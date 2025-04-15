@@ -3,7 +3,7 @@ import datetime
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django.core.validators import ValidationError, MinValueValidator
+from django.core.validators import ValidationError, MinValueValidator, MaxValueValidator
 from accounts.models import User
 from core.models import CreateMixin, UpdateMixin, SoftDeleteMixin
 from course.enums import NumberOfDaysChoices
@@ -84,6 +84,12 @@ class Plan(CreateMixin, UpdateMixin, SoftDeleteMixin):
     description = models.TextField(help_text=_("توضیحی در مورد پلن"))
     is_active = models.BooleanField(default=True, help_text=_("قابل انتشار باشد یا خیر"))
     facilities = ArrayField(models.CharField(max_length=50), blank=True, null=True, default=list)
+    discount_percent = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        validators=[MaxValueValidator(100)],
+        help_text=_("درصد تخفیف (۰ تا ۱۰۰)")
+    )
 
     def __str__(self):
         return self.plan_title
@@ -93,6 +99,18 @@ class Plan(CreateMixin, UpdateMixin, SoftDeleteMixin):
             raise ValidationError({"is_free", _("dont create plan when is_free and not free")})
         if not self.is_free and not self.price:
             raise ValidationError({"price": _("price and is free, one of this must bet set")})
+
+    @property
+    def calc_discount(self):
+        if self.discount_percent and self.price:
+            price = (self.price * self.discount_percent) / 100
+            return price
+        else:
+            return "noting"
+
+    @property
+    def final_price(self):
+        return max(self.price - self.calc_discount, 0)
 
     class Meta:
         db_table = 'plan'

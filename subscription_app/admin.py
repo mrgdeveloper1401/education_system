@@ -7,16 +7,17 @@ from .models import Subscription, Plan
 
 @admin.register(Plan)
 class PlanAdmin(admin.ModelAdmin):
-    list_display = ('plan_title', 'number_of_days', 'price', 'is_free', 'is_active', 'created_at')
+    list_display = ('plan_title', 'number_of_days', 'price', "discount_percent", 'is_free', 'is_active', "calc_discount",
+                    "final_price", 'created_at')
     list_filter = ('is_free', 'is_active', 'created_at')
     search_fields = ('plan_title', 'description')
-    list_editable = ('is_active', "number_of_days")
+    list_editable = ('is_active', "number_of_days", "discount_percent")
     fieldsets = (
         (None, {
             'fields': ('plan_title', 'description')
         }),
         (_('Pricing'), {
-            'fields': ('price', 'is_free', 'number_of_days')
+            'fields': ('price', "discount_percent", 'is_free', 'number_of_days')
         }),
         (_('Status'), {
             'fields': ('is_active',)

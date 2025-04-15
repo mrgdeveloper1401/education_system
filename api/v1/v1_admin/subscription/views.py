@@ -1,13 +1,12 @@
 from rest_framework import viewsets, permissions, filters
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from django_filters.rest_framework import DjangoFilterBackend
 from subscription_app.models import Subscription, Plan
 from .serializers import SubscriptionSerializer, PlanSerializer
-from accounts.models import User
 
 
 class PlanViewSet(viewsets.ModelViewSet):
+    """
+    discount_value can be set null
+    """
     queryset = Plan.objects.filter(is_active=True).defer("is_deleted", "deleted_at")
     serializer_class = PlanSerializer
     filter_backends = (filters.SearchFilter,)

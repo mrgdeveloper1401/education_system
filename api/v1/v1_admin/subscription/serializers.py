@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema, extend_schema_field
 from rest_framework import serializers
 
 from accounts.models import User
@@ -5,9 +6,20 @@ from subscription_app.models import Subscription, Plan
 
 
 class PlanSerializer(serializers.ModelSerializer):
+    final_price = serializers.SerializerMethodField()
+    calc_discount_value = serializers.SerializerMethodField()
+
     class Meta:
         model = Plan
         exclude = ("is_deleted", "deleted_at")
+
+    @extend_schema_field(serializers.IntegerField())
+    def get_final_price(self, obj):
+        return obj.final_price
+
+    @extend_schema_field(serializers.IntegerField())
+    def get_calc_discount_value(self, obj):
+        return obj.calc_discount
 
 
 class SubscriptionSerializer(serializers.ModelSerializer):
