@@ -12,3 +12,18 @@ class BannerAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         return super().get_queryset(request).defer("is_deleted", "deleted_at")
+
+
+@admin.register(models.HeaderSite)
+class HeaderSiteAdmin(admin.ModelAdmin):
+    list_display = ("header_title", "is_publish", "created_at")
+    list_per_page = 20
+    list_filter = ("is_publish",)
+    list_editable = ("is_publish",)
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).defer(
+            "is_deleted",
+            "deleted_at",
+            "updated_at"
+        )
