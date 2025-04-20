@@ -227,3 +227,21 @@ class SignUpCourseSerializer(serializers.ModelSerializer):
         data = super().create(validated_data)
         Otp.objects.create(mobile_phone=validated_data['phone_number'])
         return data
+
+
+class ResentOtpCodeSerializer(serializers.Serializer):
+    mobile_phone = serializers.CharField()
+
+    def validate(self, attrs):
+        if not SignupCourse.objects.filter(phone_number=attrs["mobile_phone"]).exists():
+            raise exceptions.ValidationError({"message": "you must sign up in SingUpCourse"})
+        return attrs
+
+    def create(self, validated_data):
+        phone = validated_data['mobile_phone']
+        otp = Otp.objects.filter(mobile_phone=phone).only("mobile_phone", "expired_date").last()
+
+        if otp and otp.is_expired is False:
+            raise exceptions.ValidationError({"message": "you can already otp code, please 2 minute wait"})
+
+        return Otp.objects.create(mobile_phone=phone)

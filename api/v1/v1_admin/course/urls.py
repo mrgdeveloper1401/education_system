@@ -34,6 +34,7 @@ urlpatterns = [
     path('', include(course_router.urls)),
     path("", include(section_router.urls)),
     path("", include(section_question_router.urls)),
-    path('course_list/', views.AdminCourseListApiView.as_view(), name='course_list')
+    path('course_list/', views.AdminCourseListApiView.as_view(), name='course_list'),
+    path('resent_otp_code/', views.ResentOtpCodeView.as_view(), name='resent_otp_code')
 ]
 urlpatterns += router.urls

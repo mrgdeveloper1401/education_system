@@ -1,8 +1,9 @@
 from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import extend_schema, OpenApiParameter
-from rest_framework import viewsets, permissions, exceptions, generics, filters, decorators, response
+from drf_spectacular.utils import  OpenApiParameter
+from rest_framework import viewsets, permissions, exceptions, generics, filters, decorators, response, views, status
 from drf_spectacular.views import extend_schema
 
+from utils.permissions import NotAuthenticate
 from . import serializers
 from course.models import Category, Course, Section, SectionFile, SectionVideo, LessonCourse, Certificate, \
     PresentAbsent, Question, SectionQuestion, AnswerQuestion, Comment, SignupCourse
@@ -248,3 +249,21 @@ class SignUpCourseViewSet(viewsets.ModelViewSet):
         if self.request.method in ['PUT', 'PATCH', 'DELETE', "GET"]:
             self.permission_classes = (permissions.IsAdminUser,)
         return super().get_permissions()
+
+
+class ResentOtpCodeView(views.APIView):
+    """
+    this view you can use resent otp code,
+    when user create SingUpCourse
+    """
+    permission_classes = (NotAuthenticate,)
+    serializer_class = serializers.ResentOtpCodeSerializer
+
+    @extend_schema(
+        tags=("api_admin_course",)
+    )
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return response.Response(serializer.data, status=status.HTTP_201_CREATED)
