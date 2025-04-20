@@ -55,7 +55,8 @@ class UserLoginApiView(APIView):
                     "Success": "Login successfully",
                     "data": data,
                     "is_staff": user.is_staff,
-                    "is_coach": user.is_coach
+                    "is_coach": user.is_coach,
+                    "full_name": user.get_full_name
                 }
             else:
                 return Response({"message": "this account is not active!"}, status=status.HTTP_404_NOT_FOUND)

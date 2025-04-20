@@ -75,9 +75,9 @@ class LessonCourseAdmin(admin.ModelAdmin):
 
 @admin.register(models.Certificate)
 class CertificateAdmin(admin.ModelAdmin):
-    list_display = ['course', "student", "is_active", "created_at"]
-    list_select_related = ['student', "course"]
-    raw_id_fields = ['course', "student"]
+    list_display = ('section', "student", "created_at")
+    list_select_related = ('student', "section")
+    raw_id_fields = ('section', "student")
 
 
 @admin.register(models.StudentSectionScore)
@@ -175,4 +175,23 @@ class CallLessonCourseAdmin(admin.ModelAdmin):
         return super().get_queryset(request).only(
             "cancellation_alert", "call", "call_answering", "project", "call_date", "result_call",
             "lesson_course__class_name", "student__student_number"
+        )
+
+
+@admin.register(models.SignupCourse)
+class SignupCourseAdmin(admin.ModelAdmin):
+    list_display = ("course", "student_name", "phone_number", "i_have_computer", "created_at")
+    list_filter = ("i_have_computer",)
+    search_fields = ("student_name",)
+    list_per_page = 20
+    raw_id_fields = ("course",)
+    list_select_related = ("course",)
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).only(
+            "course__course_name",
+            "student_name",
+            "phone_number",
+            "i_have_computer",
+            "created_at"
         )

@@ -1,7 +1,6 @@
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import Count
 
 from accounts.models import Student
 from core.models import UpdateMixin, CreateMixin, SoftDeleteMixin
@@ -10,7 +9,7 @@ from django.core.validators import FileExtensionValidator, MinValueValidator, Ma
 from treebeard.mp_tree import MP_Node
 
 from course.enums import ProgresChoices, SectionFileType, StudentStatusChoices, RateChoices, SendFileChoices, \
-    CallStatusChoices, CourseType
+    CallStatusChoices
 from course.utils import student_send_section_file
 from course.validators import max_upload_image_validator
 
@@ -41,7 +40,9 @@ class Course(CreateMixin, UpdateMixin, SoftDeleteMixin):
     price = models.FloatField(help_text=_("قیمت دوره"), blank=True, null=True)
     is_free = models.BooleanField(default=False)
     facilities = ArrayField(models.CharField(max_length=30), blank=True, null=True)
-    course_type = models.CharField(max_length=13, choices=CourseType.choices, default=CourseType.basic)
+    course_type = models.CharField(max_length=13, null=True, blank=True)
+    time_course = models.CharField(max_length=10, help_text="مدت زمان دوره", blank=True)
+    course_age = models.CharField(max_length=30, help_text="بازه سنی دوره", blank=True)
 
     def __str__(self):
         return self.course_name
@@ -231,14 +232,12 @@ class SendSectionFile(CreateMixin, UpdateMixin, SoftDeleteMixin):
                 self.send_file_status = SendFileChoices.rejected
         super().save(*args, **kwargs)
 
-
+# TODO, when clean migration, we remove field null in model Certificate
 class Certificate(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name="course_certificates",
-                               limit_choices_to={"is_publish": True})
+    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="section_certificates",
+                               limit_choices_to={"is_publish": True}, null=True)
     student = models.ForeignKey("accounts.Student", on_delete=models.DO_NOTHING, related_name="student_certificates",
                                 limit_choices_to={"is_active": True})
-    is_active = models.BooleanField(default=True)
-    pdf_file = models.FileField(validators=[FileExtensionValidator(("rar", "zip"))])
 
     class Meta:
         db_table = 'course_certificate'
@@ -316,3 +315,16 @@ class CallLessonCourse(CreateMixin, UpdateMixin, SoftDeleteMixin):
     class Meta:
         db_table = "call_lesson_course"
         ordering = ("-created_at",)
+
+
+class SignupCourse(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name="course_signup")
+    student_name = models.CharField(max_length=120, help_text="نام و نام خوادگی داشن اموز")
+    phone_number = models.CharField(max_length=15, help_text="شماره تلفن ")
+    i_have_computer = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.student_name
+
+    class Meta:
+        db_table = "course_signup"

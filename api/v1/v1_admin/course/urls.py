@@ -11,6 +11,7 @@ router = routers.DefaultRouter()
 router.register('category', views.CategoryViewSet, basename='admin_category')
 # router.register("certificate", views.AdminCertificateViewSet, basename='admin_certificate')
 router.register("present_absent", views.AdminStudentPresentAbsentViewSet, basename='admin_present_absent')
+router.register("course_sign_up", views.SignUpCourseViewSet, basename="course_sign_up")
 
 category_router = routers.NestedSimpleRouter(router, r'category', lookup='category')
 category_router.register("course", views.AdminCourseViewSet, basename='admin_course')

@@ -20,4 +20,3 @@ channels
 django-ckeditor-5
 django_redis
 pyjwt==2.10.1
-django-guardian==2.4.0

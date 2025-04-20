@@ -34,7 +34,7 @@ THIRD_PARTY_PACKAGE = [
     "treebeard",
     "import_export",
     "django_ckeditor_5",
-    "guardian",
+    # "guardian",
 ]
 
 THIRD_PARTY_APP = [
@@ -259,10 +259,10 @@ AWS_STORAGE_BUCKET_NAME = config('ARVAN_AWS_STORAGE_BUCKET_NAME', cast=str)
 AWS_S3_ENDPOINT_URL = config('ARVAN_AWS_S3_ENDPOINT_URL', cast=str)
 AWS_S3_REGION_NAME = 'us-east-1'
 
-AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.ModelBackend',
-    'guardian.backends.ObjectPermissionBackend',
-)
+# AUTHENTICATION_BACKENDS = (
+#     'django.contrib.auth.backends.ModelBackend',
+#     'guardian.backends.ObjectPermissionBackend',
+# )
 
 # CKEDITOR_5_CUSTOM_CSS = 'path_to.css'
 CKEDITOR_5_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
@@ -295,4 +295,4 @@ EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", cast=str)
 
 CSRF_COOKIE_AGE = 3600
 
-GUARDIAN_ANONYMOUS_USER_NAME = None
+# GUARDIAN_ANONYMOUS_USER_NAME = None

@@ -30,7 +30,6 @@ api_url = [
 api_admin = [
     path("api_admin_course/", include("api.v1.v1_admin.course.urls", namespace="admin_category")),
     path('api_admin_account/', include("api.v1.v1_admin.accounts.urls", namespace="admin_account")),
-    path('api_admin_blog/', include("api.v1.v1_admin.blogs.urls", namespace="admin_blog_category")),
     path('api_admin_exam/', include("api.v1.v1_admin.exam.urls", namespace="admin_exam_api")),
     path(
         "api_admin_subscription/",
@@ -38,7 +37,7 @@ api_admin = [
                 namespace='api_subscription_admin'
         )),
     path('api_admin_discount/', include("api.v1.v1_admin.discount.urls", namespace="admin_discount")),
-    path("api_admin_mian_settings/", include("api.v1.v1_admin.main_settings.urls", namespace="admin_settings")),
+    path("api_admin_mian_settings/", include("api.v1.v1_admin.main_settings.urls", namespace="admin_settings"))
 ]
 
 urlpatterns = [

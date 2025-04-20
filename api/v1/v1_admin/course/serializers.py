@@ -1,10 +1,9 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import serializers
+from rest_framework import serializers, exceptions
 
-from accounts.models import Student
+from accounts.models import Student, Otp
 from course.models import Category, Course, Section, SectionFile, SectionVideo, LessonCourse, Certificate, \
-    PresentAbsent, SectionQuestion, AnswerQuestion, Comment
-from drf_extra_fields.fields import Base64ImageField
+    PresentAbsent, SectionQuestion, AnswerQuestion, Comment, SignupCourse
 
 
 class CreateCategorySerializer(serializers.ModelSerializer):
@@ -44,7 +43,6 @@ class AdminListCourseSerializer(serializers.ModelSerializer):
 
 
 class AdminCreateCourseSerializer(serializers.ModelSerializer):
-    course_image = Base64ImageField()
 
     class Meta:
         model = Course
@@ -59,7 +57,6 @@ class AdminCreateCourseSerializer(serializers.ModelSerializer):
 
 
 class AdminUpdateCourseSerializer(serializers.ModelSerializer):
-    course_image = Base64ImageField()
 
     class Meta:
         model = Course
@@ -67,7 +64,6 @@ class AdminUpdateCourseSerializer(serializers.ModelSerializer):
 
 
 class AdminCreateCourseSectionSerializer(serializers.ModelSerializer):
-    cover_image = Base64ImageField()
 
     class Meta:
         model = Section
@@ -82,7 +78,6 @@ class AdminCreateCourseSectionSerializer(serializers.ModelSerializer):
 
 
 class AdminListCourseSectionSerializer(serializers.ModelSerializer):
-    cover_image = Base64ImageField()
 
     class Meta:
         model = Section
@@ -218,3 +213,17 @@ class AdminCommentSerializer(serializers.ModelSerializer):
             return comment_node.add_child(user=user, category_id=category_pk, **validated_data)
         else:
             return Comment.add_root(user=user, category_id=category_pk, **validated_data)
+
+
+class SignUpCourseSerializer(serializers.ModelSerializer):
+    course = serializers.PrimaryKeyRelatedField(
+        queryset=Course.objects.only("course_name", "is_publish").filter(is_publish=True)
+    )
+    class Meta:
+        model = SignupCourse
+        exclude = ("is_deleted", "deleted_at", "updated_at")
+
+    def create(self, validated_data):
+        data = super().create(validated_data)
+        Otp.objects.create(mobile_phone=validated_data['phone_number'])
+        return data

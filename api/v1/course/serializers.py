@@ -6,7 +6,7 @@ from accounts.models import Student
 from course.enums import RateChoices, StudentStatusChoices
 from course.models import Course, Category, Comment, Section, SectionVideo, SectionFile, SendSectionFile, LessonCourse, \
     StudentSectionScore, PresentAbsent, StudentAccessSection, OnlineLink, SectionQuestion, AnswerQuestion, \
-    CallLessonCourse
+    CallLessonCourse, Certificate
 
 
 class CategoryTreeNodeSerializer(serializers.ModelSerializer):
@@ -465,5 +465,32 @@ class HomeCourseSerializer(serializers.ModelSerializer):
             "amount_discount",
             "final_price",
             "facilities",
-            "course_type"
+            "course_type",
+            "time_course",
+            "course_age"
         )
+
+
+class CertificateSerializer(serializers.ModelSerializer):
+    student_full_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Certificate
+        fields = ("id", "created_at", "student_full_name")
+
+    def get_student_full_name(self, obj):
+        return obj.student.student_name if obj.student.user.first_name else None
+
+    def create(self, validated_data):
+        section_pk = self.context['section_pk']
+        student_id = self.context['request'].user.student.id
+        return Certificate.objects.create(student_id=student_id, section_id=section_pk, **validated_data)
+
+    def validate(self, attrs):
+        section_pk=self.context['section_pk']
+        student_id = self.context['request'].user.student.id
+
+        if Certificate.objects.filter(section_id=section_pk, student_id=student_id).exists():
+            raise exceptions.ValidationError({"message": "you have already certificate"})
+
+        return attrs

@@ -1,5 +1,4 @@
 from django.db import models
-from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from django_ckeditor_5.fields import CKEditor5Field
 from treebeard.mp_tree import MP_Node
@@ -14,7 +13,7 @@ class CategoryBlog(MP_Node, CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     def __str__(self):
         return self.category_name
-    node_order_by = ["category_name"]
+    node_order_by = ("category_name",)
 
 
 class PostBlog(CreateMixin, UpdateMixin, SoftDeleteMixin):

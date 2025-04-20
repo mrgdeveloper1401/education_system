@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from accounts.models import Student
 from course.models import Comment, SectionVideo, SectionFile, LessonCourse, StudentSectionScore, \
     PresentAbsent, StudentAccessSection, SendSectionFile, OnlineLink, SectionQuestion, Section, \
-    Category, CallLessonCourse, Course
+    Category, CallLessonCourse, Course, Certificate
 from .pagination import CommentPagination
 from .paginations import CommonPagination
 
@@ -27,6 +27,8 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
             return serializers.SendFileSerializer
         if self.action == "poll_answer" and self.request.method == 'POST':
             return serializers.AnswerSectionQuestionSerializer
+        if self.action == "section_certificate" and self.request.method == "POST":
+            return serializers.CertificateSerializer
         return super().get_serializer_class()
 
     def get_permissions(self):
@@ -300,6 +302,44 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
         ).only("student_status", "created_at")
         serializer = serializers.StudentPresentAbsentSerializer(present_absent, many=True)
         return response.Response(serializer.data)
+
+    @extend_schema(
+        responses={
+            200: serializers.CertificateSerializer
+        }
+    )
+    @decorators.action(
+        detail=True,
+        url_path="sections/(?P<section_pk>[^/.]+)/certificate",
+        methods=['GET', "POST"]
+    )
+    def section_certificate(self, request, pk=None, section_pk=None):
+        queryset = Certificate.objects.filter(
+            section_id=section_pk,
+            section__course__lesson_course__exact=pk,
+            student__user=request.user
+        ).only(
+            "student__user__first_name",
+            "student__user__last_name",
+            "section_id",
+            "created_at"
+        ).select_related(
+            "student__user"
+        ).first()
+        serializer = serializers.CertificateSerializer
+
+        if request.method == "POST":
+            ser = serializer(data=request.data, context={"request": request, "section_pk": section_pk})
+            ser.is_valid(raise_exception=True)
+            ser.save()
+            return response.Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        elif request.method == "GET":
+            ser = serializer(queryset)
+            return response.Response(ser.data)
+
+        else:
+            raise exceptions.MethodNotAllowed(request.method)
 
 
 class StudentPollAnswer(mixins.CreateModelMixin, viewsets.GenericViewSet):
