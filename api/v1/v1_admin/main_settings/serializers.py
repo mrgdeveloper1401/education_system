@@ -12,4 +12,10 @@ class BannerSerializer(serializers.ModelSerializer):
 class HeaderSiteSerializer(serializers.ModelSerializer):
     class Meta:
         model = HeaderSite
-        fields = ("header_title", "image", "is_publish", "created_at")
+        exclude = ("is_deleted", "deleted_at")
+
+
+class ListRetrieveHeaderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HeaderSite
+        fields = ("header_title", "image", "background_color", "text_color")

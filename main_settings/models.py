@@ -27,6 +27,8 @@ class HeaderSite(CreateMixin, UpdateMixin, SoftDeleteMixin):
     image = models.ImageField(upload_to="header_title/%Y/%m/%d", validators=[file_upload_validator],
                               blank=True, null=True)
     is_publish = models.BooleanField(default=True)
+    text_color = models.CharField(max_length=15, blank=True)
+    background_color = models.CharField(max_length=15, blank=True)
 
     def clean(self):
         if not self.header_title and not self.image:

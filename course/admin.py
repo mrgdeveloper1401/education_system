@@ -66,12 +66,26 @@ class SectionFileAdmin(admin.ModelAdmin):
 
 @admin.register(models.LessonCourse)
 class LessonCourseAdmin(admin.ModelAdmin):
-    filter_horizontal = ['students']
-    list_display = ['course', "coach", "is_active", "created_at", "progress"]
-    list_filter = ['is_active']
-    search_fields = ['course__course_name', "coach__coach_number", "progress"]
+    filter_horizontal = ('students',)
+    list_display = ("id", 'course', "coach", "is_active", "created_at", "progress")
+    list_filter = ('is_active', "progress")
+    search_fields = ('course__course_name', )
     raw_id_fields = ['course', "coach"]
+    list_per_page = 20
+    list_select_related = ("course", "coach")
+    list_display_links = ("id", "course")
+    search_help_text = "برای جست و جو از نام دوره استفاده کنید"
 
+    def get_queryset(self, request):
+        return super().get_queryset(request).only(
+            "course__course_name",
+            "is_active",
+            "created_at",
+            "progress",
+            "coach__coach_number",
+            "students__student_number",
+            "class_name"
+        )
 
 @admin.register(models.Certificate)
 class CertificateAdmin(admin.ModelAdmin):

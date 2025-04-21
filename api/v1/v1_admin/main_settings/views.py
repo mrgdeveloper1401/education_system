@@ -42,3 +42,8 @@ class HeaderSiteViewSet(viewsets.ModelViewSet):
         if self.request.user.is_staff is False:
             return queryset.filter(is_publish=True)
         return super().filter_queryset(queryset)
+
+    def get_serializer_class(self):
+        if self.action in ['list', "retrieve"]:
+            return serializers.ListRetrieveHeaderSerializer
+        return super().get_serializer_class()
