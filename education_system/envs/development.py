@@ -49,3 +49,6 @@ STATIC_ROOT = BASE_DIR / config("STATIC_ROOT", cast=str)
 MEDIA_URL = config("MEDIA_URL", cast=str)
 MEDIA_ROOT = config("MEDIA_ROOT", cast=str)
 
+# Celery settings
+CELERY_BROKER_URL = "redis://localhost:6380"
+CELERY_RESULT_BACKEND = "redis://localhost:6380"

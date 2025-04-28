@@ -49,6 +49,7 @@ THIRD_PARTY_APP = [
     "chat_app.apps.ChatAppConfig",
     "exam_app.apps.ExamAppConfig",
     "discount_app.apps.DiscountAppConfig",
+    "order_app.apps.OrderAppConfig"
 ]
 INSTALLED_APPS = [
     # "django.contrib.gis",
@@ -198,24 +199,7 @@ LOGGING = {
             "datefmt": "%Y-%m-%d %H:%M:%S",
         },
     },
-    'filters': {
-        'require_debug_true': {
-            "()": "django.utils.log.RequireDebugTrue",
-        },
-    },
     "handlers": {
-        "console": {
-            "level": "DEBUG",
-            "class": "logging.StreamHandler",
-            "formatter": "color",
-            "filters": ["require_debug_true"],
-        },
-        "info_file": {
-            "level": "INFO",
-            "class": "logging.FileHandler",
-            "formatter": "color",
-            "filename": os.path.join(BASE_DIR / log_dir / 'info_file.log')
-        },
         "error_file": {
             "level": "ERROR",
             "class": "logging.FileHandler",
@@ -237,7 +221,7 @@ LOGGING = {
     },
     "loggers": {
         "django": {
-            "handlers": ["console", "info_file", "warning_file", "critical_file", "error_file"],
+            "handlers": ["warning_file", "critical_file", "error_file"],
             'propagate': True,
         }
     }
@@ -296,3 +280,6 @@ EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", cast=str)
 CSRF_COOKIE_AGE = 3600
 
 # GUARDIAN_ANONYMOUS_USER_NAME = None
+
+# celery config
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True

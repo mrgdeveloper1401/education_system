@@ -257,9 +257,13 @@ class BestStudent(CreateMixin, UpdateMixin, SoftDeleteMixin):
         ordering = ['-created_at']
 
 
+# TODO, when clean migration, remove attribute blank in title
 class PrivateNotification(CreateMixin, UpdateMixin, SoftDeleteMixin):
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="notifications")
-    body = models.CharField(max_length=255)
+    title = models.CharField(max_length=255, blank=True)
+    body = models.TextField()
+    is_read = models.BooleanField(default=False)
 
     class Meta:
         db_table = 'private_notification'
+        ordering = ("-created_at",)

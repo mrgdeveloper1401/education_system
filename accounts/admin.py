@@ -180,5 +180,16 @@ class BestStudentAdmin(admin.ModelAdmin):
 
 @admin.register(models.PrivateNotification)
 class PrivateNotificationAdmin(admin.ModelAdmin):
-    list_display = ['user', "created_at"]
-    raw_id_fields = ['user']
+    list_display = ('user', "is_read", "created_at")
+    raw_id_fields = ('user',)
+    list_per_page = 20
+    list_editable = ("is_read",)
+    search_fields = ("user__mobile_phone",)
+    search_help_text = "برای جست و جو میتوانید از شماره موبایل کاربر استفاده کنید"
+    list_filter = ("is_read",)
+    list_select_related = ("user",)
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).only(
+            "user__mobile_phone", "is_read", "created_at", "body", "title"
+        )

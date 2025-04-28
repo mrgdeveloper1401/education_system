@@ -276,6 +276,23 @@ class ValidateTokenSerializer(serializers.Serializer):
 
 
 class UserNotificationSerializer(serializers.ModelSerializer):
+    user_fullname = serializers.SerializerMethodField()
+
+    def get_user_fullname(self, obj):
+        return obj.user.get_full_name
+
     class Meta:
         model = PrivateNotification
-        fields = ['body', "created_at"]
+        fields = ("id", "user_fullname", "title", 'body', "created_at", "is_read")
+
+
+class CreateUserNotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PrivateNotification
+        fields = ("title", 'body', "user")
+
+
+class PatchUserNotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PrivateNotification
+        fields = ("is_read",)

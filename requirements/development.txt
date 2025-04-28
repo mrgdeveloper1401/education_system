@@ -4,3 +4,4 @@ colorlog
 memory_profiler
 pandas
 django-redis
+requests

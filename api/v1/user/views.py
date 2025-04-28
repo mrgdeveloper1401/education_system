@@ -2,7 +2,7 @@ import jwt
 from django_filters.rest_framework.backends import DjangoFilterBackend
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, SAFE_METHODS, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK
 from rest_framework.views import APIView
@@ -264,10 +264,38 @@ class ValidateTokenApiView(APIView):
             return response
 
 
-class UserNotificationViewSet(GenericViewSet, ListModelMixin, RetrieveModelMixin):
-    serializer_class = serializers.UserNotificationSerializer
-    permission_classes = [IsAuthenticated]
+class UserNotificationViewSet(viewsets.ModelViewSet):
+    """
+    for filter notification \n
+    you can use \n
+    ?read=True \n
+    ?read=False
+    """
     pagination_class = CommonPagination
 
     def get_queryset(self):
-        return PrivateNotification.objects.filter(user=self.request.user).only("body", "created_at")
+        return PrivateNotification.objects.filter(user=self.request.user).only(
+            "body", "is_read", "created_at", "title", "user__first_name", "user__last_name"
+        ).select_related("user")
+
+    def get_permissions(self):
+        if self.request.method in SAFE_METHODS or self.request.method == 'PATCH':
+            self.permission_classes = (IsAuthenticated,)
+        else:
+            self.permission_classes = (IsAdminUser,)
+        return super().get_permissions()
+
+    def filter_queryset(self, queryset):
+        is_read = self.request.query_params.get("read", None)
+
+        if is_read:
+            return queryset.filter(is_read=is_read)
+        return queryset
+
+    def get_serializer_class(self):
+        if self.request.method in SAFE_METHODS:
+            return serializers.UserNotificationSerializer
+        elif self.action == "partial_update":
+            return serializers.PatchUserNotificationSerializer
+        else:
+            return serializers.CreateUserNotificationSerializer
