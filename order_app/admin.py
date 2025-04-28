@@ -10,8 +10,9 @@ class OrderAdmin(admin.ModelAdmin):
     list_per_page = 20
     search_help_text = "برای جست و جو میتوانید از نام دور کنید"
     list_select_related = ("course",)
+    raw_id_fields = ("course",)
 
     def get_queryset(self, request):
         return super().get_queryset(request).only(
-            "course__course_name", "price", "mobile_phone", "created_at" "updated_at"
+            "course__course_name", "price", "mobile_phone", "created_at", "updated_at"
         )
