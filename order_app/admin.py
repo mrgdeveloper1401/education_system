@@ -16,3 +16,16 @@ class OrderAdmin(admin.ModelAdmin):
         return super().get_queryset(request).only(
             "course__course_name", "price", "mobile_phone", "created_at", "updated_at"
         )
+
+
+@admin.register(models.CourseSignUp)
+class CourseSignUpAdmin(admin.ModelAdmin):
+    list_display = ("course", "mobile_phone", "fist_name", "last_name", "created_at")
+    search_fields = ("mobile_phone",)
+    list_per_page = 20
+    raw_id_fields = ("course",)
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).defer(
+            "is_deleted", "deleted_at", "updated_at"
+        )

@@ -6,13 +6,15 @@ from . import models
 from .tasks import send_successfully_signup_async
 
 
-@receiver(post_save, sender=models.Order)
+@receiver(post_save, sender=models.CourseSignUp)
 def create_student_profile(sender, instance, created, **kwargs):
     if created:
         get_user = User.objects.filter(mobile_phone=instance.mobile_phone).only("mobile_phone")
         if not get_user:
             User.objects.create_user(
                 mobile_phone=instance.mobile_phone,
-                password=instance.password,
+                password=instance.mobile_phone,
+                first_name=instance.first_name,
+                last_name=instance.last_name,
             )
-            send_successfully_signup_async(instance.mobile_phone)
+            send_successfully_signup_async.delay(instance.mobile_phone)

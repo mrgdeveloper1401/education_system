@@ -14,7 +14,7 @@ headers = {
 TEXT = "کاربر گرامی ثبت شما با موفقیت انجام شد نام کاربری و رمز عبور شما برابر است با: "
 
 @app.task(bind=True)
-def send_successfully_signup_async(self, phone_number, password):
+def send_successfully_signup_async(self, phone_number):
     async def _send_successfully_signup():
         data = {
             "username": config("SMS_USERNAME"),
