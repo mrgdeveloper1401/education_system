@@ -1,12 +1,12 @@
 [Unit]
-Description=flower
+Description=Flower Celery Monitor
 After=network.target
 
 [Service]
 User=debian
 Group=debian
 WorkingDirectory=/home/debian/django_project/education_system
-ExecPaths=/home/debian/django_project/education_system/.venv/bin/celery -A education_system.dj_celery flower --port=5500
+ExecStart=/home/debian/django_project/education_system/.venv/bin/python -m celery -A education_system.dj_celery flower --port=5500
 Restart=always
 
 [Install]
