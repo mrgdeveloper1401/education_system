@@ -5,9 +5,8 @@ After=network.target
 [Service]
 User=debian
 Group=debian
-Environment="PATH=/home/debian/django_project/education_system/.venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 WorkingDirectory=/home/debian/django_project/education_system
-ExecStart=/home/debian/django_project/education_system/.venv/bin/python -m celery -A education_system.dj_celery flower --port=5500
+ExecStart=/home/debian/django_project/education_system/.venv/bin/celery -A education_system.dj_celery flower --port=5500
 Restart=always
 StandardOutput=file:/var/log/flower.log
 StandardError=file:/var/log/flower-error.log
