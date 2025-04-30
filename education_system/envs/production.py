@@ -8,11 +8,11 @@ ALLOWED_HOSTS = ''.join(config("PRODUCTION_ALLOWED_HOSTS", cast=list)).split(","
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": config("PRODUCTION_DB_NAME", cast=str),
-        'USER': config("PRODUCTION_DB_USER", cast=str),
-        "PASSWORD": config("PRODUCTION_DB_PASSWORD", cast=str),
-        'HOST': config("PRODUCTION_DB_HOST", cast=str),
-        "PORT": config("PRODUCTION_DB_PORT", cast=int),
+        "NAME": config("VPS_PRODUCTION_DB_NAME", cast=str),
+        'USER': config("VPS_PRODUCTION_DB_USER", cast=str),
+        "PASSWORD": config("VPS_PRODUCTION_DB_PASSWORD", cast=str),
+        'HOST': config("VPS_PRODUCTION_DB_HOST", cast=str),
+        "PORT": config("VPS_PRODUCTION_DB_PORT", cast=int),
     }
 }
 
