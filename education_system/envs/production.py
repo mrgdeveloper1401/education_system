@@ -25,11 +25,12 @@ MIDDLEWARE += [
 ]
 MIDDLEWARE.insert(0, 'corsheaders.middleware.CorsMiddleware')
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ORIGINS = ''.join(config("CORS_ALLOW_ORIGINS_CORS", cast=list)).split(",")
+
+print(CORS_ALLOW_ORIGINS)
 
 # CSRF_COOKIE_DOMAIN = "education_system.ir"
-
-SESSION_COOKIE_DOMAIN = ""
+# SESSION_COOKIE_DOMAIN = ""
 
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
