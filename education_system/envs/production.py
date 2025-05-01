@@ -25,7 +25,7 @@ MIDDLEWARE += [
 ]
 MIDDLEWARE.insert(0, 'corsheaders.middleware.CorsMiddleware')
 
-CORS_ALLOW_ORIGINS = ''.join(config("CORS_ALLOW_ORIGINS_CORS", cast=list)).split(",")
+CORS_ALLOWED_ORIGINS = ''.join(config("CORS_ALLOW_ORIGINS_CORS", cast=list)).split(",")
 
 # CSRF_COOKIE_DOMAIN = "education_system.ir"
 # SESSION_COOKIE_DOMAIN = ""
