@@ -448,7 +448,11 @@ class CallLessonCourseSerializer(serializers.ModelSerializer):
 class HomeCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        exclude = ("is_deleted", "deleted_at", "updated_at", "created_at")
+        fields = (
+            "category_name",
+            "image",
+            "description"
+        )
 
 
 class HomeCourseSerializer(serializers.ModelSerializer):

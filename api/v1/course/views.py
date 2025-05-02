@@ -820,7 +820,11 @@ class CallLessonCourseViewSet(viewsets.ModelViewSet):
 
 
 class HomeCategoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
-    queryset = Category.objects.defer("is_deleted", "deleted_at", "updated_at", "created_at")
+    queryset = Category.objects.only(
+        "category_name",
+        "image",
+        "description"
+    )
     serializer_class = serializers.HomeCategorySerializer
 
 
