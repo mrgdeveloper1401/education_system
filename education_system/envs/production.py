@@ -4,7 +4,6 @@ from education_system.base import *
 SECRET_KEY = config('PRODUCTION_SECRET_KEY', cast=str)
 
 ALLOWED_HOSTS = ''.join(config("PRODUCTION_ALLOWED_HOSTS", cast=list)).split(",")
-
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
@@ -20,15 +19,12 @@ SIMPLE_JWT['SIGNING_KEY'] = SECRET_KEY
 # SIMPLE_JWT["AUDIENCE"] = config("AUDIENCE", cast=str)
 # SIMPLE_JWT["ISSUER"] = config("ISSUER", cast=str)
 
+
+MIDDLEWARE.insert(0, 'corsheaders.middleware.CorsMiddleware')
 MIDDLEWARE += [
     "whitenoise.middleware.WhiteNoiseMiddleware",
 ]
-MIDDLEWARE.insert(0, 'corsheaders.middleware.CorsMiddleware')
 
-CORS_ALLOWED_ORIGINS = ''.join(config("CORS_ALLOW_ORIGINS_CORS", cast=list)).split(",")
-
-# CSRF_COOKIE_DOMAIN = "education_system.ir"
-# SESSION_COOKIE_DOMAIN = ""
 
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
