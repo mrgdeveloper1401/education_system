@@ -1,22 +1,23 @@
 import jwt
 from django_filters.rest_framework.backends import DjangoFilterBackend
-from rest_framework.viewsets import ModelViewSet, GenericViewSet
-from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
+from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated, SAFE_METHODS, IsAdminUser
 from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK
+from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED
 from rest_framework.views import APIView
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, CreateAPIView
 from rest_framework.generics import get_object_or_404
 from rest_framework.filters import SearchFilter
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, exceptions
 from django.middleware import csrf
 from django.contrib.auth import authenticate
 from django.conf import settings
 from rest_framework.validators import ValidationError
 from drf_spectacular.utils import extend_schema, OpenApiParameter
+from rest_framework_simplejwt.tokens import RefreshToken
 
-from accounts.models import User, State, City, Student, Coach, Ticket, TicketRoom, BestStudent, PrivateNotification
+from accounts.models import User, State, City, Student, Coach, Ticket, TicketRoom, BestStudent, PrivateNotification, Otp
+from accounts.tasks import send_sms_otp_code_async
 from utils.filters import UserFilter
 from utils.pagination import StudentCoachTicketPagination
 from utils.permissions import NotAuthenticate
@@ -299,3 +300,24 @@ class UserNotificationViewSet(viewsets.ModelViewSet):
             return serializers.PatchUserNotificationSerializer
         else:
             return serializers.CreateUserNotificationSerializer
+
+
+class RequestPhoneView(CreateAPIView):
+    serializer_class = serializers.RequestPhoneSerializer
+    permission_classes = (NotAuthenticate,)
+    queryset = None
+
+    def perform_create(self, serializer):
+        otp = Otp.objects.create(mobile_phone=serializer.validated_data['mobile_phone'])
+        send_sms_otp_code_async.delay(otp.mobile_phone, otp.code)
+
+
+class RequestOtpVerifyView(APIView):
+    serializer_class = serializers.RequestPhoneVerifySerializer
+    permission_classes = (NotAuthenticate,)
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        data = serializer.validated_data['access_token']
+        return Response({'access_token': data}, status=HTTP_201_CREATED)

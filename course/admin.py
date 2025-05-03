@@ -8,11 +8,12 @@ from . import models
 
 @admin.register(models.Course)
 class CouAdmin(ImportExportModelAdmin):
-    list_display = ["category", "course_name", "is_publish", "project_counter"]
-    list_filter = ['created_at']
-    raw_id_fields = ['category']
-    list_select_related = ['category']
-    search_fields = ['course_name']
+    list_display = ("category", "course_name", "is_publish", "project_counter")
+    list_filter = ('created_at',)
+    raw_id_fields = ('category',)
+    list_select_related = ('category',)
+    search_fields = ('course_name',)
+    filter_horizontal = ('plans',)
 
 
 @admin.register(models.Category)

@@ -2,8 +2,6 @@ from education_system.base import *
 
 SECRET_KEY = config('DEVELOP_SECRET_KEY', cast=str)
 
-MIDDLEWARE.insert(0, 'corsheaders.middleware.CorsMiddleware')
-
 CORS_ALLOW_ALL_ORIGINS = True
 
 DATABASES = {

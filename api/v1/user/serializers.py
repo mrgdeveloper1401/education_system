@@ -1,3 +1,4 @@
+from django.utils import timezone
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework.exceptions import ValidationError
 from rest_framework import serializers
@@ -6,6 +7,7 @@ from django.contrib.auth.password_validation import validate_password
 
 from rest_framework import generics
 from rest_framework import exceptions
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from accounts.models import User, Otp, State, City, Student, Coach, Ticket, TicketRoom, BestStudent, PrivateNotification
 from accounts.validators import MobileRegexValidator
@@ -296,3 +298,47 @@ class PatchUserNotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = PrivateNotification
         fields = ("is_read",)
+
+
+class RequestPhoneSerializer(serializers.Serializer):
+    mobile_phone = serializers.CharField(
+        validators=[MobileRegexValidator]
+    )
+
+    def validate(self, attrs):
+        if not User.objects.filter(mobile_phone=attrs["mobile_phone"]).exists():
+            raise exceptions.ValidationError({"message": "user dont exists, please signup"})
+        else:
+            otp = Otp.objects.filter(mobile_phone=attrs["mobile_phone"], expired_date__gt=timezone.now()).last()
+            if otp:
+                raise exceptions.ValidationError({"message": "otp already exists, please wait 2 minute"})
+        return attrs
+
+
+class RequestPhoneVerifySerializer(serializers.Serializer):
+    mobile_phone = serializers.CharField(
+        validators=[MobileRegexValidator]
+    )
+    code = serializers.CharField()
+
+    def validate(self, attrs):
+        if not Otp.objects.filter(
+                mobile_phone=attrs['mobile_phone'],
+                code=attrs['code'],
+                expired_date__gt=timezone.now()
+        ).exists():
+            raise exceptions.ValidationError({"message": "otp is invalid or expired"})
+
+        else:
+            user = User.objects.filter(mobile_phone=attrs['mobile_phone']).only(
+                "mobile_phone"
+            ).last()
+
+            if user.is_active is False:
+                raise exceptions.ValidationError({"message": "user is banned"})
+            else:
+                token = RefreshToken.for_user(user)
+                Otp.objects.filter(mobile_phone=attrs['mobile_phone']).delete()
+                attrs["access_token"] = str(token.access_token)
+
+        return attrs

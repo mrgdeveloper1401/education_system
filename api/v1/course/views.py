@@ -840,10 +840,9 @@ class HomeCourseViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewse
         query = Course.objects.filter(category_id=self.kwargs['home_category_pk']).defer(
             "is_deleted", "deleted_at", "updated_at", "created_at"
         )
+        course_level = self.request.query_params.get("course_level", None)
 
-        course_type = self.request.query_params.get("course_type", None)
-
-        if course_type:
-            query = query.filter(course_type__exact=course_type)
+        if course_level:
+            query = query.filter(course_level__exact=course_level)
 
         return query

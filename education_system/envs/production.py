@@ -20,7 +20,6 @@ SIMPLE_JWT['SIGNING_KEY'] = SECRET_KEY
 # SIMPLE_JWT["ISSUER"] = config("ISSUER", cast=str)
 
 
-MIDDLEWARE.insert(0, 'corsheaders.middleware.CorsMiddleware')
 MIDDLEWARE += [
     "whitenoise.middleware.WhiteNoiseMiddleware",
 ]

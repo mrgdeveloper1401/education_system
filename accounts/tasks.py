@@ -18,7 +18,7 @@ def send_sms_otp_code_async(self, phone, code):
         data = {
             "username": config("SMS_USERNAME"),
             "password": config("SMS_PASSWORD"),
-            "text": TEXT_OTP_CODE + code,
+            "text": TEXT_OTP_CODE + str(code),
             "to": phone,
             "from": config("SMS_PHONE_NUMBER"),
         }

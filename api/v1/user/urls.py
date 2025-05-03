@@ -21,6 +21,8 @@ app_name = 'users'
 urlpatterns = [
     path('', include(ticket_room_router.urls)),
     path("", include(ticket_chat_router.urls)),
+    path("otp_phone/", views.RequestPhoneView.as_view(), name='otp_phone'),
+    path("otp_phone_verify/", views.RequestOtpVerifyView.as_view(), name='otp_phone_verify'),
     path("login/", views.UserLoginApiView.as_view(), name='user_login'),
     path("validate_token/", views.ValidateTokenApiView.as_view(), name='validate_token'),
     path('state-list/', views.StateApiView.as_view(), name='state-list'),

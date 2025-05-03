@@ -9,7 +9,7 @@ from django.core.validators import FileExtensionValidator, MinValueValidator, Ma
 from treebeard.mp_tree import MP_Node
 
 from course.enums import ProgresChoices, SectionFileType, StudentStatusChoices, RateChoices, SendFileChoices, \
-    CallStatusChoices
+    CallStatusChoices, CourseType
 from course.utils import student_send_section_file
 from course.validators import max_upload_image_validator
 
@@ -42,9 +42,11 @@ class Course(CreateMixin, UpdateMixin, SoftDeleteMixin):
     price = models.FloatField(help_text=_("قیمت دوره"), blank=True, null=True)
     is_free = models.BooleanField(default=False)
     facilities = ArrayField(models.CharField(max_length=30), blank=True, null=True)
-    course_type = models.CharField(max_length=13, null=True, blank=True)
+    course_level = models.CharField(max_length=13, null=True, blank=True)
     time_course = models.CharField(max_length=10, help_text="مدت زمان دوره", blank=True)
     course_age = models.CharField(max_length=30, help_text="بازه سنی دوره", blank=True)
+    plans = models.ManyToManyField("subscription_app.Plan", blank=True)
+    course_type = models.CharField(choices=CourseType.choices, max_length=7, blank=True)
 
     def __str__(self):
         return self.course_name

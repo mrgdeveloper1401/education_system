@@ -7,6 +7,7 @@ from course.enums import RateChoices, StudentStatusChoices
 from course.models import Course, Category, Comment, Section, SectionVideo, SectionFile, SendSectionFile, LessonCourse, \
     StudentSectionScore, PresentAbsent, StudentAccessSection, OnlineLink, SectionQuestion, AnswerQuestion, \
     CallLessonCourse, Certificate
+from subscription_app.models import Plan
 
 
 class CategoryTreeNodeSerializer(serializers.ModelSerializer):
@@ -449,13 +450,23 @@ class HomeCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = (
+            "id",
             "category_name",
             "image",
             "description"
         )
 
 
+
+class HomeCoursePlanSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Plan
+        fields = ("price", "plan_title")
+
+
 class HomeCourseSerializer(serializers.ModelSerializer):
+    plans = HomeCoursePlanSerializer(many=True)
+
     class Meta:
         model = Course
         fields = (
@@ -469,9 +480,11 @@ class HomeCourseSerializer(serializers.ModelSerializer):
             "amount_discount",
             "final_price",
             "facilities",
-            "course_type",
+            "course_level",
             "time_course",
-            "course_age"
+            "course_age",
+            "plans",
+            "course_type"
         )
 
 
