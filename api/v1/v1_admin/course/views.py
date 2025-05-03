@@ -6,7 +6,7 @@ from drf_spectacular.views import extend_schema
 from utils.permissions import NotAuthenticate
 from . import serializers
 from course.models import Category, Course, Section, SectionFile, SectionVideo, LessonCourse, Certificate, \
-    PresentAbsent, Question, SectionQuestion, AnswerQuestion, Comment, SignupCourse
+    PresentAbsent, SectionQuestion, AnswerQuestion, Comment, SignupCourse
 from .paginations import AdminPagination
 
 
@@ -29,7 +29,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
 
 
 class AdminCourseViewSet(viewsets.ModelViewSet):
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = (permissions.IsAdminUser,)
     pagination_class = AdminPagination
 
     def get_queryset(self):

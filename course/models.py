@@ -39,14 +39,14 @@ class Course(CreateMixin, UpdateMixin, SoftDeleteMixin):
                                      help_text=_("حداکثر اندازه عکس 1 مگابایت هست"), blank=True)
     is_publish = models.BooleanField(default=True)
     project_counter = models.PositiveSmallIntegerField(null=True)
-    price = models.FloatField(help_text=_("قیمت دوره"), blank=True, null=True)
-    is_free = models.BooleanField(default=False)
+    # price = models.FloatField(help_text=_("قیمت دوره"), blank=True, null=True)
+    # is_free = models.BooleanField(default=False)
     facilities = ArrayField(models.CharField(max_length=30), blank=True, null=True)
     course_level = models.CharField(max_length=13, null=True, blank=True)
     time_course = models.CharField(max_length=10, help_text="مدت زمان دوره", blank=True)
     course_age = models.CharField(max_length=30, help_text="بازه سنی دوره", blank=True)
     # plans = models.ManyToManyField("subscription_app.Plan", blank=True)
-    course_type = models.CharField(choices=CourseType.choices, max_length=7, blank=True)
+    # course_type = models.CharField(choices=CourseType.choices, max_length=7, blank=True)
 
     def __str__(self):
         return self.course_name
