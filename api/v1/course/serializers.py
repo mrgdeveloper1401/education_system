@@ -467,7 +467,7 @@ class HomeCategorySerializer(serializers.ModelSerializer):
 class CourseTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = CourseTypeModel
-        fields = ("course_type", "description")
+        fields = ("course_type", "description", "price")
 
 
 class HomeCourseSerializer(serializers.ModelSerializer):
