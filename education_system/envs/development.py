@@ -4,6 +4,8 @@ SECRET_KEY = config('DEVELOP_SECRET_KEY', cast=str)
 
 CORS_ALLOW_ALL_ORIGINS = True
 
+ALLOWED_HOSTS = ['*']
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
