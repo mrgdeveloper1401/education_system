@@ -26,20 +26,20 @@ class CreateCategorySerializer(serializers.ModelSerializer):
 class ListRetrieveCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ["id", 'category_name']
+        fields = ("id", 'category_name', "image", "description")
 
 
 class UpdateCategoryNodeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ['category_name']
+        fields = ('category_name', "image", "description")
 
 
 class AdminListCourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
-        exclude = ['is_deleted', "deleted_at"]
-        read_only_fields = ['course_image']
+        exclude = ('is_deleted', "deleted_at")
+        read_only_fields = ('course_image',)
 
 
 class AdminCreateCourseSerializer(serializers.ModelSerializer):
@@ -47,7 +47,7 @@ class AdminCreateCourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         fields = "__all__"
-        read_only_fields = ["category"]
+        read_only_fields = ("category",)
 
     def create(self, validated_data):
         return Course.objects.create(
