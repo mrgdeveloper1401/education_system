@@ -7,7 +7,7 @@ app_name = "v1_orders"
 
 router = routers.DefaultRouter()
 
-router.register("orders", OrderViewSet)
+# router.register("orders", OrderViewSet)
 router.register("course_signup", CourseSignupViewSet)
 
 urlpatterns = []
