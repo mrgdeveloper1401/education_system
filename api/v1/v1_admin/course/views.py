@@ -12,7 +12,7 @@ from .paginations import AdminPagination
 
 class CategoryViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAdminUser]
-    queryset = Category.objects.only("id", "category_name")
+    queryset = Category.objects.only("id", "category_name", "image", "description")
     pagination_class = AdminPagination
 
     def get_serializer_class(self):
@@ -240,7 +240,6 @@ class SignUpCourseViewSet(viewsets.ModelViewSet):
             "course__course_name",
             "student_name",
             "phone_number",
-            "i_have_computer",
             "created_at"
         )
     serializer_class = serializers.SignUpCourseSerializer

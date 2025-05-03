@@ -344,7 +344,6 @@ class SignupCourse(CreateMixin, UpdateMixin, SoftDeleteMixin):
     course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name="course_signup")
     student_name = models.CharField(max_length=120, help_text="نام و نام خوادگی داشن اموز")
     phone_number = models.CharField(max_length=15, help_text="شماره تلفن ")
-    i_have_computer = models.BooleanField(default=True)
 
     def __str__(self):
         return self.student_name

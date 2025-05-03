@@ -195,8 +195,7 @@ class CallLessonCourseAdmin(admin.ModelAdmin):
 
 @admin.register(models.SignupCourse)
 class SignupCourseAdmin(admin.ModelAdmin):
-    list_display = ("course", "student_name", "phone_number", "i_have_computer", "created_at")
-    list_filter = ("i_have_computer",)
+    list_display = ("course", "student_name", "phone_number", "created_at")
     search_fields = ("student_name",)
     list_per_page = 20
     raw_id_fields = ("course",)
@@ -207,7 +206,6 @@ class SignupCourseAdmin(admin.ModelAdmin):
             "course__course_name",
             "student_name",
             "phone_number",
-            "i_have_computer",
             "created_at"
         )
 
