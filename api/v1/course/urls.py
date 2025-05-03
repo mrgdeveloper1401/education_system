@@ -10,6 +10,7 @@ router.register("coach_lesson_course", views.CoachLessonCourseViewSet, basename=
 router.register("student_coach_lesson_course", views.StudentLessonCourseViewSet, basename="student_coach_lesson_course")
 router.register("poll_answer", views.StudentPollAnswer, basename="student_poll_answer")
 router.register("home_category", views.HomeCategoryViewSet, basename="home_category")
+router.register("crud_course_tye", views.CrudCourseTypeViewSet, basename="crud_course_tye")
 
 lesson_course_router = routers.NestedDefaultRouter(router, "student_lesson_course",
                                                    lookup="student_lesson_course")

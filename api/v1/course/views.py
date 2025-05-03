@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from accounts.models import Student
 from course.models import Comment, SectionVideo, SectionFile, LessonCourse, StudentSectionScore, \
     PresentAbsent, StudentAccessSection, SendSectionFile, OnlineLink, SectionQuestion, Section, \
-    Category, CallLessonCourse, Course, Certificate
+    Category, CallLessonCourse, Course, Certificate, CourseTypeModel
 from .pagination import CommentPagination
 from .paginations import CommonPagination
 
@@ -839,6 +839,10 @@ class HomeCourseViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewse
     def get_queryset(self):
         query = Course.objects.filter(category_id=self.kwargs['home_category_pk']).defer(
             "is_deleted", "deleted_at", "updated_at", "created_at"
+        ).prefetch_related(
+            Prefetch("course_type_model", queryset=CourseTypeModel.objects.filter(is_active=True).only(
+                "price", "course_type", "description", "course_id"
+            ))
         )
         course_level = self.request.query_params.get("course_level", None)
 
@@ -846,3 +850,9 @@ class HomeCourseViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewse
             query = query.filter(course_level__exact=course_level)
 
         return query
+
+
+class CrudCourseTypeViewSet(viewsets.ModelViewSet):
+    permission_classes = (permissions.IsAdminUser,)
+    queryset = CourseTypeModel.objects.defer("is_deleted", "deleted_at")
+    serializer_class = serializers.CrudCourseTypeSerializer

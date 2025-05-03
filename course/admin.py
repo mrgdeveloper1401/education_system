@@ -13,7 +13,7 @@ class CouAdmin(ImportExportModelAdmin):
     raw_id_fields = ('category',)
     list_select_related = ('category',)
     search_fields = ('course_name',)
-    filter_horizontal = ('plans',)
+    # filter_horizontal = ('plans',)
 
 
 @admin.register(models.Category)
@@ -210,3 +210,11 @@ class SignupCourseAdmin(admin.ModelAdmin):
             "i_have_computer",
             "created_at"
         )
+
+
+@admin.register(models.CourseTypeModel)
+class CourseTypeModelAdmin(admin.ModelAdmin):
+    raw_id_fields = ("course",)
+    list_display = ("course", "course_type", "price", "is_active")
+    list_select_related = ("course",)
+    list_editable = ("course_type", "is_active")

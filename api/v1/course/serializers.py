@@ -6,7 +6,7 @@ from accounts.models import Student
 from course.enums import RateChoices, StudentStatusChoices
 from course.models import Course, Category, Comment, Section, SectionVideo, SectionFile, SendSectionFile, LessonCourse, \
     StudentSectionScore, PresentAbsent, StudentAccessSection, OnlineLink, SectionQuestion, AnswerQuestion, \
-    CallLessonCourse, Certificate
+    CallLessonCourse, Certificate, CourseTypeModel
 from subscription_app.models import Plan
 
 
@@ -458,14 +458,23 @@ class HomeCategorySerializer(serializers.ModelSerializer):
 
 
 
-class HomeCoursePlanSerializer(serializers.ModelSerializer):
+# class HomeCoursePlanSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Plan
+#         fields = ("price", "plan_title")
+
+
+class CourseTypeSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Plan
-        fields = ("price", "plan_title")
+        model = CourseTypeModel
+        fields = ("course_type", "description")
 
 
 class HomeCourseSerializer(serializers.ModelSerializer):
-    plans = HomeCoursePlanSerializer(many=True)
+    # plans = HomeCoursePlanSerializer(many=True)
+    course_type_model = CourseTypeSerializer(
+        many=True,
+    )
 
     class Meta:
         model = Course
@@ -483,8 +492,7 @@ class HomeCourseSerializer(serializers.ModelSerializer):
             "course_level",
             "time_course",
             "course_age",
-            "plans",
-            "course_type"
+            "course_type_model",
         )
 
 
@@ -511,3 +519,9 @@ class CertificateSerializer(serializers.ModelSerializer):
             raise exceptions.ValidationError({"message": "you have already certificate"})
 
         return attrs
+
+
+class CrudCourseTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CourseTypeModel
+        exclude = ("is_deleted", "deleted_at")
