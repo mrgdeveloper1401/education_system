@@ -319,5 +319,11 @@ class RequestOtpVerifyView(APIView):
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-        data = serializer.validated_data['access_token']
-        return Response({'access_token': data}, status=HTTP_201_CREATED)
+        data = serializer.validated_data
+        return Response(
+            {
+            'access_token': data['access_token'],
+             "is_coach": data['is_coach'],
+             "is_staff": data['is_staff']
+             },
+            status=HTTP_201_CREATED)
