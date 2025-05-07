@@ -1,0 +1,19 @@
+[Unit]
+Description=Gunicorn instance to serve application
+After=network.target
+
+[Service]
+User=debian
+Group=debian
+WorkingDirectory=/home/debian/django_project/education_system
+Environment="PATH=/home/debian/django_project/education_system"
+ExecStart=/home/debian/django_project/education_system/.venv/bin/gunicorn --workers  2 --bind 0.0.0.0:8000 education_system.wsgi:application
+ExecReload=/bin/kill -s HUP $MAINPID
+KillMode=mixed
+TimeoutStopSec=5
+PrivateTmp=true
+StandardError=file:/var/log/gunicron-error.log
+StandardOutput=file:/var/log/gunicorn-accept.log
+
+[Install]
+WantedBy=multi-user.target
