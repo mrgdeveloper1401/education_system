@@ -10,7 +10,6 @@ router.register("coach_lesson_course", views.CoachLessonCourseViewSet, basename=
 router.register("student_coach_lesson_course", views.StudentLessonCourseViewSet, basename="student_coach_lesson_course")
 router.register("poll_answer", views.StudentPollAnswer, basename="student_poll_answer")
 router.register("home_category", views.HomeCategoryViewSet, basename="home_category")
-router.register("crud_course_tye", views.CrudCourseTypeViewSet, basename="crud_course_tye")
 
 lesson_course_router = routers.NestedDefaultRouter(router, "student_lesson_course",
                                                    lookup="student_lesson_course")
@@ -28,12 +27,16 @@ coach_lesson_course_router.register("online_link", views.OnlineLinkViewSet, base
 home_category_router = routers.NestedSimpleRouter(router, "home_category", lookup="home_category")
 home_category_router.register("home_course", views.HomeCourseViewSet, basename="home_course")
 
+home_course_router = routers.NestedDefaultRouter(home_category_router, "home_course", lookup="home_course")
+home_course_router.register("crud_course_type", views.CrudCourseTypeViewSet, basename="crud_course_tye")
+
 app_name = 'course'
 urlpatterns = [
     path("", include(lesson_course_router.urls)),
     path("", include(coach_lesson_course_router.urls)),
     path("", include(coach_lesson_course.urls)),
     path("", include(home_category_router.urls)),
+    path("", include(home_course_router.urls)),
     path("student_lesson_course/<int:student_lesson_course_pk>/student_online_link/",
          views.StudentOnlineLinkApiView.as_view(), name="student_online_link"),
 ]

@@ -2,13 +2,13 @@ from education_system.base import *
 
 SECRET_KEY = config('DEVELOP_SECRET_KEY', cast=str)
 
-CORS_ALLOW_ALL_ORIGINS = True
+# CORS_ALLOW_ALL_ORIGINS = True
 
 ALLOWED_HOSTS = ['*']
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "ENGINE": "django.db.backends.postgresql",
         "NAME": 'educationdb',
         'USER': "postgres",
         "PASSWORD": "postgres",
@@ -52,6 +52,13 @@ STATIC_ROOT = BASE_DIR / config("STATIC_ROOT", cast=str)
 MEDIA_URL = config("MEDIA_URL", cast=str)
 MEDIA_ROOT = config("MEDIA_ROOT", cast=str)
 
-# Celery settings
-CELERY_BROKER_URL = "redis://localhost:6380"
-CELERY_RESULT_BACKEND = "redis://localhost:6380"
+# ADMINS = [
+#     ("mohammad goodarzi", "mysum325g@gmail.com")
+# ]
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = config("EMAIL_HOST", cast=str)
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = config("EMAIL_HOST_USER", cast=str)
+EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", cast=str)

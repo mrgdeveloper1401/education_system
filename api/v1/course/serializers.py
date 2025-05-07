@@ -479,15 +479,11 @@ class HomeCourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         fields = (
+            "id",
             "course_name",
             "course_image",
             "course_description",
             "project_counter",
-            # "price",
-            # "is_free",
-            # "calc_discount_value",
-            # "amount_discount",
-            # "final_price",
             "facilities",
             "course_level",
             "time_course",
@@ -522,6 +518,14 @@ class CertificateSerializer(serializers.ModelSerializer):
 
 
 class CrudCourseTypeSerializer(serializers.ModelSerializer):
+    course = serializers.PrimaryKeyRelatedField(
+        queryset=Course.objects.filter(is_publish=True).only("course_name",)
+    )
+
     class Meta:
         model = CourseTypeModel
         exclude = ("is_deleted", "deleted_at")
+
+    def create(self, validated_data):
+        course_id = self.context['home_course_pk']
+        return CourseTypeModel.objects.create(course_id=course_id, **validated_data)

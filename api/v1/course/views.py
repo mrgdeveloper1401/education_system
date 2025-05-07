@@ -854,5 +854,14 @@ class HomeCourseViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewse
 
 class CrudCourseTypeViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAdminUser,)
-    queryset = CourseTypeModel.objects.defer("is_deleted", "deleted_at")
     serializer_class = serializers.CrudCourseTypeSerializer
+
+    def get_queryset(self):
+        return CourseTypeModel.objects.defer("is_deleted", "deleted_at").filter(
+            course_id=self.kwargs['home_course_pk']
+        )
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['home_course_pk'] = self.kwargs['home_course_pk']
+        return context
