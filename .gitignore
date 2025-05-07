@@ -292,3 +292,8 @@ education_system/mock_data
 /blog_app/mock_data/edit_mock_data.py
 Archive.zip
 codeima.ir-0002
+nginx/cert.pem
+nginx/chain.pem
+nginx/fullchain.pem
+nginx/privkey.pem
+nginx/README
