@@ -250,9 +250,11 @@ CKEDITOR_BASEPATH = BASE_DIR / "staticfiles/ckeditor/ckeditor/"
 # GUARDIAN_ANONYMOUS_USER_NAME = None
 
 # Celery settings
-CELERY_BROKER_URL = "redis://localhost:6380/0"
-CELERY_RESULT_BACKEND = "redis://localhost:6380/1"
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Asia/Tehran'
+CELERY_ACCEPT_CONTENT = ['json']
 
 CACHES = {
     "default": {
@@ -263,3 +265,10 @@ CACHES = {
         }
     }
 }
+
+# Static files (CSS, JavaScript, Images)
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"

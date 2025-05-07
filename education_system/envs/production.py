@@ -11,6 +11,7 @@ MIDDLEWARE += [
 
 CORS_ALLOWED_ORIGINS = ''.join(config("CORS_ALLOW_ORIGINS_CORS", cast=list)).split(",")
 
+# host postgres
 # DATABASES = {
 #     "default": {
 #         "ENGINE": "django.db.backends.postgresql",
@@ -22,14 +23,27 @@ CORS_ALLOWED_ORIGINS = ''.join(config("CORS_ALLOW_ORIGINS_CORS", cast=list)).spl
 #     }
 # }
 
+# docker system
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.postgresql",
+#         "NAME": config("VPS_PRODUCTION_DB_NAME", cast=str),
+#         'USER': config("VPS_PRODUCTION_DB_USER", cast=str),
+#         "PASSWORD": config("VPS_PRODUCTION_DB_PASSWORD", cast=str),
+#         'HOST': config("VPS_PRODUCTION_DB_HOST", cast=str),
+#         "PORT": config("VPS_PRODUCTION_DB_PORT", cast=int),
+#     }
+# }
+
+# docker compose
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": config("VPS_PRODUCTION_DB_NAME", cast=str),
-        'USER': config("VPS_PRODUCTION_DB_USER", cast=str),
-        "PASSWORD": config("VPS_PRODUCTION_DB_PASSWORD", cast=str),
-        'HOST': config("VPS_PRODUCTION_DB_HOST", cast=str),
-        "PORT": config("VPS_PRODUCTION_DB_PORT", cast=int),
+        "NAME": config("COMPOSE_POSTGRES_DB", cast=str),
+        'USER': config("COMPOSE_POSTGRES_USER", cast=str),
+        "PASSWORD": config("COMPOSE_POSTGRES_PASSWORD", cast=str),
+        'HOST': "education_postgres",
+        "PORT": 5432,
     }
 }
 
@@ -65,3 +79,7 @@ CSRF_COOKIE_AGE = 3600
 STORAGES["staticfiles"] = {
     "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
 }
+
+# celery config
+CELERY_BROKER_URL = "redis://education_redis:6379/0"
+CELERY_RESULT_BACKEND = "redis://localhost:6379/1"

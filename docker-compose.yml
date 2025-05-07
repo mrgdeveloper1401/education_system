@@ -1,0 +1,70 @@
+services:
+  app:
+    container_name: django
+    build:
+      context: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - static_files:/home/app/education_system/staticfiles
+    env_file: ".env"
+    restart: always
+    depends_on:
+      - db
+
+  db:
+    container_name: education_postgres
+    image: docker.arvancloud.ir/postgres:16.8-alpine
+    expose:
+      - 5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+    environment:
+      POSTGRES_USER: ${COMPOSE_POSTGRES_USER}
+      POSTGRES_DB: ${COMPOSE_POSTGRES_DB}
+      POSTGRES_PASSWORD: ${COMPOSE_POSTGRES_PASSWORD}
+
+  redis:
+    container_name: education_redis
+    image: docker.arvancloud.ir/redis:7.4.2-alpine
+    restart: always
+    depends_on:
+      - db
+    expose:
+      - 6379
+
+  nginx:
+    container_name: education_nginx
+    restart: always
+    image: docker.arvancloud.ir/nginx:1.27-alpine
+    build:
+      context: nginx
+      dockerfile: Dockerfile
+    volumes:
+      - static_files:/vol
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    command: ["nginx", "-g", "daemon off;"]
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - app
+
+  celery:
+    container_name: education_celery
+    restart: always
+    build:
+      context: celery
+      dockerfile: Dockerfile
+    depends_on:
+      - redis
+    environment:
+      - CELERY_BROKER_URL=redis://education_redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://localhost:6379/1
+    command: "celery -A education_system.dj_celery worker -l INFO"
+
+
+volumes:
+  static_files:
+  postgres_data:
