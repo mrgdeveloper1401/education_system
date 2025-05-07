@@ -1,0 +1,17 @@
+[Unit]
+Description=Celery Service for Django
+After=network.target redis-server.service
+
+[Service]
+User=debian
+Group=debian
+WorkingDirectory=/home/debian/django_project/education_system/
+Environment="PYTHONPATH=/home/debian/django_project/education_system"
+ExecStart=/home/debian/django_project/education_system/.venv/bin/celery -A education_system.dj_celery worker --loglevel=INFO
+Restart=always
+RestartSec=10
+StandardOutput=file:/var/log/celery-server.log
+StandardError=file:/var/log/celery-server-error.log
+
+[Install]
+WantedBy=multi-user.target

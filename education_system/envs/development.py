@@ -2,7 +2,7 @@ from education_system.base import *
 
 SECRET_KEY = config('DEVELOP_SECRET_KEY', cast=str)
 
-# CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = True
 
 ALLOWED_HOSTS = ['*']
 
