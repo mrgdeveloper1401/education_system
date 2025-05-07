@@ -24,28 +24,28 @@ CORS_ALLOWED_ORIGINS = ''.join(config("CORS_ALLOW_ORIGINS_CORS", cast=list)).spl
 # }
 
 # docker system
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.postgresql",
-#         "NAME": config("VPS_PRODUCTION_DB_NAME", cast=str),
-#         'USER': config("VPS_PRODUCTION_DB_USER", cast=str),
-#         "PASSWORD": config("VPS_PRODUCTION_DB_PASSWORD", cast=str),
-#         'HOST': config("VPS_PRODUCTION_DB_HOST", cast=str),
-#         "PORT": config("VPS_PRODUCTION_DB_PORT", cast=int),
-#     }
-# }
-
-# docker compose
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": config("COMPOSE_POSTGRES_DB", cast=str),
-        'USER': config("COMPOSE_POSTGRES_USER", cast=str),
-        "PASSWORD": config("COMPOSE_POSTGRES_PASSWORD", cast=str),
-        'HOST': "education_postgres",
-        "PORT": 5432,
+        "NAME": config("VPS_PRODUCTION_DB_NAME", cast=str),
+        'USER': config("VPS_PRODUCTION_DB_USER", cast=str),
+        "PASSWORD": config("VPS_PRODUCTION_DB_PASSWORD", cast=str),
+        'HOST': config("VPS_PRODUCTION_DB_HOST", cast=str),
+        "PORT": config("VPS_PRODUCTION_DB_PORT", cast=int),
     }
 }
+
+# docker compose
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.postgresql",
+#         "NAME": config("COMPOSE_POSTGRES_DB", cast=str),
+#         'USER': config("COMPOSE_POSTGRES_USER", cast=str),
+#         "PASSWORD": config("COMPOSE_POSTGRES_PASSWORD", cast=str),
+#         'HOST': "education_postgres",
+#         "PORT": 5432,
+#     }
+# }
 
 SIMPLE_JWT['SIGNING_KEY'] = SECRET_KEY
 # SIMPLE_JWT["AUDIENCE"] = config("AUDIENCE", cast=str)
