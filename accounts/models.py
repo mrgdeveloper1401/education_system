@@ -1,3 +1,4 @@
+import uuid
 from datetime import timedelta
 from random import randint
 
@@ -86,12 +87,6 @@ class Otp(CreateMixin):
     mobile_phone = models.CharField(_("mobile phone"), max_length=11, validators=[MobileRegexValidator()])
     code = models.CharField(_("code"), max_length=6, blank=True)
     expired_date = models.DateTimeField(_("expired date"), blank=True)
-
-    @property
-    def is_expired(self):
-        if timezone.now() > self.expired_date:
-            return True
-        return False
 
     @property
     def time_left_otp(self):
@@ -210,6 +205,7 @@ class Student(CreateMixin, UpdateMixin, SoftDeleteMixin):
     user = models.OneToOneField(User, on_delete=models.DO_NOTHING, related_name='student',
                                 limit_choices_to={"is_coach": False})
     student_number = models.CharField(max_length=11)
+    referral_code = models.CharField(max_length=30, blank=True)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
@@ -222,6 +218,13 @@ class Student(CreateMixin, UpdateMixin, SoftDeleteMixin):
     @property
     def get_student_phone(self):
         return self.user.mobile_phone
+
+    def save(self, *args, **kwargs):
+        if not self.referral_code:
+            self.referral_code = uuid.uuid4().hex[:30]
+            while Student.objects.filter(referral_code=self.referral_code).exists():
+                self.referral_code = uuid.uuid4().hex[:30]
+        super().save(*args, **kwargs)
 
     class Meta:
         db_table = 'student'

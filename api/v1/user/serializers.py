@@ -24,6 +24,7 @@ class UserSerializer(serializers.ModelSerializer):
     image = Base64ImageField(required=False)
     city_name = serializers.SerializerMethodField()
     state_name = serializers.SerializerMethodField()
+    student_referral_code = serializers.SerializerMethodField()
 
     def validate(self, attrs):
         if attrs['password'] != attrs['confirm_password']:
@@ -42,6 +43,9 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_state_name(self, obj):
         return obj.state.state_name if obj.state else None
+
+    def get_student_referral_code(self, obj):
+        return obj.student.referral_code
 
     class Meta:
         model = User
@@ -253,7 +257,7 @@ class RequestPhoneSerializer(serializers.Serializer):
     )
 
     def validate(self, attrs):
-        if not User.objects.filter(mobile_phone=attrs["mobile_phone"]).exists():
+        if not User.objects.filter(mobile_phone=attrs["mobile_phone"], is_active=True).exists():
             raise exceptions.ValidationError({"message": "user dont exists, please signup"})
         else:
             otp = Otp.objects.filter(mobile_phone=attrs["mobile_phone"], expired_date__gt=timezone.now()).last()

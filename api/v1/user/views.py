@@ -1,4 +1,5 @@
 import jwt
+from django.db.models import Prefetch
 from django.utils import timezone
 from django_filters.rest_framework.backends import DjangoFilterBackend
 from rest_framework.viewsets import ModelViewSet
@@ -75,19 +76,26 @@ class UserViewSet(viewsets.ModelViewSet):
     filterset_fields = ['is_staff', "gender"]
     filterset_class = UserFilter
 
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            self.permission_classes = (IsAdminUser,)
+        return super().get_permissions()
+
     def get_queryset(self):
+        query = User.objects.select_related("state", "city").prefetch_related(
+            Prefetch(
+                "student", queryset=Student.objects.only("referral_code", "user_id")
+            )
+        )
         if self.request.user.is_staff:
-            return User.objects.select_related("state", "city")
+            return query
         else:
-            return User.objects.select_related("state", "city").filter(id=self.request.user.id)
+            return query.filter(id=self.request.user.id)
 
     def get_serializer_class(self):
         if self.request.method in ['PUT', "PATCH"]:
             return serializers.UpdateUserSerializer
         return super().get_serializer_class()
-
-    def get_serializer_context(self):
-        return super().get_serializer_context()
 
 
 class BaseApiView(APIView):
