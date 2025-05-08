@@ -46,6 +46,7 @@ class Discount(CreateMixin, UpdateMixin, SoftDeleteMixin):
         return f"{self.percent}% تخفیف برای {self.content_object}"
 
     class Meta:
+        db_table = "discount_app"
         verbose_name = "تخفیف"
         verbose_name_plural = "تخفیف‌ها"
         indexes = [

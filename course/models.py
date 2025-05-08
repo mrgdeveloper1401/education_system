@@ -107,7 +107,6 @@ class CourseTypeModel(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = "course_type"
-        unique_together = ("course_type", "course")
 
 
 class LessonCourse(CreateMixin, UpdateMixin, SoftDeleteMixin):
