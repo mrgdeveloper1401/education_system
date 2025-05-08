@@ -7,6 +7,7 @@ from django.core.validators import ValidationError, MinValueValidator, MaxValueV
 from accounts.models import User
 from core.models import CreateMixin, UpdateMixin, SoftDeleteMixin
 from course.enums import NumberOfDaysChoices
+from course.models import Course
 
 
 class Subscription(CreateMixin, UpdateMixin, SoftDeleteMixin):
@@ -17,56 +18,19 @@ class Subscription(CreateMixin, UpdateMixin, SoftDeleteMixin):
         CANCELED = 'canceled', _('لغو شده')
         TRIAL = 'trial', _('آزمایشی')
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='subscriptions')
-    plan = models.ForeignKey('Plan', on_delete=models.SET_NULL, null=True, related_name='subscriptions')
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='user_subscription')
+    course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name='course_subscription', null=True)
     end_date = models.DateField()
-    is_active = models.BooleanField(default=True)
+    start_date = models.DateField(null=True)
     status = models.CharField(
         max_length=10,
         choices=Status.choices,
         default=Status.PENDING
     )
     auto_renew = models.BooleanField(default=False)
-    payment_gateway_data = models.JSONField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.user.mobile_phone} - {self.plan.plan_title if self.plan else 'No Plan'}"
-
-    @property
-    def remaining_days(self):
-        today = datetime.date.today()
-        if today > self.end_date:
-            return 0
-        return (self.end_date - today).days
-
-    @property
-    def is_expired(self):
-        return datetime.date.today() > self.end_date
-
-    def renew(self, plan=None, duration_days=None):
-        if plan:
-            self.plan = plan
-        if duration_days:
-            self.end_date = datetime.date.today() + datetime.timedelta(days=duration_days)
-        self.status = self.Status.ACTIVE
-        self.save()
-
-    def cancel(self):
-        self.status = self.Status.CANCELED
-        self.is_active = False
-        self.save()
-
-    # def save(self, *args, **kwargs):
-    #     # Update status based on dates
-    #     today = datetime.date.today()
-    #     if self.end_date < today:
-    #         self.status = self.Status.EXPIRED
-    #     elif self.created_at > today:
-    #         self.status = self.Status.PENDING
-    #     elif self.status != self.Status.CANCELED:
-    #         self.status = self.Status.ACTIVE
-    #
-    #     super().save(*args, **kwargs)
+        return f"{self.user.mobile_phone} - {self.status}"
 
     class Meta:
         db_table = 'subscription'
