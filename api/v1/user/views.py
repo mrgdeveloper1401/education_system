@@ -1,4 +1,5 @@
 import jwt
+from django.utils import timezone
 from django_filters.rest_framework.backends import DjangoFilterBackend
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated, SAFE_METHODS, IsAdminUser
@@ -139,13 +140,27 @@ class ChangePasswordApiView(APIView):
 
 class ForgetPasswordApiView(APIView):
     serializer_class = serializers.ForgetPasswordSerializer
-    permission_classes = [NotAuthenticate]
+    permission_classes = (NotAuthenticate,)
 
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=HTTP_200_OK)
+
+        mobile_phone = serializer.validated_data['mobile_phone']
+
+        if not User.objects.filter(mobile_phone=mobile_phone).exists():
+            raise ValidationError({"message": "phone number dose not exits"})
+        else:
+            have_otp = Otp.objects.filter(mobile_phone=mobile_phone, expired_date__gt=timezone.now()).only(
+                "mobile_phone", "expired_date"
+            )
+
+            if have_otp:
+                raise ValidationError({"message": "you have already otp code, please 2 minute wait"})
+            else:
+                otp = Otp.objects.create(mobile_phone=mobile_phone)
+                send_sms_otp_code_async.delay(otp.mobile_phone, otp.code)
+                return Response({'message': "code sent"}, status=HTTP_200_OK)
 
 
 class ConfirmForgetPasswordApiView(APIView):
@@ -155,8 +170,22 @@ class ConfirmForgetPasswordApiView(APIView):
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=HTTP_200_OK)
+
+        code = serializer.validated_data['code']
+        password = serializer.validated_data['confirm_password']
+        otp = Otp.objects.filter(code=code, expired_date__gt=timezone.now()).only("code").last()
+
+        if not otp:
+            raise ValidationError({"message": "otp is invalid or expired"})
+        else:
+            user = User.objects.filter(mobile_phone=otp.mobile_phone).only("mobile_phone", "password").last()
+
+            if not user:
+                raise ValidationError({"message": "user dose not exits"})
+            else:
+                user.set_password(password)
+                otp.delete()
+                return Response({"message": "password successfully change"}, status=HTTP_200_OK)
 
 
 class StudentViewSet(ModelViewSet):
