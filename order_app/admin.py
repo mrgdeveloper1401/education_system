@@ -29,3 +29,17 @@ class CourseSignUpAdmin(admin.ModelAdmin):
         return super().get_queryset(request).defer(
             "is_deleted", "deleted_at", "updated_at"
         )
+
+
+@admin.register(models.Payment)
+class PaymentAdmin(admin.ModelAdmin):
+    list_display = ("course", "user", "price", "created_at")
+    list_select_related = ("course", "user")
+    search_fields = ("user__mobile_phone",)
+    list_per_page = 20
+    raw_id_fields = ("user", "course")
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).only(
+            "course__course_name", "user__mobile_phone", "price", "created_at"
+        )

@@ -25,3 +25,15 @@ class Order(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = "order"
+
+
+class Payment(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    course = models.ForeignKey("course.Course", on_delete=models.PROTECT, related_name="course_payments")
+    price = models.FloatField()
+    user = models.ForeignKey("accounts.User", on_delete=models.PROTECT, related_name="user_payments")
+
+    def __str__(self):
+        return f'{self.user.mobile_phone} {self.price}'
+
+    class Meta:
+        db_table = "payment"

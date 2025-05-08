@@ -1,7 +1,7 @@
-from rest_framework import viewsets, mixins
+from rest_framework import viewsets, mixins, permissions
 
 from . import serializers
-from order_app.models import Order, CourseSignUp
+from order_app.models import Order, CourseSignUp, Payment
 
 
 class OrderViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
@@ -17,3 +17,14 @@ class CourseSignupViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
         "last_name",
         "mobile_phone"
     )
+
+
+class PaymentViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = serializers.PaymentSerializer
+
+    def get_queryset(self):
+        return Payment.objects.filter(user=self.request.user).defer(
+            "is_deleted",
+            "deleted_at"
+        )
