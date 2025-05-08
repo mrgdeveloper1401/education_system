@@ -13,6 +13,7 @@ class CategoryBlog(MP_Node, CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     def __str__(self):
         return self.category_name
+
     node_order_by = ("category_name",)
 
 

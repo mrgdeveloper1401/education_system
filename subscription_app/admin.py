@@ -66,7 +66,7 @@ class SubscriptionAdmin(admin.ModelAdmin):
     def user_info(self, obj):
         return format_html(
             '{}<br><small>{}</small>',
-            obj.user.get_full_name() or obj.user.mobile_phone,
+            obj.user.get_full_name or obj.user.mobile_phone,
             obj.user.email
         )
     user_info.short_description = _('User')
