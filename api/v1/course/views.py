@@ -853,12 +853,26 @@ class HomeCourseViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewse
 
 
 class CrudCourseTypeViewSet(viewsets.ModelViewSet):
+    """
+    plan typ can be set this --> month - year - day
+    """
     permission_classes = (permissions.IsAdminUser,)
     serializer_class = serializers.CrudCourseTypeSerializer
 
     def get_queryset(self):
-        return CourseTypeModel.objects.defer("is_deleted", "deleted_at").filter(
+        return CourseTypeModel.objects.filter(
             course_id=self.kwargs['home_course_pk']
+        ).only(
+            "course__course_name",
+            "created_at",
+            "updated_at",
+            "is_active",
+            "price",
+            "description",
+            "course_type",
+            "plan_type",
+            "is_active",
+            "amount"
         )
 
     def get_serializer_context(self):

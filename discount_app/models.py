@@ -1,3 +1,5 @@
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.utils import timezone
@@ -28,12 +30,10 @@ class Coupon(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 
 class Discount(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    course = models.ForeignKey(
-        "course.Course",
-        related_name="discounts",
-        on_delete=models.PROTECT,
-        verbose_name="دوره"
-    )
+    content_type = models.ForeignKey(ContentType, on_delete=models.PROTECT, null=True)
+    object_id = models.PositiveIntegerField(null=True)
+    content_object = GenericForeignKey('content_type', 'object_id')
+
     percent = models.PositiveSmallIntegerField(
         verbose_name="درصد تخفیف",
         validators=[MaxValueValidator(100), MinValueValidator(0)]
@@ -43,8 +43,11 @@ class Discount(CreateMixin, UpdateMixin, SoftDeleteMixin):
     is_active = models.BooleanField(default=True, verbose_name="فعال")
 
     def __str__(self):
-        return f"{self.percent}% تخفیف برای {self.course.course_name}"
+        return f"{self.percent}% تخفیف برای {self.content_object}"
 
     class Meta:
         verbose_name = "تخفیف"
         verbose_name_plural = "تخفیف‌ها"
+        indexes = [
+            models.Index(fields=["content_type", "object_id"]),
+        ]

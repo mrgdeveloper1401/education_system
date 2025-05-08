@@ -9,7 +9,7 @@ from django.core.validators import FileExtensionValidator, MinValueValidator, Ma
 from treebeard.mp_tree import MP_Node
 
 from course.enums import ProgresChoices, SectionFileType, StudentStatusChoices, RateChoices, SendFileChoices, \
-    CallStatusChoices, CourseType
+    CallStatusChoices, CourseType, PlanTypeEnum
 from course.utils import student_send_section_file
 from course.validators import max_upload_image_validator
 
@@ -99,6 +99,8 @@ class CourseTypeModel(CreateMixin, UpdateMixin, SoftDeleteMixin):
         max_length=8,
         default=CourseType.private,
     )
+    amount = models.PositiveSmallIntegerField(blank=True)
+    plan_type = models.CharField(choices=PlanTypeEnum.choices, max_length=5, blank=True)
 
     def __str__(self):
         return self.course_type

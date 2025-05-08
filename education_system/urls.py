@@ -25,6 +25,7 @@ api_url = [
     path('api_course/', include('api.v1.course.urls', namespace='course')),
     path('api_blog/', include("api.v1.blog.urls", namespace='v1_blogs')),
     # path('api_exam/', include("api.v1.exam.urls", namespace='api_exam')),
+    path("api_discount/", include("api.v1.discounts.urls", namespace='v1_discounts')),
     path("api_order/", include("api.v1.orders.urls", namespace="v1_orders")),
 ]
 

@@ -213,6 +213,20 @@ class SignupCourseAdmin(admin.ModelAdmin):
 @admin.register(models.CourseTypeModel)
 class CourseTypeModelAdmin(admin.ModelAdmin):
     raw_id_fields = ("course",)
-    list_display = ("course", "course_type", "price", "is_active")
+    list_display = ("course", "id", "course_type", "price", "is_active", "plan_type", "amount")
     list_select_related = ("course",)
-    list_editable = ("course_type", "is_active")
+    list_editable = ("course_type", "is_active", "plan_type", "amount")
+    list_per_page = 20
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).only(
+            "course__course_name",
+            "price",
+            "is_active",
+            "amount",
+            "plan_type",
+            "is_active",
+            "description",
+            "created_at",
+            "course_type"
+        )

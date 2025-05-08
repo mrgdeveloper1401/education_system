@@ -66,3 +66,9 @@ class NumberOfDaysChoices(models.TextChoices):
 class CourseType(models.TextChoices):
     private = "private", _("خصوصی")
     economy = "economy", _("اکونومی")
+
+
+class PlanTypeEnum(models.TextChoices):
+    month = "month", _("ماه")
+    year = "year", _("سال")
+    day = "day", _("روز")
