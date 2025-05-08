@@ -80,6 +80,10 @@ STORAGES["staticfiles"] = {
     "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
 }
 
-# celery config
-CELERY_BROKER_URL = "redis://education_redis:6379/0"
+# celery compose config
+# CELERY_BROKER_URL = "redis://education_redis:6379/0"
+# CELERY_RESULT_BACKEND = "redis://education_redis:6379/1"
+
+# celery docker config
+CELERY_BROKER_URL = "redis://localhost:6379/0"
 CELERY_RESULT_BACKEND = "redis://localhost:6379/1"
