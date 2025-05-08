@@ -8,15 +8,14 @@ from .serializers import (
     PostBlogSerializer,
     TagBlogSerializer,
     FavouritePostSerializer,
-    CommentBlogSerializer
+    CommentBlogSerializer,
+    CreateCategorySerializer
 )
 
 
 class CategoryBlogViewSet(viewsets.ModelViewSet):
-    queryset = CategoryBlog.objects.filter(is_publish=True)
+    queryset = CategoryBlog.objects.filter(is_publish=True).defer("is_deleted", "deleted_at")
     serializer_class = CategoryBlogSerializer
-    filter_backends = [filters.SearchFilter]
-    search_fields = ['category_name', 'category_slug']
 
     def get_permissions(self):
         if self.request.method in permissions.SAFE_METHODS:
@@ -24,6 +23,20 @@ class CategoryBlogViewSet(viewsets.ModelViewSet):
         else:
             self.permission_classes = (permissions.IsAdminUser,)
         return super().get_permissions()
+
+    def filter_queryset(self, queryset):
+        name = self.request.query_params.get("name", None)
+
+        if name:
+            return queryset.filter(category_name__icontains=name)
+        else:
+            return queryset
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return CreateCategorySerializer
+        else:
+            return super().get_serializer_class()
 
 
 class TagBlogViewSet(viewsets.ModelViewSet):
@@ -35,13 +48,11 @@ class TagBlogViewSet(viewsets.ModelViewSet):
 
 
 class PostBlogViewSet(viewsets.ModelViewSet):
-    queryset = PostBlog.objects.filter(is_publish=True)
     serializer_class = PostBlogSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
-    filterset_fields = ['category', 'tags']
-    search_fields = ['post_title', 'post_introduction', 'post_body']
-    ordering_fields = ['created_at', 'read_count', 'likes']
+    filterset_fields = ('category', 'tags')
+    search_fields = ('post_title', 'post_introduction', 'post_body')
+    ordering_fields = ('created_at', 'read_count', 'likes')
 
     @action(detail=True, methods=['post'])
     def like(self, request, pk=None):
@@ -57,13 +68,28 @@ class PostBlogViewSet(viewsets.ModelViewSet):
         post.save()
         return Response({'status': 'read count incremented', 'read_count': post.read_count})
 
+    def get_queryset(self):
+        return PostBlog.objects.filter(is_publish=True, category_id=self.kwargs['category_pk']).defer("is_deleted", "deleted_at")
+
+    def get_permissions(self):
+        if self.request.method in permissions.SAFE_METHODS:
+            self.permission_classes =  (permissions.AllowAny,)
+        else:
+            self.permission_classes = (permissions.IsAdminUser,)
+        return super().get_permissions()
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['category_pk'] = self.kwargs['category_pk']
+        return context
+
 
 class FavouritePostViewSet(viewsets.ModelViewSet):
     serializer_class = FavouritePostSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return FavouritePost.objects.filter(user=self.request.user)
+        return FavouritePost.objects.filter(user=self.request.user).defer("is_deleted", "deleted_at")
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -71,10 +97,14 @@ class FavouritePostViewSet(viewsets.ModelViewSet):
 
 class CommentBlogViewSet(viewsets.ModelViewSet):
     serializer_class = CommentBlogSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
-        return CommentBlog.objects.filter(is_publish=True, reply=None)
+        return CommentBlog.objects.filter(
+            is_publish=True, reply=None, post_id=self.kwargs['post_pk']
+        ).defer("is_deleted", "deleted_at")
 
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['post_pk'] = self.kwargs['post_pk']
+        return context
