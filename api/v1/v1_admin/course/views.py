@@ -116,8 +116,8 @@ class AdminSectionVideoViewSet(viewsets.ModelViewSet):
 class AdminCourseListApiView(generics.ListAPIView):
     queryset = Course.objects.only('id', "course_name")
     serializer_class = serializers.AdminCourseListSerializer
-    permission_classes = [permissions.IsAdminUser]
-    search_fields = ['course_name']
+    permission_classes = (permissions.IsAdminUser,)
+    search_fields = ('course_name',)
     filter_backends = [filters.SearchFilter]
 
 

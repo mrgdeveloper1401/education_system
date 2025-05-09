@@ -3,6 +3,7 @@ from django.urls import include
 from rest_framework.urls import path
 
 from . import views
+from ...course.views import CrudCourseTypeViewSet
 
 app_name = 'admin_category'
 
@@ -20,6 +21,7 @@ category_router.register("admin_comment", views.AdminCommentViewSet, basename='a
 course_router = routers.NestedDefaultRouter(category_router, r'course', lookup='course')
 course_router.register("course_section", views.AdminCourseSectionViewSet, basename='admin_course_section')
 course_router.register("class_room", views.AdminLessonCourseViewSet, basename='admin_class_room')
+course_router.register("crud_course_type", CrudCourseTypeViewSet, basename="admin_crud_course_type")
 
 section_router = routers.NestedDefaultRouter(course_router, r'course_section', lookup='section')
 section_router.register('section_file', views.AdminSectionFileViewSet, basename='admin_section_file')

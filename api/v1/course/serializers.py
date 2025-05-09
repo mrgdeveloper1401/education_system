@@ -1,3 +1,4 @@
+from django.contrib.contenttypes.models import ContentType
 from rest_framework import serializers, exceptions
 from drf_spectacular.utils import extend_schema_field
 from rest_framework.generics import get_object_or_404
@@ -7,6 +8,7 @@ from course.enums import RateChoices, StudentStatusChoices
 from course.models import Course, Category, Comment, Section, SectionVideo, SectionFile, SendSectionFile, LessonCourse, \
     StudentSectionScore, PresentAbsent, StudentAccessSection, OnlineLink, SectionQuestion, AnswerQuestion, \
     CallLessonCourse, Certificate, CourseTypeModel
+from discount_app.models import Discount
 from subscription_app.models import Plan
 
 
@@ -521,11 +523,20 @@ class CrudCourseTypeSerializer(serializers.ModelSerializer):
     course = serializers.PrimaryKeyRelatedField(
         queryset=Course.objects.filter(is_publish=True).only("course_name",)
     )
+    discounts = serializers.SerializerMethodField()
 
     class Meta:
         model = CourseTypeModel
         exclude = ("is_deleted", "deleted_at")
 
     def create(self, validated_data):
-        course_id = self.context['home_course_pk']
+        course_id = self.context['course_pk']
         return CourseTypeModel.objects.create(course_id=course_id, **validated_data)
+
+    def get_discounts(self, obj):
+        discounts = Discount.objects.filter(
+            content_type=ContentType.objects.get_for_model(obj),
+            object_id=obj.id,
+            is_active=True
+        ).values("percent", "start_date", "end_date")
+        return discounts
