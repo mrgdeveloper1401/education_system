@@ -1,5 +1,6 @@
 from rest_framework import viewsets, mixins, permissions
 
+from utils.permissions import NotAuthenticate
 from . import serializers
 from order_app.models import Order, CourseSignUp, Payment
 
@@ -15,7 +16,8 @@ class CourseSignupViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
         "course__course_name",
         "fist_name",
         "last_name",
-        "mobile_phone"
+        "mobile_phone",
+        "have_account"
     )
 
 

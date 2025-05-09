@@ -20,7 +20,7 @@ class OrderAdmin(admin.ModelAdmin):
 
 @admin.register(models.CourseSignUp)
 class CourseSignUpAdmin(admin.ModelAdmin):
-    list_display = ("course", "mobile_phone", "fist_name", "last_name", "created_at")
+    list_display = ("course", "mobile_phone", "first_name", "last_name", "created_at", "have_account")
     search_fields = ("mobile_phone",)
     list_per_page = 20
     raw_id_fields = ("course",)

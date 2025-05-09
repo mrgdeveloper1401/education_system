@@ -1,5 +1,7 @@
 from rest_framework import serializers, exceptions
 
+from accounts.models import User
+from course.models import Course
 from order_app.models import Order, CourseSignUp, Payment
 
 
@@ -10,12 +12,19 @@ class OrderSerializer(serializers.ModelSerializer):
 
 
 class CourseSignUpSerializer(serializers.ModelSerializer):
+    course = serializers.PrimaryKeyRelatedField(
+        queryset=Course.objects.only("course_name")
+    )
+
     class Meta:
         model = CourseSignUp
-        fields = ("course", "mobile_phone", "fist_name", "last_name")
+        fields = ("course", "mobile_phone", "first_name", "last_name", "have_account")
+        read_only_fields = ("have_account",)
 
     def validate(self, attrs):
-        if CourseSignUp.objects.filter(mobile_phone=attrs["mobile_phone"]).exists():
+        mobile_phone = attrs.get("mobile_phone")
+
+        if CourseSignUp.objects.filter(mobile_phone=mobile_phone).exists():
             raise exceptions.ValidationError("you have already registered")
         return attrs
 

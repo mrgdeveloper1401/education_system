@@ -51,38 +51,38 @@ class Course(CreateMixin, UpdateMixin, SoftDeleteMixin):
     def __str__(self):
         return self.course_name
 
-    def clean(self):
-        if self.price and self.is_free is True:
-            raise ValidationError({"is_free": _("course not have is free and price")})
-        if not self.price and self.is_free is False:
-            raise ValidationError({"is_free": _("you must select one item between (is_free and price)")})
+    # def clean(self):
+    #     if self.price and self.is_free is True:
+    #         raise ValidationError({"is_free": _("course not have is free and price")})
+    #     if not self.price and self.is_free is False:
+    #         raise ValidationError({"is_free": _("you must select one item between (is_free and price)")})
 
-    @property
-    def calc_discount_value(self):
-        discount = self.discounts.filter(is_active=True)
+    # @property
+    # def calc_discount_value(self):
+    #     discount = self.discounts.filter(is_active=True)
+    #
+    #     if self.price is None:
+    #         return None
+    #
+    #     if discount:
+    #         price = (self.price * discount.last().percent) / 100
+    #         return price
+    #     return None
 
-        if self.price is None:
-            return None
+    # @property
+    # def amount_discount(self):
+    #     discount = self.discounts.filter(is_active=True)
+    #
+    #     if discount:
+    #         return discount.last().percent
+    #     else:
+    #         return None
 
-        if discount:
-            price = (self.price * discount.last().percent) / 100
-            return price
-        return None
-
-    @property
-    def amount_discount(self):
-        discount = self.discounts.filter(is_active=True)
-
-        if discount:
-            return discount.last().percent
-        else:
-            return None
-
-    @property
-    def final_price(self):
-        if self.price is None:
-            return None
-        return self.price - self.calc_discount_value
+    # @property
+    # def final_price(self):
+    #     if self.price is None:
+    #         return None
+    #     return self.price - self.calc_discount_value
 
     class Meta:
         db_table = 'course'
