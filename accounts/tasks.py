@@ -5,7 +5,7 @@ import asyncio
 from education_system.dj_celery import app
 
 
-TEXT_OTP_CODE = "کاربر گرامی کد تایید شما برابر است با: "
+TEXT_OTP_CODE = "کاربر گرامی کد تایید شما برابر است با "
 url = "https://rest.payamak-panel.com/api/SendSMS/SendSMS"
 headers = {
     "Content-Type": "application/json",

@@ -11,7 +11,7 @@ headers = {
     "Content-Type": "application/json",
 }
 
-TEXT = "کاربر گرامی ثبت شما با موفقیت انجام شد نام کاربری و رمز عبور شما به ترتیب برابر است با: "
+TEXT = "کاربر گرامی ثبت شما با موفقیت انجام شد نام کاربری و رمز عبور شما به ترتیب برابر است با "
 
 @app.task(bind=True)
 def send_successfully_signup_async(self, phone_number, password):
