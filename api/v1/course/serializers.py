@@ -538,5 +538,5 @@ class CrudCourseTypeSerializer(serializers.ModelSerializer):
             content_type=ContentType.objects.get_for_model(obj),
             object_id=obj.id,
             is_active=True
-        ).values("percent", "start_date", "end_date")
+        ).values("id", "percent", "start_date", "end_date")
         return discounts
