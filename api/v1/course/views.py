@@ -358,7 +358,7 @@ class StudentLessonCourseViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixi
     serializer_class = serializers.StudentLessonCourseSerializer
 
     def get_queryset(self):
-        return LessonCourse.objects.filter(coach__user=self.request.user).only(
+        return LessonCourse.objects.filter(coach__user=self.request.user, id=self.kwargs['coach_Lesson_course_pk']).only(
             "students", "class_name"
         ).prefetch_related(
             Prefetch("students", Student.objects.filter(is_active=True).select_related("user").only(
@@ -803,6 +803,9 @@ class StudentOnlineLinkApiView(views.APIView):
     tags=['api_coach_course'], description="status --> [successful, un_successful]"
 )
 class CallLessonCourseViewSet(viewsets.ModelViewSet):
+    """
+    search student --> ?std_id=student_number
+    """
     serializer_class = serializers.CallLessonCourseSerializer
     permission_classes = (IsCoachPermission,)
     pagination_class = CommonPagination
@@ -819,6 +822,14 @@ class CallLessonCourseViewSet(viewsets.ModelViewSet):
         context = super().get_serializer_context()
         context["lesson_course_pk"] = self.kwargs['coach_lesson_course_pk']
         return context
+
+    def filter_queryset(self, queryset):
+        std = self.request.query_params.get("std_id", None)
+
+        if std:
+            return queryset.filter(student__id=std)
+        else:
+            return queryset
 
 
 class HomeCategoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):

@@ -15,6 +15,7 @@ lesson_course_router = routers.NestedDefaultRouter(router, "student_lesson_cours
                                                    lookup="student_lesson_course")
 coach_lesson_course = routers.NestedDefaultRouter(router, "coach_lesson_course",
                                                   lookup="coach_lesson_course")
+coach_lesson_course.register("student_list", views.StudentLessonCourseViewSet, basename="coach_student_list")
 coach_lesson_course.register("call_lesson_course", views.CallLessonCourseViewSet, basename="call_lesson_course")
 coach_lesson_course.register("coach_comment", views.CommentViewSet, basename="coach_comment")
 lesson_course_router.register("student_comment", views.CommentViewSet, basename="comment")
