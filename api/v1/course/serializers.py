@@ -467,9 +467,19 @@ class HomeCategorySerializer(serializers.ModelSerializer):
 
 
 class CourseTypeSerializer(serializers.ModelSerializer):
+    discounts = serializers.SerializerMethodField()
+
     class Meta:
         model = CourseTypeModel
-        fields = ("course_type", "description", "price")
+        fields = ("course_type", "description", "price", "discounts", "plan_type", "amount")
+
+    def get_discounts(self, obj):
+        discounts = Discount.objects.filter(
+            content_type=ContentType.objects.get_for_model(obj),
+            object_id=obj.id,
+            is_active=True
+        ).values("id", "percent", "start_date", "end_date")
+        return discounts
 
 
 class HomeCourseSerializer(serializers.ModelSerializer):

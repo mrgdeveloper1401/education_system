@@ -1,50 +1,82 @@
 from rest_framework import viewsets, generics, permissions
-from rest_framework import filters
 
 from accounts.models import BestStudent, Student, Coach, User
+from utils.pagination import CommonPagination
 from . import serializers
-from .pagination import BestStudentPagination
 
 
 class AdminBestStudentViewSet(viewsets.ModelViewSet):
-    permission_classes = [permissions.IsAdminUser]
-    pagination_class = BestStudentPagination
+    """
+    api admin the best student
+    pagination --> 20 item
+    permission --? only amdin user
+    """
+    permission_classes = (permissions.IsAdminUser,)
+    pagination_class = CommonPagination
     serializer_class = serializers.AdminBestStudentSerializer
     queryset = BestStudent.objects.only(
-        "id", "is_publish", "description", "attributes", "student_image", "student"
+        "is_publish", "description", "attributes", "student_image", "student"
     )
 
 
 class AdminStudentApiView(generics.ListAPIView):
+    """
+    api admin the student list
+    permission --? only admin user
+    filter query --> ?phone=phone_number
+    """
     serializer_class = serializers.AdminStudentListSerializer
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = (permissions.IsAdminUser,)
     queryset = Student.objects.only(
-        "id", "user__first_name", "user__last_name",  "user__mobile_phone"
+        "user__first_name", "user__last_name",  "user__mobile_phone", "is_active"
     ).select_related(
         "user"
-    ).filter(is_active=True)
-    search_fields = ['user__mobile_phone']
-    filter_backends = [filters.SearchFilter]
+    )
+
+    def filter_queryset(self, queryset):
+        phone = self.request.query_params.get("phone", None)
+
+        if phone:
+            return queryset.filter(user__mobile_phone__icontains=phone)
+        else:
+            return queryset
 
 
 class AdminCoachApiView(generics.ListAPIView):
+    """
+    show list coach
+    permission --> only admin user
+    search field --> use mobile phon (?phone=phone_number)
+    """
     queryset = Coach.objects.select_related("user").only(
-        "id", "user__first_name", "user__last_name", "user__mobile_phone"
-    ).filter(is_active=True)
+        "user__first_name", "user__last_name", "user__mobile_phone", "is_active"
+    )
     serializer_class = serializers.AdminCouchListSerializer
-    permission_classes = [permissions.IsAdminUser]
-    search_fields = ['user__mobile_phone']
-    filter_backends = [filters.SearchFilter]
+    permission_classes = (permissions.IsAdminUser,)
+
+    def filter_queryset(self, queryset):
+        phone = self.request.query_params.get("phone", None)
+
+        if phone:
+            return queryset.filter(user__mobile_phone__icontains=phone)
+        else:
+            return queryset
 
 
 class AdminUserApiView(generics.ListAPIView):
-    queryset = User.objects.filter(is_active=True).only('id', "mobile_phone", "first_name", "last_name")
+    """
+    show list user
+    permission --> admin
+    filter query --> ?phone=phone_number
+    """
+    queryset = User.objects.only("mobile_phone", "first_name", "last_name", "is_coach", "is_active")
     serializer_class = serializers.AdminUserListSerializer
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = (permissions.IsAdminUser,)
 
-    def get_queryset(self):
-        query = super().get_queryset()
-        phone = self.request.query_params.get("phone")
+    def filter_queryset(self, queryset):
+        phone = self.request.query_params.get("phone", None)
+
         if phone:
-            query = query.filter(mobile_phone__icontains=phone)
-        return query
+            return queryset.filter(mobile_phone__icontains=phone)
+        else:
+            return queryset

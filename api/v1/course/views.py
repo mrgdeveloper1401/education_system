@@ -854,7 +854,7 @@ class HomeCourseViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewse
             "is_deleted", "deleted_at", "updated_at", "created_at"
         ).prefetch_related(
             Prefetch("course_type_model", queryset=CourseTypeModel.objects.filter(is_active=True).only(
-                "price", "course_type", "description", "course_id"
+                "price", "course_type", "description", "course_id", "plan_type", "amount"
             ))
         )
         course_level = self.request.query_params.get("course_level", None)

@@ -23,3 +23,7 @@ class LessonTakenPagination(PageNumberPagination):
 
 class ListUserPagination(PageNumberPagination):
     page_size = 20
+
+
+class CommonPagination(PageNumberPagination):
+    page_size = 20
