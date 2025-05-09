@@ -2,7 +2,7 @@ from rest_framework.exceptions import ValidationError
 
 
 def max_upload_image_validator(value):
-    max_size = 1
+    max_size = 2
     image_size = value.size
     upload_image_size = value.size / 1024 / 1024
 

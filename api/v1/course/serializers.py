@@ -509,7 +509,8 @@ class CertificateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Certificate
-        fields = ("id", "created_at", "student_full_name")
+        fields = ("id", "created_at", "student_full_name", "image")
+        read_only_fields = ("image",)
 
     def get_student_full_name(self, obj):
         return obj.student.student_name if obj.student.user.first_name else None

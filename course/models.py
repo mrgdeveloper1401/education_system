@@ -262,6 +262,8 @@ class Certificate(CreateMixin, UpdateMixin, SoftDeleteMixin):
                                limit_choices_to={"is_publish": True}, null=True)
     student = models.ForeignKey("accounts.Student", on_delete=models.DO_NOTHING, related_name="student_certificates",
                                 limit_choices_to={"is_active": True})
+    image = models.ImageField(upload_to="certificate/%Y/%m/%d", null=True,
+                              validators=[max_upload_image_validator])
 
     class Meta:
         db_table = 'course_certificate'
