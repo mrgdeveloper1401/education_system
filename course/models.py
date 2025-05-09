@@ -92,7 +92,7 @@ class Course(CreateMixin, UpdateMixin, SoftDeleteMixin):
 class CourseTypeModel(CreateMixin, UpdateMixin, SoftDeleteMixin):
     course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name="course_type_model")
     price = models.FloatField()
-    description = models.CharField(max_length=300)
+    description = models.CharField(max_length=300, blank=True)
     is_active = models.BooleanField(default=True)
     course_type = models.CharField(
         choices=CourseType.choices,
