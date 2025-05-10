@@ -72,8 +72,8 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.UserSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = UserPagination
-    filter_backends = [DjangoFilterBackend, SearchFilter]
-    filterset_fields = ['is_staff', "gender"]
+    filter_backends = (DjangoFilterBackend, SearchFilter)
+    filterset_fields = ('is_staff', "gender")
     filterset_class = UserFilter
 
     def get_permissions(self):

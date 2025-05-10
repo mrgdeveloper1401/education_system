@@ -45,7 +45,11 @@ class UserSerializer(serializers.ModelSerializer):
         return obj.state.state_name if obj.state else None
 
     def get_student_referral_code(self, obj):
-        return obj.student.referral_code
+        user = self.context['request'].user
+        if hasattr(user, "student") and user.student:
+            return obj.student.referral_code
+        else:
+            return None
 
     class Meta:
         model = User
