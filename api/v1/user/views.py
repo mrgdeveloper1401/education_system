@@ -33,7 +33,7 @@ from ..course.paginations import CommonPagination
 
 class UserLoginApiView(APIView):
     serializer_class = serializers.UserLoginSerializer
-    permission_classes = [NotAuthenticate]
+    permission_classes = (NotAuthenticate,)
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
@@ -358,9 +358,10 @@ class RequestOtpVerifyView(APIView):
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
         return Response(
-            {
-            'access_token': data['access_token'],
-             "is_coach": data['is_coach'],
-             "is_staff": data['is_staff']
-             },
+            data={
+                "data": data['data'],
+                "is_staff": data['is_staff'],
+                "is_coach": data['is_coach'],
+                "full_name": data['full_name']
+            },
             status=HTTP_201_CREATED)

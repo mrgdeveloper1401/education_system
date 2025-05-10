@@ -286,7 +286,7 @@ class RequestPhoneVerifySerializer(serializers.Serializer):
 
         else:
             user = User.objects.filter(mobile_phone=attrs['mobile_phone']).only(
-                "mobile_phone", "is_staff", "is_coach"
+                "mobile_phone", "is_staff", "is_coach", "first_name", "last_name"
             ).last()
 
             if user.is_active is False:
@@ -294,8 +294,11 @@ class RequestPhoneVerifySerializer(serializers.Serializer):
             else:
                 token = RefreshToken.for_user(user)
                 Otp.objects.filter(mobile_phone=attrs['mobile_phone']).delete()
-                attrs["access_token"] = str(token.access_token)
+                attrs["data"] = {
+                    "access_token": str(token.access_token),
+                    "refresh_token": str(token)
+                }
                 attrs['is_coach'] = str(user.is_coach)
                 attrs['is_staff'] = str(user.is_staff)
-
+                attrs['full_name'] = user.get_full_name
         return attrs
