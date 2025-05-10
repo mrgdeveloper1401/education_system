@@ -359,6 +359,7 @@ class RequestOtpVerifyView(APIView):
         data = serializer.validated_data
         return Response(
             data={
+                "Success": "Login successfully",
                 "data": data['data'],
                 "is_staff": data['is_staff'],
                 "is_coach": data['is_coach'],
