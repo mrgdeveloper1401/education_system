@@ -10,7 +10,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Subscription
-        exclude = ("is_deleted", "deleted_at", "user")
+        exclude = ("is_deleted", "deleted_at", "mobile_phone")
 
     def get_course_name(self, obj):
         return obj.course.course_name
@@ -18,3 +18,9 @@ class SubscriptionSerializer(serializers.ModelSerializer):
     @extend_schema_field(serializers.IntegerField())
     def get_course_category_name(self, obj):
         return obj.course.category.category_name
+
+
+class CreateSubscriptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subscription
+        fields = ("course", "mobile_phone", "start_date", "price")

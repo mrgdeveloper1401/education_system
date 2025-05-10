@@ -1,15 +1,15 @@
-import datetime
-
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import ValidationError, MinValueValidator, MaxValueValidator
-from accounts.models import User
+
+from accounts.validators import MobileRegexValidator
 from core.models import CreateMixin, UpdateMixin, SoftDeleteMixin
 from course.enums import NumberOfDaysChoices
 from course.models import Course
 
 
+# TODO, when clean migration remove attribute null in field mobile_phone
 class Subscription(CreateMixin, UpdateMixin, SoftDeleteMixin):
     class Status(models.TextChoices):
         ACTIVE = 'active', _('فعال')
@@ -18,7 +18,7 @@ class Subscription(CreateMixin, UpdateMixin, SoftDeleteMixin):
         CANCELED = 'canceled', _('لغو شده')
         TRIAL = 'trial', _('آزمایشی')
 
-    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='user_subscription')
+    mobile_phone = models.CharField(validators=[MobileRegexValidator()], db_index=True, max_length=11, null=True)
     course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name='course_subscription', null=True)
     end_date = models.DateField()
     start_date = models.DateField(null=True)
@@ -28,6 +28,7 @@ class Subscription(CreateMixin, UpdateMixin, SoftDeleteMixin):
         default=Status.PENDING
     )
     auto_renew = models.BooleanField(default=False)
+    price = models.FloatField(null=True)
 
     def __str__(self):
         return f"{self.user.mobile_phone} - {self.status}"

@@ -29,39 +29,31 @@ from .models import Subscription
 class SubscriptionAdmin(admin.ModelAdmin):
     readonly_fields = ("created_at", "updated_at")
     list_display = (
-        'user_info',
+        'mobile_phone',
         'created_at',
         'end_date',
         'status',
-        "status_display"
+        "status_display",
+        "price"
     )
     list_filter = ('status',)
-    search_fields = ('user__mobile_phone', )
-    list_select_related = ('user', "course")
-    raw_id_fields = ('user', "course")
+    search_fields = ('mobile_phone', )
+    list_select_related = ("course",)
+    raw_id_fields = ("course",)
     list_editable = ("status",)
     date_hierarchy = 'created_at'
     actions = ('activate_subscriptions', 'deactivate_subscriptions', 'renew_subscriptions')
     fieldsets = (
         (None, {
-            'fields': ('user', "course")
+            'fields': ('mobile_phone', "course")
         }),
         (_('Dates'), {
             'fields': ('created_at', "updated_at", "start_date", 'end_date')
         }),
         (_('Status'), {
-            'fields': ('status', 'auto_renew')
+            'fields': ('status', 'auto_renew', "price")
         }),
     )
-
-    def user_info(self, obj):
-        return format_html(
-            '{}<br><small>{}</small>',
-            obj.user.get_full_name or obj.user.mobile_phone,
-            obj.user.email
-        )
-    user_info.short_description = _('User')
-    user_info.admin_order_field = 'user__email'
 
     def status_display(self, obj):
         status_colors = {
@@ -85,12 +77,10 @@ class SubscriptionAdmin(admin.ModelAdmin):
             "created_at",
             "updated_at",
             "status",
-            "user__mobile_phone",
-            "user__first_name",
-            "user__last_name",
+            "mobile_phone",
             "course__course_name",
             "start_date",
             "end_date",
             "auto_renew",
-
+            "price"
         )
