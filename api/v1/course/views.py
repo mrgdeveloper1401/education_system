@@ -898,7 +898,7 @@ class AllCourseViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewset
     """
     serializer_class = serializers.AllCourseSerializer
     pagination_class = CommentPagination
-    queryset = Course.objects.filter(is_active=True).only(
+    queryset = Course.objects.filter(is_publish=True).only(
         "course_name",
         "course_description",
         "course_image",
