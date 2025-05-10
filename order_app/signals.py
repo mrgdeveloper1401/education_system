@@ -13,7 +13,7 @@ def create_student_profile(sender, instance, created, **kwargs):
     if created:
         get_user = User.objects.filter(mobile_phone=instance.mobile_phone).only("mobile_phone")
         if not get_user:
-            password = create_password_random()
+            password = create_password_random(phone=instance.mobile_phone[:4])
             User.objects.create_user(
                 mobile_phone=instance.mobile_phone,
                 password=password,

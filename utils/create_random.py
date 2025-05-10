@@ -1,8 +1,8 @@
 import random
-from string import ascii_lowercase, ascii_uppercase, digits
+from string import digits
 
-def create_password_random(k=None):
-    char = ascii_lowercase + ascii_uppercase + digits
+def create_password_random(phone,k=None):
+    char = phone + digits
 
     if k is None:
         k = random.randint(6, 16)
