@@ -29,7 +29,7 @@ class CourseSignUpSerializer(serializers.ModelSerializer):
         return attrs
 
 
-class PaymentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Payment
-        exclude = ("is_deleted", "deleted_at")
+# class PaymentSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Payment
+#         exclude = ("is_deleted", "deleted_at")

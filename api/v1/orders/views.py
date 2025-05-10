@@ -21,12 +21,12 @@ class CourseSignupViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
     )
 
 
-class PaymentViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
-    permission_classes = (permissions.IsAuthenticated,)
-    serializer_class = serializers.PaymentSerializer
-
-    def get_queryset(self):
-        return Payment.objects.filter(user=self.request.user).defer(
-            "is_deleted",
-            "deleted_at"
-        )
+# class PaymentViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+#     permission_classes = (permissions.IsAuthenticated,)
+#     serializer_class = serializers.PaymentSerializer
+#
+#     def get_queryset(self):
+#         return Payment.objects.filter(user=self.request.user).defer(
+#             "is_deleted",
+#             "deleted_at"
+#         )
