@@ -1,7 +1,6 @@
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from accounts.models import User
 from course.models import Course, CourseTypeModel
 from subscription_app.models import Subscription
 
@@ -10,6 +9,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
     course_name = serializers.SerializerMethodField()
     course_category_name = serializers.SerializerMethodField()
     user_full_name = serializers.SerializerMethodField()
+    user_mobile_phone = serializers.SerializerMethodField()
 
     class Meta:
         model = Subscription
@@ -26,6 +26,9 @@ class SubscriptionSerializer(serializers.ModelSerializer):
     def get_user_full_name(self, obj):
         return obj.user.get_full_name
 
+    def get_user_mobile_phone(self, obj):
+        return obj.user.mobile_phone
+
 
 class CreateSubscriptionSerializer(serializers.ModelSerializer):
     course = serializers.PrimaryKeyRelatedField(
@@ -33,9 +36,6 @@ class CreateSubscriptionSerializer(serializers.ModelSerializer):
     )
     crud_course_type = serializers.PrimaryKeyRelatedField(
         queryset=CourseTypeModel.objects.only("course_type")
-    )
-    user = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.only("mobile_phone"),
     )
 
     class Meta:
