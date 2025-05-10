@@ -17,7 +17,7 @@ THIRD_PARTY_PACKAGE = [
     # "rest_framework_gis",
     "rest_framework",
     "rest_framework_simplejwt",
-    "rest_framework_simplejwt.token_blacklist",
+    # "rest_framework_simplejwt.token_blacklist",
     "storages",
     "django_filters",
     "treebeard",
