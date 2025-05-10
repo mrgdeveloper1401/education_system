@@ -11,5 +11,6 @@ class SubscriptionViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, view
     pagination_class = CommonPagination
 
     def get_queryset(self):
-        return (Subscription.objects.filter(user=self.request.user).defer("is_deleted", "deleted_at").
-                select_related("course"))
+        return Subscription.objects.filter(
+            user=self.request.user
+        ).defer("is_deleted", "deleted_at").select_related("course__category")

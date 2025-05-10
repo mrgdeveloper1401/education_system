@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from subscription_app.models import Subscription
@@ -5,6 +6,7 @@ from subscription_app.models import Subscription
 
 class SubscriptionSerializer(serializers.ModelSerializer):
     course_name = serializers.SerializerMethodField()
+    course_category_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Subscription
@@ -12,3 +14,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
 
     def get_course_name(self, obj):
         return obj.course.course_name
+
+    @extend_schema_field(serializers.IntegerField())
+    def get_course_category_name(self, obj):
+        return obj.course.category.category_name
