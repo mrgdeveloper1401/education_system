@@ -17,12 +17,22 @@ class SubscriptionViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Subscription.objects.filter(
-            mobile_phone=self.request.user.mobile_phone
-        ).defer("is_deleted", "deleted_at").select_related("course__category")
+            user=self.request.user
+        ).select_related("user", "crud_course_type__course__category").only(
+            "user__mobile_phone",
+            "course__course_name",
+            "start_date",
+            "end_date",
+            "status",
+            "auto_renew",
+            "price",
+            "crud_course_type",
+            "created_at",
+            "updated_at",
+            "course__category__category_name"
+        )
 
     def get_permissions(self):
-        if self.request.method == 'POST':
-            self.permission_classes = (permissions.AllowAny,)
         if self.request.method == ['PATCH', "PUT", "DELETE"]:
             self.permission_classes = (permissions.IsAdminUser,)
         return super().get_permissions()

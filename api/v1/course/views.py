@@ -377,8 +377,12 @@ class StudentListPresentAbsentViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class CommentViewSet(viewsets.ModelViewSet):
+    """
+    pagination --> 20 item
+    permission --> is owner (everybody can delete, update own comment)
+    """
     serializer_class = serializers.CommentSerializer
-    permission_classes = [IsOwnerOrReadOnly]
+    permission_classes = (IsOwnerOrReadOnly,)
     pagination_class = CommentPagination
 
     def get_queryset(self):
@@ -388,18 +392,23 @@ class CommentViewSet(viewsets.ModelViewSet):
             "numchild", "depth", "path", "user__image", "category_id", "user__is_coach"
         )
 
-        if is_student:
+        is_pined = self.request.query_params.get("is_pined", None)
+
+        if is_student and (is_pined and is_pined == 1):
             return query.filter(
-                category__course_category__lesson_course__exact=self.kwargs['student_lesson_course_pk']
+                category__course_category__lesson_course=self.kwargs['student_lesson_course_pk'],
+                is_pined=True
             )
+        elif is_student:
+            return query.filter(
+                category__course_category__lesson_course=self.kwargs['student_lesson_course_pk']
+            )
+        elif is_pined and is_pined == 1:
+            return query.filter(is_pined=True)
         else:
             return query.filter(
-                category__course_category__lesson_course__exact=self.kwargs['coach_lesson_course_pk']
+                category__course_category__lesson_course=self.kwargs['coach_lesson_course_pk']
             )
-
-    # def get_serializer_context(self):
-    #     context = super().get_serializer_context()
-    #
 
 
 class CoachLessonCourseViewSet(viewsets.ReadOnlyModelViewSet):

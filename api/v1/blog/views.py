@@ -96,6 +96,9 @@ class FavouritePostViewSet(viewsets.ModelViewSet):
 
 
 class CommentBlogViewSet(viewsets.ModelViewSet):
+    """
+    filter query --> ?is_pined=1 (1 equal comment is pined)
+    """
     serializer_class = CommentBlogSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
@@ -108,3 +111,10 @@ class CommentBlogViewSet(viewsets.ModelViewSet):
         context = super().get_serializer_context()
         context['post_pk'] = self.kwargs['post_pk']
         return context
+
+    def filter_queryset(self, queryset):
+        is_pined = self.request.query_params.get("is_pined", None)
+
+        if is_pined and is_pined == 1:
+            return queryset.filter(is_pined=True)
+        return queryset

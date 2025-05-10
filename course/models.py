@@ -289,6 +289,7 @@ class Comment(MP_Node, CreateMixin, UpdateMixin, SoftDeleteMixin):
     category = models.ForeignKey(Category, on_delete=models.DO_NOTHING, related_name='category_comments')
     comment_body = models.TextField(_("متن کامنت"))
     is_publish = models.BooleanField(default=True)
+    is_pined = models.BooleanField(default=False)
 
     class Meta:
         db_table = 'comment'

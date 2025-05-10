@@ -9,7 +9,7 @@ from course.enums import NumberOfDaysChoices
 from course.models import Course
 
 
-# TODO, when clean migration remove attribute null in field mobile_phone and fiel crud_course_type
+# TODO, when clean migration remove attribute null in field user and field crud_course_type
 class Subscription(CreateMixin, UpdateMixin, SoftDeleteMixin):
     class Status(models.TextChoices):
         ACTIVE = 'active', _('فعال')
@@ -18,7 +18,8 @@ class Subscription(CreateMixin, UpdateMixin, SoftDeleteMixin):
         CANCELED = 'canceled', _('لغو شده')
         TRIAL = 'trial', _('آزمایشی')
 
-    mobile_phone = models.CharField(validators=[MobileRegexValidator()], db_index=True, max_length=11, null=True)
+    user = models.ForeignKey("accounts.User", on_delete=models.DO_NOTHING, related_name="user_subscription",
+                             null=True)
     course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name='course_subscription', null=True)
     end_date = models.DateField()
     start_date = models.DateField(null=True)

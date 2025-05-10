@@ -59,6 +59,7 @@ class CommentBlog(CreateMixin, UpdateMixin, SoftDeleteMixin):
     user = models.ForeignKey("accounts.User", on_delete=models.DO_NOTHING, related_name="comment_user_posts")
     post = models.ForeignKey(PostBlog, on_delete=models.DO_NOTHING, related_name="comment_posts")
     comment_body = models.TextField()
+    is_pined = models.BooleanField(default=False)
     reply = models.ForeignKey("self", on_delete=models.DO_NOTHING, related_name="replies", blank=True, null=True)
     is_publish = models.BooleanField(default=True)
 

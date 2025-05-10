@@ -29,7 +29,7 @@ from .models import Subscription
 class SubscriptionAdmin(admin.ModelAdmin):
     readonly_fields = ("created_at", "updated_at")
     list_display = (
-        'mobile_phone',
+        'user',
         'created_at',
         'end_date',
         'status',
@@ -37,15 +37,15 @@ class SubscriptionAdmin(admin.ModelAdmin):
         "price"
     )
     list_filter = ('status',)
-    search_fields = ('mobile_phone', )
-    list_select_related = ("course", "crud_course_type")
+    search_fields = ('user__mobile_phone', )
+    list_select_related = ("course", "crud_course_type", "user")
     raw_id_fields = ("course", "crud_course_type")
     list_editable = ("status",)
     date_hierarchy = 'created_at'
     actions = ('activate_subscriptions', 'deactivate_subscriptions', 'renew_subscriptions')
     fieldsets = (
         (None, {
-            'fields': ('mobile_phone', "course")
+            'fields': ('user', "course")
         }),
         (_('Dates'), {
             'fields': ('created_at', "updated_at", "start_date", 'end_date')
@@ -77,11 +77,13 @@ class SubscriptionAdmin(admin.ModelAdmin):
             "created_at",
             "updated_at",
             "status",
-            "mobile_phone",
+            "user__mobile_phone",
             "course__course_name",
             "start_date",
             "end_date",
             "auto_renew",
             "price",
-            "crud_course_type__course_type"
+            "crud_course_type__course_type",
+            "start_date",
+            "end_date",
         )

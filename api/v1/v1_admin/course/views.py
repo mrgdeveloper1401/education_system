@@ -221,9 +221,14 @@ class AdminAnswerQuestionViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class AdminCommentViewSet(viewsets.ModelViewSet):
+    """
+    filter query --> ?is_pined=1 (1 equal comment is pined)
+    pagination --> 20 item
+    permission --> admin user
+    """
     serializer_class = serializers.AdminCommentSerializer
     pagination_class = AdminPagination
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = (permissions.IsAdminUser,)
 
     def get_queryset(self):
         return Comment.objects.filter(
@@ -237,6 +242,13 @@ class AdminCommentViewSet(viewsets.ModelViewSet):
         context = super().get_serializer_context()
         context['category_pk'] = self.kwargs['category_pk']
         return context
+
+    def filter_queryset(self, queryset):
+        is_pined = self.request.query_params.get("is_pined", None)
+
+        if is_pined and is_pined == 1:
+            return queryset.filter(is_pined=True)
+        return queryset
 
 
 class SignUpCourseViewSet(viewsets.ModelViewSet):
