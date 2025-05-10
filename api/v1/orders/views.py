@@ -1,8 +1,7 @@
-from rest_framework import viewsets, mixins, permissions
+from rest_framework import viewsets, mixins
 
-from utils.permissions import NotAuthenticate
 from . import serializers
-from order_app.models import Order, CourseSignUp, Payment
+from order_app.models import Order, CourseSignUp
 
 
 class OrderViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):

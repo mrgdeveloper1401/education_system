@@ -2,7 +2,7 @@ from rest_framework import serializers, exceptions
 
 from accounts.models import User
 from course.models import Course
-from order_app.models import Order, CourseSignUp, Payment
+from order_app.models import Order, CourseSignUp
 
 
 class OrderSerializer(serializers.ModelSerializer):
