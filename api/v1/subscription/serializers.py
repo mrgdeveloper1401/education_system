@@ -9,6 +9,7 @@ from subscription_app.models import Subscription
 class SubscriptionSerializer(serializers.ModelSerializer):
     course_name = serializers.SerializerMethodField()
     course_category_name = serializers.SerializerMethodField()
+    user_full_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Subscription
@@ -21,6 +22,9 @@ class SubscriptionSerializer(serializers.ModelSerializer):
     @extend_schema_field(serializers.IntegerField())
     def get_course_category_name(self, obj):
         return obj.course.category.category_name
+
+    def get_user_full_name(self, obj):
+        return obj.user.get_full_name
 
 
 class CreateSubscriptionSerializer(serializers.ModelSerializer):

@@ -20,6 +20,8 @@ class SubscriptionViewSet(viewsets.ModelViewSet):
             user=self.request.user
         ).select_related("user", "crud_course_type__course__category").only(
             "user__mobile_phone",
+            "user__first_name",
+            "user__last_name",
             "course__course_name",
             "start_date",
             "end_date",
@@ -42,9 +44,10 @@ class SubscriptionViewSet(viewsets.ModelViewSet):
             return serializers.CreateSubscriptionSerializer
         return super().get_serializer_class()
 
-    def filter_queryset(self, queryset):
-        status = self.request.query_params.get("status", None)
-
-        if status:
-            return queryset.filter(status=status)
-        return queryset
+    # def filter_queryset(self, queryset):
+    #     status = self.request.query_params.get("status", None)
+    #
+    #     if status:
+    #         return queryset.filter(status=status)
+    #     else:
+    #         return queryset
