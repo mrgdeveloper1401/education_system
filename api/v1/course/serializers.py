@@ -192,18 +192,23 @@ class SectionScoreSerializer(serializers.ModelSerializer):
         fields = ["score"]
 
 
-class StudentNameLessonCourseSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Student
-        fields = ('id', "student_name", "student_number")
-
-
 class StudentLessonCourseSerializer(serializers.ModelSerializer):
-    student = StudentNameLessonCourseSerializer()
+    student_phone = serializers.SerializerMethodField()
+    student_second_number = serializers.SerializerMethodField()
+    student_name = serializers.SerializerMethodField()
 
     class Meta:
         model = StudentEnrollment
-        fields = ("id", "student_status", "student")
+        fields = ("id", "student_status", "student_name", "student_phone", "student_second_number")
+
+    def get_student_phone(self, obj):
+        return obj.student.user.mobile_phone
+
+    def get_student_second_number(self, obj):
+        return obj.student.user.second_mobile_phone
+
+    def get_student_name(self, obj):
+        return obj.student.student_name
 
 
 class StudentPresentAbsentSerializer(serializers.ModelSerializer):

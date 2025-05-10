@@ -359,7 +359,8 @@ class StudentLessonCourseViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixi
 
     def get_queryset(self):
         return StudentEnrollment.objects.filter(lesson_course_id=self.kwargs['coach_lesson_course_pk']).only(
-            "student__student_number", "student_status", "student__user__first_name", "student__user__last_name"
+            "student_status", "student__user__first_name", "student__user__last_name", "student__user__mobile_phone",
+            "student__user__second_mobile_phone"
         ).select_related("student__user")
 
 
