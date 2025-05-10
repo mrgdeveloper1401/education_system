@@ -555,3 +555,18 @@ class CrudCourseTypeSerializer(serializers.ModelSerializer):
             is_active=True
         ).values("id", "percent", "start_date", "end_date")
         return discounts
+
+
+class AllCourseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Course
+        fields = (
+            "course_name",
+            "course_description",
+            "course_image",
+            "project_counter",
+            "facilities",
+            "course_level",
+            "time_course",
+            "course_age"
+        )

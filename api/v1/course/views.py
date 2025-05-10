@@ -889,3 +889,29 @@ class CrudCourseTypeViewSet(viewsets.ModelViewSet):
         context = super().get_serializer_context()
         context['course_pk'] = self.kwargs['course_pk']
         return context
+
+
+class AllCourseViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+    """
+    pagination --> 20 item
+    search --> ?name=course_name
+    """
+    serializer_class = serializers.AllCourseSerializer
+    pagination_class = CommentPagination
+    queryset = Course.objects.filter(is_active=True).only(
+        "course_name",
+        "course_description",
+        "course_image",
+        "project_counter",
+        "facilities",
+        "course_level",
+        "time_course",
+        "course_age"
+    )
+
+    def filter_queryset(self, queryset):
+        name = self.request.query_params.get("name", None)
+
+        if name:
+            return queryset.filter(course_name=name)
+        return queryset
