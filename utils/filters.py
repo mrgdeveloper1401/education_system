@@ -12,5 +12,6 @@ class UserFilter(FilterSet):
             "last_name": ["icontains"],
             "state__state_name": ['icontains'],
             "city__city": ["icontains"],
-            "mobile_phone": ['iexact']
+            "mobile_phone": ['iexact'],
+            "is_active": ["exact"],
         }

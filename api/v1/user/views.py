@@ -69,10 +69,10 @@ class UserLoginApiView(APIView):
 
 class UserViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.UserSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = (IsAuthenticated,)
     pagination_class = UserPagination
     filter_backends = (DjangoFilterBackend, SearchFilter)
-    filterset_fields = ('is_staff', "gender")
+    filterset_fields = ('is_staff', "gender", "is_active")
     filterset_class = UserFilter
 
     def get_permissions(self):

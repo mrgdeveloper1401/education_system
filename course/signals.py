@@ -1,9 +1,9 @@
 from django.db.models.signals import m2m_changed, post_save
 from django.dispatch import receiver
 
-from accounts.models import PrivateNotification
+from accounts.models import PrivateNotification, User
 from .enums import SendFileChoices
-from .models import LessonCourse, StudentAccessSection, SendSectionFile
+from .models import LessonCourse, StudentAccessSection, SendSectionFile, CallLessonCourse
 
 
 @receiver(m2m_changed, sender=LessonCourse.students.through)
@@ -71,3 +71,20 @@ def send_notification_when_score_is_accepted(sender, instance, **kwargs):
             user=instance.students.user,
             body="دانشجوی محترم نمره شما ثبت و ویرایش شده هست"
         )
+
+
+@receiver(post_save, sender=CallLessonCourse)
+def create_admin_notification_when_cancel_student(sender, instance, created, **kwargs):
+    if instance.cancellation_alert:
+        admin_user = User.objects.filter(is_staff=True).only("is_staff")
+        lst = [
+            PrivateNotification(
+                user=i,
+                title='cancel student',
+                body="please check student, this he want cancel"
+            )
+            for i in admin_user
+        ]
+
+        if lst:
+            PrivateNotification.objects.bulk_create(lst)
