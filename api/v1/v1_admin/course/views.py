@@ -1,8 +1,10 @@
+from django.db.models import Prefetch
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import  OpenApiParameter
 from rest_framework import viewsets, permissions, exceptions, generics, filters, decorators, response, views, status
 from drf_spectacular.views import extend_schema
 
+from accounts.models import Student
 from utils.permissions import NotAuthenticate
 from . import serializers
 from course.models import Category, Course, Section, SectionFile, SectionVideo, LessonCourse, Certificate, \
@@ -122,12 +124,14 @@ class AdminCourseListApiView(generics.ListAPIView):
 
 
 class AdminLessonCourseViewSet(viewsets.ModelViewSet):
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = (permissions.IsAdminUser,)
     serializer_class = serializers.AdminLessonCourseSerializer
     pagination_class = AdminPagination
 
     def get_queryset(self):
-        query = LessonCourse.objects.filter(course_id=self.kwargs['course_pk']).prefetch_related("students").defer(
+        query = LessonCourse.objects.filter(course_id=self.kwargs['course_pk']).prefetch_related(
+            Prefetch("students", Student.objects.only("student_number"))
+        ).defer(
             "is_deleted", "deleted_at"
         )
         progress = self.request.query_params.get('progress')

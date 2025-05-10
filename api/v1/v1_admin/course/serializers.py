@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers, exceptions
 
-from accounts.models import Student, Otp
+from accounts.models import Student, Otp, Coach
 from course.models import Category, Course, Section, SectionFile, SectionVideo, LessonCourse, Certificate, \
     PresentAbsent, SectionQuestion, AnswerQuestion, Comment, SignupCourse
 
@@ -36,6 +36,10 @@ class UpdateCategoryNodeSerializer(serializers.ModelSerializer):
 
 
 class AdminListCourseSerializer(serializers.ModelSerializer):
+    category = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.only("category_name")
+    )
+
     class Meta:
         model = Course
         exclude = ('is_deleted', "deleted_at")
@@ -43,6 +47,9 @@ class AdminListCourseSerializer(serializers.ModelSerializer):
 
 
 class AdminCreateCourseSerializer(serializers.ModelSerializer):
+    category = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.only("category_name")
+    )
 
     class Meta:
         model = Course
@@ -57,6 +64,9 @@ class AdminCreateCourseSerializer(serializers.ModelSerializer):
 
 
 class AdminUpdateCourseSerializer(serializers.ModelSerializer):
+    category = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.only("category_name")
+    )
 
     class Meta:
         model = Course
@@ -122,9 +132,16 @@ class AdminCourseListSerializer(serializers.ModelSerializer):
 
 
 class AdminLessonCourseSerializer(serializers.ModelSerializer):
+    coach = serializers.PrimaryKeyRelatedField(
+        queryset=Coach.objects.only("coach_number")
+    )
+    course = serializers.PrimaryKeyRelatedField(
+        queryset=Course.objects.only("course_name")
+    )
+
     class Meta:
         model = LessonCourse
-        exclude = ['is_deleted', "deleted_at"]
+        exclude = ('is_deleted', "deleted_at")
 
     def create(self, validated_data):
         student = validated_data.pop("students")
