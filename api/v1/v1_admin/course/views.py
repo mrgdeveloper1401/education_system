@@ -52,7 +52,7 @@ class AdminCourseViewSet(viewsets.ModelViewSet):
 
 
 class AdminCourseSectionViewSet(viewsets.ModelViewSet):
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = (permissions.IsAdminUser,)
     pagination_class = AdminPagination
 
     def get_queryset(self):

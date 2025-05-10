@@ -60,14 +60,14 @@ class AdminUpdateCourseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Course
-        exclude = ['is_deleted', "deleted_at", "updated_at"]
+        exclude = ('is_deleted', "deleted_at", "updated_at")
 
 
 class AdminCreateCourseSectionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Section
-        fields = ['title', "description", "cover_image"]
+        fields = ('title', "description", "cover_image")
 
     def create(self, validated_data):
         course_id = self.context['course_pk']
@@ -81,14 +81,14 @@ class AdminListCourseSectionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Section
-        exclude = ["deleted_at", "is_deleted"]
+        exclude = ("deleted_at", "is_deleted")
 
 
 class AdminCreateCourseSectionFileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SectionFile
-        fields = ["is_publish", "zip_file", "title", "file_type", "answer"]
+        fields = ("is_publish", "zip_file", "title", "file_type", "answer")
 
     def create(self, validated_data):
         return SectionFile.objects.create(section_id=int(self.context['section_pk']), **validated_data)
@@ -97,7 +97,7 @@ class AdminCreateCourseSectionFileSerializer(serializers.ModelSerializer):
 class AdminListCourseSectionFileSerializer(serializers.ModelSerializer):
     class Meta:
         model = SectionFile
-        exclude = ['is_deleted', "deleted_at"]
+        exclude = ('is_deleted', "deleted_at")
 
 
 class AdminCreateSectionVideoSerializer(serializers.ModelSerializer):

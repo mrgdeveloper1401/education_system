@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from accounts.models import Student
 from course.models import Comment, SectionVideo, SectionFile, LessonCourse, StudentSectionScore, \
     PresentAbsent, StudentAccessSection, SendSectionFile, OnlineLink, SectionQuestion, Section, \
-    Category, CallLessonCourse, Course, Certificate, CourseTypeModel
+    Category, CallLessonCourse, Course, Certificate, CourseTypeModel, StudentEnrollment
 from discount_app.models import Discount
 from .pagination import CommentPagination
 from .paginations import CommonPagination
@@ -358,13 +358,9 @@ class StudentLessonCourseViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixi
     serializer_class = serializers.StudentLessonCourseSerializer
 
     def get_queryset(self):
-        return LessonCourse.objects.filter(coach__user=self.request.user, id=self.kwargs['coach_Lesson_course_pk']).only(
-            "students", "class_name"
-        ).prefetch_related(
-            Prefetch("students", Student.objects.filter(is_active=True).select_related("user").only(
-                "student_number", "user__first_name", "user__last_name"
-            ))
-        )
+        return StudentEnrollment.objects.filter(lesson_course_id=self.kwargs['coach_lesson_course_pk']).only(
+            "student__student_number", "student_status", "student__user__first_name", "student__user__last_name"
+        ).select_related("student__user")
 
 
 class StudentListPresentAbsentViewSet(viewsets.ReadOnlyModelViewSet):
@@ -407,7 +403,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 class CoachLessonCourseViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.ListCoachLessonCourseSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = (permissions.IsAuthenticated,)
     pagination_class = CommonPagination
 
     def get_serializer_class(self):

@@ -72,3 +72,9 @@ class PlanTypeEnum(models.TextChoices):
     month = "month", _("ماه")
     year = "year", _("سال")
     day = "day", _("روز")
+
+
+class StudentStatusEnum(models.TextChoices):
+    active = "active", _("فعال")
+    cancel = "cancel", _("انصراف")
+    not_paid = "not_paid", _("پرداخت نکرده")

@@ -9,7 +9,7 @@ from django.core.validators import FileExtensionValidator, MinValueValidator, Ma
 from treebeard.mp_tree import MP_Node
 
 from course.enums import ProgresChoices, SectionFileType, StudentStatusChoices, RateChoices, SendFileChoices, \
-    CallStatusChoices, CourseType, PlanTypeEnum
+    CallStatusChoices, CourseType, PlanTypeEnum, StudentStatusEnum
 from course.utils import student_send_section_file
 from course.validators import max_upload_image_validator
 
@@ -114,7 +114,7 @@ class LessonCourse(CreateMixin, UpdateMixin, SoftDeleteMixin):
     class_name = models.CharField(help_text=_("نام کلاس"))
     coach = models.ForeignKey("accounts.Coach", on_delete=models.DO_NOTHING, related_name="coach_less_course")
     students = models.ManyToManyField("accounts.Student", related_name="student_lesson_course",
-                                      limit_choices_to={"is_active": True})
+                                      through="StudentEnrollment")
     is_active = models.BooleanField(default=True, help_text=_("دیتا در سطح اپلیکیشن نمایش داده شود یا خیر"))
     progress = models.CharField(help_text=_("وضعیت پیشرفت کلاس"), choices=ProgresChoices, max_length=11,
                                 default=ProgresChoices.not_started, null=True)
@@ -140,6 +140,20 @@ class LessonCourse(CreateMixin, UpdateMixin, SoftDeleteMixin):
     class Meta:
         db_table = 'lesson_course'
         ordering = ("-created_at",)
+
+
+class StudentEnrollment(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    student = models.ForeignKey("accounts.Student", on_delete=models.DO_NOTHING, related_name="student_enrollment",
+                                limit_choices_to={"is_active": True})
+    lesson_course = models.ForeignKey(LessonCourse, on_delete=models.DO_NOTHING,
+                                      related_name="lesson_course_enrollment")
+    student_status = models.CharField(choices=StudentStatusEnum.choices, max_length=8, default=StudentStatusEnum.active)
+
+    def __str__(self):
+        return f'{self.student.referral_code} {str(self.student_status)}'
+
+    class Meta:
+        db_table = "lesson_course_students"
 
 
 class Section(CreateMixin, UpdateMixin, SoftDeleteMixin):

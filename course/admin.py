@@ -4,6 +4,13 @@ from treebeard.admin import TreeAdmin
 from import_export.admin import ImportExportModelAdmin
 
 from . import models
+from .models import StudentEnrollment
+
+
+class StudentEnrollmentInlineAdmin(admin.TabularInline):
+    model = StudentEnrollment
+    extra = 0
+    raw_id_fields = ("student",)
 
 
 @admin.register(models.Course)
@@ -67,15 +74,15 @@ class SectionFileAdmin(admin.ModelAdmin):
 
 @admin.register(models.LessonCourse)
 class LessonCourseAdmin(admin.ModelAdmin):
-    filter_horizontal = ('students',)
     list_display = ("id", 'course', "coach", "is_active", "created_at", "progress")
     list_filter = ('is_active', "progress")
     search_fields = ('course__course_name', )
-    raw_id_fields = ['course', "coach"]
+    raw_id_fields = ('course', "coach")
     list_per_page = 20
     list_select_related = ("course", "coach")
     list_display_links = ("id", "course")
     search_help_text = "برای جست و جو از نام دوره استفاده کنید"
+    inlines = (StudentEnrollmentInlineAdmin,)
 
     def get_queryset(self, request):
         return super().get_queryset(request).only(
@@ -84,7 +91,7 @@ class LessonCourseAdmin(admin.ModelAdmin):
             "created_at",
             "progress",
             "coach__coach_number",
-            "students__student_number",
+            "students",
             "class_name"
         )
 
@@ -229,4 +236,18 @@ class CourseTypeModelAdmin(admin.ModelAdmin):
             "description",
             "created_at",
             "course_type"
+        )
+
+
+@admin.register(models.StudentEnrollment)
+class StudentEnrollmentAdmin(admin.ModelAdmin):
+    list_display = ("student", "student_status", "created_at", "updated_at")
+    list_select_related = ("student", 'lesson_course')
+    list_per_page = 20
+    list_filter = ("student_status",)
+    raw_id_fields = ("student", "lesson_course")
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).only(
+            "student_status", "created_at", "updated_at", "student__referral_code", "lesson_course__class_name"
         )

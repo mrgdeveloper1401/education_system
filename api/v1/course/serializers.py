@@ -7,9 +7,8 @@ from accounts.models import Student
 from course.enums import RateChoices, StudentStatusChoices
 from course.models import Course, Category, Comment, Section, SectionVideo, SectionFile, SendSectionFile, LessonCourse, \
     StudentSectionScore, PresentAbsent, StudentAccessSection, OnlineLink, SectionQuestion, AnswerQuestion, \
-    CallLessonCourse, Certificate, CourseTypeModel
+    CallLessonCourse, Certificate, CourseTypeModel, StudentEnrollment
 from discount_app.models import Discount
-from subscription_app.models import Plan
 
 
 class CategoryTreeNodeSerializer(serializers.ModelSerializer):
@@ -21,13 +20,13 @@ class CategoryTreeNodeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        exclude = ['created_at', "updated_at", "deleted_at", "is_deleted"]
+        exclude = ('created_at', "updated_at", "deleted_at", "is_deleted")
 
 
 class CourseSectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Section
-        fields = ['id', "title", "cover_image"]
+        fields = ('id', "title", "cover_image")
 
 
 class StudentAccessSectionSerializer(serializers.ModelSerializer):
@@ -35,19 +34,19 @@ class StudentAccessSectionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StudentAccessSection
-        fields = ['section', "is_access"]
+        fields = ('section', "is_access")
 
 
 class CoachSectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Section
-        fields = ["id", "title", "description", "cover_image"]
+        fields = ("id", "title", "description", "cover_image")
 
 
 class CourseSectionDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Section
-        fields = ['title', "cover_image", "description", "created_at"]
+        fields = ('title', "cover_image", "description", "created_at")
 
 
 class StudentAccessSectionDetailSerializer(serializers.ModelSerializer):
@@ -170,13 +169,13 @@ class ListCoachLessonCourseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = LessonCourse
-        fields = ['id', "course", "course_category", "progress", "class_name", "course_image"]
+        fields = ('id', "course", "course_category", "progress", "class_name", "course_image")
 
     def get_course_category(self, obj):
         return obj.course.category_id
 
     def get_course_image(self, obj):
-        return obj.course.course_image.url
+        return obj.course.course_image.url if obj.course.course_image else None
 
 
 class RetrieveLessonCourseSerializer(serializers.ModelSerializer):
@@ -196,28 +195,28 @@ class SectionScoreSerializer(serializers.ModelSerializer):
 class StudentNameLessonCourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Student
-        fields = ['id', "student_name", "student_number"]
+        fields = ('id', "student_name", "student_number")
 
 
 class StudentLessonCourseSerializer(serializers.ModelSerializer):
-    students = StudentNameLessonCourseSerializer(many=True)
+    student = StudentNameLessonCourseSerializer()
 
     class Meta:
-        model = LessonCourse
-        fields = ("id", "class_name", 'students')
+        model = StudentEnrollment
+        fields = ("id", "student_status", "student")
 
 
 class StudentPresentAbsentSerializer(serializers.ModelSerializer):
     class Meta:
         model = PresentAbsent
-        fields = ['student_status', "created_at"]
+        fields = ('student_status', "created_at")
 
 
 class SendFileSerializer(serializers.ModelSerializer):
     class Meta:
         model = SendSectionFile
-        fields = ["id", "score", "comment_student", "zip_file", "created_at", "comment_teacher", "send_file_status",
-                  "updated_at"]
+        fields = ("id", "score", "comment_student", "zip_file", "created_at", "comment_teacher", "send_file_status",
+                  "updated_at")
         extra_kwargs = {
             "score": {"read_only": True},
             "comment_teacher": {"read_only": True},
