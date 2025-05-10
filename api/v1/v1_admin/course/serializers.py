@@ -3,7 +3,7 @@ from rest_framework import serializers, exceptions
 
 from accounts.models import Student, Otp, Coach
 from course.models import Category, Course, Section, SectionFile, SectionVideo, LessonCourse, Certificate, \
-    PresentAbsent, SectionQuestion, AnswerQuestion, Comment, SignupCourse
+    PresentAbsent, SectionQuestion, AnswerQuestion, Comment, SignupCourse, StudentEnrollment
 
 
 class CreateCategorySerializer(serializers.ModelSerializer):
@@ -138,15 +138,27 @@ class AdminLessonCourseSerializer(serializers.ModelSerializer):
     course = serializers.PrimaryKeyRelatedField(
         queryset=Course.objects.only("course_name")
     )
+    students = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Student.objects.only("student_number"), required=False
+    )
 
     class Meta:
         model = LessonCourse
         exclude = ('is_deleted', "deleted_at")
 
     def create(self, validated_data):
-        student = validated_data.pop("students")
+        students = validated_data.pop("students", None)
         class_room = LessonCourse.objects.create(**validated_data)
-        class_room.students.set(student)
+
+        if students:
+            lst = [
+                StudentEnrollment(
+                    student=i,
+                    lesson_course=class_room
+                )
+                for i in students
+            ]
+            StudentEnrollment.objects.bulk_create(lst)
         return class_room
 
 
