@@ -38,8 +38,8 @@ class SubscriptionAdmin(admin.ModelAdmin):
     )
     list_filter = ('status',)
     search_fields = ('mobile_phone', )
-    list_select_related = ("course",)
-    raw_id_fields = ("course",)
+    list_select_related = ("course", "crud_course_type")
+    raw_id_fields = ("course", "crud_course_type")
     list_editable = ("status",)
     date_hierarchy = 'created_at'
     actions = ('activate_subscriptions', 'deactivate_subscriptions', 'renew_subscriptions')
@@ -82,5 +82,6 @@ class SubscriptionAdmin(admin.ModelAdmin):
             "start_date",
             "end_date",
             "auto_renew",
-            "price"
+            "price",
+            "crud_course_type__course_type"
         )

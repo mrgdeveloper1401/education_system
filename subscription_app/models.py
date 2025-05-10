@@ -9,7 +9,7 @@ from course.enums import NumberOfDaysChoices
 from course.models import Course
 
 
-# TODO, when clean migration remove attribute null in field mobile_phone
+# TODO, when clean migration remove attribute null in field mobile_phone and fiel crud_course_type
 class Subscription(CreateMixin, UpdateMixin, SoftDeleteMixin):
     class Status(models.TextChoices):
         ACTIVE = 'active', _('فعال')
@@ -29,6 +29,7 @@ class Subscription(CreateMixin, UpdateMixin, SoftDeleteMixin):
     )
     auto_renew = models.BooleanField(default=False)
     price = models.FloatField(null=True)
+    crud_course_type = models.ForeignKey("course.CourseTypeModel", on_delete=models.DO_NOTHING, null=True)
 
     def __str__(self):
         return f"{self.user.mobile_phone} - {self.status}"
