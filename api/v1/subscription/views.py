@@ -1,12 +1,11 @@
-from rest_framework import viewsets, mixins, permissions
+from rest_framework import viewsets, permissions
 
 from subscription_app.models import Subscription
 from . import serializers
 from ..course.paginations import CommonPagination
 
 
-class SubscriptionViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet,
-                          mixins.CreateModelMixin):
+class SubscriptionViewSet(viewsets.ModelViewSet):
     """
     status --> active / expired / pending / canceled / trial \n
     pagination --> 20 item \n
@@ -24,6 +23,8 @@ class SubscriptionViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, view
     def get_permissions(self):
         if self.request.method == 'POST':
             self.permission_classes = (permissions.AllowAny,)
+        if self.request.method == ['PATCH', "PUT", "DELETE"]:
+            self.permission_classes = (permissions.IsAdminUser,)
         return super().get_permissions()
 
     def get_serializer_class(self):
