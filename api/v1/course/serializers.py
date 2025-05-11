@@ -475,7 +475,7 @@ class CourseTypeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CourseTypeModel
-        fields = ("course_type", "description", "price", "discounts", "plan_type", "amount")
+        fields = ("id", "course_type", "description", "price", "discounts", "plan_type", "amount")
 
     def get_discounts(self, obj):
         discounts = Discount.objects.filter(

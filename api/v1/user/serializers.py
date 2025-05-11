@@ -13,6 +13,7 @@ from accounts.models import User, Otp, State, City, Student, Coach, Ticket, Tick
     PrivateNotification, Invitation
 from accounts.tasks import send_sms_otp_code_async
 from accounts.validators import MobileRegexValidator
+from discount_app.models import Coupon
 
 
 class UserLoginSerializer(serializers.Serializer):
@@ -70,7 +71,7 @@ class UserSerializer(serializers.ModelSerializer):
         if referral_code:
             get_student = Student.objects.filter(referral_code=referral_code).only("referral_code").last()
             Invitation.objects.create(from_student=get_student, to_student=data.student)
-
+            # coupon = Coupon.objects.create()
         return data
 
 

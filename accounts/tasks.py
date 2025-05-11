@@ -1,11 +1,14 @@
 import aiohttp
 from decouple import config
 import asyncio
+import requests
 
 from education_system.dj_celery import app
+from celery import shared_task
 
 
 TEXT_OTP_CODE = "کاربر گرامی کد تایید شما برابر است با "
+TEXT_COUPON_CODE = "کاربر گرامی ثبت نام شما با موقیت انجام شد کد تخفیف شما برابر با است با: "
 url = "https://rest.payamak-panel.com/api/SendSMS/SendSMS"
 headers = {
     "Content-Type": "application/json",
@@ -28,3 +31,16 @@ def send_sms_otp_code_async(self, phone, code):
                 return res
 
     return asyncio.run(_send_sms())
+
+
+@shared_task
+def send_coupon_when_user_referral_signup(phone, coupon_code):
+    data = {
+        "password": config("SMS_PASSWORD"),
+        "username": config("SMS_USERNAME"),
+        "text": TEXT_COUPON_CODE + coupon_code,
+        "to": phone,
+        "from": config("SMS_PHONE_NUMBER"),
+    }
+    res = requests.post(url, headers=headers, json=data)
+    return res.json()

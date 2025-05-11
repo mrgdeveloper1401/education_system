@@ -200,6 +200,7 @@ class InvitationAdmin(admin.ModelAdmin):
     list_display = ("from_student", "to_student", "created_at")
     list_select_related = ('from_student', "to_student")
     list_per_page = 20
+    raw_id_fields = ("from_student", "to_student")
 
     def get_queryset(self, request):
         return super().get_queryset(request).only(
