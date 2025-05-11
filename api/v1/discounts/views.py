@@ -31,5 +31,7 @@ class FirstOneCouponViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         valid_from__lte=timezone.now(),
         valid_to__gt=timezone.now(),
         for_first=True
+    ).only(
+        "code", "valid_to", "valid_from"
     )
     serializer_class = serializers.FirstOneCouponSerializer
