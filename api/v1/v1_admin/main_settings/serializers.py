@@ -18,4 +18,4 @@ class HeaderSiteSerializer(serializers.ModelSerializer):
 class ListRetrieveHeaderSerializer(serializers.ModelSerializer):
     class Meta:
         model = HeaderSite
-        fields = ("header_title", "image", "background_color", "text_color")
+        fields = ("id", "header_title", "image", "background_color", "text_color")
