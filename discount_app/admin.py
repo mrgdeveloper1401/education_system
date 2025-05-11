@@ -7,6 +7,7 @@ from .models import Discount, Coupon
 class DiscountAdmin(admin.ModelAdmin):
     list_per_page = 20
     list_display = ("content_type", "object_id", "percent", "start_date", "end_date", "is_active", "created_at")
+    list_editable = ("is_active", "percent")
 
     def get_queryset(self, request):
         return super().get_queryset(request).only(

@@ -1,6 +1,8 @@
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils import timezone
 
 from accounts.models import Student
 from core.models import UpdateMixin, CreateMixin, SoftDeleteMixin
@@ -12,6 +14,7 @@ from course.enums import ProgresChoices, SectionFileType, StudentStatusChoices, 
     CallStatusChoices, CourseType, PlanTypeEnum, StudentStatusEnum
 from course.utils import student_send_section_file
 from course.validators import max_upload_image_validator
+from discount_app.models import Discount
 
 
 class Category(MP_Node, CreateMixin, UpdateMixin, SoftDeleteMixin):
@@ -104,6 +107,27 @@ class CourseTypeModel(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     def __str__(self):
         return self.course_type
+
+    @property
+    def have_discount(self):
+        content_type = ContentType.objects.get_for_model(self)
+        res = Discount.objects.filter(
+            content_type=content_type,
+            object_id=self.id,
+            start_date__lte=timezone.now(),
+            end_date__gt=timezone.now(),
+            is_active=True
+        ).only("percent").last()
+        return res
+
+    @property
+    def final_price(self):
+        price = self.price
+
+        if self.have_discount:
+            discount = (self.have_discount.percent * price) / 100
+            price = price - discount
+        return price
 
     class Meta:
         db_table = "course_type"

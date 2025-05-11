@@ -3,7 +3,6 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import ValidationError, MinValueValidator, MaxValueValidator
 
-from accounts.validators import MobileRegexValidator
 from core.models import CreateMixin, UpdateMixin, SoftDeleteMixin
 from course.enums import NumberOfDaysChoices
 from course.models import Course

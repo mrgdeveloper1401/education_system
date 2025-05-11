@@ -51,6 +51,7 @@ class CreateSubscriptionSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
         plan_type = validated_data['crud_course_type'].plan_type
         day = validated_data['crud_course_type'].amount
+        course_type = validated_data['crud_course_type']
 
         end_date = timezone.now()
 
@@ -66,4 +67,6 @@ class CreateSubscriptionSerializer(serializers.ModelSerializer):
             end_date=end_date,
             **validated_data
         )
+        data.price = course_type.final_price
+        data.save()
         return data
