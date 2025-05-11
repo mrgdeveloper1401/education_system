@@ -193,3 +193,17 @@ class PrivateNotificationAdmin(admin.ModelAdmin):
         return super().get_queryset(request).only(
             "user__mobile_phone", "is_read", "created_at", "body", "title"
         )
+
+
+@admin.register(models.Invitation)
+class InvitationAdmin(admin.ModelAdmin):
+    list_display = ("from_student", "to_student", "created_at")
+    list_select_related = ('from_student', "to_student")
+    list_per_page = 20
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).only(
+            "from_student__student_number",
+            "to_student__student_number",
+            "created_at"
+        )
