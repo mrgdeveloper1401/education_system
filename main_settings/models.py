@@ -32,7 +32,7 @@ class HeaderSite(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     def clean(self):
         if not self.header_title and not self.image:
-            raise exceptions.ValidationError({"header_title": "header title and image At least one of thise should be"})
+            raise exceptions.ValidationError({"header_title": "header title and image At least one of this should be"})
 
     class Meta:
         db_table = "header_site"

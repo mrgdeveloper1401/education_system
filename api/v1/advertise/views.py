@@ -40,16 +40,16 @@ class ConsultationSlotViewSet(ModelViewSet):
 class ConsultationRequestViewSet(ModelViewSet):
     queryset = ConsultationRequest.objects.select_related("slot")
     serializer_class = UserConsultationRequestSerializer
-    
+
     def get_permissions(self):
         if self.request.method in ["PUT", "PATCH", "DELETE", "GET"]:
             return [IsAdminUser()]
         return super().get_permissions()
     
-    def get_serializer(self, *args, **kwargs):
-        if self.request.method in ["PUT", "PATCH", "DELETE"]:
-            return AdminConsultationRequestSerializer(*args, **kwargs)
-        return super().get_serializer()
+    # def get_serializer(self, *args, **kwargs):
+    #     if self.request.method in ["PUT", "PATCH", "DELETE"]:
+    #         return AdminConsultationRequestSerializer(*args, **kwargs)
+    #     return super().get_serializer()
 
 
 class AnswerViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
