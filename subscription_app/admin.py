@@ -31,15 +31,14 @@ class SubscriptionAdmin(admin.ModelAdmin):
     list_display = (
         'user',
         'created_at',
-        'end_date',
         'status',
-        "status_display",
-        "price"
+        # "status_display",
+        "price",
     )
     list_filter = ('status',)
     search_fields = ('user__mobile_phone', )
     list_select_related = ("course", "crud_course_type", "user")
-    raw_id_fields = ("course", "crud_course_type")
+    raw_id_fields = ("course", "crud_course_type", "user")
     list_editable = ("status",)
     date_hierarchy = 'created_at'
     actions = ('activate_subscriptions', 'deactivate_subscriptions', 'renew_subscriptions')
@@ -48,29 +47,29 @@ class SubscriptionAdmin(admin.ModelAdmin):
             'fields': ('user', "course")
         }),
         (_('Dates'), {
-            'fields': ('created_at', "updated_at", "start_date", 'end_date')
+            'fields': ('created_at', "updated_at", 'end_date')
         }),
         (_('Status'), {
             'fields': ('status', 'auto_renew', "price")
         }),
     )
 
-    def status_display(self, obj):
-        status_colors = {
-            'active': 'green',
-            'expired': 'gray',
-            'pending': 'blue',
-            'canceled': 'red',
-            'trial': 'purple',
-        }
-        color = status_colors.get(obj.status, 'black')
-        return format_html(
-            '<span style="color: {};">{}</span>',
-            color,
-            obj.get_status_display()
-        )
-    status_display.short_description = _('Status')
-    status_display.admin_order_field = 'status'
+    # def status_display(self, obj):
+    #     status_colors = {
+    #         'active': 'green',
+    #         'expired': 'gray',
+    #         'pending': 'blue',
+    #         'canceled': 'red',
+    #         'trial': 'purple',
+    #     }
+    #     color = status_colors.get(obj.status, 'black')
+    #     return format_html(
+    #         '<span style="color: {};">{}</span>',
+    #         color,
+    #         obj.get_status_display()
+    #     )
+    # status_display.short_description = _('Status')
+    # status_display.admin_order_field = 'status'
 
     def get_queryset(self, request):
         return super().get_queryset(request).only(
@@ -79,11 +78,8 @@ class SubscriptionAdmin(admin.ModelAdmin):
             "status",
             "user__mobile_phone",
             "course__course_name",
-            "start_date",
-            "end_date",
             "auto_renew",
             "price",
             "crud_course_type__course_type",
-            "start_date",
             "end_date",
         )

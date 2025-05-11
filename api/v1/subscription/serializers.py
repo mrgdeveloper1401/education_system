@@ -1,6 +1,10 @@
+from datetime import timedelta
+
+from django.utils import timezone
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
+from course.enums import PlanTypeEnum
 from course.models import Course, CourseTypeModel
 from subscription_app.models import Subscription
 
@@ -13,7 +17,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Subscription
-        exclude = ("is_deleted", "deleted_at")
+        exclude = ("is_deleted", "deleted_at", "user", "course")
 
 
     def get_course_name(self, obj):
@@ -35,15 +39,31 @@ class CreateSubscriptionSerializer(serializers.ModelSerializer):
         queryset=Course.objects.only("course_name"),
     )
     crud_course_type = serializers.PrimaryKeyRelatedField(
-        queryset=CourseTypeModel.objects.only("course_type")
+        queryset=CourseTypeModel.objects.only("course_type", "amount", "plan_type", "course_type")
     )
 
     class Meta:
         model = Subscription
-        fields = ("course", "user", "start_date", "price", "crud_course_type", "end_date")
+        fields = ("course", "user", "crud_course_type")
         read_only_fields = ("user",)
 
     def create(self, validated_data):
-        del validated_data['user']
         user = self.context['request'].user
-        return Subscription.objects.create(user=user, **validated_data)
+        plan_type = validated_data['crud_course_type'].plan_type
+        day = validated_data['crud_course_type'].amount
+
+        end_date = timezone.now()
+
+        if plan_type == PlanTypeEnum.month:
+            end_date += timedelta(days=day * 30)
+        elif plan_type == PlanTypeEnum.year:
+            end_date += timedelta(days=day * 365)
+        else:
+            end_date += timedelta(days=day)
+
+        data = Subscription.objects.create(
+            user=user,
+            end_date=end_date,
+            **validated_data
+        )
+        return data

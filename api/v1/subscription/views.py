@@ -22,19 +22,18 @@ class SubscriptionViewSet(viewsets.ModelViewSet):
             "crud_course_type__course",
             "price",
             "status",
-            "start_date",
-            "end_date",
             "user__mobile_phone",
             "user__first_name",
             "user__last_name",
             "auto_renew",
             "crud_course_type__course_type",
             "created_at",
-            "updated_at"
-        )
+            "updated_at",
+            "end_date",
+        ).filter(user=self.request.user)
 
     def get_permissions(self):
-        if self.request.method == ['PATCH', "PUT", "DELETE"]:
+        if self.request.method in ['PATCH', "PUT", "DELETE"]:
             self.permission_classes = (permissions.IsAdminUser,)
         return super().get_permissions()
 

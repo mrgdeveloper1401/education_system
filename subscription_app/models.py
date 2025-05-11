@@ -22,14 +22,14 @@ class Subscription(CreateMixin, UpdateMixin, SoftDeleteMixin):
                              null=True)
     course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name='course_subscription', null=True)
     end_date = models.DateField()
-    start_date = models.DateField(null=True)
+    # start_date = models.DateField(null=True)
     status = models.CharField(
         max_length=10,
         choices=Status.choices,
         default=Status.PENDING
     )
     auto_renew = models.BooleanField(default=False)
-    price = models.FloatField(null=True)
+    price = models.FloatField(null=True, blank=True)
     crud_course_type = models.ForeignKey("course.CourseTypeModel", on_delete=models.DO_NOTHING, null=True)
 
     def __str__(self):
