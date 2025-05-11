@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.contenttypes.models import ContentType
 
-from discount_app.models import Discount
+from discount_app.models import Discount, Coupon
 
 
 class DiscountSerializer(serializers.ModelSerializer):
@@ -26,3 +26,9 @@ class DiscountSerializer(serializers.ModelSerializer):
                 )
 
         return data
+
+
+class FirstOneCouponSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Coupon
+        fields = ("code", "valid_to", "valid_from")

@@ -2,6 +2,7 @@ from django.contrib import admin
 from treebeard.forms import movenodeform_factory
 from treebeard.admin import TreeAdmin
 from import_export.admin import ImportExportModelAdmin
+from django.utils.translation import gettext_lazy as _
 
 from . import models
 from .models import StudentEnrollment
@@ -224,6 +225,9 @@ class CourseTypeModelAdmin(admin.ModelAdmin):
     list_select_related = ("course",)
     list_editable = ("course_type", "is_active", "plan_type", "amount")
     list_per_page = 20
+    list_filter = ("is_active",)
+    search_fields = ("course__course_name",)
+    search_help_text = _("برای سرچ کردن میتواند از نام دوره استفاده کنید")
 
     def get_queryset(self, request):
         return super().get_queryset(request).only(

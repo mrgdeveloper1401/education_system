@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.translation import gettext_lazy as _
 
 from .models import Discount, Coupon
 
@@ -21,7 +22,8 @@ class CouponAdmin(admin.ModelAdmin):
     list_display = ("code", "valid_from", "valid_to", "discount", "is_active", "created_at")
     list_editable = ("is_active",)
     search_fields = ("code",)
-    search_help_text = "برای سرچ کردن میتوانید کد مورد نظر رو سرچ کنید"
+    search_help_text = _("برای سرچ کردن میتوانید کد مورد نظر رو سرچ کنید")
+    list_filter = ("is_active", "for_first")
 
     def get_queryset(self, request):
         return super().get_queryset(request).only(

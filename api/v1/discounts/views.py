@@ -1,6 +1,7 @@
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, mixins
+from django.utils import timezone
 
-from discount_app.models import Discount
+from discount_app.models import Discount, Coupon
 from . import serializers
 
 
@@ -22,3 +23,13 @@ class DiscountViewSet(viewsets.ModelViewSet):
             )
 
         return queryset
+
+
+class FirstOneCouponViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    queryset = Coupon.objects.filter(
+        is_active=True,
+        valid_from__lte=timezone.now(),
+        valid_to__gt=timezone.now(),
+        for_first=True
+    )
+    serializer_class = serializers.FirstOneCouponSerializer
