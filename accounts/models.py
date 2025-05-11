@@ -205,7 +205,7 @@ class Student(CreateMixin, UpdateMixin, SoftDeleteMixin):
     user = models.OneToOneField(User, on_delete=models.DO_NOTHING, related_name='student',
                                 limit_choices_to={"is_coach": False})
     student_number = models.CharField(max_length=11)
-    referral_code = models.CharField(max_length=30, blank=True)
+    referral_code = models.CharField(max_length=30, blank=True, db_index=True)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
@@ -270,3 +270,11 @@ class PrivateNotification(CreateMixin, UpdateMixin, SoftDeleteMixin):
     class Meta:
         db_table = 'private_notification'
         ordering = ("-created_at",)
+
+
+class Invitation(CreateMixin, SoftDeleteMixin):
+    from_student = models.ForeignKey(Student, on_delete=models.DO_NOTHING, related_name="from_invasion")
+    to_student = models.ForeignKey(Student, on_delete=models.DO_NOTHING, related_name="to_invasion")
+
+    class Meta:
+        db_table = 'invitation'

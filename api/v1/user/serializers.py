@@ -9,7 +9,8 @@ from rest_framework import generics
 from rest_framework import exceptions
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from accounts.models import User, Otp, State, City, Student, Coach, Ticket, TicketRoom, BestStudent, PrivateNotification
+from accounts.models import User, Otp, State, City, Student, Coach, Ticket, TicketRoom, BestStudent, \
+    PrivateNotification, Invitation
 from accounts.tasks import send_sms_otp_code_async
 from accounts.validators import MobileRegexValidator
 
@@ -25,6 +26,7 @@ class UserSerializer(serializers.ModelSerializer):
     city_name = serializers.SerializerMethodField()
     state_name = serializers.SerializerMethodField()
     student_referral_code = serializers.SerializerMethodField()
+    referral_code = serializers.CharField(required=False)
 
     def validate(self, attrs):
         if attrs['password'] != attrs['confirm_password']:
@@ -62,7 +64,14 @@ class UserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         del validated_data['confirm_password']
-        return User.objects.create_user(**validated_data)
+        referral_code = validated_data.pop("referral_code", None)
+        data = User.objects.create_user(**validated_data)
+
+        if referral_code:
+            get_student = Student.objects.filter(referral_code=referral_code).only("referral_code").last()
+            Invitation.objects.create(from_student=get_student, to_student=data.student)
+
+        return data
 
 
 class UpdateUserSerializer(serializers.ModelSerializer):
