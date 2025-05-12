@@ -54,6 +54,7 @@ services:
   celery:
     container_name: education_celery
     restart: always
+    build: .
     depends_on:
       - redis
     environment:
