@@ -54,13 +54,9 @@ services:
   celery:
     container_name: education_celery
     restart: always
-    build:
-      context: celery
-      dockerfile: Dockerfile
     depends_on:
       - redis
     environment:
-      - PYTHONPATH=/app
       - CELERY_BROKER_URL=redis://education_redis:6379/0
       - CELERY_RESULT_BACKEND=redis://education_redis:6379/1
     command: "celery -A education_system.dj_celery worker -l INFO"
