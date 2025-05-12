@@ -53,7 +53,9 @@ services:
   celery:
     container_name: education_celery
     restart: always
-    build: .
+    build:
+      context: celery
+      dockerfile: Dockerfile
     depends_on:
       - redis
     environment:
