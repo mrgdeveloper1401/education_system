@@ -43,7 +43,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - static_files:/vol
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx.conf:/etc/nginx/nginx.conf
     command: ["nginx", "-g", "daemon off;"]
     ports:
       - "80:80"
@@ -51,17 +51,17 @@ services:
     depends_on:
       - app
 
-  celery:
-    container_name: education_celery
-    restart: always
-    build: .
-    depends_on:
-      - redis
-    environment:
-      - CELERY_BROKER_URL=redis://education_redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://education_redis:6379/1
-    command: "celery -A education_system.dj_celery worker -l INFO"
-    env_file: ".env"
+#  celery:
+#    container_name: education_celery
+#    restart: always
+#    build: .
+#    depends_on:
+#      - redis
+#    environment:
+#      - CELERY_BROKER_URL=redis://education_redis:6379/0
+#      - CELERY_RESULT_BACKEND=redis://education_redis:6379/1
+#    command: "celery -A education_system.dj_celery worker -l INFO"
+#    env_file: ".env"
 
 
 volumes:
