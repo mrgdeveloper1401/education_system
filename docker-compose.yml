@@ -43,7 +43,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - static_files:/vol
-      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
     command: ["nginx", "-g", "daemon off;"]
     ports:
       - "80:80"
