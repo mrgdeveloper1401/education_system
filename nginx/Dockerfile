@@ -7,6 +7,6 @@ USER root
 RUN mkdir /vol && \
     mkdir -p /etc/letsencrypt/live/codeima
 
-COPY ./codeima /etc/letsencrypt/live/codeima
+COPY ./codeima/ /etc/letsencrypt/live/codeima
 
 USER nginx
