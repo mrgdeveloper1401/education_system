@@ -7,4 +7,4 @@ RUN mkdir /vol && \
 
 COPY ./codeima /etc/letsencrypt/live/codeima
 
-RUN ls /etc/letsencrypt/live/codeima
+RUN chmod +x -R /etc/letsencrypt/live/codeima
