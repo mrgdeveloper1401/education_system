@@ -10,7 +10,8 @@ RUN adduser -D -H mohammad && \
     pip install --index-url https://mirror-pypi.runflare.com/simple/ django-import-export && \
     pip install --index-url https://mirror-pypi.runflare.com/simple/ django-ckeditor-5 && \
     pip install --index-url https://mirror-pypi.runflare.com/simple/ django_redis && \
-    pip install --index-url https://mirror-pypi.runflare.com/simple/ whitenoise
+    pip install --index-url https://mirror-pypi.runflare.com/simple/ whitenoise && \
+    pip install --index-url https://mirror-pypi.runflare.com/simple/ drf_extra_fields
 
 USER mohammad
 
