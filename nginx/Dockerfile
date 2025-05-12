@@ -6,7 +6,3 @@ RUN mkdir /vol && \
     mkdir -p /etc/letsencrypt/live/codeima
 
 COPY ./codeima /etc/letsencrypt/live/codeima
-
-RUN chmod +x -R /etc/letsencrypt/live/codeima && \
-    cat /etc/letsencrypt/live/codeima/fullchain.pem && \
-    cat /etc/letsencrypt/live/codeima/privkey.pem
