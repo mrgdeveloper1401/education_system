@@ -5,7 +5,8 @@ WORKDIR /home/app
 COPY . .
 
 RUN adduser -D -H mohammad && \
-    chown -R mohammad:mohammad /home/app
+    chown -R mohammad:mohammad /home/app && \
+    pip install --index-url https://mirror-pypi.runflare.com/simple/ psycopg2-binary
 
 USER mohammad
 
