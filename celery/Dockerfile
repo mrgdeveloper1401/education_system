@@ -1,2 +1,5 @@
-FROM docker.arvancloud.ir/python:3.12-alpine
+FROM education:1.0.0
+
+ENTRYPOINT ["celery", "-A", "education_system.dj_celery", "worker", "-l", "INFO"]
+
 
