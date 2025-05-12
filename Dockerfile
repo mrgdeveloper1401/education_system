@@ -6,7 +6,8 @@ COPY . .
 
 RUN adduser -D -H mohammad && \
     chown -R mohammad:mohammad /home/app && \
-    pip install --index-url https://mirror-pypi.runflare.com/simple/ psycopg2-binary
+    pip install --index-url https://mirror-pypi.runflare.com/simple/ psycopg2-binary && \
+    pip install --index-url https://mirror-pypi.runflare.com/simple/ django-import-export
 
 USER mohammad
 
