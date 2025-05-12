@@ -5,6 +5,8 @@ services:
       context: .
     ports:
       - "8000:8000"
+    expose:
+      - 8000
     volumes:
       - static_files:/home/app/education_system/staticfiles
     env_file: ".env"
