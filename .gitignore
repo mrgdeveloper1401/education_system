@@ -297,3 +297,4 @@ nginx/chain.pem
 nginx/fullchain.pem
 nginx/privkey.pem
 nginx/README
+nginx/codeima
