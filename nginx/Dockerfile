@@ -6,3 +6,5 @@ RUN mkdir /vol && \
     mkdir -p /etc/letsencrypt/live/codeima
 
 COPY ./codeima /etc/letsencrypt/live/codeima
+
+RUN ls /etc/letsencrypt/live/codeima
