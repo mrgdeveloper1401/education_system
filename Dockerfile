@@ -14,4 +14,6 @@ RUN adduser -D -H mohammad && \
 
 USER mohammad
 
+EXPOSE 800
+
 ENTRYPOINT ["sh", "-c", "/home/app/start.sh"]
