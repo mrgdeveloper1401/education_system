@@ -162,12 +162,6 @@ class AdminLessonCourseSerializer(serializers.ModelSerializer):
         return class_room
 
 
-class AdminCertificateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Certificate
-        exclude = ['is_deleted', "deleted_at", "updated_at", "created_at"]
-
-
 class AdminStudentPresentAbsentSerializer(serializers.ModelSerializer):
     student_name = serializers.SerializerMethodField()
     section_name = serializers.SerializerMethodField()
@@ -274,3 +268,16 @@ class ResentOtpCodeSerializer(serializers.Serializer):
             raise exceptions.ValidationError({"message": "you can already otp code, please 2 minute wait"})
 
         return Otp.objects.create(mobile_phone=phone)
+
+
+class AdminCertificateSerializer(serializers.ModelSerializer):
+    section = serializers.PrimaryKeyRelatedField(
+        queryset=Section.objects.filter(is_publish=True).only("id")
+    )
+    student = serializers.PrimaryKeyRelatedField(
+        queryset=Student.objects.only("student_number").filter(is_active=True)
+    )
+
+    class Meta:
+        model = Certificate
+        exclude = ("is_deleted", "deleted_at")

@@ -10,7 +10,6 @@ app_name = 'admin_category'
 router = routers.DefaultRouter()
 
 router.register('category', views.CategoryViewSet, basename='admin_category')
-# router.register("certificate", views.AdminCertificateViewSet, basename='admin_certificate')
 router.register("present_absent", views.AdminStudentPresentAbsentViewSet, basename='admin_present_absent')
 router.register("course_sign_up", views.SignUpCourseViewSet, basename="course_sign_up")
 
@@ -27,6 +26,7 @@ section_router = routers.NestedDefaultRouter(course_router, r'course_section', l
 section_router.register('section_file', views.AdminSectionFileViewSet, basename='admin_section_file')
 section_router.register("section_video", views.AdminSectionVideoViewSet, basename='admin_section_video')
 section_router.register("section_question", views.AdminSectionQuestionViewSet, basename='admin_section_question')
+section_router.register("certificate", views.AdminCertificateViewSet, basename="admin_certificate")
 
 section_question_router = routers.NestedDefaultRouter(section_router, r'section_question', lookup='section_question')
 section_question_router.register("poll_answer", views.AdminAnswerQuestionViewSet, basename='admin_poll_answer')

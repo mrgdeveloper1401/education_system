@@ -305,6 +305,7 @@ class Certificate(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = 'course_certificate'
+        unique_together = ("section", "student")
 
 
 class Comment(MP_Node, CreateMixin, UpdateMixin, SoftDeleteMixin):

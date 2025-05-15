@@ -164,15 +164,9 @@ class AdminLessonCourseViewSet(viewsets.ModelViewSet):
         return response.Response(serializer.data)
 
 
-class AdminCertificateViewSet(viewsets.ModelViewSet):
-    queryset = Certificate.objects.defer("deleted_at", "is_deleted", "created_at", "updated_at")
-    serializer_class = serializers.AdminCertificateSerializer
-    permission_classes = [permissions.IsAdminUser]
-
-
 class AdminStudentPresentAbsentViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.AdminStudentPresentAbsentSerializer
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = (permissions.IsAdminUser,)
     pagination_class = AdminPagination
 
     def get_queryset(self):
@@ -282,3 +276,11 @@ class ResentOtpCodeView(views.APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return response.Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class AdminCertificateViewSet(viewsets.ModelViewSet):
+    permission_classes = (permissions.IsAdminUser,)
+    serializer_class = serializers.AdminCertificateSerializer
+
+    def get_queryset(self):
+        return Certificate.objects.filter(section_id=self.kwargs['section_pk']).defer("is_deleted", "deleted_at")

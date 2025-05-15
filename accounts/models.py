@@ -63,7 +63,7 @@ class User(AbstractBaseUser, PermissionsMixin, UpdateMixin, SoftDeleteMixin, Cre
         return self.image.url
 
     USERNAME_FIELD = 'mobile_phone'
-    REQUIRED_FIELDS = ['first_name', "last_name", "email"]
+    REQUIRED_FIELDS = ('first_name', "last_name", "email")
 
     objects = UserManager()
 

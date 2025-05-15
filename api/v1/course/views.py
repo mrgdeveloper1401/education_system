@@ -313,7 +313,7 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
     @decorators.action(
         detail=True,
         url_path="sections/(?P<section_pk>[^/.]+)/certificate",
-        methods=['GET', "POST"]
+        methods=['GET']
     )
     def section_certificate(self, request, pk=None, section_pk=None):
         queryset = Certificate.objects.filter(
@@ -329,19 +329,8 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
             "student__user"
         ).first()
         serializer = serializers.CertificateSerializer
-
-        if request.method == "POST":
-            ser = serializer(data=request.data, context={"request": request, "section_pk": section_pk})
-            ser.is_valid(raise_exception=True)
-            ser.save()
-            return response.Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        elif request.method == "GET":
-            ser = serializer(queryset)
-            return response.Response(ser.data)
-
-        else:
-            raise exceptions.MethodNotAllowed(request.method)
+        ser = serializer(queryset)
+        return response.Response(ser.data)
 
 
 class StudentPollAnswer(mixins.CreateModelMixin, viewsets.GenericViewSet):

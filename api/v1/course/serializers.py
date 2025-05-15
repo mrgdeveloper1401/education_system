@@ -463,13 +463,6 @@ class HomeCategorySerializer(serializers.ModelSerializer):
         )
 
 
-
-# class HomeCoursePlanSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Plan
-#         fields = ("price", "plan_title")
-
-
 class CourseTypeSerializer(serializers.ModelSerializer):
     discounts = serializers.SerializerMethodField()
 
@@ -487,7 +480,6 @@ class CourseTypeSerializer(serializers.ModelSerializer):
 
 
 class HomeCourseSerializer(serializers.ModelSerializer):
-    # plans = HomeCoursePlanSerializer(many=True)
     course_type_model = CourseTypeSerializer(
         many=True,
     )
