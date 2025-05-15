@@ -35,66 +35,27 @@ class UpdateCategoryNodeSerializer(serializers.ModelSerializer):
         fields = ('category_name', "image", "description")
 
 
-class AdminListCourseSerializer(serializers.ModelSerializer):
-    category = serializers.PrimaryKeyRelatedField(
-        queryset=Category.objects.only("category_name")
-    )
-
+class AdminCourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
-        exclude = ('is_deleted', "deleted_at")
-        read_only_fields = ('course_image',)
-
-
-class AdminCreateCourseSerializer(serializers.ModelSerializer):
-    category = serializers.PrimaryKeyRelatedField(
-        queryset=Category.objects.only("category_name")
-    )
-
-    class Meta:
-        model = Course
-        fields = "__all__"
-        read_only_fields = ("category",)
+        exclude = ('is_deleted', "deleted_at", "category")
 
     def create(self, validated_data):
-        return Course.objects.create(
-            category_id=self.context['category_pk'],
-            **validated_data
-        )
-
-
-class AdminUpdateCourseSerializer(serializers.ModelSerializer):
-    category = serializers.PrimaryKeyRelatedField(
-        queryset=Category.objects.only("category_name")
-    )
-
-    class Meta:
-        model = Course
-        exclude = ('is_deleted', "deleted_at", "updated_at")
+        return Course.objects.create(category_id=self.context['category_pk'],**validated_data)
 
 
 class AdminCreateCourseSectionSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Section
-        fields = ('title', "description", "cover_image")
+        exclude = ("is_deleted", "deleted_at", "course")
+        read_only_fields = ("course",)
 
     def create(self, validated_data):
         course_id = self.context['course_pk']
-        return Section.objects.create(
-            course_id=course_id,
-            **validated_data
-        )
+        return Section.objects.create(course_id=course_id,**validated_data)
 
 
-class AdminListCourseSectionSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Section
-        exclude = ("deleted_at", "is_deleted")
-
-
-class AdminCreateCourseSectionFileSerializer(serializers.ModelSerializer):
+class AdminCourseSectionFileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SectionFile
@@ -110,25 +71,19 @@ class AdminListCourseSectionFileSerializer(serializers.ModelSerializer):
         exclude = ('is_deleted', "deleted_at")
 
 
-class AdminCreateSectionVideoSerializer(serializers.ModelSerializer):
+class AdminSectionVideoSerializer(serializers.ModelSerializer):
     class Meta:
         model = SectionVideo
-        fields = ['is_publish', "video", "title"]
+        exclude = ('is_deleted', "deleted_at", "section")
 
     def create(self, validated_data):
         return SectionVideo.objects.create(section_id=int(self.context['section_pk']), **validated_data)
 
 
-class AdminListSectionVideoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SectionVideo
-        exclude = ['is_deleted', "deleted_at"]
-
-
 class AdminCourseListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
-        fields = ['id', "course_name"]
+        fields = ('id', "course_name")
 
 
 class AdminLessonCourseSerializer(serializers.ModelSerializer):
@@ -180,7 +135,7 @@ class AdminStudentPresentAbsentSerializer(serializers.ModelSerializer):
 class AdminSectionQuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = SectionQuestion
-        fields = ['id', "question_title", "is_publish", "created_at"]
+        fields = ('id', "question_title", "is_publish", "created_at")
 
     def create(self, validated_data):
         section_pk = self.context['section_pk']
@@ -192,7 +147,7 @@ class AnswerQuestionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AnswerQuestion
-        fields = ['id', "student", "created_at", "rate"]
+        fields = ('id', "student", "created_at", "rate")
 
 
 class AdminCoachRankingSerializer(serializers.ModelSerializer):
@@ -220,7 +175,7 @@ class AdminCommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ('id', "is_publish", "comment_body", "path", "numchild", "depth", "parent", "user_name", "created_at")
+        exclude = ("is_deleted", "deleted_at", "category", "user")
         read_only_fields = ("path", "numchild", "depth")
 
     def get_user_name(self, obj):
@@ -250,24 +205,6 @@ class SignUpCourseSerializer(serializers.ModelSerializer):
         data = super().create(validated_data)
         Otp.objects.create(mobile_phone=validated_data['phone_number'])
         return data
-
-
-class ResentOtpCodeSerializer(serializers.Serializer):
-    mobile_phone = serializers.CharField()
-
-    def validate(self, attrs):
-        if not SignupCourse.objects.filter(phone_number=attrs["mobile_phone"]).exists():
-            raise exceptions.ValidationError({"message": "you must sign up in SingUpCourse"})
-        return attrs
-
-    def create(self, validated_data):
-        phone = validated_data['mobile_phone']
-        otp = Otp.objects.filter(mobile_phone=phone).only("mobile_phone", "expired_date").last()
-
-        if otp and otp.is_expired is False:
-            raise exceptions.ValidationError({"message": "you can already otp code, please 2 minute wait"})
-
-        return Otp.objects.create(mobile_phone=phone)
 
 
 class AdminCertificateSerializer(serializers.ModelSerializer):

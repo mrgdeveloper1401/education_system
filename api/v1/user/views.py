@@ -92,7 +92,7 @@ class UserViewSet(viewsets.ModelViewSet):
             return query.filter(id=self.request.user.id)
 
     def get_serializer_class(self):
-        if self.request.method in ['PUT', "PATCH"]:
+        if self.request.method in ('PUT', "PATCH"):
             return serializers.UpdateUserSerializer
         return super().get_serializer_class()
 
@@ -123,7 +123,7 @@ class StateApiView(BaseApiView):
 
 
 class CityApiView(BaseApiView):
-    model = City.objects.select_related("state")
+    model = City.objects.select_related("state").only("state", "city")
     serializer_class = serializers.CitySerializer
 
 
@@ -277,7 +277,10 @@ class BestStudentViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         return BestStudent.objects.filter(is_publish=True).only(
-            "id", "student", "description", "student_image", "attributes"
+            "student",
+            "description",
+            "student_image",
+            "attributes"
         )
 
 

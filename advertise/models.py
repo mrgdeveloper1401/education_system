@@ -58,14 +58,10 @@ class ConsultationSchedule(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 
 class ConsultationRequest(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    # topic = models.ForeignKey(ConsultationTopic, on_delete=models.CASCADE, related_name="consultation_request_topic",
-    #                           blank=True, null=True)
     slot = models.ForeignKey("ConsultationSlot", on_delete=models.DO_NOTHING, related_name="consultation_slot_slot")
     mobile_phone = models.CharField(_("شماره موبایل"), max_length=11, validators=[MobileRegexValidator()])
     first_name = models.CharField(_("نام کد اموز"), max_length=30)
     last_name = models.CharField(_("نام خانوادگی کد اموز"), max_length=30)
-    # classroom = models.CharField(_("پایه درسی"), choices=Grade, max_length=8)
-    # gender = models.CharField(_("جنسیت"), max_length=6, choices=Gender.choices)
     is_answer = models.BooleanField(default=False)
     topic = models.CharField(max_length=100, blank=True, null=True)
 
@@ -74,13 +70,12 @@ class ConsultationRequest(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = 'consultation_request'
+        ordering = ('-created_at',)
 
 
 class ConsultationSlot(CreateMixin, UpdateMixin, SoftDeleteMixin):
     schedule = models.ForeignKey(ConsultationSchedule, on_delete=models.DO_NOTHING, related_name="consultation_slot")
     date = models.DateField()
-    # start_time = models.TimeField()
-    # end_time = models.TimeField()
     is_available = models.BooleanField(default=True)
 
     objects = PublishSlotManager()

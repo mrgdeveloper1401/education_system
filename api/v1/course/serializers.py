@@ -2,6 +2,7 @@ from django.contrib.contenttypes.models import ContentType
 from rest_framework import serializers, exceptions
 from drf_spectacular.utils import extend_schema_field
 from rest_framework.generics import get_object_or_404
+from django.utils import timezone
 
 from accounts.models import Student
 from course.enums import RateChoices, StudentStatusChoices
@@ -544,7 +545,9 @@ class CrudCourseTypeSerializer(serializers.ModelSerializer):
         discounts = Discount.objects.filter(
             content_type=ContentType.objects.get_for_model(obj),
             object_id=obj.id,
-            is_active=True
+            is_active=True,
+            start_date__gte=timezone.now(),
+            end_date__lte=timezone.now(),
         ).values("id", "percent", "start_date", "end_date")
         return discounts
 

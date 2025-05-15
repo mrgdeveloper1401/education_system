@@ -257,7 +257,7 @@ class BestStudent(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = 'best_student'
-        ordering = ['-created_at']
+        ordering = ('-created_at',)
 
 
 # TODO, when clean migration, remove attribute blank in title

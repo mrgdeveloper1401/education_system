@@ -17,13 +17,14 @@ class CouponViewSet(viewsets.ModelViewSet):
     pagination_class = CommonPagination
 
     def get_queryset(self):
-        query = models.Coupon.objects.defer("is_deleted", "deleted_at")
+        return models.Coupon.objects.defer("is_deleted", "deleted_at")
 
+    def filter_queryset(self, queryset):
         code = self.request.query_params.get("code", None)
+        query = queryset
 
         if code:
             query = query.filter(code__exact=code)
-
         return query
 
 

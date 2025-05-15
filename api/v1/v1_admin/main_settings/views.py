@@ -34,7 +34,7 @@ class HeaderSiteViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.HeaderSiteSerializer
 
     def get_permissions(self):
-        if self.request.method in ['POST', "PUT", 'PATCH', 'DELETE']:
+        if self.request.method in ('POST', "PUT", 'PATCH', 'DELETE'):
             self.permission_classes = (permissions.IsAdminUser,)
         return super().get_permissions()
 
@@ -42,8 +42,3 @@ class HeaderSiteViewSet(viewsets.ModelViewSet):
         if self.request.user.is_staff is False:
             return queryset.filter(is_publish=True)
         return super().filter_queryset(queryset)
-
-    def get_serializer_class(self):
-        if self.action in ['list', "retrieve"]:
-            return serializers.ListRetrieveHeaderSerializer
-        return super().get_serializer_class()

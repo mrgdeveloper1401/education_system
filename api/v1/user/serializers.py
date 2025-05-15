@@ -56,7 +56,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        exclude = ["last_login", "is_superuser", "groups", "user_permissions", "is_active", "is_verified"]
+        exclude = ("last_login", "is_superuser", "groups", "user_permissions", "is_active", "is_verified")
         extra_kwargs = {
             "password": {"write_only": True, "style": {"input_type": "password"}},
             "confirm_password": {"write_only": True},
@@ -88,8 +88,8 @@ class UpdateUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        exclude = ['password', "last_login", "is_superuser", "groups", "user_permissions", "is_active",
-                   "is_verified"]
+        exclude = ('password', "last_login", "is_superuser", "groups", "user_permissions", "is_active",
+                   "is_verified")
         extra_kwargs = {
             "nation_code": {"required": False}
         }
@@ -98,7 +98,7 @@ class UpdateUserSerializer(serializers.ModelSerializer):
 class StateSerializer(serializers.ModelSerializer):
     class Meta:
         model = State
-        fields = ['id', "state_name"]
+        fields = ('id', "state_name")
 
 
 class CitySerializer(serializers.ModelSerializer):
@@ -106,7 +106,7 @@ class CitySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = City
-        fields = ['id', "city", "state"]
+        fields = ('id', "city", "state")
 
 
 class ChangePasswordSerializer(serializers.Serializer):
@@ -149,19 +149,19 @@ class ConfirmForgetPasswordSerializer(serializers.Serializer):
 class StudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Student
-        exclude = ['deleted_at', "is_deleted", "created_at", "updated_at"]
+        exclude = ('deleted_at', "is_deleted", "created_at", "updated_at")
 
 
 class CoachSerializer(serializers.ModelSerializer):
     class Meta:
         model = Coach
-        exclude = ['deleted_at', "is_deleted", "created_at", "updated_at"]
+        exclude = ('deleted_at', "is_deleted", "created_at", "updated_at")
 
 
 class TickerRoomSerializer(serializers.ModelSerializer):
     class Meta:
         model = TicketRoom
-        fields = ['id', "title_room", "subject_room", "is_close", "created_at"]
+        fields = ('id', "title_room", "subject_room", "is_close", "created_at")
 
     def create(self, validated_data):
         user = self.context['request'].user
@@ -175,9 +175,9 @@ class TicketSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Ticket
-        fields = ['id', "ticket_body", "ticket_file", "created_at", "sender_name", "parent", "depth", "path",
-                  "numchild", "reply", "reply_name", "sender"]
-        read_only_fields = ['depth', "path", "numchild", "reply", "sender"]
+        fields = ('id', "ticket_body", "ticket_file", "created_at", "sender_name", "parent", "depth", "path",
+                  "numchild", "reply", "reply_name", "sender")
+        read_only_fields = ('depth', "path", "numchild", "reply", "sender")
 
     def validate(self, attrs):
         request = self.context['request']
@@ -235,7 +235,7 @@ class TicketSerializer(serializers.ModelSerializer):
 class ListBestStudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = BestStudent
-        fields = ["id", "student_image", "description", "attributes", "student"]
+        fields = ("id", "student_image", "description", "attributes", "student")
 
 
 class ValidateTokenSerializer(serializers.Serializer):

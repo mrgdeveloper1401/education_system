@@ -43,7 +43,7 @@ class Course(CreateMixin, UpdateMixin, SoftDeleteMixin):
     is_publish = models.BooleanField(default=True)
     project_counter = models.PositiveSmallIntegerField(null=True)
     # price = models.FloatField(help_text=_("قیمت دوره"), blank=True, null=True)
-    # is_free = models.BooleanField(default=False)
+    is_free = models.BooleanField(default=False)
     facilities = ArrayField(models.CharField(max_length=30), blank=True, null=True)
     course_level = models.CharField(max_length=13, null=True, blank=True)
     time_course = models.CharField(max_length=10, help_text="مدت زمان دوره", blank=True)
@@ -183,7 +183,7 @@ class StudentEnrollment(CreateMixin, UpdateMixin, SoftDeleteMixin):
 class Section(CreateMixin, UpdateMixin, SoftDeleteMixin):
     course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name='sections',
                                limit_choices_to={"is_publish": True})
-    title = models.CharField(max_length=255)
+    title = models.CharField(max_length=255, db_index=True)
     description = models.TextField(blank=True, null=True)
     cover_image = models.ImageField(upload_to="section_cover_image/%Y/%m/%d", null=True,
                                     validators=[max_upload_image_validator])

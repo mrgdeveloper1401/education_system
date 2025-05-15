@@ -16,8 +16,8 @@ class StudentEnrollmentInlineAdmin(admin.TabularInline):
 
 @admin.register(models.Course)
 class CouAdmin(ImportExportModelAdmin):
-    list_display = ("category", "course_name", "is_publish", "project_counter")
-    list_filter = ('created_at',)
+    list_display = ("category", "course_name", "is_publish", "is_free", "project_counter")
+    list_filter = ('created_at', 'is_free')
     raw_id_fields = ('category',)
     list_select_related = ('category',)
     search_fields = ('course_name',)

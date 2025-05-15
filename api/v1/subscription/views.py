@@ -33,7 +33,7 @@ class SubscriptionViewSet(viewsets.ModelViewSet):
         ).filter(user=self.request.user)
 
     def get_permissions(self):
-        if self.request.method in ['PATCH', "PUT", "DELETE"]:
+        if self.request.method in ('PATCH', "PUT", "DELETE"):
             self.permission_classes = (permissions.IsAdminUser,)
         return super().get_permissions()
 

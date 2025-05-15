@@ -34,7 +34,7 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
         return super().get_serializer_class()
 
     def get_permissions(self):
-        if self.action in [
+        if self.action in (
             'section_detail',
             "poll",
             "section_file",
@@ -44,7 +44,7 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
             "section_video",
             "section_score",
             "section_score"
-        ]:
+        ):
             self.permission_classes = [IsAuthenticated, IsAccessPermission]
         return super().get_permissions()
 
@@ -406,11 +406,11 @@ class CoachLessonCourseViewSet(viewsets.ReadOnlyModelViewSet):
     pagination_class = CommonPagination
 
     def get_serializer_class(self):
-        if self.action == "detail_student_send_files" and self.request.method in ['PUT', 'PATCH']:
+        if self.action == "detail_student_send_files" and self.request.method in ('PUT', 'PATCH'):
             return serializers.UpdateCoachStudentSendFilesSerializer
-        if self.action == "section_present_absent" and self.request.method in ['POST']:
+        if self.action == "section_present_absent" and self.request.method in ('POST',):
             return serializers.CreateCoachPresentAbsentSerializer
-        if self.action == "detail_coach_present_absent" and self.request.method in ['PUT', 'PATCH']:
+        if self.action == "detail_coach_present_absent" and self.request.method in ('PUT', 'PATCH'):
             return serializers.CoachPresentAbsentSerializer
         if self.action == "retrieve":
             return serializers.RetrieveLessonCourseSerializer
