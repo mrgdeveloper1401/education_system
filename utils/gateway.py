@@ -53,19 +53,10 @@ class BitPay(Gateway):
 
         response = requests.post(url=self.request_endpoint, data=data, headers=self.headers)
         response_data = response.json()
-
-        if response_data > 0 == True:
-            return {
-                "success": True,
-                "payment_url": self.redirect_url(response_data),
-                "token": response_data,
-            }
-        else:
-            return {
-                "success": False,
-                "error": ("errorMessage", "خطا در اتصال به درگاه"),
-                "response": response_data
-            }
+        return {
+            "payment_url": self.redirect_url(response_data),
+            "token": response_data,
+        }
 
     def redirect_url(self, token: str):
         return f"https://bitpay.ir/payment/gateway-{token}"

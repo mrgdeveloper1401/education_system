@@ -118,18 +118,19 @@ class PaySubscriptionSerializer(serializers.ModelSerializer):
         get_sub = validated_data['get_sub'].last()
         instance = BitPay(
             api_key=bit_pay_api_key,
-            amount=get_sub.price,
+            amount=int(get_sub.price),
             order_id=get_sub.user.mobile_phone,
-            # email=get_sub.user.email,
-            # name=get_sub.user.get_full_name,
+            email=get_sub.user.email,
+            name=get_sub.user.get_full_name,
             description=f"pay subscription {get_sub.id}",
             call_back_url=settings.BITPAY_CALLBACK_URL
         )
-        print(instance)
-        print(instance.request_url())
         pay_sub = PaymentSubscription.objects.create(
             subscription=get_sub
         )
         pay_sub.response_payment = instance.request_url()
         pay_sub.save()
         return pay_sub
+
+    def to_representation(self, instance):
+        return instance.response_payment
