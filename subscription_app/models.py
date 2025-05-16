@@ -80,3 +80,11 @@ class Plan(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = 'plan'
+
+
+class PaymentSubscription(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    subscription = models.ForeignKey(Subscription, on_delete=models.DO_NOTHING, related_name='payment_subscription')
+    response_payment = models.JSONField(blank=True, null=True)
+
+    class Meta:
+        db_table = "payment_subscription"

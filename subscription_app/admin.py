@@ -1,9 +1,6 @@
-import datetime
-
 from django.contrib import admin
-from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
-from .models import Subscription
+from .models import Subscription, PaymentSubscription
 #
 # @admin.register(Plan)
 # class PlanAdmin(admin.ModelAdmin):
@@ -29,6 +26,7 @@ from .models import Subscription
 class SubscriptionAdmin(admin.ModelAdmin):
     readonly_fields = ("created_at", "updated_at")
     list_display = (
+        "id",
         'user',
         'created_at',
         'status',
@@ -83,3 +81,10 @@ class SubscriptionAdmin(admin.ModelAdmin):
             "crud_course_type__course_type",
             "end_date",
         )
+
+
+@admin.register(PaymentSubscription)
+class PaymentSubscriptionAdmin(admin.ModelAdmin):
+    list_display = ("subscription", "id", "created_at")
+    list_per_page = 20
+    raw_id_fields = ("subscription",)

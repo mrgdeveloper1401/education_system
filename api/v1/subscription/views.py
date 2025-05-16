@@ -1,6 +1,6 @@
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, mixins, views, response, status
 
-from subscription_app.models import Subscription
+from subscription_app.models import Subscription, PaymentSubscription
 from . import serializers
 from ..course.paginations import CommonPagination
 
@@ -52,3 +52,33 @@ class SubscriptionViewSet(viewsets.ModelViewSet):
             return queryset.filter(user__mobile_phone=phone)
         else:
             return queryset
+
+
+class PaymentSubscriptionViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = serializers.PaymentSubscriptionSerializer
+
+    def get_queryset(self):
+        return PaymentSubscription.objects.filter(subscription__user=self.request.user).only(
+            "subscription__user",
+            "subscription__price",
+            "subscription__end_date",
+            "subscription__status",
+            "subscription__course_id",
+            "created_at",
+            "response_payment"
+        )
+
+
+class PayApiView(views.APIView):
+    """
+    this api user, click button pay and create payment_subscription
+    """
+    serializer_class = serializers.PaySubscriptionSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request):
+        ser = self.serializer_class(data=request.data, context={'request': request})
+        ser.is_valid(raise_exception=True)
+        ser.save()
+        return response.Response(ser.data, status=status.HTTP_201_CREATED)

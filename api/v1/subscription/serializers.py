@@ -1,12 +1,13 @@
 from datetime import timedelta
-
+from django.conf import settings
 from django.utils import timezone
 from drf_spectacular.utils import extend_schema_field
-from rest_framework import serializers
+from rest_framework import serializers, exceptions
 
 from course.enums import PlanTypeEnum
 from course.models import Course, CourseTypeModel
-from subscription_app.models import Subscription
+from subscription_app.models import Subscription, PaymentSubscription
+from utils.gateway import BitPay
 
 
 class SubscriptionSerializer(serializers.ModelSerializer):
@@ -70,3 +71,65 @@ class CreateSubscriptionSerializer(serializers.ModelSerializer):
         data.price = course_type.final_price
         data.save()
         return data
+
+
+class SimpleSubscription(serializers.ModelSerializer):
+    class Meta:
+        model = Subscription
+        fields = ("course", "price", "end_date", "status")
+
+
+class PaymentSubscriptionSerializer(serializers.ModelSerializer):
+    subscription = SimpleSubscription()
+
+    class Meta:
+        model = PaymentSubscription
+        fields = ("subscription", "created_at", "response_payment")
+
+
+class PaySubscriptionSerializer(serializers.ModelSerializer):
+    subscription = serializers.PrimaryKeyRelatedField(
+        queryset=Subscription.objects.only("status", "user__mobile_phone"),
+    )
+    class Meta:
+        model = PaymentSubscription
+        fields = ("subscription",)
+
+    def validate(self, attrs):
+        get_sub = Subscription.objects.filter(
+            id=attrs['subscription'].id,
+            status="pending",
+            user=self.context['request'].user
+        ).only(
+            "user__mobile_phone",
+            "user__email",
+            "user__first_name",
+            "user__last_name",
+            "status"
+        )
+
+        if not get_sub:
+            raise exceptions.NotFound()
+        attrs['get_sub'] = get_sub
+        return attrs
+
+    def create(self, validated_data):
+        bit_pay_api_key = settings.BITPAY_MERCHANT_ID
+        get_sub = validated_data['get_sub'].last()
+        instance = BitPay(
+            api_key=bit_pay_api_key,
+            amount=get_sub.price,
+            order_id=get_sub.user.mobile_phone,
+            # email=get_sub.user.email,
+            # name=get_sub.user.get_full_name,
+            description=f"pay subscription {get_sub.id}",
+            call_back_url=settings.BITPAY_CALLBACK_URL
+        )
+        print(instance)
+        print(instance.request_url())
+        pay_sub = PaymentSubscription.objects.create(
+            subscription=get_sub
+        )
+        pay_sub.response_payment = instance.request_url()
+        pay_sub.save()
+        return pay_sub
