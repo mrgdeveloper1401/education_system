@@ -100,7 +100,7 @@ class LessonCourseAdmin(admin.ModelAdmin):
 class CertificateAdmin(admin.ModelAdmin):
     list_display = ('section', "student", "created_at")
     list_select_related = ('student', "section")
-    raw_id_fields = ('section', "student")
+    raw_id_fields = ('section', "student", "image")
 
 
 @admin.register(models.StudentSectionScore)

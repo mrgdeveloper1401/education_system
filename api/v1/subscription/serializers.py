@@ -20,7 +20,6 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         model = Subscription
         exclude = ("is_deleted", "deleted_at", "user", "course")
 
-
     def get_course_name(self, obj):
         return obj.course.course_name
 

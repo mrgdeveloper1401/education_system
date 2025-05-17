@@ -208,13 +208,10 @@ class SignUpCourseSerializer(serializers.ModelSerializer):
 
 
 class AdminCertificateSerializer(serializers.ModelSerializer):
-    section = serializers.PrimaryKeyRelatedField(
-        queryset=Section.objects.filter(is_publish=True).only("id")
-    )
     student = serializers.PrimaryKeyRelatedField(
         queryset=Student.objects.only("student_number").filter(is_active=True)
     )
 
     class Meta:
         model = Certificate
-        exclude = ("is_deleted", "deleted_at")
+        exclude = ("is_deleted", "deleted_at", "section")
