@@ -2,7 +2,8 @@ from django.db.models import Prefetch
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import  OpenApiParameter
-from rest_framework import viewsets, permissions, exceptions, generics, filters, decorators, response, views, status
+from rest_framework import viewsets, permissions, exceptions, generics, filters, decorators, response, views, status, \
+    mixins
 from drf_spectacular.views import extend_schema
 
 from accounts.models import Student
@@ -284,4 +285,29 @@ class AdminCertificateViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.AdminCertificateSerializer
 
     def get_queryset(self):
-        return Certificate.objects.filter(section_id=self.kwargs['section_pk']).defer("is_deleted", "deleted_at")
+        return Certificate.objects.filter(section_id=self.kwargs['section_pk']).select_related("image").only(
+            "image__image_url",
+            "created_at",
+            "updated_at",
+            "student__student_number"
+        )
+
+
+class AdminCertificateStudentListView(mixins.ListModelMixin, viewsets.GenericViewSet):
+    """
+    filter query --> ?std_phone=student_phone_number
+    """
+    serializer_class = serializers.AdminStudentListCertificateSerializer
+    permission_classes = (permissions.IsAdminUser,)
+    queryset = Student.objects.select_related("user").only(
+        "user__mobile_phone",
+        "user__first_name",
+        "user__last_name"
+    )
+
+    def filter_queryset(self, queryset):
+        std_phone = self.request.query_params.get("std_phone", None)
+
+        if std_phone:
+            queryset = queryset.filter(user__mobile_phone__icontains=std_phone)
+        return queryset

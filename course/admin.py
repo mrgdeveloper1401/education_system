@@ -34,14 +34,14 @@ class CategoryTreeAdmin(TreeAdmin, ImportExportModelAdmin):
 
 @admin.register(models.Section)
 class SectionAdmin(admin.ModelAdmin):
-    raw_id_fields = ['course']
-    list_select_related = ['course']
-    list_display = ["id", 'course', "title", "is_publish"]
-    list_filter = ['created_at']
+    raw_id_fields = ('course',)
+    list_select_related = ('course',)
+    list_display = ("id", 'course', "title", "is_publish")
+    list_filter = ('created_at', "is_last_section")
     list_per_page = 20
-    search_fields = ['title']
-    list_display_links = ['id', "course"]
-    list_editable = ['is_publish']
+    search_fields = ('title',)
+    list_display_links = ('id', "course")
+    list_editable = ('is_publish',)
 
 
 @admin.register(models.Comment)
@@ -57,20 +57,20 @@ class CommentAdmin(TreeAdmin):
 
 @admin.register(models.SectionVideo)
 class SectionVideoAdmin(admin.ModelAdmin):
-    raw_id_fields = ['section']
-    list_display = ['section', "is_publish", "created_at"]
-    list_select_related = ['section']
+    raw_id_fields = ('section',)
+    list_display = ('section', "is_publish", "created_at")
+    list_select_related = ('section',)
     list_per_page = 20
-    list_filter = ['is_publish', "created_at"]
+    list_filter = ('is_publish', "created_at")
 
 
 @admin.register(models.SectionFile)
 class SectionFileAdmin(admin.ModelAdmin):
-    raw_id_fields = ['section']
-    list_display = ["id", 'section', "is_publish", "created_at"]
-    list_select_related = ['section']
+    raw_id_fields = ('section',)
+    list_display = ("id", 'section', "is_publish", "created_at")
+    list_select_related = ('section',)
     list_per_page = 20
-    list_filter = ['is_publish', "created_at"]
+    list_filter = ('is_publish', "created_at")
 
 
 @admin.register(models.LessonCourse)
@@ -105,37 +105,37 @@ class CertificateAdmin(admin.ModelAdmin):
 
 @admin.register(models.StudentSectionScore)
 class SectionScoreAdmin(admin.ModelAdmin):
-    list_display = ['section', "score", 'created_at']
+    list_display = ('section', "score", 'created_at')
     list_per_page = 20
-    list_filter = ['created_at']
-    raw_id_fields = ['section']
+    list_filter = ('created_at',)
+    raw_id_fields = ('section',)
 
 
 @admin.register(models.PresentAbsent)
 class PresentAbsentAdmin(admin.ModelAdmin):
-    list_display = ['section', "student", "student_status", "created_at", "updated_at"]
+    list_display = ('section', "student", "student_status", "created_at", "updated_at")
     list_per_page = 20
-    raw_id_fields = ['section', "student"]
-    list_filter = ['student_status']
-    list_editable = ['student_status']
+    raw_id_fields = ('section', "student")
+    list_filter = ('student_status',)
+    list_editable = ('student_status',)
 
 
 @admin.register(models.SendSectionFile)
 class SendSectionFileAdmin(admin.ModelAdmin):
-    list_display = ['student', "section_file", "created_at", 'send_file_status']
-    raw_id_fields = ['student', "section_file"]
+    list_display = ('student', "section_file", "created_at", 'send_file_status')
+    raw_id_fields = ('student', "section_file")
     list_per_page = 20
-    list_filter = ['send_file_status']
+    list_filter = ('send_file_status',)
 
 
 @admin.register(models.StudentAccessSection)
 class StudentAccessSectionAdmin(admin.ModelAdmin):
-    list_display = ['student', "section", "get_section_name", "get_section_course_name", "is_access", "created_at"]
-    list_editable = ['is_access']
+    list_display = ('student', "section", "get_section_name", "get_section_course_name", "is_access", "created_at")
+    list_editable = ('is_access',)
     list_per_page = 20
-    list_filter = ['is_access']
-    raw_id_fields = ['student', "section"]
-    search_fields = ['student__student_number']
+    list_filter = ('is_access',)
+    raw_id_fields = ('student', "section")
+    search_fields = ('student__student_number',)
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)

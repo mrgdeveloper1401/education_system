@@ -188,6 +188,8 @@ class Section(CreateMixin, UpdateMixin, SoftDeleteMixin):
     cover_image = models.ImageField(upload_to="section_cover_image/%Y/%m/%d", null=True,
                                     validators=[max_upload_image_validator])
     is_publish = models.BooleanField(default=True)
+    is_last_section = models.BooleanField(default=False,
+                                    help_text=_("اگر این مقدار برابر با ترو باشد یعنی اخرین سکشن برای درس خواهد بود"))
 
     class Meta:
         ordering = ('created_at',)

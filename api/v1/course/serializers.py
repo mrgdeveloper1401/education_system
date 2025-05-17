@@ -55,7 +55,7 @@ class StudentAccessSectionDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StudentAccessSection
-        fields = ['section', "is_access"]
+        fields = ('section', "is_access")
 
 
 class CourseSectionVideoSerializer(serializers.ModelSerializer):

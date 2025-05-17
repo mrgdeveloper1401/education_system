@@ -1,9 +1,10 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers, exceptions
+from django.utils.translation import gettext_lazy as _
 
 from accounts.models import Student, Otp, Coach
 from course.models import Category, Course, Section, SectionFile, SectionVideo, LessonCourse, Certificate, \
-    PresentAbsent, SectionQuestion, AnswerQuestion, Comment, SignupCourse, StudentEnrollment
+    PresentAbsent, SectionQuestion, AnswerQuestion, Comment, SignupCourse, StudentEnrollment, StudentAccessSection
 
 
 class CreateCategorySerializer(serializers.ModelSerializer):
@@ -211,7 +212,28 @@ class AdminCertificateSerializer(serializers.ModelSerializer):
     student = serializers.PrimaryKeyRelatedField(
         queryset=Student.objects.only("student_number").filter(is_active=True)
     )
+    certificate_image_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Certificate
         exclude = ("is_deleted", "deleted_at", "section")
+
+    def get_certificate_image_url(self, obj):
+        return obj.image.image_url
+
+    def validate(self, attrs):
+        student_section = StudentAccessSection.objects.filter(
+            student_id=attrs["student_id"],
+            is_access=True,
+            section__is_last_section=True
+        ).select_related("section").only("is_access", "section__is_last_section")
+
+        if not student_section.exists():
+            raise exceptions.ValidationError({"message": _("student not appear last section")})
+        return attrs
+
+
+class AdminStudentListCertificateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Student
+        fields = ("id", "student_name", "get_student_phone")
