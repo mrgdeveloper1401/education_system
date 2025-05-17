@@ -135,6 +135,6 @@ class PaySubscriptionSerializer(serializers.ModelSerializer):
         return instance.response_payment
 
 
-class VerifyPaymentSerializer(serializers.Serializer):
-    trans_id = serializers.IntegerField()
-    id_get = serializers.IntegerField()
+# class VerifyPaymentSerializer(serializers.Serializer):
+#     trans_id = serializers.IntegerField()
+#     id_get = serializers.IntegerField()
