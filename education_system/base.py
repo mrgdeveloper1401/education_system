@@ -274,4 +274,4 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
 BITPAY_MERCHANT_ID=config("GATEWAY_ID", cast=str)
-BITPAY_CALLBACK_URL='https://codeima.ir/'
+BITPAY_CALLBACK_URL='https://codeima.ir/p-student/subscription'
