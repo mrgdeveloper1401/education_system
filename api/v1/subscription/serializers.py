@@ -45,7 +45,7 @@ class CreateSubscriptionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Subscription
-        fields = ("course", "user", "crud_course_type")
+        fields = ("id", "course", "user", "crud_course_type")
         read_only_fields = ("user",)
 
     def create(self, validated_data):
