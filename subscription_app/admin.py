@@ -1,7 +1,8 @@
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 from .models import Subscription, PaymentSubscription
-#
+
+
 # @admin.register(Plan)
 # class PlanAdmin(admin.ModelAdmin):
 #     list_display = ('plan_title', 'number_of_days', 'price', "discount_percent", 'is_free', 'is_active', "calc_discount",

@@ -133,3 +133,8 @@ class PaySubscriptionSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         return instance.response_payment
+
+
+class VerifyPaymentSerializer(serializers.Serializer):
+    trans_id = serializers.IntegerField()
+    id_get = serializers.IntegerField()

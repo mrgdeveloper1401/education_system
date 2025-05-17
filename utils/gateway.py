@@ -25,8 +25,8 @@ class Gateway:
 class BitPay(Gateway):
     request_endpoint = "https://bitpay.ir/payment/gateway-send"
     verify_endpoint = "https://bitpay.ir/payment/gateway-result-second"
-
-    def __init__(self, api_key, call_back_url, amount, order_id, name=None, email=None, description=None):
+    # TODO, bug fix verify payment argument, auto get api key and redirect url
+    def __init__(self, api_key, call_back_url=None, amount=None, order_id=None, name=None, email=None, description=None):
         super().__init__(api_key, call_back_url)
         self.amount = amount
         self.order_id = order_id

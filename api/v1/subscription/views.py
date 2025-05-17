@@ -1,7 +1,10 @@
+from django.conf import settings
 from rest_framework import viewsets, permissions, mixins, views, response, status
 
 from subscription_app.models import Subscription, PaymentSubscription
+from utils.gateway import BitPay
 from . import serializers
+from .serializers import VerifyPaymentSerializer
 from ..course.paginations import CommonPagination
 
 
@@ -82,3 +85,22 @@ class PayApiView(views.APIView):
         ser.is_valid(raise_exception=True)
         ser.save()
         return response.Response(ser.data, status=status.HTTP_201_CREATED)
+
+
+class VerifyPaymentView(views.APIView):
+    serializer_class = VerifyPaymentSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request):
+        ser = self.serializer_class(data=request.data, context={'request': request})
+        ser.is_valid(raise_exception=True)
+        valid_data = ser.validated_data
+
+        bit_pay = BitPay(
+            api_key=settings.BITPAY_MERCHANT_ID
+        )
+        bit_pay_verify = bit_pay.verify(
+            trans_id=valid_data['trans_id'],
+            id_get=valid_data['id_get'],
+        )
+        return response.Response(bit_pay_verify, status=status.HTTP_200_OK)

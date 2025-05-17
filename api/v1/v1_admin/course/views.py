@@ -286,7 +286,8 @@ class AdminCertificateViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Certificate.objects.filter(section_id=self.kwargs['section_pk']).select_related("image").only(
-            "image__image_url",
+            "image__file_hash",
+            "image__title",
             "created_at",
             "updated_at",
             "student__student_number"
