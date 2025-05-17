@@ -90,7 +90,7 @@ class PayApiView(views.APIView):
 class VerifyPaymentView(views.APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
-    def post(self, request):
+    def get(self, request):
         bit_pay = BitPay(
             api_key=settings.BITPAY_MERCHANT_ID
         )
