@@ -98,4 +98,8 @@ class VerifyPaymentView(views.APIView):
             trans_id=request.query_params.get('trans_id'),
             id_get=request.query_params.get('id_get'),
         )
-        return response.Response(bit_pay_verify, status=status.HTTP_200_OK)
+        return response.Response({
+            "bit_pay_verify": bit_pay_verify,
+            "trans_id": request.query_params.get('trans_id'),
+            "id_get": request.query_params.get("id_get")
+        }, status=status.HTTP_200_OK)
