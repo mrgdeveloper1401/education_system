@@ -7,7 +7,7 @@ from rest_framework import serializers, exceptions
 from course.enums import PlanTypeEnum
 from course.models import Course, CourseTypeModel
 from subscription_app.models import Subscription, PaymentSubscription
-from utils.gateway import BitPay
+from utils.gateway import BitPay, Zibal
 
 
 class SubscriptionSerializer(serializers.ModelSerializer):
@@ -113,16 +113,23 @@ class PaySubscriptionSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
-        bit_pay_api_key = settings.BITPAY_MERCHANT_ID
+        # bit_pay_api_key = settings.BITPAY_MERCHANT_ID
+        zibal_api_key = settings.ZIBAL_MERCHENT_ID
+
         get_sub = validated_data['get_sub'].last()
-        instance = BitPay(
-            api_key=bit_pay_api_key,
-            amount=int(get_sub.price),
-            order_id=get_sub.user.mobile_phone,
-            email=get_sub.user.email,
-            name=get_sub.user.get_full_name,
-            description=f"pay subscription {get_sub.id}",
-            call_back_url=settings.BITPAY_CALLBACK_URL
+        # instance = BitPay(
+        #     api_key=bit_pay_api_key,
+        #     amount=int(get_sub.price),
+        #     order_id=get_sub.user.mobile_phone,
+        #     email=get_sub.user.email,
+        #     name=get_sub.user.get_full_name,
+        #     description=f"pay subscription {get_sub.id}",
+        #     call_back_url=settings.BITPAY_CALLBACK_URL
+        # )
+        instance = Zibal(
+            api_key=zibal_api_key,
+            call_back_url=settings.ZIBAL_CALLBACK_URL,
+            amount=int(get_sub.price)
         )
         pay_sub = PaymentSubscription.objects.create(
             subscription=get_sub

@@ -2,7 +2,7 @@ from django.conf import settings
 from rest_framework import viewsets, permissions, mixins, views, response, status
 
 from subscription_app.models import Subscription, PaymentSubscription
-from utils.gateway import BitPay
+from utils.gateway import BitPay, Zibal
 from . import serializers
 # from .serializers import VerifyPaymentSerializer
 from ..course.paginations import CommonPagination
@@ -91,15 +91,13 @@ class VerifyPaymentView(views.APIView):
     # permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request):
-        bit_pay = BitPay(
-            api_key=settings.BITPAY_MERCHANT_ID
+        zibal = Zibal(
+            api_key=settings.ZIBAL_MERCHENT_ID,
+            call_back_url=settings.ZIBAL_CALLBACK_URL
         )
-        bit_pay_verify = bit_pay.verify(
-            trans_id=request.query_params.get('trans_id'),
-            id_get=request.query_params.get('id_get'),
-        )
+        zibal_verify = zibal.verify(trackId=request.query_params.get("trackId"))
         return response.Response({
-            "bit_pay_verify": bit_pay_verify,
-            "trans_id": request.query_params.get('trans_id'),
-            "id_get": request.query_params.get("id_get")
+            "zibal_verify": zibal_verify,
+            "success": request.query_params.get('success'),
+            "status": request.query_params.get("status")
         }, status=status.HTTP_200_OK)
