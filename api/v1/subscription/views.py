@@ -1,7 +1,7 @@
 from django.conf import settings
 from rest_framework import viewsets, permissions, mixins, views, response, status
 
-from subscription_app.models import Subscription, PaymentSubscription
+from subscription_app.models import Subscription, PaymentSubscription, PaymentVerify
 from utils.gateway import BitPay, Zibal
 from . import serializers
 # from .serializers import VerifyPaymentSerializer
@@ -58,8 +58,14 @@ class SubscriptionViewSet(viewsets.ModelViewSet):
 
 
 class PaymentSubscriptionViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+    """
+    pagination --> 20 item
+    user send request and get token for gateway
+    access --> admin
+    """
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = serializers.PaymentSubscriptionSerializer
+    pagination_class = CommonPagination
 
     def get_queryset(self):
         return PaymentSubscription.objects.filter(subscription__user=self.request.user).only(
@@ -70,7 +76,7 @@ class PaymentSubscriptionViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixi
             "subscription__course_id",
             "created_at",
             "response_payment"
-        )
+        ).select_related("subscription")
 
 
 class PayApiView(views.APIView):
@@ -88,7 +94,10 @@ class PayApiView(views.APIView):
 
 
 class VerifyPaymentView(views.APIView):
-    # permission_classes = (permissions.IsAuthenticated,)
+    """
+    verify payment
+    """
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request, *args, **kwargs):
         zibal = Zibal(
@@ -96,4 +105,16 @@ class VerifyPaymentView(views.APIView):
             call_back_url=settings.ZIBAL_CALLBACK_URL
         )
         zibal_verify = zibal.verify(kwargs)
+        PaymentVerify.objects.create(verify_payment=zibal, user=request.user)
         return response.Response({"zibal_verify": zibal_verify}, status=status.HTTP_200_OK)
+
+
+class PaymentVerifyView(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+    serializer_class = serializers.PaymentVerifySerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        return PaymentVerify.objects.select_related("user").filter(user=self.request.user).only(
+            "created_at",
+            "verify_payment"
+        )

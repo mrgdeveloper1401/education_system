@@ -312,3 +312,14 @@ class AdminCertificateStudentListView(mixins.ListModelMixin, viewsets.GenericVie
         if std_phone:
             queryset = queryset.filter(user__mobile_phone__icontains=std_phone)
         return queryset
+
+
+class SyncStudentAccessSectionView(views.APIView):
+    permission_classes = (permissions.IsAdminUser,)
+    serializer_class = serializers.SyncAdminCreateStudentSectionSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return response.Response(serializer.data, status=status.HTTP_201_CREATED)

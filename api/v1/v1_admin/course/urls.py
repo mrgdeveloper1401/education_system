@@ -38,5 +38,6 @@ urlpatterns = [
     path("", include(section_router.urls)),
     path("", include(section_question_router.urls)),
     path('course_list/', views.AdminCourseListApiView.as_view(), name='course_list'),
+    path("sync_student_access_section/", views.SyncStudentAccessSectionView.as_view(), name='sync_std_section')
 ]
 urlpatterns += router.urls

@@ -3,7 +3,7 @@ from django.dispatch import receiver
 
 from accounts.models import PrivateNotification, User
 from .enums import SendFileChoices
-from .models import LessonCourse, StudentAccessSection, SendSectionFile, CallLessonCourse
+from .models import LessonCourse, StudentAccessSection, SendSectionFile, CallLessonCourse, Section
 
 
 @receiver(m2m_changed, sender=LessonCourse.students.through)

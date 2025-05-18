@@ -88,3 +88,13 @@ class PaymentSubscription(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = "payment_subscription"
+        ordering = ("-created_at",)
+
+
+class PaymentVerify(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    user = models.ForeignKey("accounts.User", on_delete=models.DO_NOTHING, related_name="payment_verify")
+    verify_payment = models.JSONField(blank=True)
+
+    class Meta:
+        db_table = "payment_verify"
+        ordering = ("-created_at",)

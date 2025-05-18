@@ -6,7 +6,7 @@ from rest_framework import serializers, exceptions
 
 from course.enums import PlanTypeEnum
 from course.models import Course, CourseTypeModel
-from subscription_app.models import Subscription, PaymentSubscription
+from subscription_app.models import Subscription, PaymentSubscription, PaymentVerify
 from utils.gateway import BitPay, Zibal
 
 
@@ -142,6 +142,7 @@ class PaySubscriptionSerializer(serializers.ModelSerializer):
         return instance.response_payment
 
 
-# class VerifyPaymentSerializer(serializers.Serializer):
-#     trans_id = serializers.IntegerField()
-#     id_get = serializers.IntegerField()
+class PaymentVerifySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PaymentVerify
+        fields = ("verify_payment", "created_at")
