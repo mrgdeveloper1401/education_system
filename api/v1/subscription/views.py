@@ -90,14 +90,10 @@ class PayApiView(views.APIView):
 class VerifyPaymentView(views.APIView):
     # permission_classes = (permissions.IsAuthenticated,)
 
-    def get(self, request):
+    def get(self, request, *args, **kwargs):
         zibal = Zibal(
             api_key=settings.ZIBAL_MERCHENT_ID,
             call_back_url=settings.ZIBAL_CALLBACK_URL
         )
-        zibal_verify = zibal.verify(trackId=request.query_params.get("trackId"))
-        return response.Response({
-            "zibal_verify": zibal_verify,
-            "success": request.query_params.get('success'),
-            "status": request.query_params.get("status")
-        }, status=status.HTTP_200_OK)
+        zibal_verify = zibal.verify(kwargs)
+        return response.Response({"zibal_verify": zibal_verify}, status=status.HTTP_200_OK)

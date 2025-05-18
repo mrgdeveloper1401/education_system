@@ -276,5 +276,5 @@ MEDIA_ROOT = BASE_DIR / "media"
 BITPAY_MERCHANT_ID=config("GATEWAY_ID", cast=str)
 BITPAY_CALLBACK_URL='https://api.codeima.ir/api_subscription/verify_payment/?trans_id={trans_id}&id_get={id_get}'
 
-ZIBAL_CALLBACK_URL="https://api.codeima.ir/api_subscription/verify_payment/"
+ZIBAL_CALLBACK_URL="https://codeima.ir//p-student/subscription/result-payment/"
 ZIBAL_MERCHENT_ID=config("ZIBAL_MERCHENT_ID", cast=str)
