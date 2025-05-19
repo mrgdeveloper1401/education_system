@@ -245,6 +245,9 @@ class SyncAdminCreateStudentSectionSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         section_id = validated_data['section']
+        # student id list
+        student_list = []
+        # get all lesson_course by course_id
         lesson_course = LessonCourse.objects.only("class_name", "is_active").filter(
             is_active=True,
             course_id=validated_data['course']
@@ -253,29 +256,13 @@ class SyncAdminCreateStudentSectionSerializer(serializers.Serializer):
         if not lesson_course.exists():
             raise exceptions.ValidationError({"message": _("lesson course not exist")})
         else:
-            get_lesson_course = lesson_course.last()
-            lesson_course_students = get_lesson_course.students.all()
-            std_access_section_list = []
-
-            for student in lesson_course_students:
-                get_section = StudentAccessSection.objects.filter(
-                    section_id=section_id,
-                    student=student
-                )
-                if not get_section.exists():
-                    std_access_section_list.append(
-                        StudentAccessSection(
-                            section_id=section_id,
-                            student=student
-                        )
-                    )
-            if std_access_section_list:
-                std_created = StudentAccessSection.objects.bulk_create(std_access_section_list)
-                return [
-                    {
-                        "section_id": i.section.id,
-                        "student_id": i.student.id,
-                    }
-                    for i in std_created
-                ]
-            return []
+            for i in lesson_course:
+                student_list.append(i.students.all())
+        student_access_section = [
+            StudentAccessSection(
+                student=i,
+                section_id=section_id,
+            )
+            for i in student_list
+        ]
+        return StudentAccessSection.objects.bulk_create(student_access_section)
