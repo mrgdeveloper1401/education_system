@@ -130,10 +130,11 @@ class PaySubscriptionSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         zibal_api_key = settings.ZIBAL_MERCHENT_ID
         get_sub = validated_data['get_sub'].last()
+        coupon_code = validated_data.get('coupon', 0)
         instance = Zibal(
             api_key=zibal_api_key,
             call_back_url=settings.ZIBAL_CALLBACK_URL,
-            amount=int(get_sub.final_price_by_tax(validated_data['coupon_code'])),
+            amount=int(get_sub.final_price_by_tax(coupon_code)),
         )
         pay_sub = PaymentSubscription.objects.create(
             subscription=get_sub
