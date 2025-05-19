@@ -210,7 +210,7 @@ class SignUpCourseSerializer(serializers.ModelSerializer):
 
 class AdminCertificateSerializer(serializers.ModelSerializer):
     student = serializers.PrimaryKeyRelatedField(
-        queryset=Student.objects.only("student_number").filter(is_active=True)
+        queryset=Student.objects.only("student_number", "is_active").filter(is_active=True)
     )
     certificate_image_url = serializers.SerializerMethodField()
 
@@ -223,7 +223,7 @@ class AdminCertificateSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         student_section = StudentAccessSection.objects.filter(
-            student_id=attrs["student_id"],
+            student=attrs["student"],
             is_access=True,
             section__is_last_section=True
         ).select_related("section").only("is_access", "section__is_last_section")
