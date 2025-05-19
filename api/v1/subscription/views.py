@@ -12,29 +12,37 @@ class SubscriptionViewSet(viewsets.ModelViewSet):
     """
     status --> active / expired / pending / canceled / trial \n
     pagination --> 20 item \n
-    search --> ?status=status   | ?phone=mobile_phone
+    search --> ?status=status   | ?phone=mobile_phone \n
+    description --> if user is amin return all query else return owner query
     """
     serializer_class = serializers.SubscriptionSerializer
     permission_classes = (permissions.IsAuthenticated,)
     pagination_class = CommonPagination
 
     def get_queryset(self):
-        return Subscription.objects.select_related("user", "crud_course_type__course__category", "coupon").only(
+        query = Subscription.objects.select_related(
+            "user",
+            "course__category",
+            "coupon",
+            "crud_course_type"
+        ).only(
             "course__course_name",
             "course__category__category_name",
-            "crud_course_type__course",
-            "price",
-            "status",
-            "user__mobile_phone",
             "user__first_name",
             "user__last_name",
-            "auto_renew",
-            "crud_course_type__course_type",
+            "coupon__code",
             "created_at",
             "updated_at",
+            "status",
+            "price",
+            "crud_course_type__course_type",
+            "auto_renew",
             "end_date",
-            "coupon__code"
-        ).filter(user=self.request.user)
+            "user__mobile_phone"
+        )
+        if self.request.user.is_staff is False:
+            query = query.filter(user=self.request.user)
+        return query
 
     def get_permissions(self):
         if self.request.method in ('PATCH', "PUT", "DELETE"):
