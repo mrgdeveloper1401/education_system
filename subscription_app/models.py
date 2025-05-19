@@ -1,11 +1,13 @@
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import ValidationError, MinValueValidator, MaxValueValidator
 
 from core.models import CreateMixin, UpdateMixin, SoftDeleteMixin
 from course.enums import NumberOfDaysChoices
 from course.models import Course
+from discount_app.models import Coupon
 
 
 # TODO, when clean migration remove attribute null in field user and field crud_course_type
@@ -34,6 +36,23 @@ class Subscription(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     def __str__(self):
         return f"{self.user.mobile_phone} - {self.status}"
+
+    def final_price_by_tax(self, coupon_code):
+        coupon = Coupon.objects.filter(
+            is_active=True,
+            valid_from__lte=timezone.now(),
+            valid_to_gtr=timezone.now(),
+            code=coupon_code
+        ).only("is_active", "valid_from", "valid_to", "code")
+
+        if coupon:
+            get_coupon = coupon.last()
+            get_coupon_percent = get_coupon.discount
+            tax_value = 10
+            final_price = (self.price * (tax_value + get_coupon_percent)) / 100
+            return final_price
+        else:
+            return self.price
 
     class Meta:
         db_table = 'subscription'
