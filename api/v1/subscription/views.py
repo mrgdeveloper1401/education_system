@@ -114,7 +114,7 @@ class PaymentVerifyView(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewse
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
-        return PaymentVerify.objects.select_related("user").filter(user=self.request.user).only(
+        return PaymentVerify.objects.filter(user=self.request.user).only(
             "created_at",
             "verify_payment"
         )
