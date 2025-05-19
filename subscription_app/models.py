@@ -44,15 +44,16 @@ class Subscription(CreateMixin, UpdateMixin, SoftDeleteMixin):
             valid_to_gtr=timezone.now(),
             code=coupon_code
         ).only("is_active", "valid_from", "valid_to", "code")
+        tax_value = 10
 
         if coupon:
             get_coupon = coupon.last()
             get_coupon_percent = get_coupon.discount
-            tax_value = 10
             final_price = (self.price * (tax_value + get_coupon_percent)) / 100
             return final_price
         else:
-            return self.price
+            final_price = (self.price * tax_value) / 100
+            return final_price
 
     class Meta:
         db_table = 'subscription'
