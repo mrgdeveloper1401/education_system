@@ -19,7 +19,7 @@ class SubscriptionViewSet(viewsets.ModelViewSet):
     pagination_class = CommonPagination
 
     def get_queryset(self):
-        return Subscription.objects.select_related("user", "crud_course_type__course__category").only(
+        return Subscription.objects.select_related("user", "crud_course_type__course__category", "coupon").only(
             "course__course_name",
             "course__category__category_name",
             "crud_course_type__course",
@@ -33,6 +33,7 @@ class SubscriptionViewSet(viewsets.ModelViewSet):
             "created_at",
             "updated_at",
             "end_date",
+            "coupon__code"
         ).filter(user=self.request.user)
 
     def get_permissions(self):

@@ -19,8 +19,8 @@ class ValidateCouponCodeView(views.APIView):
         coupon = Coupon.objects.filter(
             code=code,
             is_active=True,
-            valid_from__lte=now,  # تاریخ شروع باید قبل از الان باشد
-            valid_to__gte=now,  # تاریخ پایان باید بعد از الان باشد
+            valid_from__lte=now,
+            valid_to__gte=now,
         ).only(
             "code",
             "is_active",

@@ -17,6 +17,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
     course_category_name = serializers.SerializerMethodField()
     user_full_name = serializers.SerializerMethodField()
     user_mobile_phone = serializers.SerializerMethodField()
+    coupon_code = serializers.SerializerMethodField()
 
     class Meta:
         model = Subscription
@@ -34,6 +35,9 @@ class SubscriptionSerializer(serializers.ModelSerializer):
 
     def get_user_mobile_phone(self, obj):
         return obj.user.mobile_phone
+
+    def get_coupon_code(self, obj):
+        return obj.coupon.code if obj.coupon else None
 
 
 class CreateSubscriptionSerializer(serializers.ModelSerializer):

@@ -21,7 +21,8 @@ class Subscription(CreateMixin, UpdateMixin, SoftDeleteMixin):
                              null=True)
     course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name='course_subscription', null=True)
     end_date = models.DateField()
-    # start_date = models.DateField(null=True)
+    coupon = models.ForeignKey("discount_app.Coupon", on_delete=models.DO_NOTHING, blank=True, null=True,
+                                 related_name="coupon_subscription",)
     status = models.CharField(
         max_length=10,
         choices=Status.choices,
