@@ -3,11 +3,13 @@ from django.conf import settings
 from django.utils import timezone
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers, exceptions
+from django.utils.translation import gettext_lazy as _
 
 from course.enums import PlanTypeEnum
 from course.models import Course, CourseTypeModel
+from discount_app.models import Coupon
 from subscription_app.models import Subscription, PaymentSubscription, PaymentVerify
-from utils.gateway import BitPay, Zibal
+from utils.gateway import Zibal
 
 
 class SubscriptionSerializer(serializers.ModelSerializer):
@@ -90,9 +92,11 @@ class PaySubscriptionSerializer(serializers.ModelSerializer):
     subscription = serializers.PrimaryKeyRelatedField(
         queryset=Subscription.objects.only("status", "user__mobile_phone"),
     )
+    coupon_code = serializers.CharField(required=False)
+
     class Meta:
         model = PaymentSubscription
-        fields = ("subscription",)
+        fields = ("subscription", "coupon_code")
 
     def validate(self, attrs):
         get_sub = Subscription.objects.filter(
@@ -112,20 +116,16 @@ class PaySubscriptionSerializer(serializers.ModelSerializer):
         attrs['get_sub'] = get_sub
         return attrs
 
-    def create(self, validated_data):
-        # bit_pay_api_key = settings.BITPAY_MERCHANT_ID
-        zibal_api_key = settings.ZIBAL_MERCHENT_ID
+    def validate_coupon_code(self, data):
+        if not Coupon.objects.filter(
+                code=data, is_active=True, valid_from__gte=timezone.now(), valid_to__lte=timezone.now()
+        ).exists():
+            raise exceptions.ValidationError({"message": _("code is not exits or wrong")})
+        return data
 
+    def create(self, validated_data):
+        zibal_api_key = settings.ZIBAL_MERCHENT_ID
         get_sub = validated_data['get_sub'].last()
-        # instance = BitPay(
-        #     api_key=bit_pay_api_key,
-        #     amount=int(get_sub.price),
-        #     order_id=get_sub.user.mobile_phone,
-        #     email=get_sub.user.email,
-        #     name=get_sub.user.get_full_name,
-        #     description=f"pay subscription {get_sub.id}",
-        #     call_back_url=settings.BITPAY_CALLBACK_URL
-        # )
         instance = Zibal(
             api_key=zibal_api_key,
             call_back_url=settings.ZIBAL_CALLBACK_URL,

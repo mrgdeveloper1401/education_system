@@ -1,5 +1,5 @@
 from django.conf import settings
-from rest_framework import viewsets, permissions, mixins, views, response, status
+from rest_framework import viewsets, permissions, mixins, views, response, status, generics
 
 from subscription_app.models import Subscription, PaymentSubscription, PaymentVerify
 from utils.gateway import BitPay, Zibal
@@ -79,18 +79,12 @@ class PaymentSubscriptionViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixi
         ).select_related("subscription")
 
 
-class PayApiView(views.APIView):
+class PayApiView(generics.CreateAPIView):
     """
     this api user, click button pay and create payment_subscription
     """
     serializer_class = serializers.PaySubscriptionSerializer
     permission_classes = (permissions.IsAuthenticated,)
-
-    def post(self, request):
-        ser = self.serializer_class(data=request.data, context={'request': request})
-        ser.is_valid(raise_exception=True)
-        ser.save()
-        return response.Response(ser.data, status=status.HTTP_201_CREATED)
 
 
 class VerifyPaymentView(views.APIView):
@@ -114,7 +108,9 @@ class PaymentVerifyView(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewse
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
-        return PaymentVerify.objects.filter(user=self.request.user).only(
+        return PaymentVerify.objects.filter(
+            user=self.request.user
+        ).only(
             "created_at",
             "verify_payment"
         )
