@@ -240,13 +240,19 @@ class AdminStudentListCertificateSerializer(serializers.ModelSerializer):
 
 
 class SyncAdminCreateStudentSectionSerializer(serializers.Serializer):
+    # section = serializers.PrimaryKeyRelatedField(
+    #     queryset=Section.objects.only("title", "is_publish").filter(is_publish=True)
+    # )
+    # course = serializers.PrimaryKeyRelatedField(
+    #     queryset=Course.objects.only("course_name", "is_publish").filter(is_publish=True)
+    # )
     section = serializers.IntegerField()
     course = serializers.IntegerField()
 
     def create(self, validated_data):
         section_id = validated_data['section']
-        # student id list
-        student_list = []
+        # student access section list
+        std_access_section = []
         # get all lesson_course by course_id
         lesson_course = LessonCourse.objects.only("class_name", "is_active").filter(
             is_active=True,
@@ -257,12 +263,14 @@ class SyncAdminCreateStudentSectionSerializer(serializers.Serializer):
             raise exceptions.ValidationError({"message": _("lesson course not exist")})
         else:
             for i in lesson_course:
-                student_list.append(i.students.all())
-        student_access_section = [
-            StudentAccessSection(
-                student=i,
-                section_id=section_id,
-            )
-            for i in student_list
-        ]
-        return StudentAccessSection.objects.bulk_create(student_access_section)
+                for j in i.students.all():
+                    if not StudentAccessSection.objects.filter(student=j, section=section_id).exists():
+                        std_access_section.append(StudentAccessSection(
+                            student=j,
+                            section_id=section_id
+                        ))
+            StudentAccessSection.objects.bulk_create(std_access_section)
+        return {
+            'section': section_id,
+            "course": validated_data['course'],
+        }
