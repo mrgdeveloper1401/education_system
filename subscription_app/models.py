@@ -37,7 +37,7 @@ class Subscription(CreateMixin, UpdateMixin, SoftDeleteMixin):
     def __str__(self):
         return f"{self.user.mobile_phone} - {self.status}"
 
-    def final_price_by_tax(self, coupon_code):
+    def final_price_by_tax_coupon(self, coupon_code):
         coupon = Coupon.objects.filter(
             is_active=True,
             valid_from__lte=timezone.now(),
@@ -51,7 +51,8 @@ class Subscription(CreateMixin, UpdateMixin, SoftDeleteMixin):
         if coupon:
             get_coupon = coupon.last()
             get_coupon_percent = get_coupon.discount
-            final_price = self.price - (self.price * get_coupon_percent) / 100
+            calc_discount = self.price - (self.price * get_coupon_percent) / 100
+            final_price = calc_discount + (calc_discount * tax_value) / 100
             return final_price
         return price_tax
 

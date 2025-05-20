@@ -134,7 +134,7 @@ class PaySubscriptionSerializer(serializers.ModelSerializer):
         instance = Zibal(
             api_key=zibal_api_key,
             call_back_url=settings.ZIBAL_CALLBACK_URL,
-            amount=int(get_sub.final_price_by_tax(coupon_code)),
+            amount=int(get_sub.final_price_by_tax_coupon(coupon_code)),
         )
         pay_sub = PaymentSubscription.objects.create(
             subscription=get_sub
