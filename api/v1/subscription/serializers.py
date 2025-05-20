@@ -122,7 +122,7 @@ class PaySubscriptionSerializer(serializers.ModelSerializer):
 
     def validate_coupon_code(self, data):
         if not Coupon.objects.filter(
-                code=data, is_active=True, valid_from__lte=timezone.now(), valid_to__lte=timezone.now()
+                code=data, is_active=True, valid_from__lte=timezone.now(), valid_to__gte=timezone.now()
         ).exists():
             raise exceptions.ValidationError({"message": _("code is not exits or wrong")})
         return data

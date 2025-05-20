@@ -25,6 +25,7 @@ from .models import Subscription, PaymentSubscription, PaymentVerify
 
 @admin.register(Subscription)
 class SubscriptionAdmin(admin.ModelAdmin):
+    list_per_page = 20
     readonly_fields = ("created_at", "updated_at")
     list_display = (
         "id",
