@@ -14,16 +14,14 @@ DEBUG = config("DEBUG", cast=bool, default=False)
 
 THIRD_PARTY_PACKAGE = [
     "drf_spectacular",
-    # "rest_framework_gis",
     "rest_framework",
     "rest_framework_simplejwt",
-    # "rest_framework_simplejwt.token_blacklist",
     "storages",
     "django_filters",
     "treebeard",
     "import_export",
     "django_ckeditor_5",
-    # "guardian",
+    "django_celery_beat"
 ]
 
 THIRD_PARTY_APP = [
@@ -41,7 +39,6 @@ THIRD_PARTY_APP = [
     "order_app.apps.OrderAppConfig"
 ]
 INSTALLED_APPS = [
-    # "django.contrib.gis",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -62,8 +59,6 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    # "accounts.middleware.RequestLoggingMiddleware",
-    # "accounts.middleware.UserCacheMiddleware"
 ]
 
 ROOT_URLCONF = "education_system.urls"
@@ -85,11 +80,9 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "education_system.wsgi.application"
-# ASGI_APPLICATION = "education_system.asgi.application"
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
@@ -107,19 +100,17 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
-
 LANGUAGE_CODE = "en-us"
 
 TIME_ZONE = "Asia/Tehran"
 
 USE_I18N = True
 
-USE_TZ = False
+USE_TZ = True
 
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 AUTH_USER_MODEL = 'accounts.User'
@@ -169,8 +160,6 @@ SIMPLE_JWT = {
 
     # custom
     'AUTH_COOKIE': 'access_token',  # Cookie name. Enables cookies if value is set.
-    'AUTH_COOKIE_DOMAIN': None,  # A string like "example.com", or None for standard domain cookie.
-    'AUTH_COOKIE_SECURE': True,  # Whether the auth cookies should be secure (https:// only).
     'AUTH_COOKIE_HTTP_ONLY': True,  # Http only cookie flag.It's not fetch by javascript.
     'AUTH_COOKIE_PATH': '/',  # The path of the auth cookie.
     'AUTH_COOKIE_SAMESITE': 'Lax',
@@ -233,21 +222,13 @@ AWS_STORAGE_BUCKET_NAME = config('ARVAN_AWS_STORAGE_BUCKET_NAME', cast=str)
 AWS_S3_ENDPOINT_URL = config('ARVAN_AWS_S3_ENDPOINT_URL', cast=str)
 AWS_S3_REGION_NAME = 'us-east-1'
 
-# AUTHENTICATION_BACKENDS = (
-#     'django.contrib.auth.backends.ModelBackend',
-#     'guardian.backends.ObjectPermissionBackend',
-# )
 
 # CKEDITOR_5_CUSTOM_CSS = 'path_to.css'
 CKEDITOR_5_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 CKEDITOR_5_ALLOW_ALL_FILE_TYPES = True
 
-
 # ckeditor path
 CKEDITOR_BASEPATH = BASE_DIR / "staticfiles/ckeditor/ckeditor/"
-
-
-# GUARDIAN_ANONYMOUS_USER_NAME = None
 
 # Celery settings
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
@@ -278,3 +259,6 @@ BITPAY_CALLBACK_URL='https://api.codeima.ir/api_subscription/verify_payment/?tra
 
 ZIBAL_CALLBACK_URL="https://codeima.ir//p-student/subscription/result-payment/"
 ZIBAL_MERCHENT_ID=config("ZIBAL_MERCHENT_ID", cast=str)
+
+# django celery beat schedule
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'

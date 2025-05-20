@@ -87,3 +87,7 @@ CELERY_RESULT_BACKEND = "redis://education_redis:6379/1"
 # celery docker config
 # CELERY_BROKER_URL = "redis://localhost:6380/0"
 # CELERY_RESULT_BACKEND = "redis://localhost:6380/1"
+
+# jwt
+SIMPLE_JWT["AUTH_COOKIE_DOMAIN"] = "codeima.ir" # A string like "example.com", or None for standard domain cookie.
+SIMPLE_JWT['AUTH_COOKIE_SECURE'] = True # Whether the auth cookies should be secure (https:// only).

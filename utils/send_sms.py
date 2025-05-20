@@ -9,7 +9,7 @@ class BasePanel:
     def header(self):
         pass
 
-    def send_bulk(self):
+    def send_bulk(self, *args, **kwargs):
         pass
 
     @staticmethod
@@ -56,9 +56,9 @@ class SmsIrPanel(BasePanel):
         }
 
 
-s1 = SmsIrPanel(
-    api_key="0a9fBsTECzRq86Xu8FlBf3ZyT6StN9wSJPgEBpfjTXQlbWXb",
-    base_url="https://api.sms.ir/"
-)
+# s1 = SmsIrPanel(
+#     api_key="0a9fBsTECzRq86Xu8FlBf3ZyT6StN9wSJPgEBpfjTXQlbWXb",
+#     base_url="https://api.sms.ir/"
+# )
 # print(s1.header())
 # print(s1.send_verify("lkghnmlk", "v1/send/verify"))
