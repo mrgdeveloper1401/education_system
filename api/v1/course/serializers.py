@@ -475,7 +475,9 @@ class CourseTypeSerializer(serializers.ModelSerializer):
         discounts = Discount.objects.filter(
             content_type=ContentType.objects.get_for_model(obj),
             object_id=obj.id,
-            is_active=True
+            is_active=True,
+            start_date__lte=timezone.now(),
+            end_date__gte=timezone.now()
         ).values("id", "percent", "start_date", "end_date")
         return discounts
 
@@ -546,8 +548,8 @@ class CrudCourseTypeSerializer(serializers.ModelSerializer):
             content_type=ContentType.objects.get_for_model(obj),
             object_id=obj.id,
             is_active=True,
-            start_date__gte=timezone.now(),
-            end_date__lte=timezone.now(),
+            start_date__lte=timezone.now(),
+            end_date__gte=timezone.now(),
         ).values("id", "percent", "start_date", "end_date")
         return discounts
 

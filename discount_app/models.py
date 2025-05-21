@@ -50,4 +50,4 @@ class Discount(CreateMixin, UpdateMixin, SoftDeleteMixin):
         db_table = "discount_app"
         verbose_name = "تخفیف"
         verbose_name_plural = "تخفیف‌ها"
-        unique_together = ("content_type", "object_id")
+        # unique_together = ("content_type", "object_id")
