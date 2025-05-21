@@ -98,7 +98,8 @@ class PayApiView(generics.CreateAPIView):
 
 class VerifyPaymentView(views.APIView):
     """
-    verify payment
+    verify payment \n
+    you must send data as query params --> ?status=status&trackId=trackId
     """
     permission_classes = (permissions.IsAuthenticated,)
 
@@ -114,7 +115,7 @@ class VerifyPaymentView(views.APIView):
             call_back_url=settings.ZIBAL_CALLBACK_URL
         )
         zibal_verify = zibal.verify(track_id=track_id)
-        PaymentVerify.objects.create(verify_payment=zibal.verify(), user=request.user)
+        PaymentVerify.objects.create(verify_payment=zibal_verify, user=request.user)
         payment_subscription = PaymentSubscription.objects.filter(response_payment__trackId=int(track_id)).only(
             "response_payment"
         )
