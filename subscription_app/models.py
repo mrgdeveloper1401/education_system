@@ -48,7 +48,7 @@ class Subscription(CreateMixin, UpdateMixin, SoftDeleteMixin):
         ).only("is_active", "valid_from", "valid_to", "code")
 
         tax_value = 10
-        price_tax = self.price + (self.price * tax_value) / 100
+        price_tax = (self.price + (self.price * tax_value) / 100) * 10
 
         if coupon:
             get_coupon = coupon.last()

@@ -124,7 +124,7 @@ class VerifyPaymentView(views.APIView):
             raise exceptions.ValidationError({"message": "track id dose not exits"})
 
         get_payment_subscription = payment_subscription.last()
-        status_response = zibal_verify.get("success", None)
+        status_response = zibal_verify.get("status", None)
 
         if int(status_response) == 1:
             get_payment_subscription.subscription.status='active'
