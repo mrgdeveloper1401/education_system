@@ -3,7 +3,7 @@ from django.dispatch import receiver
 
 from accounts.models import PrivateNotification, User
 from .enums import SendFileChoices
-from .models import LessonCourse, StudentAccessSection, SendSectionFile, CallLessonCourse, Section
+from .models import LessonCourse, StudentAccessSection, SendSectionFile, CallLessonCourse, StudentEnrollment, Section
 
 
 @receiver(m2m_changed, sender=LessonCourse.students.through)
@@ -23,31 +23,6 @@ def handle_student_changes(sender, instance, action, pk_set, **kwargs):
             ).exists()
         ]
         StudentAccessSection.objects.bulk_create(access_list)
-
-
-@receiver(m2m_changed, sender=LessonCourse.students.through)
-def student_access_section(sender, instance, action, pk_set, **kwargs):
-    if action == "post_add":
-        std_access = StudentAccessSection.objects.filter(
-            student_id__in=pk_set,
-            section__course=instance.course,
-            section__is_publish=True,
-            section__course__is_publish=True
-        ).order_by('created_at').first()
-
-        if std_access:
-            std_access.is_access = True
-            std_access.save()
-
-
-@receiver(m2m_changed, sender=LessonCourse.students.through)
-def remove_access_student(sender, instance, action, pk_set, **kwargs):
-    if action == "post_remove":
-        StudentAccessSection.objects.filter(
-            student_id__in=pk_set,
-            section__course=instance.course,
-            is_access=True,
-        ).update(is_access=False)
 
 
 @receiver(post_save, sender=SendSectionFile)
@@ -88,3 +63,29 @@ def create_admin_notification_when_cancel_student(sender, instance, created, **k
 
         if lst:
             PrivateNotification.objects.bulk_create(lst)
+
+
+@receiver(post_save, sender=StudentEnrollment)
+def access_student_access_section(sender, instance, created, **kwargs):
+    if created:
+        # بررسی آیا دانش‌آموز قبلاً سکشن‌هایی دارد یا نه
+        existing_sections = StudentAccessSection.objects.filter(
+            student=instance.student
+        ).exists()
+
+        lesson_course_sections = instance.lesson_course.course.sections.filter(is_publish=True)
+
+        create_student_access_section = []
+        for index, section in enumerate(lesson_course_sections):
+            # اگر اولین سکشن باشد و دانش‌آموز هیچ سکشن دیگری نداشته باشد
+            is_access = index == 0 and not existing_sections
+            create_student_access_section.append(
+                StudentAccessSection(
+                    section=section,
+                    student=instance.student,
+                    is_access=is_access
+                )
+            )
+
+        if create_student_access_section:
+            StudentAccessSection.objects.bulk_create(create_student_access_section)
