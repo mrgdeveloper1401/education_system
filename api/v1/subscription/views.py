@@ -102,7 +102,7 @@ class VerifyPaymentView(views.APIView):
     """
     permission_classes = (permissions.IsAuthenticated,)
 
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         zibal = Zibal(
             api_key=settings.ZIBAL_MERCHENT_ID,
             call_back_url=settings.ZIBAL_CALLBACK_URL
