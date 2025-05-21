@@ -11,6 +11,7 @@ services:
       - static_files:/home/app/education_system/staticfiles
     env_file: ".env"
     restart: always
+    entrypoint: ["/home/app/start.sh"]
     depends_on:
       - db
 

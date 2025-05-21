@@ -12,4 +12,4 @@ USER mohammad
 
 EXPOSE 800
 
-ENTRYPOINT ["sh", "-c", "/home/app/start.sh"]
+#ENTRYPOINT ["sh", "-c", "/home/app/start.sh"]

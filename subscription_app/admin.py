@@ -95,9 +95,13 @@ class PaymentSubscriptionAdmin(admin.ModelAdmin):
 @admin.register(PaymentVerify)
 class PaymentVerifyAdmin(admin.ModelAdmin):
     list_per_page = 20
+    list_select_related = ("user",)
+    list_display = ("user", 'created_at')
+    raw_id_fields = ("user",)
 
     def get_queryset(self, request):
         return super().get_queryset(request).only(
             "verify_payment",
-            "created_at"
+            "created_at",
+            "user__mobile_phone"
         )

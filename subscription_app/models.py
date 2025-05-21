@@ -118,6 +118,8 @@ class PaymentSubscription(CreateMixin, UpdateMixin, SoftDeleteMixin):
 # TODO, when clean migration, remove null attribute
 class PaymentVerify(CreateMixin, UpdateMixin, SoftDeleteMixin):
     verify_payment = models.JSONField(blank=True)
+    user = models.ForeignKey("accounts.User", on_delete=models.DO_NOTHING, related_name="user_payment_verify",
+                             null=True)
 
     class Meta:
         db_table = "payment_verify"

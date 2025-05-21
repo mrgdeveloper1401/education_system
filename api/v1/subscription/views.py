@@ -108,7 +108,7 @@ class VerifyPaymentView(views.APIView):
             call_back_url=settings.ZIBAL_CALLBACK_URL
         )
         zibal_verify = zibal.verify(kwargs)
-        PaymentVerify.objects.create(verify_payment=zibal)
+        PaymentVerify.objects.create(verify_payment=zibal, user=request.user)
 
         success = kwargs['success']
         track_id = kwargs['trackId']
