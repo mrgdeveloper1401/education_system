@@ -1,5 +1,5 @@
 from django.conf import settings
-from rest_framework import viewsets, permissions, mixins, views, response, status, generics
+from rest_framework import viewsets, permissions, mixins, views, response, status, generics, exceptions
 
 from subscription_app.models import Subscription, PaymentSubscription, PaymentVerify
 from utils.gateway import BitPay, Zibal
@@ -103,21 +103,31 @@ class VerifyPaymentView(views.APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def post(self, request, *args, **kwargs):
+        success = request.query_params.get('success')
+        track_id = request.query_params.get('trackId')
+
+        if not success and not track_id and status:
+            raise exceptions.ValidationError({"message": "please enter query params success and track_id and status"})
+
         zibal = Zibal(
             api_key=settings.ZIBAL_MERCHENT_ID,
             call_back_url=settings.ZIBAL_CALLBACK_URL
         )
-        zibal_verify = zibal.verify(kwargs)
-        PaymentVerify.objects.create(verify_payment=zibal, user=request.user)
+        zibal_verify = zibal.verify(track_id=track_id)
+        PaymentVerify.objects.create(verify_payment=zibal.verify(), user=request.user)
+        payment_subscription = PaymentSubscription.objects.filter(response_payment__trackId=int(track_id)).only(
+            "response_payment"
+        )
 
-        success = kwargs['success']
-        track_id = kwargs['trackId']
-        payment_subscription = PaymentSubscription.objects.filter(response_payment__exact=track_id)
+        if not payment_subscription.exists():
+            raise exceptions.ValidationError({"message": "track id dose not exits"})
 
+        subscription = payment_subscription.last()
         if int(success) == 1:
-            payment_subscription.update(status='active')
+            subscription.subscription.status='active'
         else:
-            payment_subscription.update(status="canceled")
+            subscription.subscription.status="canceled"
+        subscription.save()
 
         return response.Response({"zibal_verify": zibal_verify}, status=status.HTTP_200_OK)
 

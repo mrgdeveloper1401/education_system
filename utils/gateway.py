@@ -99,7 +99,7 @@ class Zibal(Gateway):
     def verify(self, *args, **kwargs):
         data = {
             "merchant": self.api_key,
-            "trackId": kwargs.get("trackId")
+            "trackId": kwargs.get("track_id")
         }
         response = requests.post(url=self.ZIBAL_VERIFY_PAYMENT, headers=self.headers, json=data)
         return response.json()
