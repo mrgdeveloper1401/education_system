@@ -106,8 +106,9 @@ class VerifyPaymentView(views.APIView):
 
     def post(self, request, *args, **kwargs):
         track_id = request.query_params.get('trackId')
+        params_status = request.query_params.get("status")
 
-        if not track_id:
+        if not track_id and params_status:
             raise exceptions.ValidationError({"message": "please enter query params success and track_id and status"})
 
         zibal = Zibal(
@@ -124,9 +125,8 @@ class VerifyPaymentView(views.APIView):
             raise exceptions.ValidationError({"message": "track id dose not exits"})
 
         get_payment_subscription = payment_subscription.last()
-        status_response = zibal_verify.get("status", None)
 
-        if int(status_response) == 1:
+        if int(params_status) == 1:
             get_payment_subscription.subscription.status='active'
             get_payment_subscription.subscription.save()
 
