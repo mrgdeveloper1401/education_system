@@ -6,7 +6,7 @@ COPY . .
 
 RUN adduser -D -H mohammad && \
     chown -R mohammad:mohammad /home/app && \
-    pip install httpx
+    pip install httpx --no-cache
 
 USER mohammad
 
