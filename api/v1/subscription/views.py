@@ -58,12 +58,13 @@ class SubscriptionViewSet(viewsets.ModelViewSet):
         status = self.request.query_params.get("status", None)
         phone = self.request.query_params.get("phone", None)
 
-        if status:
-            return queryset.filter(status=status)
-        if phone:
-            return queryset.filter(user__mobile_phone=phone)
-        else:
-            return queryset
+        if status and phone:
+            queryset = queryset.filter(status=status, phone__icontains=phone)
+        elif status:
+            queryset = queryset.filter(status=status)
+        elif phone:
+            queryset = queryset.filter(user__mobile_phone=phone)
+        return queryset
 
 
 class PaymentSubscriptionViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
