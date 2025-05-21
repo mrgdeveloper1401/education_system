@@ -25,4 +25,3 @@ def send_sms_before_expire_subscription():
             # TODO , performance mobile field
             mobiles=[i.user.mobile_phone for i in subs],
         )
-

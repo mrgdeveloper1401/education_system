@@ -19,7 +19,7 @@ from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from accounts.models import User, State, City, Student, Coach, Ticket, TicketRoom, BestStudent, PrivateNotification, Otp
-from accounts.tasks import send_sms_otp_code_async
+from accounts.tasks import send_sms_otp_code
 from utils.filters import UserFilter
 from utils.pagination import StudentCoachTicketPagination
 from utils.permissions import NotAuthenticate
@@ -166,7 +166,7 @@ class ForgetPasswordApiView(APIView):
                 raise ValidationError({"message": "you have already otp code, please 2 minute wait"})
             else:
                 otp = Otp.objects.create(mobile_phone=mobile_phone)
-                send_sms_otp_code_async.delay(otp.mobile_phone, otp.code)
+                send_sms_otp_code.delay(otp.mobile_phone, otp.code)
                 return Response({'message': "code sent"}, status=HTTP_200_OK)
 
 
@@ -348,7 +348,7 @@ class RequestPhoneView(CreateAPIView):
 
     def perform_create(self, serializer):
         otp = Otp.objects.create(mobile_phone=serializer.validated_data['mobile_phone'])
-        send_sms_otp_code_async.delay(otp.mobile_phone, otp.code)
+        send_sms_otp_code.delay(otp.mobile_phone, otp.code)
 
 
 class RequestOtpVerifyView(APIView):

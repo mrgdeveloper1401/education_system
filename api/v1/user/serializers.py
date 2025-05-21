@@ -11,9 +11,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from accounts.models import User, Otp, State, City, Student, Coach, Ticket, TicketRoom, BestStudent, \
     PrivateNotification, Invitation
-from accounts.tasks import send_sms_otp_code_async
 from accounts.validators import MobileRegexValidator
-from discount_app.models import Coupon
 
 
 class UserLoginSerializer(serializers.Serializer):

@@ -38,6 +38,7 @@ THIRD_PARTY_APP = [
     "discount_app.apps.DiscountAppConfig",
     "order_app.apps.OrderAppConfig"
 ]
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",

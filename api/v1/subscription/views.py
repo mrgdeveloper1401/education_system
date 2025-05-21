@@ -108,7 +108,17 @@ class VerifyPaymentView(views.APIView):
             call_back_url=settings.ZIBAL_CALLBACK_URL
         )
         zibal_verify = zibal.verify(kwargs)
-        PaymentVerify.objects.create(verify_payment=zibal, user=request.user)
+        PaymentVerify.objects.create(verify_payment=zibal)
+
+        success = kwargs['success']
+        track_id = kwargs['trackId']
+        payment_subscription = PaymentSubscription.objects.filter(response_payment__exact=track_id)
+
+        if int(success) == 1:
+            payment_subscription.update(status='active')
+        else:
+            payment_subscription.update(status="canceled")
+
         return response.Response({"zibal_verify": zibal_verify}, status=status.HTTP_200_OK)
 
 

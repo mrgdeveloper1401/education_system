@@ -5,7 +5,7 @@ from accounts.models import User, Otp
 from utils.create_random import create_password_random
 from . import models
 from .tasks import send_successfully_signup_async
-from accounts.tasks import send_sms_otp_code_async
+from accounts.tasks import send_sms_otp_code
 
 
 @receiver(post_save, sender=models.CourseSignUp)
@@ -23,4 +23,4 @@ def create_student_profile(sender, instance, created, **kwargs):
             send_successfully_signup_async.delay(instance.mobile_phone, password)
         else:
             otp = Otp.objects.create(mobile_phone=instance.mobile_phone)
-            send_sms_otp_code_async.delay(otp.mobile_phone, otp.code)
+            send_sms_otp_code.delay(otp.mobile_phone, otp.code)
