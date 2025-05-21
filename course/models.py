@@ -47,44 +47,9 @@ class Course(CreateMixin, UpdateMixin, SoftDeleteMixin):
     course_level = models.CharField(max_length=13, null=True, blank=True)
     time_course = models.CharField(max_length=10, help_text="مدت زمان دوره", blank=True)
     course_age = models.CharField(max_length=30, help_text="بازه سنی دوره", blank=True)
-    # plans = models.ManyToManyField("subscription_app.Plan", blank=True)
-    # course_type = models.CharField(choices=CourseType.choices, max_length=7, blank=True)
 
     def __str__(self):
         return self.course_name
-
-    # def clean(self):
-    #     if self.price and self.is_free is True:
-    #         raise ValidationError({"is_free": _("course not have is free and price")})
-    #     if not self.price and self.is_free is False:
-    #         raise ValidationError({"is_free": _("you must select one item between (is_free and price)")})
-
-    # @property
-    # def calc_discount_value(self):
-    #     discount = self.discounts.filter(is_active=True)
-    #
-    #     if self.price is None:
-    #         return None
-    #
-    #     if discount:
-    #         price = (self.price * discount.last().percent) / 100
-    #         return price
-    #     return None
-
-    # @property
-    # def amount_discount(self):
-    #     discount = self.discounts.filter(is_active=True)
-    #
-    #     if discount:
-    #         return discount.last().percent
-    #     else:
-    #         return None
-
-    # @property
-    # def final_price(self):
-    #     if self.price is None:
-    #         return None
-    #     return self.price - self.calc_discount_value
 
     class Meta:
         db_table = 'course'

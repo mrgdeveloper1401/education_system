@@ -251,26 +251,33 @@ class SyncAdminCreateStudentSectionSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         section_id = validated_data['section']
-        # student access section list
-        std_access_section = []
-        # get all lesson_course by course_id
-        lesson_course = LessonCourse.objects.only("class_name", "is_active").filter(
-            is_active=True,
-            course_id=validated_data['course']
-        )
+        course_id = validated_data['course']
 
-        if not lesson_course.exists():
-            raise exceptions.ValidationError({"message": _("lesson course not exist")})
-        else:
-            for i in lesson_course:
-                for j in i.students.all():
-                    if not StudentAccessSection.objects.filter(student=j, section=section_id).exists():
-                        std_access_section.append(StudentAccessSection(
-                            student=j,
-                            section_id=section_id
-                        ))
-            StudentAccessSection.objects.bulk_create(std_access_section)
+        # دریافت همه دانش‌آموزان موجود برای این دوره
+        existing_students = Student.objects.filter(
+            student_lesson_course__course_id=course_id,
+            student_lesson_course__is_active=True
+        ).distinct()
+
+        # دریافت دانش‌آموزانی که از قبل دسترسی دارند
+        existing_access = StudentAccessSection.objects.filter(
+            section_id=section_id,
+            student__in=existing_students
+        ).values_list('student_id', flat=True)
+
+        # ایجاد لیست برای bulk_create
+        new_access = [
+            StudentAccessSection(
+                student_id=student_id,
+                section_id=section_id
+            )
+            for student_id in existing_students.values_list('id', flat=True)
+            if student_id not in existing_access
+        ]
+
+        StudentAccessSection.objects.bulk_create(new_access)
+
         return {
             'section': section_id,
-            "course": validated_data['course'],
+            "course": course_id,
         }
