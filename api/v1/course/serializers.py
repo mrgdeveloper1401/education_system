@@ -428,13 +428,13 @@ class CoachStudentSendFilesSerializer(serializers.ModelSerializer):
 class UpdateCoachStudentSendFilesSerializer(serializers.ModelSerializer):
     class Meta:
         model = SendSectionFile
-        fields = ['id', "score", "comment_teacher"]
+        fields = ('id', "score", "comment_teacher")
 
 
 class ScoreIntoStudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = SendSectionFile
-        fields = ['score', "student", "comment_teacher"]
+        fields = ('score', "student", "comment_teacher")
 
 
 class CallLessonCourseSerializer(serializers.ModelSerializer):

@@ -6,38 +6,38 @@ from .enums import SendFileChoices
 from .models import StudentAccessSection, SendSectionFile, CallLessonCourse, StudentEnrollment, StudentSectionScore
 
 
-# @receiver(post_save, sender=SendSectionFile)
-# def next_section_access(sender, instance, **kwargs):
-#     if instance.send_file_status == SendFileChoices.accepted and instance.score > 60:
-#         get_student_section_access = StudentAccessSection.objects.filter(
-#             student=instance.student,
-#             section=instance.section_file.section
-#         ).first()
-#
-#         if get_student_section_access:
-#             StudentAccessSection.objects.filter(id=get_student_section_access.id + 1).update(
-#                 is_access=True,
-#             )
-
-
-@receiver(post_save, sender=StudentSectionScore)
+@receiver(post_save, sender=SendSectionFile)
 def next_section_access(sender, instance, **kwargs):
-    if instance.score >= 60:
-        get_student_access_section = StudentAccessSection.objects.filter(
+    if instance.send_file_status == SendFileChoices.accepted and instance.score > 60:
+        get_student_section_access = StudentAccessSection.objects.filter(
             student=instance.student,
-            section=instance.section
+            section=instance.section_file.section
         ).first()
-        if get_student_access_section:
-                StudentAccessSection.objects.filter(id=get_student_access_section.id + 1).update(
-                    is_access=True,
-                )
+
+        if get_student_section_access:
+            StudentAccessSection.objects.filter(id=get_student_section_access.id + 1).update(
+                is_access=True,
+            )
+
+
+# @receiver(post_save, sender=StudentSectionScore)
+# def next_section_access(sender, instance, **kwargs):
+#     if instance.score >= 60:
+#         get_student_access_section = StudentAccessSection.objects.filter(
+#             student=instance.student,
+#             section=instance.section
+#         ).first()
+#         if get_student_access_section:
+#                 StudentAccessSection.objects.filter(id=get_student_access_section.id + 1).update(
+#                     is_access=True,
+#                 )
 
 
 @receiver(post_save, sender=SendSectionFile)
 def send_notification_when_score_is_accepted(sender, instance, **kwargs):
     if instance.score:
         PrivateNotification.objects.create(
-            user=instance.students.user,
+            user=instance.student.user,
             body="دانشجوی محترم نمره شما ثبت و ویرایش شده هست"
         )
 

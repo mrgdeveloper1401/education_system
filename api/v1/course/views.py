@@ -411,8 +411,8 @@ class CoachLessonCourseViewSet(viewsets.ReadOnlyModelViewSet):
             return serializers.CreateCoachPresentAbsentSerializer
         if self.action == "detail_coach_present_absent" and self.request.method in ('PUT', 'PATCH'):
             return serializers.CoachPresentAbsentSerializer
-        if self.action == "retrieve":
-            return serializers.RetrieveLessonCourseSerializer
+        # if self.action == "retrieve":
+        #     return serializers.RetrieveLessonCourseSerializer
         return super().get_serializer_class()
 
     def get_queryset(self):
