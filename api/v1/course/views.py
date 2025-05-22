@@ -69,7 +69,7 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         query = (LessonCourse.objects.filter(
-            students__user=self.request.user, is_active=True).filter(
+            lesson_course_enrollment__student__user=self.request.user, is_active=True).filter(
             Q(course__is_deleted=False) | Q(course__is_deleted=None)
         ).select_related(
             "course__category", "coach__user"
@@ -354,7 +354,7 @@ class StudentLessonCourseViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixi
 
 class StudentListPresentAbsentViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.StudentListPresentAbsentSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
         return PresentAbsent.objects.filter(
