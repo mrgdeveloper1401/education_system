@@ -100,7 +100,9 @@ class AdminSectionFileViewSet(viewsets.ModelViewSet):
             "section_id",
             "is_publish",
             "title",
-            "answer"
+            "answer",
+            "created_at",
+            "updated_at"
         )
 
     def get_serializer_context(self):
