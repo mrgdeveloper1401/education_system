@@ -19,13 +19,13 @@ from .permissions import IsCoachPermission, IsAccessPermission, IsOwnerOrReadOnl
 
 class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.LessonCourseSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = (permissions.IsAuthenticated,)
     pagination_class = CommonPagination
 
     def get_serializer_class(self):
         if self.action == "send_file" and self.request.method == 'POST':
             return serializers.SendFileSerializer
-        if self.action == "detail_send_file" and self.request.method in ['PUT', 'PATCH']:
+        if self.action == "detail_send_file" and self.request.method in ('PUT', 'PATCH'):
             return serializers.SendFileSerializer
         if self.action == "poll_answer" and self.request.method == 'POST':
             return serializers.AnswerSectionQuestionSerializer

@@ -10,7 +10,7 @@ from accounts.models import Student
 from utils.permissions import NotAuthenticate
 from . import serializers
 from course.models import Category, Course, Section, SectionFile, SectionVideo, LessonCourse, Certificate, \
-    PresentAbsent, SectionQuestion, AnswerQuestion, Comment, SignupCourse
+    PresentAbsent, SectionQuestion, AnswerQuestion, Comment, SignupCourse, StudentEnrollment
 from .paginations import AdminPagination
 from ...course.paginations import CommonPagination
 
@@ -323,3 +323,26 @@ class SyncStudentAccessSectionView(views.APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return response.Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class StudentEnrollmentView(viewsets.ModelViewSet):
+    serializer_class = serializers.StudentEnrollmentSerializer
+    permission_classes = (permissions.IsAdminUser,)
+
+    def get_serializer_class(self):
+        if self.action == "create":
+            return serializers.CreateStudentEnrollmentSerializer
+        return super().get_serializer_class()
+
+    def get_queryset(self):
+        return StudentEnrollment.objects.filter(
+            lesson_course_id=self.kwargs['class_room_pk'],
+        ).select_related("student").only(
+            "student__student_number",
+            "student_status"
+        )
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['class_room_pk'] = self.kwargs['class_room_pk']
+        return context

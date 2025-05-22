@@ -1,28 +1,9 @@
 from django.db.models.signals import m2m_changed, post_save
 from django.dispatch import receiver
 
-from accounts.models import PrivateNotification, User
+from accounts.models import PrivateNotification, User, Student
 from .enums import SendFileChoices
 from .models import LessonCourse, StudentAccessSection, SendSectionFile, CallLessonCourse, StudentEnrollment, Section
-
-
-@receiver(m2m_changed, sender=LessonCourse.students.through)
-def handle_student_changes(sender, instance, action, pk_set, **kwargs):
-    if action == "post_add":
-        course = instance.course
-        students = instance.students.filter(id__in=pk_set)
-        sections = course.sections.filter(is_publish=True)
-
-        access_list = [
-            StudentAccessSection(student=student, section=section)
-            for student in students
-            for section in sections
-            if not StudentAccessSection.objects.filter(
-                student=student,
-                section=section
-            ).exists()
-        ]
-        StudentAccessSection.objects.bulk_create(access_list)
 
 
 @receiver(post_save, sender=SendSectionFile)

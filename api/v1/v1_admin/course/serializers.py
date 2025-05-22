@@ -1,8 +1,10 @@
+from django.db.models.signals import post_save
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers, exceptions
 from django.utils.translation import gettext_lazy as _
 
 from accounts.models import Student, Otp, Coach
+from course.enums import StudentStatusEnum
 from course.models import Category, Course, Section, SectionFile, SectionVideo, LessonCourse, Certificate, \
     PresentAbsent, SectionQuestion, AnswerQuestion, Comment, SignupCourse, StudentEnrollment, StudentAccessSection
 
@@ -124,7 +126,7 @@ class AdminStudentPresentAbsentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PresentAbsent
-        fields = ['id', "student_status", "student_name", "section_name", "created_at"]
+        fields = ('id', "student_status", "student_name", "section_name", "created_at")
 
     def get_student_name(self, obj):
         return obj.student.student_name
@@ -281,3 +283,48 @@ class SyncAdminCreateStudentSectionSerializer(serializers.Serializer):
             'section': section_id,
             "course": course_id,
         }
+
+
+class StudentEnrollmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StudentEnrollment
+        fields = ("id", "student_status", "student")
+
+
+class DataStudentEnrollmentSerializer(serializers.Serializer):
+    student = serializers.PrimaryKeyRelatedField(
+        queryset=Student.objects.only(
+            "student_number",
+        ).filter(is_active=True)
+    )
+    student_status = serializers.ChoiceField(
+        choices=StudentStatusEnum.choices
+    )
+
+
+class CreateStudentEnrollmentSerializer(serializers.Serializer):
+    data = DataStudentEnrollmentSerializer(many=True)
+
+    def create(self, validated_data):
+        data = validated_data.pop("data")
+        class_room_id = self.context['class_room_pk']
+
+        if not data:
+            raise exceptions.ValidationError({"message": "you must send student_id and student status"})
+        else:
+            create_data = [
+                StudentEnrollment(
+                    student=i['student'],
+                    student_status=i['student_status'],
+                    lesson_course_id=class_room_id
+                )
+                for i in data
+            ]
+            created = StudentEnrollment.objects.bulk_create(create_data)
+            for obj in created:
+                post_save.send(
+                    sender=StudentEnrollment,
+                    instance=obj,
+                    created=True
+                )
+            return {"data": created}

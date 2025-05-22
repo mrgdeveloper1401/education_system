@@ -152,7 +152,7 @@ class LessonCourseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = LessonCourse
-        fields = ["id", "course", "course_category", "progress", "coach_name", "class_name", "progress_bar"]
+        fields = ("id", "course", "course_category", "progress", "coach_name", "class_name", "progress_bar")
 
     def get_coach_name(self, obj):
         return obj.coach.get_coach_name

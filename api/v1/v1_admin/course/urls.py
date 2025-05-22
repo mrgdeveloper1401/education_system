@@ -32,11 +32,15 @@ section_router.register("certificate", views.AdminCertificateViewSet, basename="
 section_question_router = routers.NestedDefaultRouter(section_router, r'section_question', lookup='section_question')
 section_question_router.register("poll_answer", views.AdminAnswerQuestionViewSet, basename='admin_poll_answer')
 
+class_room_router = routers.NestedDefaultRouter(course_router, r'class_room', lookup='class_room')
+class_room_router.register("student_enrollment", views.StudentEnrollmentView, basename='admin_student_enrollment')
+
 urlpatterns = [
     path("", include(category_router.urls)),
     path('', include(course_router.urls)),
     path("", include(section_router.urls)),
     path("", include(section_question_router.urls)),
+    path("", include(class_room_router.urls)),
     path('course_list/', views.AdminCourseListApiView.as_view(), name='course_list'),
     path("sync_student_access_section/", views.SyncStudentAccessSectionView.as_view(), name='sync_std_section')
 ]
