@@ -141,8 +141,6 @@ class StudentEnrollment(CreateMixin, UpdateMixin, SoftDeleteMixin):
     def __str__(self):
         return f'{self.student.referral_code} {str(self.student_status)}'
 
-    objects = models.Manager()
-
     class Meta:
         db_table = "lesson_course_students"
         unique_together = ("student", "lesson_course")
