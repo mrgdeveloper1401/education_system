@@ -20,6 +20,16 @@ def next_section_access(sender, instance, **kwargs):
             )
 
 
+@receiver(post_save, sender=SendSectionFile)
+def create_student_section_score(sender, instance, **kwargs):
+    if instance.score >= 60:
+        StudentSectionScore.objects.get_or_create(
+            student=instance.student,
+            section=instance.section_file.section,
+            score=instance.score
+        )
+
+
 # @receiver(post_save, sender=StudentSectionScore)
 # def next_section_access(sender, instance, **kwargs):
 #     if instance.score >= 60:
