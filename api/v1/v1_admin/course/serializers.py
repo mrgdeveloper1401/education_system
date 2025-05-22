@@ -96,28 +96,25 @@ class AdminLessonCourseSerializer(serializers.ModelSerializer):
     course = serializers.PrimaryKeyRelatedField(
         queryset=Course.objects.only("course_name")
     )
-    students = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=Student.objects.only("student_number"), required=False
-    )
 
     class Meta:
         model = LessonCourse
-        exclude = ('is_deleted', "deleted_at")
+        exclude = ('is_deleted', "deleted_at", "students")
 
     def create(self, validated_data):
-        students = validated_data.pop("students", None)
-        class_room = LessonCourse.objects.create(**validated_data)
+        LessonCourse.objects.create(**validated_data)
+        # class_room = LessonCourse.objects.create(**validated_data)
 
-        if students:
-            lst = [
-                StudentEnrollment(
-                    student=i,
-                    lesson_course=class_room
-                )
-                for i in students
-            ]
-            StudentEnrollment.objects.bulk_create(lst)
-        return class_room
+        # if students:
+        #     lst = [
+        #         StudentEnrollment(
+        #             student=i,
+        #             lesson_course=class_room
+        #         )
+        #         for i in students
+        #     ]
+        #     StudentEnrollment.objects.bulk_create(lst)
+        # return class_room
 
 
 class AdminStudentPresentAbsentSerializer(serializers.ModelSerializer):
