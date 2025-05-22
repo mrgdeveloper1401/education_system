@@ -315,7 +315,6 @@ class CreateStudentEnrollmentSerializer(serializers.Serializer):
             create_data = [
                 StudentEnrollment(
                     student=i['student'],
-                    student_status=i['student_status'],
                     lesson_course_id=class_room_id
                 )
                 for i in data
