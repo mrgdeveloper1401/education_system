@@ -108,7 +108,7 @@ class SectionScoreAdmin(admin.ModelAdmin):
     list_display = ('section', "score", 'created_at')
     list_per_page = 20
     list_filter = ('created_at',)
-    raw_id_fields = ('section',)
+    raw_id_fields = ('section', "student")
 
 
 @admin.register(models.PresentAbsent)

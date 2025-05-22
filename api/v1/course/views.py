@@ -1,4 +1,3 @@
-from django.contrib.contenttypes.models import ContentType
 from django.db.models import Prefetch, Q
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter, extend_schema_view
@@ -9,7 +8,7 @@ from accounts.models import Student
 from course.models import Comment, SectionVideo, SectionFile, LessonCourse, StudentSectionScore, \
     PresentAbsent, StudentAccessSection, SendSectionFile, OnlineLink, SectionQuestion, Section, \
     Category, CallLessonCourse, Course, Certificate, CourseTypeModel, StudentEnrollment
-from discount_app.models import Discount
+
 from .pagination import CommentPagination
 from .paginations import CommonPagination
 

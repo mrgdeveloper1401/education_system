@@ -141,7 +141,7 @@ class SimpleLessonCourseSerializer(serializers.ModelSerializer):
 class SimpleStudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Student
-        fields = ['id', "student_name"]
+        fields = ('id', "student_name")
 
 
 class LessonCourseSerializer(serializers.ModelSerializer):
@@ -158,7 +158,24 @@ class LessonCourseSerializer(serializers.ModelSerializer):
         return obj.coach.get_coach_name
 
     def get_progress_bar(self, obj):
-        return obj.progress_bar
+        # تعداد سکشن‌هایی که دانشجو نمره بالای 60 گرفته
+        passed_sections = StudentSectionScore.objects.filter(
+            student__user_id=self.context['request'].user.id,
+            section__course__lesson_course=obj,
+            score__gte=60
+        ).count()
+
+        # تعداد کل سکشن‌های این دوره
+        total_sections = Section.objects.filter(
+            course__lesson_course=obj,
+            is_publish=True
+        ).count()
+
+        # محاسبه درصد پیشرفت
+        if total_sections > 0:
+            progress_percentage = (passed_sections / total_sections) * 100
+            return round(progress_percentage, 2)  # گرد کردن به دو رقم اعشار
+        return 0
 
     def get_course_category(self, obj):
         return obj.course.category_id
@@ -179,18 +196,10 @@ class ListCoachLessonCourseSerializer(serializers.ModelSerializer):
         return obj.course.course_image.url if obj.course.course_image else None
 
 
-class RetrieveLessonCourseSerializer(serializers.ModelSerializer):
-    students = SimpleStudentSerializer(many=True)
-
-    class Meta:
-        model = LessonCourse
-        fields = ['progress', "class_name", "students"]
-
-
 class SectionScoreSerializer(serializers.ModelSerializer):
     class Meta:
         model = StudentSectionScore
-        fields = ["score"]
+        fields = ("score",)
 
 
 class StudentLessonCourseSerializer(serializers.ModelSerializer):
