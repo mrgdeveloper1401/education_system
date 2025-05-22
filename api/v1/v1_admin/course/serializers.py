@@ -297,9 +297,9 @@ class DataStudentEnrollmentSerializer(serializers.Serializer):
             "student_number",
         ).filter(is_active=True)
     )
-    student_status = serializers.ChoiceField(
-        choices=StudentStatusEnum.choices
-    )
+    # student_status = serializers.ChoiceField(
+    #     choices=StudentStatusEnum.choices
+    # )
 
 
 class CreateStudentEnrollmentSerializer(serializers.Serializer):

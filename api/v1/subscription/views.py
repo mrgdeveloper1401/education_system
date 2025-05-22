@@ -64,7 +64,6 @@ class SubscriptionViewSet(viewsets.ModelViewSet):
             filters["status"] = status
         if phone:
             filters["user__mobile_phone__contains"] = phone
-        print(filters)
         return queryset.filter(**filters)
 
 

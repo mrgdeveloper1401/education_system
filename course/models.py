@@ -135,7 +135,8 @@ class StudentEnrollment(CreateMixin, UpdateMixin, SoftDeleteMixin):
                                 limit_choices_to={"is_active": True})
     lesson_course = models.ForeignKey(LessonCourse, on_delete=models.DO_NOTHING,
                                       related_name="lesson_course_enrollment")
-    student_status = models.CharField(choices=StudentStatusEnum.choices, max_length=8, default=StudentStatusEnum.active)
+    student_status = models.CharField(choices=StudentStatusEnum.choices, max_length=8, default=StudentStatusEnum.active,
+                                      blank=True)
 
     def __str__(self):
         return f'{self.student.referral_code} {str(self.student_status)}'
