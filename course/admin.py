@@ -71,6 +71,7 @@ class SectionFileAdmin(admin.ModelAdmin):
     list_select_related = ('section',)
     list_per_page = 20
     list_filter = ('is_publish', "created_at")
+    list_display_links = ("id", "section")
 
 
 @admin.register(models.LessonCourse)

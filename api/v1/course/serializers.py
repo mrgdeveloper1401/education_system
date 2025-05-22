@@ -235,6 +235,7 @@ class SendFileSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             "score": {"read_only": True},
             "comment_teacher": {"read_only": True},
+            "send_file_status": {"read_only": True}
         }
 
     def create(self, validated_data):
