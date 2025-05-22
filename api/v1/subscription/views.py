@@ -55,16 +55,17 @@ class SubscriptionViewSet(viewsets.ModelViewSet):
         return super().get_serializer_class()
 
     def filter_queryset(self, queryset):
-        status = self.request.query_params.get("status", None)
-        phone = self.request.query_params.get("phone", None)
+        filters = {}
 
-        if status and phone:
-            queryset = queryset.filter(status=status, phone__icontains=phone)
-        elif status:
-            queryset = queryset.filter(status=status)
-        elif phone:
-            queryset = queryset.filter(user__mobile_phone=phone)
-        return queryset
+        status = self.request.query_params.get("status")
+        phone = self.request.query_params.get("phone")
+
+        if status:
+            filters["status"] = status
+        if phone:
+            filters["user__mobile_phone__contains"] = phone
+        print(filters)
+        return queryset.filter(**filters)
 
 
 class PaymentSubscriptionViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
