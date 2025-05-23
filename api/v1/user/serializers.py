@@ -248,13 +248,13 @@ class UserNotificationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PrivateNotification
-        fields = ("id", "user_fullname", "title", 'body', "created_at", "is_read")
+        fields = ("id", "user_fullname", "title", 'body', "created_at", "is_read", "char_link", "notification_type")
 
 
 class CreateUserNotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = PrivateNotification
-        fields = ("title", 'body', "user")
+        fields = ("title", 'body', "user", "notification_type", "char_link")
 
 
 class PatchUserNotificationSerializer(serializers.ModelSerializer):

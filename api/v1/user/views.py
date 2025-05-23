@@ -315,7 +315,8 @@ class UserNotificationViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return PrivateNotification.objects.filter(user=self.request.user).only(
-            "body", "is_read", "created_at", "title", "user__first_name", "user__last_name"
+            "body", "is_read", "created_at", "title", "user__first_name", "user__last_name", "notification_type",
+            "char_link"
         ).select_related("user")
 
     def get_permissions(self):
