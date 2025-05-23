@@ -174,7 +174,7 @@ class CoachAdmin(admin.ModelAdmin):
 
 @admin.register(models.PrivateNotification)
 class PrivateNotificationAdmin(admin.ModelAdmin):
-    list_display = ('user', "is_read", "created_at")
+    list_display = ('user', "notification_type", "is_read", "created_at")
     raw_id_fields = ('user',)
     list_per_page = 20
     list_editable = ("is_read",)

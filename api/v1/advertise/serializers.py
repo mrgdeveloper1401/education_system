@@ -52,6 +52,22 @@ class UserConsultationRequestSerializer(serializers.ModelSerializer):
         send_sms_accept_advertise.delay(data.mobile_phone, str(data.slot.date))
         return data
 
+    def to_representation(self, instance):
+        request = self.context['request']
+        data = super().to_representation(instance)
+
+        if not request.user.is_staff:
+            data.pop("is_answer", None)
+
+        return data
+
+    def get_fields(self):
+        fields = super().get_fields()
+        request = self.context.get('request')
+        if not request.user.is_staff:
+            fields.pop('is_answer', None)
+        return fields
+
 
 class AdminConsultationRequestSerializer(serializers.ModelSerializer):
 

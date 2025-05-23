@@ -12,7 +12,8 @@ def create_notification_after_signup_advertise(sender, instance, created, **kwar
         create_data = [
             PrivateNotification(
                 user=i,
-                body=" ادیمن گرامی یک نفر درخواست مشاوره رو داده هست"
+                body="یک نفر درخواست مشاوره رو داده هست",
+                notification_type="advertise"
             )
             for i in admin_user
         ]

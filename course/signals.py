@@ -3,7 +3,8 @@ from django.dispatch import receiver
 
 from accounts.models import PrivateNotification, User
 from .enums import SendFileChoices
-from .models import StudentAccessSection, SendSectionFile, CallLessonCourse, StudentEnrollment, StudentSectionScore
+from .models import StudentAccessSection, SendSectionFile, CallLessonCourse, StudentEnrollment, StudentSectionScore, \
+    SectionFile
 
 
 @receiver(post_save, sender=SendSectionFile)
@@ -46,7 +47,8 @@ def send_notification_when_score_is_accepted(sender, instance, **kwargs):
         PrivateNotification.objects.create(
             user=instance.student.user,
             body="دانش اموز محترم نمره شما ثبت و ویرایش شده هست",
-            char_link=f'category_id: {category_id}/send_file_pk: {course_id}'
+            char_link=f'category_id: {category_id}/send_file_pk: {course_id}',
+            notification_type="accept score"
         )
 
 
@@ -58,7 +60,8 @@ def create_admin_notification_when_cancel_student(sender, instance, created, **k
             PrivateNotification(
                 user=i,
                 title='cancel student',
-                body="please check student, this he want cancel"
+                body="please check student, this he want cancel",
+                notification_type="cancel signup student"
             )
             for i in admin_user
         ]
@@ -86,3 +89,9 @@ def access_student_access_section(sender, instance, created, **kwargs):
         if create_student_access_section:
             create_student_access_section[0].is_access = True
             StudentAccessSection.objects.bulk_create(create_student_access_section)
+
+
+# @receiver(post_save, sender=SendSectionFile)
+# def send_notification_when_user_send_section_file(sender, instance, created, **kwargs):
+#     if created:
+#         pass

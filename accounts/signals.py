@@ -4,7 +4,7 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save
 from rest_framework.exceptions import ValidationError
 from django.utils import timezone
-from .models import User, Coach, Student
+from .models import User, Coach, Student, Ticket, PrivateNotification
 
 
 @receiver(post_save, sender=User)
@@ -26,3 +26,20 @@ def create_coach(sender, instance, created, **kwargs):
             instance.is_staff = False
             instance.save()
             raise ValidationError({"message": "user is student, these user can not set satff"})
+
+
+@receiver(post_save, sender=Ticket)
+def send_notification_when_create_ticket(sender, instance, created, **kwargs):
+    if created:
+        admin_users = User.objects.filter(is_staff=True, is_active=True).only("is_staff", "mobile_phone", "is_active")
+        ticket = [
+            PrivateNotification(
+                user=i,
+                body="یک تیکت جدید ثبت شده هست",
+                notification_type="ticket"
+            )
+            for i in admin_users
+        ]
+
+        if ticket:
+            PrivateNotification.objects.bulk_create(ticket)
