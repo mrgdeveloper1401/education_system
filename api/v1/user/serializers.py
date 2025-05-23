@@ -303,8 +303,8 @@ class RequestPhoneVerifySerializer(serializers.Serializer):
                 token = RefreshToken.for_user(user)
                 Otp.objects.filter(mobile_phone=attrs['mobile_phone']).delete()
                 attrs["data"] = {
-                    "access_token": str(token.access_token),
-                    "refresh_token": str(token)
+                    "access": str(token.access_token),
+                    "refresh": str(token)
                 }
                 attrs['is_coach'] = str(user.is_coach)
                 attrs['is_staff'] = str(user.is_staff)
