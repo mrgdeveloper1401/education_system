@@ -201,9 +201,9 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
             send_file = SendSectionFile.objects.filter(
                 student__user=request.user,
                 section_file_id=section_file_pk,
-                section_file__section__course__lesson_course__exact=pk,
-                section_file__section__is_publish=True,
-                section_file__section_id=section_pk
+                # section_file__section__course__lesson_course__exact=pk,
+                section_file__section__is_publish=True
+                # section_file__section_id=section_pk
             ).only("score", 'comment_student', "zip_file", "section_file", "created_at", "comment_teacher",
                    "send_file_status", "updated_at")
             serializer = ser(send_file, many=True)

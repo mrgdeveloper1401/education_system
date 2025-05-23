@@ -265,6 +265,8 @@ class PrivateNotification(CreateMixin, UpdateMixin, SoftDeleteMixin):
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="notifications")
     title = models.CharField(max_length=255, blank=True)
     body = models.TextField()
+    char_link = models.CharField(blank=True, max_length=30, null=True, help_text="link for redirect")
+    notification_type = models.CharField(max_length=30, blank=True, null=True)
     is_read = models.BooleanField(default=False)
 
     class Meta:

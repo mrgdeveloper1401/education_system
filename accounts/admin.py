@@ -53,10 +53,10 @@ class UserAdmin(ImportExportModelAdmin, BaseUserAdmin):
         "groups",
         "user_permissions",
     )
-    readonly_fields = ['updated_at', "deleted_at", "last_login", "created_at", "is_deleted"]
-    list_editable = ['is_active', "is_staff", "is_superuser"]
-    raw_id_fields = ["city", "state"]
-    list_display_links = ['id', "mobile_phone"]
+    readonly_fields = ('updated_at', "deleted_at", "last_login", "created_at", "is_deleted")
+    list_editable = ('is_active', "is_staff", "is_superuser")
+    raw_id_fields = ("city", "state")
+    list_display_links = ('id', "mobile_phone")
     list_per_page = 20
 
     def get_queryset(self, request):
@@ -67,33 +67,32 @@ class UserAdmin(ImportExportModelAdmin, BaseUserAdmin):
 
 @admin.register(models.Otp)
 class OtpAdmin(admin.ModelAdmin):
-    list_display = ['mobile_phone', 'code', 'expired_date']
-    search_fields = ['mobile_phone']
-    list_filter = ['expired_date', "created_at"]
+    list_display = ('mobile_phone', 'code', 'expired_date')
+    search_fields = ('mobile_phone',)
+    list_filter = ('expired_date', "created_at")
     date_hierarchy = 'created_at'
 
 
 @admin.register(models.State)
 class StateAdmin(ImportExportModelAdmin):
-    list_display = ['id', "state_name"]
-    search_fields = ['state_name']
+    list_display = ('id', "state_name")
+    search_fields = ('state_name',)
 
 
 @admin.register(models.City)
 class CityAdmin(ImportExportModelAdmin):
-    raw_id_fields = ['state']
-    list_display = ['id', 'state', "city"]
-    search_fields = ['city']
-    list_display_links = ['id', "state", "city"]
+    raw_id_fields = ('state',)
+    list_display = ('id', 'state', "city")
+    search_fields = ('city',)
+    list_display_links = ('id', "state", "city")
 
 
 @admin.register(models.Ticket)
 class TicketAdmin(TreeAdmin):
-    raw_id_fields = ['sender', "room"]
-    list_display = ["id", 'sender', "is_publish", "created_at"]
-    list_select_related = ['sender']
+    raw_id_fields = ('sender', "room")
+    list_display = ("id", 'sender', "is_publish", "created_at")
+    list_select_related = ('sender',)
     list_per_page = 30
-    search_fields = ['user__mobile_phone', "subject_title"]
     form = movenodeform_factory(models.Ticket)
 
 
@@ -101,8 +100,8 @@ class TicketAdmin(TreeAdmin):
 class RecycleUserAdmin(admin.ModelAdmin):
     list_display = ("id", "mobile_phone", "email", "first_name", "last_name", "is_staff", "is_active", "is_superuser",
                     "is_deleted", "deleted_at")
-    search_fields = ['mobile_phone']
-    actions = ["restore_user"]
+    search_fields = ('mobile_phone',)
+    actions = ("restore_user",)
 
     def get_queryset(self, request):
         return models.RecycleUser.objects.filter(is_deleted=True)
@@ -114,25 +113,25 @@ class RecycleUserAdmin(admin.ModelAdmin):
 
 @admin.register(models.TicketRoom)
 class TicketRoomAdmin(admin.ModelAdmin):
-    raw_id_fields = ['user']
-    list_display = ["id", 'user', "title_room", "is_active", "is_close", "created_at"]
-    list_filter = ['is_active', "is_close"]
+    raw_id_fields = ('user',)
+    list_display = ("id", 'user', "title_room", "is_active", "is_close", "created_at")
+    list_filter = ('is_active', "is_close")
     list_per_page = 20
-    list_select_related = ['user']
-    list_editable = ['is_active', "is_close"]
-    search_fields = ['title_room']
-    list_display_links = ['id', "user"]
+    list_select_related = ('user',)
+    list_editable = ('is_active', "is_close")
+    search_fields = ('title_room',)
+    list_display_links = ('id', "user")
 
     def get_queryset(self, request):
         return super().get_queryset(request).only(
             "user__mobile_phone", "title_room", "is_active", "is_close", "created_at"
         )
 
-
+@admin.register(models.BestStudent)
 class BestStudentAdmin(ImportExportModelAdmin):
-    list_display = ['id', "student", "is_publish", "created_at"]
+    list_display = ('id', "student", "is_publish", "created_at")
     list_per_page = 20
-    list_filter = ['is_publish']
+    list_filter = ('is_publish',)
 
     def get_queryset(self, request):
         return super().get_queryset(request).only(
@@ -142,11 +141,11 @@ class BestStudentAdmin(ImportExportModelAdmin):
 
 @admin.register(models.Student)
 class StudentAdmin(admin.ModelAdmin):
-    list_display = ['user', "id", "student_number", "created_at", "get_student_name"]
-    raw_id_fields = ['user']
-    list_filter = ['created_at']
+    list_display = ('user', "id", "student_number", "created_at", "get_student_name")
+    raw_id_fields = ('user',)
+    list_filter = ('created_at',)
     list_per_page = 20
-    search_fields = ['user__mobile_phone', "student_number"]
+    search_fields = ('user__mobile_phone', "student_number")
 
     def get_student_name(self, obj):
         return obj.user.get_full_name
@@ -159,10 +158,10 @@ class StudentAdmin(admin.ModelAdmin):
 
 @admin.register(models.Coach)
 class CoachAdmin(admin.ModelAdmin):
-    list_display = ['user', "coach_number", "created_at", "get_coach_name"]
-    raw_id_fields = ['user']
+    list_display = ('user', "coach_number", "created_at", "get_coach_name")
+    raw_id_fields = ('user',)
     list_per_page = 20
-    search_fields = ['user__mobile_phone', "coach_number"]
+    search_fields = ('user__mobile_phone', "coach_number")
 
     def get_coach_name(self, obj):
         return obj.user.get_full_name
@@ -171,11 +170,6 @@ class CoachAdmin(admin.ModelAdmin):
         return super().get_queryset(request).only(
             "user", "coach_number", "created_at", "user__first_name", "user__last_name", "user__mobile_phone"
         )
-
-
-@admin.register(models.BestStudent)
-class BestStudentAdmin(admin.ModelAdmin):
-    pass
 
 
 @admin.register(models.PrivateNotification)
@@ -191,7 +185,7 @@ class PrivateNotificationAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         return super().get_queryset(request).only(
-            "user__mobile_phone", "is_read", "created_at", "body", "title"
+            "user__mobile_phone", "is_read", "created_at", "body", "title", "char_link", "notification_type"
         )
 
 

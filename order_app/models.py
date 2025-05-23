@@ -4,7 +4,7 @@ from accounts.models import User
 from core.models import CreateMixin, UpdateMixin, SoftDeleteMixin
 
 class CourseSignUp(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    course = models.ForeignKey("course.Course", on_delete=models.PROTECT, related_name="course_signup_one")
+    course = models.ForeignKey("course.Course", on_delete=models.CASCADE, related_name="course_signup_one")
     mobile_phone = models.CharField(max_length=15)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
@@ -23,7 +23,7 @@ class CourseSignUp(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 
 class Order(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    course = models.ForeignKey("course.Course", on_delete=models.PROTECT, related_name="orders")
+    course = models.ForeignKey("course.Course", on_delete=models.CASCADE, related_name="orders")
     price = models.FloatField()
     mobile_phone = models.CharField(max_length=15)
 
