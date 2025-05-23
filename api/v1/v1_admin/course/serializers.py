@@ -102,7 +102,7 @@ class AdminLessonCourseSerializer(serializers.ModelSerializer):
         exclude = ('is_deleted', "deleted_at")
 
     def create(self, validated_data):
-        LessonCourse.objects.create(**validated_data)
+        return LessonCourse.objects.create(**validated_data)
         # class_room = LessonCourse.objects.create(**validated_data)
 
         # if students:
