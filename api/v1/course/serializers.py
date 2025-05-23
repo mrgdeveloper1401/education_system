@@ -355,7 +355,7 @@ class StudentListPresentAbsentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PresentAbsent
-        fields = ["id", "student_status", "section_name", "created_at"]
+        fields = ("id", "student_status", "section_name", "created_at")
 
     def get_section_name(self, obj):
         return obj.section.title
@@ -364,19 +364,19 @@ class StudentListPresentAbsentSerializer(serializers.ModelSerializer):
 class CoachSectionFileSerializer(serializers.ModelSerializer):
     class Meta:
         model = SectionFile
-        fields = ["id", 'zip_file', 'answer', "title", "file_type", "is_publish"]
+        fields = ("id", 'zip_file', 'answer', "title", "file_type", "is_publish")
 
 
 class StudentOnlineLinkSerializer(serializers.ModelSerializer):
     class Meta:
         model = OnlineLink
-        fields = ['id', "link", "created_at"]
+        fields = ('id', "link", "created_at")
 
 
 class SectionQuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = SectionQuestion
-        fields = ['id', "question_title"]
+        fields = ('id', "question_title")
 
 
 class RateAnswerSerializer(serializers.Serializer):

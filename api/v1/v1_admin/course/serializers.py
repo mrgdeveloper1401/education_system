@@ -99,7 +99,7 @@ class AdminLessonCourseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = LessonCourse
-        exclude = ('is_deleted', "deleted_at", "students")
+        exclude = ('is_deleted', "deleted_at")
 
     def create(self, validated_data):
         LessonCourse.objects.create(**validated_data)

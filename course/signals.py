@@ -1,9 +1,10 @@
-from django.db.models.signals import  post_save
+from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 
 from accounts.models import PrivateNotification, User
 from .enums import SendFileChoices
-from .models import StudentAccessSection, SendSectionFile, CallLessonCourse, StudentEnrollment, StudentSectionScore
+from .models import StudentAccessSection, SendSectionFile, CallLessonCourse, StudentEnrollment, StudentSectionScore \
+    ,LessonCourse
 
 
 @receiver(post_save, sender=SendSectionFile)
@@ -22,7 +23,7 @@ def next_section_access(sender, instance, **kwargs):
 
 @receiver(post_save, sender=SendSectionFile)
 def create_student_section_score(sender, instance, **kwargs):
-    if instance.score >= 60:
+    if instance.score and instance.score >= 60:
         score = StudentSectionScore.objects.filter(
             student=instance.student,
             section=instance.section_file.section,

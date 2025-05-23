@@ -128,7 +128,8 @@ class StudentEnrollment(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = "lesson_course_students"
-        unique_together = ("student", "lesson_course")
+        ordering = ('created_at',)
+        # unique_together = ("student", "lesson_course")
 
 
 class Section(CreateMixin, UpdateMixin, SoftDeleteMixin):

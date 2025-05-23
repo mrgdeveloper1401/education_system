@@ -44,7 +44,7 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
             "section_score",
             "section_score"
         ):
-            self.permission_classes = [IsAuthenticated, IsAccessPermission]
+            self.permission_classes = (IsAuthenticated, IsAccessPermission)
         return super().get_permissions()
 
     @extend_schema(
@@ -69,15 +69,24 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         query = (LessonCourse.objects.filter(
-            lesson_course_enrollment__student__user=self.request.user, is_active=True).filter(
-            Q(course__is_deleted=False) | Q(course__is_deleted=None)
+           students__user=self.request.user,
+            is_active=True,
+        )
         ).select_related(
             "course__category", "coach__user"
         ).only(
             "course__course_name", "course__course_image", "course__project_counter", "coach__user__last_name",
             "coach__user__first_name", "progress", "class_name", "course__category__category_name"
-        ))
+        ).distinct()
+        std_enrollment = StudentEnrollment.objects.filter(student__user=self.request.user).only(
+            "student_id"
+        )
+        if std_enrollment:
+            return query
+        return std_enrollment
 
+    def filter_queryset(self, queryset):
+        query = queryset
         class_name = self.request.query_params.get("class_name")
         progress_lesson = self.request.query_params.get("progress_lesson")
 
