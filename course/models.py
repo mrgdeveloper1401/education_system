@@ -35,7 +35,7 @@ class Category(MP_Node, CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 
 class Course(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    category = models.ForeignKey(Category, related_name="course_category", on_delete=models.DO_NOTHING)
+    category = models.ForeignKey(Category, related_name="course_category", on_delete=models.CASCADE)
     course_name = models.CharField(max_length=100, db_index=True)
     course_description = models.TextField()
     course_image = models.ImageField(upload_to="course_image/%Y/%m/%d", validators=[max_upload_image_validator],
@@ -58,7 +58,7 @@ class Course(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 
 class CourseTypeModel(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name="course_type_model")
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="course_type_model")
     price = models.FloatField()
     description = models.CharField(max_length=300, blank=True)
     is_active = models.BooleanField(default=True)
@@ -99,9 +99,9 @@ class CourseTypeModel(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 
 class LessonCourse(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name="lesson_course")
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="lesson_course")
     class_name = models.CharField(help_text=_("نام کلاس"))
-    coach = models.ForeignKey("accounts.Coach", on_delete=models.DO_NOTHING, related_name="coach_less_course")
+    coach = models.ForeignKey("accounts.Coach", on_delete=models.CASCADE, related_name="coach_less_course")
     students = models.ManyToManyField("accounts.Student", related_name="student_lesson_course",
                                       through="StudentEnrollment")
     is_active = models.BooleanField(default=True, help_text=_("دیتا در سطح اپلیکیشن نمایش داده شود یا خیر"))
@@ -117,9 +117,9 @@ class LessonCourse(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 
 class StudentEnrollment(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    student = models.ForeignKey("accounts.Student", on_delete=models.DO_NOTHING, related_name="student_enrollment",
+    student = models.ForeignKey("accounts.Student", on_delete=models.CASCADE, related_name="student_enrollment",
                                 limit_choices_to={"is_active": True})
-    lesson_course = models.ForeignKey(LessonCourse, on_delete=models.DO_NOTHING,
+    lesson_course = models.ForeignKey(LessonCourse, on_delete=models.CASCADE,
                                       related_name="lesson_course_enrollment")
     student_status = models.CharField(choices=StudentStatusEnum.choices, max_length=8, default=StudentStatusEnum.active,
                                       blank=True)
@@ -142,7 +142,7 @@ class StudentEnrollment(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 
 class Section(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name='sections',
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='sections',
                                limit_choices_to={"is_publish": True})
     title = models.CharField(max_length=255, db_index=True)
     description = models.TextField(blank=True, null=True)
@@ -162,7 +162,7 @@ class Section(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 class SectionVideo(CreateMixin, UpdateMixin, SoftDeleteMixin):
     title = models.CharField(max_length=50, help_text=_("عنوان"), null=True)
-    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name='section_videos',
+    section = models.ForeignKey(Section, on_delete=models.CASCADE, related_name='section_videos',
                                 limit_choices_to={"is_publish": True})
     video = models.FileField(upload_to="section_video/%Y/%m/%d", validators=[FileExtensionValidator(["mp4"])])
     is_publish = models.BooleanField(default=True)
@@ -176,7 +176,7 @@ class SectionVideo(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 class SectionFile(CreateMixin, UpdateMixin, SoftDeleteMixin):
     title = models.CharField(help_text=_("عنوان"), max_length=100, null=True)
-    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name='section_files',
+    section = models.ForeignKey(Section, on_delete=models.CASCADE, related_name='section_files',
                                 limit_choices_to={"is_publish": True})
     zip_file = models.FileField(upload_to="section_file/%Y/%m/%d", validators=[FileExtensionValidator(["zip", "rar"])],
                                 blank=True)
@@ -194,9 +194,9 @@ class SectionFile(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 
 class StudentAccessSection(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    student = models.ForeignKey(Student, on_delete=models.DO_NOTHING, related_name="student_access_section",
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name="student_access_section",
                                 limit_choices_to={"is_active": True})
-    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="student_section",
+    section = models.ForeignKey(Section, on_delete=models.CASCADE, related_name="student_section",
                                 limit_choices_to={"is_publish": True})
     is_access = models.BooleanField(default=False)
 
@@ -206,10 +206,10 @@ class StudentAccessSection(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 
 class PresentAbsent(CreateMixin, UpdateMixin):
-    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING,
+    section = models.ForeignKey(Section, on_delete=models.CASCADE,
                                 related_name="section_present_absent",
                                 limit_choices_to={'is_publish': True})
-    student = models.ForeignKey(Student, on_delete=models.DO_NOTHING, related_name="student_present_absent",
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name="student_present_absent",
                                 limit_choices_to={"is_active": True})
     student_status = models.CharField(choices=StudentStatusChoices.choices, default=StudentStatusChoices.nothing)
 
@@ -222,17 +222,17 @@ class PresentAbsent(CreateMixin, UpdateMixin):
 
 
 class StudentSectionScore(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name='section_score',
+    section = models.ForeignKey(Section, on_delete=models.CASCADE, related_name='section_score',
                                 limit_choices_to={"is_publish": True})
     score = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(100)])
-    student = models.ForeignKey(Student, on_delete=models.DO_NOTHING, related_name="student_section_score", null=True)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name="student_section_score", null=True)
 
     class Meta:
         db_table = "course_section_score"
 
 
 class SendSectionFile(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    student = models.ForeignKey("accounts.Student", on_delete=models.DO_NOTHING, related_name="send_section_files",
+    student = models.ForeignKey("accounts.Student", on_delete=models.CASCADE, related_name="send_section_files",
                                 limit_choices_to={"is_active": True})
     section_file = models.ForeignKey(SectionFile, on_delete=models.CASCADE, related_name='section_files')
     send_file_status = models.CharField(choices=SendFileChoices.choices, max_length=14,
@@ -259,11 +259,11 @@ class SendSectionFile(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 # TODO, when clean migration, we remove field null in model Certificate
 class Certificate(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="section_certificates",
+    section = models.ForeignKey(Section, on_delete=models.CASCADE, related_name="section_certificates",
                                limit_choices_to={"is_publish": True}, null=True)
-    student = models.ForeignKey("accounts.Student", on_delete=models.DO_NOTHING, related_name="student_certificates",
+    student = models.ForeignKey("accounts.Student", on_delete=models.CASCADE, related_name="student_certificates",
                                 limit_choices_to={"is_active": True})
-    image = models.ForeignKey("images.Image", related_name="image_certificate", null=True, on_delete=models.DO_NOTHING)
+    image = models.ForeignKey("images.Image", related_name="image_certificate", null=True, on_delete=models.CASCADE)
 
     class Meta:
         db_table = 'course_certificate'
@@ -271,9 +271,9 @@ class Certificate(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 
 class Comment(MP_Node, CreateMixin, UpdateMixin, SoftDeleteMixin):
-    user = models.ForeignKey('accounts.User', on_delete=models.DO_NOTHING, related_name='user_comment',
+    user = models.ForeignKey('accounts.User', on_delete=models.CASCADE, related_name='user_comment',
                              limit_choices_to={"is_active": True})
-    category = models.ForeignKey(Category, on_delete=models.DO_NOTHING, related_name='category_comments')
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='category_comments')
     comment_body = models.TextField(_("متن کامنت"))
     is_publish = models.BooleanField(default=True)
     is_pined = models.BooleanField(default=False)
@@ -284,7 +284,7 @@ class Comment(MP_Node, CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 
 class OnlineLink(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    class_room = models.ForeignKey(LessonCourse, on_delete=models.DO_NOTHING, related_name="online_link")
+    class_room = models.ForeignKey(LessonCourse, on_delete=models.CASCADE, related_name="online_link")
     link = models.URLField()
     is_publish = models.BooleanField(default=True)
 
@@ -304,7 +304,7 @@ class Question(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 class SectionQuestion(CreateMixin, UpdateMixin, SoftDeleteMixin):
     question_title = models.CharField(max_length=255, null=True)
-    section = models.ForeignKey(Section, on_delete=models.DO_NOTHING, related_name="section_question",
+    section = models.ForeignKey(Section, on_delete=models.CASCADE, related_name="section_question",
                                 limit_choices_to={"is_publish": True})
     is_publish = models.BooleanField(default=True)
 
@@ -314,9 +314,9 @@ class SectionQuestion(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 
 class AnswerQuestion(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    student = models.ForeignKey("accounts.Student", on_delete=models.DO_NOTHING, related_name="student_poll_answer",
+    student = models.ForeignKey("accounts.Student", on_delete=models.CASCADE, related_name="student_poll_answer",
                                 limit_choices_to={"is_active": True})
-    section_question = models.ForeignKey(SectionQuestion, on_delete=models.DO_NOTHING, related_name="section_question")
+    section_question = models.ForeignKey(SectionQuestion, on_delete=models.CASCADE, related_name="section_question")
     rate = models.CharField(choices=RateChoices.choices)
 
     class Meta:
@@ -325,7 +325,7 @@ class AnswerQuestion(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 
 class CallLessonCourse(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    lesson_course = models.ForeignKey(LessonCourse, on_delete=models.DO_NOTHING, related_name="call")
+    lesson_course = models.ForeignKey(LessonCourse, on_delete=models.CASCADE, related_name="call")
     call = models.CharField(max_length=50, help_text=_("تماس"))
     status = models.CharField(max_length=13, help_text=_("وضعیت تماس"), choices=CallStatusChoices.choices,
                               db_index=True)
@@ -334,7 +334,7 @@ class CallLessonCourse(CreateMixin, UpdateMixin, SoftDeleteMixin):
     call_date = models.DateField(help_text=_("تاریخ مکالمه"))
     result_call = models.TextField(help_text=_("نتیجه مکالمه"))
     cancellation_alert = models.BooleanField(default=False, help_text=_("هشدار انصراف"))
-    student = models.ForeignKey("accounts.Student", on_delete=models.DO_NOTHING, related_name="student_call",
+    student = models.ForeignKey("accounts.Student", on_delete=models.CASCADE, related_name="student_call",
                                 null=True)
 
     def __str__(self):
@@ -346,7 +346,7 @@ class CallLessonCourse(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 
 class SignupCourse(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name="course_signup")
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="course_signup")
     student_name = models.CharField(max_length=120, help_text="نام و نام خوادگی داشن اموز")
     phone_number = models.CharField(max_length=15, help_text="شماره تلفن ")
 
