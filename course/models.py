@@ -2,6 +2,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils import timezone
+from rest_framework import exceptions
 
 from accounts.models import Student
 from core.models import UpdateMixin, CreateMixin, SoftDeleteMixin
@@ -125,6 +126,14 @@ class StudentEnrollment(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     def __str__(self):
         return f'{self.student.referral_code} {str(self.student_status)}'
+
+    def save(self, *args, **kwargs):
+        if StudentEnrollment.objects.filter(
+            student=self.student,
+            lesson_course=self.lesson_course,
+        ).exists():
+            raise exceptions.ValidationError({"student": "obj already exists"})
+        return super().save(*args, **kwargs)
 
     class Meta:
         db_table = "lesson_course_students"

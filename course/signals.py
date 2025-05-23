@@ -80,24 +80,19 @@ def create_admin_notification_when_cancel_student(sender, instance, created, **k
 @receiver(post_save, sender=StudentEnrollment)
 def access_student_access_section(sender, instance, created, **kwargs):
     if created:
-        # بررسی آیا دانش‌آموز قبلاً سکشن‌هایی دارد یا نه
-        existing_sections = StudentAccessSection.objects.filter(
-            student=instance.student
-        ).exists()
-
         lesson_course_sections = instance.lesson_course.course.sections.filter(is_publish=True)
-
+        print(lesson_course_sections)
         create_student_access_section = []
-        for index, section in enumerate(lesson_course_sections):
-            # اگر اولین سکشن باشد و دانش‌آموز هیچ سکشن دیگری نداشته باشد
-            is_access = index == 0 and not existing_sections
-            create_student_access_section.append(
-                StudentAccessSection(
-                    section=section,
-                    student=instance.student,
-                    is_access=is_access
+
+        for i in lesson_course_sections:
+            if not StudentAccessSection.objects.filter(student=instance.student, section=i).exists():
+                create_student_access_section.append(
+                    StudentAccessSection(
+                        student=instance.student,
+                        section=i,
+                    )
                 )
-            )
 
         if create_student_access_section:
+            create_student_access_section[0].is_access = True
             StudentAccessSection.objects.bulk_create(create_student_access_section)

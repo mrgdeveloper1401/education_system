@@ -80,10 +80,10 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
         ).distinct()
         std_enrollment = StudentEnrollment.objects.filter(student__user=self.request.user).only(
             "student_id"
-        )
+        ).distinct()
         if std_enrollment:
             return query
-        return std_enrollment
+        return []
 
     def filter_queryset(self, queryset):
         query = queryset
