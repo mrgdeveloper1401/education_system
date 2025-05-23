@@ -4,7 +4,7 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework.generics import get_object_or_404
 from django.utils import timezone
 
-from accounts.models import Student
+from accounts.models import Student, PrivateNotification
 from course.enums import RateChoices, StudentStatusChoices
 from course.models import Course, Category, Comment, Section, SectionVideo, SectionFile, SendSectionFile, LessonCourse, \
     StudentSectionScore, PresentAbsent, StudentAccessSection, OnlineLink, SectionQuestion, AnswerQuestion, \
@@ -577,3 +577,42 @@ class AllCourseSerializer(serializers.ModelSerializer):
             "time_course",
             "course_age"
         )
+
+
+class SendNotificationUserSendSectionFile(serializers.Serializer):
+    lesson_course = serializers.PrimaryKeyRelatedField(
+        queryset=LessonCourse.objects.only("class_name", "is_active").filter(is_active=True),
+    )
+    section = serializers.PrimaryKeyRelatedField(
+        queryset=Section.objects.only("title").filter(is_publish=True)
+    )
+
+    def validate(self, attrs):
+        student = Student.objects.filter(user=self.context['request'].user).only("student_number")
+
+        if not student:
+            raise exceptions.ValidationError({"message": "user has no student"})
+        return attrs
+
+    def create(self, validated_data):
+        lesson_course = validated_data['lesson_course']
+        coach = lesson_course.coach
+        coach_user = coach.user
+        course = lesson_course.course
+        section_id = validated_data['section'].id
+        user = self.context['request'].user
+        user_full_name = user.get_full_name
+
+        return PrivateNotification.objects.create(
+            user=coach_user,
+            title="notification send section file",
+            body=f"کاربر {user_full_name} تمرینی را ارسال کرده هست ",
+            notification_type="send_section_file",
+            char_link=f"section id: {section_id}/course id: {course.id}/user full_name: {user_full_name}"
+        )
+
+    def to_representation(self, instance):
+        res = "notification created"
+        return {
+            "message": res
+        }

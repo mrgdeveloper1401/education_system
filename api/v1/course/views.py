@@ -1,7 +1,7 @@
-from django.db.models import Prefetch, Q
+from django.db.models import Prefetch
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter, extend_schema_view
-from rest_framework import mixins, viewsets, permissions, decorators, response, status, exceptions, views
+from rest_framework import mixins, viewsets, permissions, decorators, response, status, exceptions, views, generics
 from rest_framework.permissions import IsAuthenticated
 
 from accounts.models import Student
@@ -921,3 +921,9 @@ class AllCourseViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewset
         if name:
             return queryset.filter(course_name=name)
         return queryset
+
+
+class SendNotificationUserSendSectionFileView(generics.CreateAPIView):
+    queryset = None
+    serializer_class = serializers.SendNotificationUserSendSectionFile
+    permission_classes = (permissions.IsAuthenticated,)

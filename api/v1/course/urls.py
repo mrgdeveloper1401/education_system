@@ -37,5 +37,7 @@ urlpatterns = [
     path("", include(home_category_router.urls)),
     path("student_lesson_course/<int:student_lesson_course_pk>/student_online_link/",
          views.StudentOnlineLinkApiView.as_view(), name="student_online_link"),
+    path("send_notification_when_user_send_file/", views.SendNotificationUserSendSectionFileView.as_view(),
+         name='send_notification_when_user_send_file')
 ]
 urlpatterns += router.urls

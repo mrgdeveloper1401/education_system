@@ -4,7 +4,7 @@ from django.dispatch import receiver
 from accounts.models import PrivateNotification, User
 from .enums import SendFileChoices
 from .models import StudentAccessSection, SendSectionFile, CallLessonCourse, StudentEnrollment, StudentSectionScore, \
-    SectionFile
+    SectionFile, LessonCourse
 
 
 @receiver(post_save, sender=SendSectionFile)
@@ -94,4 +94,11 @@ def access_student_access_section(sender, instance, created, **kwargs):
 # @receiver(post_save, sender=SendSectionFile)
 # def send_notification_when_user_send_section_file(sender, instance, created, **kwargs):
 #     if created:
-#         pass
+#         student = instance.student,
+#         section = instance.section_file.section
+#         course = instance.section_file.section.course
+#         get_lesson_course = LessonCourse.objects.filter(
+#             course=course,
+#             course__sections=section
+#         ).first()
+
