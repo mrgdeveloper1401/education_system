@@ -55,12 +55,12 @@ def send_notification_when_score_is_accepted(sender, instance, **kwargs):
 @receiver(post_save, sender=CallLessonCourse)
 def create_admin_notification_when_cancel_student(sender, instance, created, **kwargs):
     if instance.cancellation_alert:
-        admin_user = User.objects.filter(is_staff=True).only("is_staff")
+        admin_user = User.objects.filter(is_staff=True).only("is_staff", "mobile_phone")
         lst = [
             PrivateNotification(
                 user=i,
                 title='cancel student',
-                body="please check student, this he want cancel",
+                body="یکی از دانش اموزان در خواست انصرافی رو داده هست",
                 notification_type="cancel signup student"
             )
             for i in admin_user
