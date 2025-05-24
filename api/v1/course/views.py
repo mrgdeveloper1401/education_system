@@ -229,7 +229,7 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
             id=send_file_pk,
             section_file_id=section_file_pk,
             section_file__section_id=section_pk,
-            section_file__section__course__lesson_course__exact=pk,
+            # section_file__section__course__lesson_course__exact=pk,
             section_file__section__is_publish=True,
             section_file__section__student_section__is_access=True,
             student__user=request.user

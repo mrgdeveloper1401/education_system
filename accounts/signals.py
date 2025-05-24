@@ -25,7 +25,7 @@ def create_coach(sender, instance, created, **kwargs):
         if get_student and instance.is_staff:
             instance.is_staff = False
             instance.save()
-            raise ValidationError({"message": "user is student, these user can not set satff"})
+            raise ValidationError({"message": "user is student, these user can not set staff"})
 
 
 @receiver(post_save, sender=Ticket)
