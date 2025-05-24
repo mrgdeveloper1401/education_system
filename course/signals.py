@@ -3,8 +3,7 @@ from django.dispatch import receiver
 
 from accounts.models import PrivateNotification, User
 from .enums import SendFileChoices
-from .models import StudentAccessSection, SendSectionFile, CallLessonCourse, StudentEnrollment, StudentSectionScore, \
-    SectionFile, LessonCourse
+from .models import StudentAccessSection, SendSectionFile, CallLessonCourse, StudentEnrollment, StudentSectionScore
 
 
 @receiver(post_save, sender=SendSectionFile)
@@ -47,8 +46,9 @@ def send_notification_when_score_is_accepted(sender, instance, **kwargs):
         PrivateNotification.objects.create(
             user=instance.student.user,
             body="دانش اموز محترم نمره شما ثبت و ویرایش شده هست",
-            char_link=f'category_id: {category_id}/send_file_pk: {course_id}',
-            notification_type="accept score"
+            char_link=f'category_id:{category_id}/send_file_pk:{course_id}',
+            notification_type="accept score",
+            title="accept score",
         )
 
 

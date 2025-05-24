@@ -36,7 +36,8 @@ def send_notification_when_create_ticket(sender, instance, created, **kwargs):
             PrivateNotification(
                 user=i,
                 body="یک تیکت جدید ثبت شده هست",
-                notification_type="ticket"
+                notification_type="ticket",
+                title="create ticket"
             )
             for i in admin_users
         ]
