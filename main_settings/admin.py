@@ -22,10 +22,11 @@ class HeaderSiteAdmin(admin.ModelAdmin):
     list_editable = ("is_publish",)
 
     def get_queryset(self, request):
-        return super().get_queryset(request).defer(
-            "is_deleted",
-            "deleted_at",
-            "updated_at",
-            "background_colo",
+        return super().get_queryset(request).only(
+            "created_at",
+            "background_color",
             "text_color",
+            "is_publish",
+            "header_title",
+            "image"
         )
