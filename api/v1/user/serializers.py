@@ -4,6 +4,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework import serializers
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.password_validation import validate_password
+from drf_spectacular.utils import extend_schema_field
 
 from rest_framework import generics
 from rest_framework import exceptions
@@ -170,12 +171,14 @@ class TicketSerializer(serializers.ModelSerializer):
     sender_name = serializers.SerializerMethodField()
     parent = serializers.IntegerField(required=False)
     reply_name = serializers.SerializerMethodField()
+    user_admin = serializers.SerializerMethodField()
 
     class Meta:
         model = Ticket
         fields = ('id', "ticket_body", "ticket_file", "created_at", "sender_name", "parent", "depth", "path",
-                  "numchild", "reply", "reply_name", "sender")
+                  "numchild", "reply", "reply_name", "sender", "user_admin")
         read_only_fields = ('depth', "path", "numchild", "reply", "sender")
+
 
     def validate(self, attrs):
         request = self.context['request']
@@ -228,6 +231,10 @@ class TicketSerializer(serializers.ModelSerializer):
 
     def get_reply_name(self, obj):
         return obj.reply.get_full_name if obj.reply else None
+
+    @extend_schema_field(serializers.BooleanField())
+    def get_user_admin(self, obj):
+        return obj.sender.is_staff
 
 
 class ListBestStudentSerializer(serializers.ModelSerializer):

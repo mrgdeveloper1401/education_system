@@ -242,7 +242,7 @@ class TicketChatViewSet(ModelViewSet):
     """
     send ticket user to admin
     """""
-    permission_classes = [TicketRoomPermission]
+    permission_classes = (TicketRoomPermission,)
     serializer_class = serializers.TicketSerializer
 
     def get_serializer_context(self):
