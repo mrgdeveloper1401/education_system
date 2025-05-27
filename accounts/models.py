@@ -167,7 +167,7 @@ class Ticket(MP_Node, CreateMixin, UpdateMixin, SoftDeleteMixin):
     reply = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="ticket_reply", blank=True, null=True,
                               limit_choices_to={"is_staff": True, "is_active": True})
     ticket_body = models.TextField(_("متن تیکت"))
-    ticket_file = models.FileField(upload_to=ticket_file_upload_url, blank=True, null=True)
+    ticket_file = models.FileField(upload_to="ticket/%Y/%m/%d", blank=True, null=True)
     is_publish = models.BooleanField(default=True)
 
     def __str__(self):
