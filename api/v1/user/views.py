@@ -363,8 +363,8 @@ class RequestOtpVerifyView(APIView):
         return Response(
             data={
                 "data": data['data'],
-                "is_staff": data['is_staff'],
-                "is_coach": data['is_coach'],
+                "is_staff": bool(data['is_staff']),
+                "is_coach": bool(data['is_coach']),
                 "full_name": data['full_name']
             },
             status=HTTP_201_CREATED)
