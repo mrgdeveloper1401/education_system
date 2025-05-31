@@ -470,7 +470,8 @@ class HomeCategorySerializer(serializers.ModelSerializer):
             "id",
             "category_name",
             "image",
-            "description"
+            "description",
+            "description_slug"
         )
 
 
@@ -510,6 +511,7 @@ class HomeCourseSerializer(serializers.ModelSerializer):
             "time_course",
             "course_age",
             "course_type_model",
+            "description_slug"
         )
 
 
@@ -575,7 +577,8 @@ class AllCourseSerializer(serializers.ModelSerializer):
             "facilities",
             "course_level",
             "time_course",
-            "course_age"
+            "course_age",
+            "description_slug"
         )
 
 

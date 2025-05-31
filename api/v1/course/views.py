@@ -839,7 +839,8 @@ class HomeCategoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, view
     queryset = Category.objects.only(
         "category_name",
         "image",
-        "description"
+        "description",
+        "description_slug"
     )
     serializer_class = serializers.HomeCategorySerializer
 
@@ -912,7 +913,8 @@ class AllCourseViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewset
         "facilities",
         "course_level",
         "time_course",
-        "course_age"
+        "course_age",
+        "description_slug"
     )
 
     def filter_queryset(self, queryset):

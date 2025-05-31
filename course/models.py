@@ -22,6 +22,7 @@ class Category(MP_Node, CreateMixin, UpdateMixin, SoftDeleteMixin):
     node_order_by = ("category_name",)
     image = models.ImageField(upload_to="category_images/%Y/%m/%d", null=True, blank=True)
     description = models.CharField(max_length=255, blank=True, null=True)
+    description_slug = models.SlugField(blank=True, null=True, allow_unicode=True)
 
     def __str__(self):
         return self.category_name
@@ -38,6 +39,7 @@ class Course(CreateMixin, UpdateMixin, SoftDeleteMixin):
     category = models.ForeignKey(Category, related_name="course_category", on_delete=models.CASCADE)
     course_name = models.CharField(max_length=100, db_index=True)
     course_description = models.TextField()
+    description_slug = models.SlugField(blank=True, null=True, allow_unicode=True)
     course_image = models.ImageField(upload_to="course_image/%Y/%m/%d", validators=[max_upload_image_validator],
                                      help_text=_("حداکثر اندازه عکس 1 مگابایت هست"), blank=True)
     is_publish = models.BooleanField(default=True)
@@ -280,7 +282,7 @@ class Comment(MP_Node, CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = 'comment'
-        ordering = ("-created_at",)
+        ordering = ("created_at",)
 
 
 class OnlineLink(CreateMixin, UpdateMixin, SoftDeleteMixin):

@@ -17,7 +17,7 @@ from ...course.paginations import CommonPagination
 
 class CategoryViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAdminUser,)
-    queryset = Category.objects.only("id", "category_name", "image", "description")
+    queryset = Category.objects.only("id", "category_name", "image", "description", "description_slug")
     pagination_class = CommonPagination
 
     def get_serializer_class(self):

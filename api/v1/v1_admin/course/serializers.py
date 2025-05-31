@@ -14,7 +14,7 @@ class CreateCategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ('category_name', 'parent', "image", "description")
+        fields = ('category_name', 'parent', "image", "description", "description_slug")
 
     def create(self, validated_data):
         parent = validated_data.pop("parent", None)
@@ -29,13 +29,13 @@ class CreateCategorySerializer(serializers.ModelSerializer):
 class ListRetrieveCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ("id", 'category_name', "image", "description")
+        fields = ("id", 'category_name', "image", "description", "description_slug")
 
 
 class UpdateCategoryNodeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ('category_name', "image", "description")
+        fields = ('category_name', "image", "description", "description_slug")
 
 
 class AdminCourseSerializer(serializers.ModelSerializer):
