@@ -16,7 +16,7 @@ class CreateCategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CategoryBlog
-        fields = ("category_name", "parent")
+        fields = ("category_name", "parent", "description_slug")
 
     def create(self, validated_data):
         parent = validated_data.pop("parent", None)

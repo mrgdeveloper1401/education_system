@@ -10,6 +10,7 @@ class CategoryBlog(MP_Node, CreateMixin, UpdateMixin, SoftDeleteMixin):
     category_name = models.CharField(max_length=255)
     category_slug = models.SlugField(max_length=255, allow_unicode=True)
     is_publish = models.BooleanField(default=True)
+    description_slug = models.SlugField(blank=True, null=True, allow_unicode=True)
 
     def __str__(self):
         return self.category_name
@@ -30,6 +31,7 @@ class PostBlog(CreateMixin, UpdateMixin, SoftDeleteMixin):
     tags = models.ManyToManyField("TagBlog", blank=True, related_name="post_tags")
     likes = models.PositiveIntegerField(default=0)
     is_publish = models.BooleanField(default=True)
+    description_slug = models.SlugField(blank=True, null=True, allow_unicode=True)
 
     def __str__(self):
         return self.post_title
