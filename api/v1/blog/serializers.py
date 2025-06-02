@@ -40,11 +40,16 @@ class TagBlogSerializer(serializers.ModelSerializer):
 class FullNameAuthorPostBlogSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("first_name", "last_name")
+        fields = ("get_full_name",)
+
+
+class TagPostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TagBlog
+        fields = ("id", "tag_name")
 
 
 class PostBlogSerializer(serializers.ModelSerializer):
-    tags = serializers.StringRelatedField(many=True)
     category_name = serializers.SerializerMethodField()
 
     class Meta:
@@ -62,6 +67,7 @@ class PostBlogSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         data = super().to_representation(instance)
         data['author'] = FullNameAuthorPostBlogSerializer(instance.author, many=True).data
+        data['tags'] = TagPostSerializer(instance.tags, many=True).data
         return data
 
 
