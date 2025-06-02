@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema_view, extend_schema
 from rest_framework import viewsets, permissions, filters
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -15,8 +16,10 @@ from .serializers import (
 
 
 class CategoryBlogViewSet(viewsets.ModelViewSet):
+    """
+    search --> ?name=category_name
+    """
     queryset = CategoryBlog.objects.filter(is_publish=True).defer("is_deleted", "deleted_at")
-    serializer_class = CategoryBlogSerializer
 
     def get_permissions(self):
         if self.request.method in permissions.SAFE_METHODS:
@@ -37,7 +40,7 @@ class CategoryBlogViewSet(viewsets.ModelViewSet):
         if self.action == 'create':
             return CreateCategorySerializer
         else:
-            return super().get_serializer_class()
+            return CategoryBlogSerializer
 
 
 class TagBlogViewSet(viewsets.ModelViewSet):

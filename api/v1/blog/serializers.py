@@ -6,18 +6,20 @@ from blog_app.models import CategoryBlog, PostBlog, TagBlog, FavouritePost, Comm
 from api.v1.user.serializers import UserSerializer
 
 
+# list and retrieve category blog serializer
 class CategoryBlogSerializer(serializers.ModelSerializer):
     class Meta:
         model = CategoryBlog
         exclude = ("is_deleted", "deleted_at")
 
 
+# create category
 class CreateCategorySerializer(serializers.ModelSerializer):
     parent = serializers.IntegerField(required=False)
 
     class Meta:
         model = CategoryBlog
-        fields = ("category_name", "parent", "description_slug")
+        fields = ("category_name", "parent", "description_slug", "description")
 
     def create(self, validated_data):
         parent = validated_data.pop("parent", None)
