@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
 from blog_app.models import CategoryBlog, PostBlog, TagBlog, FavouritePost, CommentBlog
+from utils.pagination import CommonPagination
 from .serializers import (
     CategoryBlogSerializer,
     PostBlogSerializer,
@@ -48,11 +49,15 @@ class TagBlogViewSet(viewsets.ModelViewSet):
 
 
 class PostBlogViewSet(viewsets.ModelViewSet):
+    """
+    pagination --> 20item
+    """
     serializer_class = PostBlogSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ('category', 'tags')
     search_fields = ('post_title', 'post_introduction', 'post_body')
     ordering_fields = ('created_at', 'read_count', 'likes')
+    pagination_class = CommonPagination
 
     @action(detail=True, methods=['post'])
     def like(self, request, pk=None):
@@ -69,7 +74,29 @@ class PostBlogViewSet(viewsets.ModelViewSet):
         return Response({'status': 'read count incremented', 'read_count': post.read_count})
 
     def get_queryset(self):
-        return PostBlog.objects.filter(is_publish=True, category_id=self.kwargs['category_pk']).defer("is_deleted", "deleted_at")
+        return PostBlog.objects.filter(
+            is_publish=True, category_id=self.kwargs['category_pk']
+        ).prefetch_related(
+            "author",
+            "tags"
+        ).only(
+            "author__first_name",
+            "author__last_name",
+            "tags__tag_name",
+            "category__category_name",
+            "created_at",
+            "updated_at",
+            "read_count",
+            "post_introduction",
+            "post_title",
+            "post_slug",
+            "post_body",
+            "read_time",
+            "post_cover_image",
+            "likes",
+            "is_publish",
+            "description_slug"
+        )
 
     def get_permissions(self):
         if self.request.method in permissions.SAFE_METHODS:

@@ -36,6 +36,9 @@ class PostBlog(CreateMixin, UpdateMixin, SoftDeleteMixin):
     def __str__(self):
         return self.post_title
 
+    class Meta:
+        ordering = ("-created_at",)
+
 
 class TagBlog(CreateMixin, UpdateMixin, SoftDeleteMixin):
     tag_name = models.CharField(max_length=255)

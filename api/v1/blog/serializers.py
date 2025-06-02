@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
 
+from accounts.models import User
 from blog_app.models import CategoryBlog, PostBlog, TagBlog, FavouritePost, CommentBlog
 from api.v1.user.serializers import UserSerializer
 
@@ -34,8 +35,13 @@ class TagBlogSerializer(serializers.ModelSerializer):
         exclude = ("is_deleted", "deleted_at")
 
 
+class FullNameAuthorPostBlogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ("first_name", "last_name")
+
+
 class PostBlogSerializer(serializers.ModelSerializer):
-    author = serializers.StringRelatedField(many=True)
     tags = serializers.StringRelatedField(many=True)
     category_name = serializers.SerializerMethodField()
 
@@ -50,6 +56,11 @@ class PostBlogSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         category_id = self.context['category_pk']
         return PostBlog.objects.create(category_id=category_id, **validated_data)
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['author'] = FullNameAuthorPostBlogSerializer(instance.author, many=True).data
+        return data
 
 
 class FavouritePostSerializer(serializers.ModelSerializer):

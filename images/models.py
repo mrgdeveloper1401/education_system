@@ -16,6 +16,7 @@ class Image(CreateMixin, UpdateMixin, SoftDeleteMixin):
     height = models.IntegerField(null=True, blank=True)
     file_hash = models.CharField(max_length=40, null=True, blank=True)
     file_size = models.PositiveIntegerField(null=True, blank=True, help_text=_("file size as xx.b"))
+    image_address = models.URLField(null=True, blank=True)
 
     @property
     def generate_hash(self):
@@ -34,6 +35,7 @@ class Image(CreateMixin, UpdateMixin, SoftDeleteMixin):
     def save(self, *args, **kwargs):
         self.file_hash = self.generate_hash
         self.file_size = self.image.size
+        self.image_address = self.image.url
         return super().save(*args, **kwargs)
 
     class Meta:

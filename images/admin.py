@@ -6,7 +6,13 @@ from .models import Image
 
 @admin.register(Image)
 class ImageAdmin(admin.ModelAdmin):
-    list_display = ['image', "title", 'file_size', "created_at", "updated_at", "deleted_at", "is_deleted"]
-    search_fields = ['title']
-    readonly_fields = ['deleted_at', "is_deleted"]
-    list_display_links = ['image', "title"]
+    list_display = ("title", 'file_size', "created_at", "updated_at",)
+    search_fields = ('title',)
+    list_display_links = ("title",)
+    list_per_page = 20
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).defer(
+            "is_deleted",
+            "deleted_at"
+        )
