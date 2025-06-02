@@ -91,3 +91,6 @@ CELERY_RESULT_BACKEND = "redis://education_redis:6379/1"
 # jwt
 SIMPLE_JWT["AUTH_COOKIE_DOMAIN"] = "codeima.ir" # A string like "example.com", or None for standard domain cookie.
 SIMPLE_JWT['AUTH_COOKIE_SECURE'] = True # Whether the auth cookies should be secure (https:// only).
+
+# cache config
+CACHES['default']['LOCATION'] = "redis://education_redis:6379/3"
