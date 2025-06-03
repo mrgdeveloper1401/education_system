@@ -62,7 +62,12 @@ class PostBlogSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         category_id = self.context['category_pk']
-        return PostBlog.objects.create(category_id=category_id, **validated_data)
+        author = validated_data.pop("author", None)
+        tags = validated_data.pop("tags", None)
+        post_blog =  PostBlog.objects.create(category_id=category_id, **validated_data)
+        post_blog.author.set(author)
+        post_blog.tags.set(tags)
+        return post_blog
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
