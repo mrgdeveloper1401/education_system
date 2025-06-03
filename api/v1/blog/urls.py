@@ -6,7 +6,8 @@ from .views import (
     PostBlogViewSet,
     TagBlogViewSet,
     FavouritePostViewSet,
-    CommentBlogViewSet
+    CommentBlogViewSet,
+    AuthorListView
 )
 
 router = routers.DefaultRouter()
@@ -28,4 +29,5 @@ urlpatterns = [
     path('', include(router.urls)),
     path('', include(category_router.urls)),
     path('', include(post_router.urls)),
+    path("author_list/", AuthorListView.as_view(), name="author_list"),
 ]

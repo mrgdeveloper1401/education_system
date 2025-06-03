@@ -1,8 +1,9 @@
-from drf_spectacular.utils import extend_schema_view, extend_schema
-from rest_framework import viewsets, permissions, filters
+from rest_framework import viewsets, permissions, filters, generics, mixins
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
+
+from accounts.models import User
 from blog_app.models import CategoryBlog, PostBlog, TagBlog, FavouritePost, CommentBlog
 from utils.pagination import CommonPagination
 from .serializers import (
@@ -11,7 +12,8 @@ from .serializers import (
     TagBlogSerializer,
     FavouritePostSerializer,
     CommentBlogSerializer,
-    CreateCategorySerializer
+    CreateCategorySerializer,
+    AuthorListSerializer
 )
 
 
@@ -46,9 +48,9 @@ class CategoryBlogViewSet(viewsets.ModelViewSet):
 class TagBlogViewSet(viewsets.ModelViewSet):
     queryset = TagBlog.objects.filter(is_publish=True)
     serializer_class = TagBlogSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
     filter_backends = [filters.SearchFilter]
-    search_fields = ['tag_name']
+    search_fields = ('tag_name',)
 
 
 class PostBlogViewSet(viewsets.ModelViewSet):
@@ -148,3 +150,19 @@ class CommentBlogViewSet(viewsets.ModelViewSet):
         if is_pined and is_pined == 1:
             return queryset.filter(is_pined=True)
         return queryset
+
+
+class AuthorListView(generics.ListAPIView):
+    """
+    search --> ?search=mobile_phone
+    permission --> admin user
+    """
+    queryset = User.objects.filter(is_staff=True, is_active=True).only(
+        "first_name",
+        "last_name",
+        "mobile_phone"
+    )
+    serializer_class = AuthorListSerializer
+    # permission_classes = (permissions.IsAdminUser,)
+    search_fields = ("mobile_phone",)
+    filter_backends = (filters.SearchFilter,)

@@ -97,3 +97,13 @@ class CommentBlogSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
         post_id = self.context['post_pk']
         return CommentBlog.objects.create(user=user, post_id=post_id, **validated_data)
+
+
+class AuthorListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            "get_full_name",
+            "mobile_phone",
+            "id"
+        )
