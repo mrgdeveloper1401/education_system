@@ -126,4 +126,5 @@ class LatestPostSerializer(serializers.ModelSerializer):
             "post_introduction",
             "author",
             "post_cover_image",
+            "post_slug"
         )
