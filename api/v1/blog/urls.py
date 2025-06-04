@@ -7,7 +7,8 @@ from .views import (
     TagBlogViewSet,
     FavouritePostViewSet,
     CommentBlogViewSet,
-    AuthorListView
+    AuthorListView,
+    LatestPostView
 )
 
 router = routers.DefaultRouter()
@@ -30,4 +31,5 @@ urlpatterns = [
     path('', include(category_router.urls)),
     path('', include(post_router.urls)),
     path("author_list/", AuthorListView.as_view(), name="author_list"),
+    path("latest_post/", LatestPostView.as_view(), name='latest_post')
 ]

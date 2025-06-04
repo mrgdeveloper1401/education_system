@@ -2,6 +2,7 @@ from rest_framework import viewsets, permissions, filters, generics, mixins
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
+from django.db.models import Prefetch
 
 from accounts.models import User
 from blog_app.models import CategoryBlog, PostBlog, TagBlog, FavouritePost, CommentBlog
@@ -13,7 +14,7 @@ from .serializers import (
     FavouritePostSerializer,
     CommentBlogSerializer,
     CreateCategorySerializer,
-    AuthorListSerializer
+    AuthorListSerializer, LatestPostSerializer
 )
 
 
@@ -166,3 +167,22 @@ class AuthorListView(generics.ListAPIView):
     # permission_classes = (permissions.IsAdminUser,)
     search_fields = ("mobile_phone",)
     filter_backends = (filters.SearchFilter,)
+
+
+class LatestPostView(generics.ListAPIView):
+    serializer_class = LatestPostSerializer
+
+    def get_queryset(self):
+        return PostBlog.objects.filter(
+            is_publish=True
+        ).only(
+            "category_id",
+            "post_title",
+            "post_introduction",
+            "author",
+            "post_cover_image",
+        ).order_by("-id")[:10].prefetch_related(
+            Prefetch(
+                "author", queryset=User.objects.only("first_name", "last_name", 'mobile_phone'),
+            )
+        )

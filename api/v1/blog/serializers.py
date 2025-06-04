@@ -112,3 +112,18 @@ class AuthorListSerializer(serializers.ModelSerializer):
             "mobile_phone",
             "id"
         )
+
+
+class LatestPostSerializer(serializers.ModelSerializer):
+    author = FullNameAuthorPostBlogSerializer(many=True)
+
+    class Meta:
+        model = PostBlog
+        fields = (
+            "id",
+            "category_id",
+            "post_title",
+            "post_introduction",
+            "author",
+            "post_cover_image",
+        )
