@@ -126,5 +126,7 @@ class LatestPostSerializer(serializers.ModelSerializer):
             "post_introduction",
             "author",
             "post_cover_image",
-            "post_slug"
+            "post_slug",
+            "created_at",
+            "updated_at"
         )

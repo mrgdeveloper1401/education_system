@@ -181,7 +181,9 @@ class LatestPostView(generics.ListAPIView):
             "post_introduction",
             "author",
             "post_cover_image",
-            "post_slug"
+            "post_slug",
+            "created_at",
+            "updated_at"
         ).order_by("-id")[:10].prefetch_related(
             Prefetch(
                 "author", queryset=User.objects.only("first_name", "last_name", 'mobile_phone'),
