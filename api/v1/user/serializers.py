@@ -63,22 +63,33 @@ class UserSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
-        del validated_data['confirm_password']
-        referral_code = validated_data.pop("referral_code", None)
+        # Remove confirm_password as it's no longer needed
+        validated_data.pop('confirm_password', None)
 
-        # check referral code is None
+        # Extract referral_code if exists
+        referral_code = validated_data.pop('referral_code', None)
+        referral_student = None
+
+        # Validate referral code if provided
         if referral_code:
-            # get student referral code
-            get_student = Student.objects.filter(referral_code=referral_code).only("referral_code")
-            # check referral code is exits
-            if not get_student.exists():
-                raise exceptions.ValidationError({"referral_code": _("referral_code is invalid")})
+            try:
+                referral_student = Student.objects.get(referral_code=referral_code)
+            except Student.DoesNotExist:
+                raise exceptions.ValidationError(
+                    {"referral_code": _("Referral code is invalid")}
+                )
 
-            # create user and referral code
-            data = User.objects.create_user(**validated_data)
-            Invitation.objects.create(from_student=get_student.first(), to_student=data.student)
+        # Create user
+        user = User.objects.create_user(**validated_data)
 
-            return data
+        # Create invitation if referral exists
+        if referral_student and hasattr(user, 'student'):
+            Invitation.objects.create(
+                from_student=referral_student,
+                to_student=user.student
+            )
+
+        return user
 
 
 class UpdateUserSerializer(serializers.ModelSerializer):
