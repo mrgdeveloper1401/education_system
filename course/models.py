@@ -351,6 +351,7 @@ class SignupCourse(CreateMixin, UpdateMixin, SoftDeleteMixin):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="course_signup")
     student_name = models.CharField(max_length=120, help_text="نام و نام خوادگی داشن اموز")
     phone_number = models.CharField(max_length=15, help_text="شماره تلفن ")
+    referral_code = models.CharField(max_length=30, blank=True)
 
     def __str__(self):
         return self.student_name

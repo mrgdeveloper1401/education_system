@@ -275,8 +275,12 @@ class PrivateNotification(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 
 class Invitation(CreateMixin, SoftDeleteMixin):
-    from_student = models.ForeignKey(Student, on_delete=models.DO_NOTHING, related_name="from_invasion")
-    to_student = models.ForeignKey(Student, on_delete=models.DO_NOTHING, related_name="to_invasion")
+    # student send referral code
+    from_student = models.ForeignKey(Student, on_delete=models.DO_NOTHING, related_name="from_invasion",
+                                     verbose_name=_("از دانش اموز"))
+    # student enter referral code
+    to_student = models.ForeignKey(Student, on_delete=models.DO_NOTHING, related_name="to_invasion",
+                                   verbose_name=_("به داشن اموز"))
 
     class Meta:
         db_table = 'invitation'

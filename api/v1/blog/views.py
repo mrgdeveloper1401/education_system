@@ -134,7 +134,7 @@ class PostBlogViewSet(viewsets.ModelViewSet):
 
 class FavouritePostViewSet(viewsets.ModelViewSet):
     serializer_class = FavouritePostSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
         return FavouritePost.objects.filter(user=self.request.user).defer("is_deleted", "deleted_at")

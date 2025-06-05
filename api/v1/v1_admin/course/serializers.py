@@ -197,12 +197,22 @@ class SignUpCourseSerializer(serializers.ModelSerializer):
     course = serializers.PrimaryKeyRelatedField(
         queryset=Course.objects.only("course_name", "is_publish").filter(is_publish=True)
     )
+    referral_code = serializers.CharField(required=False)
+
     class Meta:
         model = SignupCourse
         exclude = ("is_deleted", "deleted_at", "updated_at")
 
     def create(self, validated_data):
         data = super().create(validated_data)
+        referral_code = validated_data.pop("referral_code", None)
+
+        # get phone
+        phone = validated_data['phone_number']
+
+        # get referral_code is exits yes or no
+        referral_student = Student.objects.filter(referral_code=referral_code).only("student_number")
+
         Otp.objects.create(mobile_phone=validated_data['phone_number'])
         return data
 

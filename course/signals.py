@@ -1,9 +1,10 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from accounts.models import PrivateNotification, User
+from accounts.models import PrivateNotification, User, Student, Invitation
 from .enums import SendFileChoices
-from .models import StudentAccessSection, SendSectionFile, CallLessonCourse, StudentEnrollment, StudentSectionScore
+from .models import StudentAccessSection, SendSectionFile, CallLessonCourse, StudentEnrollment, StudentSectionScore, \
+    SignupCourse
 
 
 @receiver(post_save, sender=SendSectionFile)
@@ -94,14 +95,31 @@ def access_student_access_section(sender, instance, created, **kwargs):
             StudentAccessSection.objects.bulk_create(create_student_access_section)
 
 
-# @receiver(post_save, sender=SendSectionFile)
-# def send_notification_when_user_send_section_file(sender, instance, created, **kwargs):
-#     if created:
-#         student = instance.student,
-#         section = instance.section_file.section
-#         course = instance.section_file.section.course
-#         get_lesson_course = LessonCourse.objects.filter(
-#             course=course,
-#             course__sections=section
-#         ).first()
+@receiver(post_save, sender=SignupCourse)
+def create_user_after_signup_course(sender, instance, created, **kwargs):
+    if created:
+        # get user
+        user = User.objects.filter(
+            mobile_phone=instance.phone_number
+        ).only(
+            "mobile_phone"
+        )
 
+        if not user:
+            # create user
+            user = User.objects.create_user(
+                mobile_phone=instance.phone_number,
+
+            )
+
+            # get referral code
+            referral_code = instance.referral_code
+            if referral_code:
+                # get student
+                student = Student.objects.filter(referral_code=referral_code).only("student_number")
+
+                if student:
+                    Invitation.objects.create(
+                        from_student=student.first(),
+                        to_student=user.student,
+                    )
