@@ -71,4 +71,13 @@ class CommentBlog(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = 'blog_comment'
-        ordering = ['-created_at']
+        ordering = ('-created_at',)
+
+
+class Like(CreateMixin):
+    user = models.ForeignKey("accounts.User", on_delete=models.DO_NOTHING, related_name="user_likes")
+    post = models.ForeignKey("PostBlog", on_delete=models.DO_NOTHING, related_name="post_likes")
+
+    class Meta:
+        unique_together = ('user', 'post')
+        db_table = "blog_post_like"

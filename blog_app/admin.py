@@ -2,10 +2,9 @@ from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
 from treebeard.admin import TreeAdmin
 from treebeard.forms import movenodeform_factory
+from django.utils.translation import gettext_lazy as _
 
 from . import models
-
-# Register your models here.
 
 
 class CategoryAdmin(TreeAdmin, ImportExportModelAdmin):
@@ -51,6 +50,23 @@ class BlogPostAdmin(admin.ModelAdmin):
             "is_publish",
             "description_slug",
             "is_publish"
+        )
+
+
+@admin.register(models.Like)
+class LikeAdmin(admin.ModelAdmin):
+    raw_id_fields = ("user", "post")
+    list_select_related = ("user", "post")
+    list_per_page = 20
+    search_fields = ("user__mobile_phone", "post__post_title")
+    search_help_text = _("برای جست و جو میتوانید از شماره موبایل یا عنوان پست بلاگ استفاده کنید")
+    list_display = ("user", "post", "created_at")
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).only(
+            "created_at",
+            "user__mobile_phone",
+            "post__post_title"
         )
 
 

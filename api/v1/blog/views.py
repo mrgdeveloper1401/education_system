@@ -1,11 +1,13 @@
-from rest_framework import viewsets, permissions, filters, generics, mixins
+from drf_spectacular.utils import extend_schema
+from rest_framework import viewsets, permissions, filters, generics, exceptions, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
-from django.db.models import Prefetch
+from django.db.models import Prefetch, F
+from django.utils.translation import gettext_lazy as _
 
 from accounts.models import User
-from blog_app.models import CategoryBlog, PostBlog, TagBlog, FavouritePost, CommentBlog
+from blog_app.models import CategoryBlog, PostBlog, TagBlog, FavouritePost, CommentBlog, Like
 from utils.pagination import CommonPagination
 from .serializers import (
     CategoryBlogSerializer,
@@ -14,7 +16,7 @@ from .serializers import (
     FavouritePostSerializer,
     CommentBlogSerializer,
     CreateCategorySerializer,
-    AuthorListSerializer, LatestPostSerializer
+    AuthorListSerializer, LatestPostSerializer, LikePostBlogSerializer
 )
 
 
@@ -65,12 +67,25 @@ class PostBlogViewSet(viewsets.ModelViewSet):
     ordering_fields = ('created_at', 'read_count', 'likes')
     pagination_class = CommonPagination
 
-    @action(detail=True, methods=['post'])
-    def like(self, request, pk=None):
-        post = self.get_object()
-        post.likes += 1
-        post.save()
-        return Response({'status': 'liked', 'likes': post.likes})
+    @extend_schema(request=None, responses=None)
+    @action(detail=True, methods=['post'], serializer_class=LikePostBlogSerializer)
+    def like(self, request, pk=None, category_pk=None):
+
+        # validate user has like this post ??
+        like = Like.objects.filter(
+            user=request.user,
+            post_id=pk
+        )
+
+        # check like
+        if not like.exists():
+            Like.objects.create(post_id=pk, user=request.user)
+        else:
+            raise exceptions.ValidationError({"message": _("you have already like this post")})
+
+        # save like in post and get post
+        PostBlog.objects.filter(is_publish=True, id=pk).only("post_title").update(likes=F("likes") + 1)
+        return Response({'status': 'success'}, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=['post'])
     def increment_read_count(self, request, pk=None):

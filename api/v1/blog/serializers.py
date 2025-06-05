@@ -130,3 +130,7 @@ class LatestPostSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at"
         )
+
+
+class LikePostBlogSerializer(serializers.Serializer):
+    pass
