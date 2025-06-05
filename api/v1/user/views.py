@@ -10,7 +10,7 @@ from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView, CreateAPIView
 from rest_framework.generics import get_object_or_404
 from rest_framework.filters import SearchFilter
-from rest_framework import viewsets, status, exceptions
+from rest_framework import viewsets, status, generics
 from django.middleware import csrf
 from django.contrib.auth import authenticate
 from django.conf import settings
@@ -18,7 +18,8 @@ from rest_framework.validators import ValidationError
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from accounts.models import User, State, City, Student, Coach, Ticket, TicketRoom, BestStudent, PrivateNotification, Otp
+from accounts.models import User, State, City, Student, Coach, Ticket, TicketRoom, BestStudent, PrivateNotification, \
+    Otp, Invitation
 from accounts.tasks import send_sms_otp_code
 from utils.filters import UserFilter
 from utils.pagination import StudentCoachTicketPagination
@@ -368,3 +369,24 @@ class RequestOtpVerifyView(APIView):
                 "full_name": data['full_name']
             },
             status=HTTP_201_CREATED)
+
+
+class InvitationView(generics.ListAPIView):
+    """
+    pagination --> 20 item
+    """
+    serializer_class = serializers.InvitationSerializer
+    permission_classes = (IsAuthenticated,)
+    pagination_class = CommonPagination
+
+    def get_queryset(self):
+        return Invitation.objects.filter(
+            to_student__user=self.request.user
+        ).select_related(
+            "to_student__user"
+        ).only(
+            "to_student__user__first_name",
+            "to_student__user__last_name",
+            "to_student__referral_code",
+            "created_at"
+        )

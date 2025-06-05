@@ -65,13 +65,20 @@ class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         del validated_data['confirm_password']
         referral_code = validated_data.pop("referral_code", None)
-        data = User.objects.create_user(**validated_data)
 
+        # check referral code is None
         if referral_code:
-            get_student = Student.objects.filter(referral_code=referral_code).only("referral_code").last()
-            Invitation.objects.create(from_student=get_student, to_student=data.student)
-            # coupon = Coupon.objects.create()
-        return data
+            # get student referral code
+            get_student = Student.objects.filter(referral_code=referral_code).only("referral_code")
+            # check referral code is exits
+            if not get_student.exists():
+                raise exceptions.ValidationError({"referral_code": _("referral_code is invalid")})
+
+            # create user and referral code
+            data = User.objects.create_user(**validated_data)
+            Invitation.objects.create(from_student=get_student.first(), to_student=data.student)
+
+            return data
 
 
 class UpdateUserSerializer(serializers.ModelSerializer):
@@ -317,3 +324,22 @@ class RequestPhoneVerifySerializer(serializers.Serializer):
                 attrs['is_staff'] = str(user.is_staff)
                 attrs['full_name'] = user.get_full_name
         return attrs
+
+
+class InvitationSerializer(serializers.ModelSerializer):
+    to_student_full_name = serializers.SerializerMethodField()
+    to_student_referral_code = serializers.SerializerMethodField()
+
+    def get_to_student_full_name(self, obj):
+        return obj.to_student.user.get_full_name
+
+    def get_to_student_referral_code(self, obj):
+        return obj.to_student.referral_code
+
+    class Meta:
+        model = Invitation
+        fields = (
+            "to_student_full_name",
+            "to_student_referral_code",
+            'created_at'
+        )

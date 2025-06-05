@@ -280,3 +280,4 @@ class Invitation(CreateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = 'invitation'
+        ordering = ("-id",)

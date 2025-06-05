@@ -33,4 +33,5 @@ urlpatterns = [
     path('user/change-password/', views.ChangePasswordApiView.as_view(), name='change-password'),
     path('user/forget-password/', views.ForgetPasswordApiView.as_view(), name='forget-password'),
     path('user/confirm-forget-password/', views.ConfirmForgetPasswordApiView.as_view(), name='confirm-password'),
+    path("invitation_list/", views.InvitationView.as_view(), name='invitation_list')
 ] + router.urls
