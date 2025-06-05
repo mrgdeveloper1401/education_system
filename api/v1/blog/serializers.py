@@ -134,3 +134,7 @@ class LatestPostSerializer(serializers.ModelSerializer):
 
 class LikePostBlogSerializer(serializers.Serializer):
     pass
+
+
+class IncrementPostBlogSerializer(serializers.Serializer):
+    pass

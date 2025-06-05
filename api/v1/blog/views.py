@@ -16,7 +16,7 @@ from .serializers import (
     FavouritePostSerializer,
     CommentBlogSerializer,
     CreateCategorySerializer,
-    AuthorListSerializer, LatestPostSerializer, LikePostBlogSerializer
+    AuthorListSerializer, LatestPostSerializer, LikePostBlogSerializer, IncrementPostBlogSerializer
 )
 
 
@@ -87,12 +87,12 @@ class PostBlogViewSet(viewsets.ModelViewSet):
         PostBlog.objects.filter(is_publish=True, id=pk).only("post_title").update(likes=F("likes") + 1)
         return Response({'status': 'success'}, status=status.HTTP_201_CREATED)
 
-    @action(detail=True, methods=['post'])
-    def increment_read_count(self, request, pk=None):
-        post = self.get_object()
-        post.read_count += 1
-        post.save()
-        return Response({'status': 'read count incremented', 'read_count': post.read_count})
+    @extend_schema(responses=None, request=None)
+    @action(detail=True, methods=['post'], serializer_class=IncrementPostBlogSerializer)
+    def increment_read_count(self, request, pk=None, category_pk=None):
+        # update query
+        PostBlog.objects.filter(is_publish=True, id=pk).only("post_title").update(read_count=F("read_count") + 1)
+        return Response({'status': 'read count incremented'}, status=status.HTTP_201_CREATED)
 
     def get_queryset(self):
         return PostBlog.objects.filter(
