@@ -120,7 +120,7 @@ class PostBlogViewSet(viewsets.ModelViewSet):
         )
 
     def get_permissions(self):
-        if self.request.method in permissions.SAFE_METHODS:
+        if self.request.method in permissions.SAFE_METHODS or self.action == "increment_read_count":
             self.permission_classes =  (permissions.AllowAny,)
         else:
             self.permission_classes = (permissions.IsAdminUser,)
