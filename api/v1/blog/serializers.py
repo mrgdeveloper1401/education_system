@@ -76,6 +76,12 @@ class PostBlogSerializer(serializers.ModelSerializer):
         return data
 
 
+class ListPostBlogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PostBlog
+        exclude = ("is_deleted", "deleted_at", "category", "post_body")
+
+
 class FavouritePostSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
     post = PostBlogSerializer(read_only=True)

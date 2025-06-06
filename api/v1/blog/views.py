@@ -17,7 +17,8 @@ from .serializers import (
     FavouritePostSerializer,
     CommentBlogSerializer,
     CreateCategorySerializer,
-    AuthorListSerializer, LatestPostSerializer, LikePostBlogSerializer, IncrementPostBlogSerializer
+    AuthorListSerializer, LatestPostSerializer, LikePostBlogSerializer, IncrementPostBlogSerializer,
+    ListPostBlogSerializer
 )
 
 
@@ -96,7 +97,7 @@ class PostBlogViewSet(viewsets.ModelViewSet):
         return Response({'status': 'read count incremented'}, status=status.HTTP_201_CREATED)
 
     def get_queryset(self):
-        return PostBlog.objects.filter(
+        queryset = PostBlog.objects.filter(
             is_publish=True, category_id=self.kwargs['category_pk']
         ).prefetch_related(
             "author",
@@ -119,6 +120,9 @@ class PostBlogViewSet(viewsets.ModelViewSet):
             "is_publish",
             "description_slug"
         )
+        if self.action == "list":
+            queryset = queryset.defer("post_body",)
+        return queryset
 
     def get_permissions(self):
         if self.request.method in permissions.SAFE_METHODS or self.action == "increment_read_count":
@@ -133,6 +137,12 @@ class PostBlogViewSet(viewsets.ModelViewSet):
         context = super().get_serializer_context()
         context['category_pk'] = self.kwargs['category_pk']
         return context
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return ListPostBlogSerializer
+        else:
+            return super().get_serializer_class()
 
 
 class FavouritePostViewSet(viewsets.ModelViewSet):
