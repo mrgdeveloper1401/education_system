@@ -51,6 +51,14 @@ class TagPostSerializer(serializers.ModelSerializer):
 
 class PostBlogSerializer(serializers.ModelSerializer):
     category_name = serializers.SerializerMethodField()
+    author = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.only("mobile_phone").filter(is_active=True),
+        many=True
+    )
+    tags = serializers.PrimaryKeyRelatedField(
+        queryset=TagBlog.objects.only("tag_name").filter(is_publish=True),
+        many=True
+    )
 
     class Meta:
         model = PostBlog

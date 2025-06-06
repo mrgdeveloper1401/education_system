@@ -100,8 +100,12 @@ class PostBlogViewSet(viewsets.ModelViewSet):
         queryset = PostBlog.objects.filter(
             is_publish=True, category_id=self.kwargs['category_pk']
         ).prefetch_related(
-            "author",
-            "tags"
+            Prefetch(
+                "author", queryset=User.objects.only("first_name", "last_name")
+            ),
+            Prefetch(
+                "tags", queryset=TagBlog.objects.only("tag_name")
+            )
         ).only(
             "author__first_name",
             "author__last_name",
