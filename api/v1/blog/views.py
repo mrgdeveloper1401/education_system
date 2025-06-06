@@ -121,7 +121,7 @@ class PostBlogViewSet(viewsets.ModelViewSet):
             "description_slug"
         )
         if self.action == "list":
-            queryset = queryset.defer("post_body",)
+            queryset = queryset.defer("post_body", "read_count", "read_time", "likes")
         return queryset
 
     def get_permissions(self):

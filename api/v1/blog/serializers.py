@@ -79,7 +79,13 @@ class PostBlogSerializer(serializers.ModelSerializer):
 class ListPostBlogSerializer(serializers.ModelSerializer):
     class Meta:
         model = PostBlog
-        exclude = ("is_deleted", "deleted_at", "category", "post_body")
+        exclude = ("is_deleted", "deleted_at", "category", "post_body", "read_count", "read_time", "likes")
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['author'] = FullNameAuthorPostBlogSerializer(instance.author, many=True).data
+        data['tags'] = TagPostSerializer(instance.tags, many=True).data
+        return data
 
 
 class FavouritePostSerializer(serializers.ModelSerializer):
