@@ -15,7 +15,8 @@ class UserManager(BaseUserManager):
         user = self.model(mobile_phone=mobile_phone, **extra_fields)
         if password:
             user.set_password(password)
-        user.set_unusable_password()
+        else:
+            user.set_unusable_password()
         user.save(using=self._db)
         return user
 

@@ -11,7 +11,6 @@ from treebeard.mp_tree import MP_Node
 
 from accounts.managers import UserManager, SoftManager
 from accounts.validators import MobileRegexValidator, NationCodeRegexValidator, validate_upload_image_user
-from api.v1.user.utils import ticket_file_upload_url
 from core.models import UpdateMixin, SoftDeleteMixin, CreateMixin
 from utils.model_choices import Grade
 

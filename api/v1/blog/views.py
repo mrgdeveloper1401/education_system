@@ -1,5 +1,6 @@
 from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets, permissions, filters, generics, exceptions, status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
@@ -68,7 +69,7 @@ class PostBlogViewSet(viewsets.ModelViewSet):
     pagination_class = CommonPagination
 
     @extend_schema(request=None, responses=None)
-    @action(detail=True, methods=['post'], serializer_class=LikePostBlogSerializer)
+    @action(detail=True, methods=['post'], serializer_class=LikePostBlogSerializer, permission_classes=(IsAuthenticated,))
     def like(self, request, pk=None, category_pk=None):
 
         # validate user has like this post ??
