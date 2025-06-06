@@ -69,7 +69,7 @@ class PostBlogViewSet(viewsets.ModelViewSet):
     pagination_class = CommonPagination
 
     @extend_schema(request=None, responses=None)
-    @action(detail=True, methods=['post'], serializer_class=LikePostBlogSerializer, permission_classes=(IsAuthenticated,))
+    @action(detail=True, methods=['post'], serializer_class=LikePostBlogSerializer)
     def like(self, request, pk=None, category_pk=None):
 
         # validate user has like this post ??
@@ -123,6 +123,8 @@ class PostBlogViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.request.method in permissions.SAFE_METHODS or self.action == "increment_read_count":
             self.permission_classes =  (permissions.AllowAny,)
+        elif self.action == "like":
+            self.permission_classes = (IsAuthenticated,)
         else:
             self.permission_classes = (permissions.IsAdminUser,)
         return super().get_permissions()
