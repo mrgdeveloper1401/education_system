@@ -186,7 +186,9 @@ class AuthorListView(generics.ListAPIView):
     search --> ?search=mobile_phone
     permission --> admin user
     """
-    queryset = User.objects.filter(is_staff=True, is_active=True).only(
+    queryset = User.objects.filter(
+        is_active=True,
+    ).only(
         "first_name",
         "last_name",
         "mobile_phone"

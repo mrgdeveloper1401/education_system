@@ -40,7 +40,7 @@ class TagBlogSerializer(serializers.ModelSerializer):
 class FullNameAuthorPostBlogSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("get_full_name",)
+        fields = ("get_full_name", "id")
 
 
 class TagPostSerializer(serializers.ModelSerializer):
