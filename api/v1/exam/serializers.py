@@ -3,7 +3,7 @@ from rest_framework import serializers, exceptions
 from django.utils.translation import gettext_lazy as _
 
 from accounts.models import Student
-from exam_app.models import Exam, Question, Answer, Score, Participation
+from exam_app.models import Exam, Question, Participation
 
 
 class ExamSerializer(serializers.ModelSerializer):
@@ -16,14 +16,15 @@ class ExamSerializer(serializers.ModelSerializer):
             "exam_end_date",
             "number_of_time",
             "is_done_exam",
-            "start_datetime"
+            "start_datetime",
+            "get_exam_question_count"
         )
 
 
 class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
-        fields = ('id', "name")
+        fields = ('id', "name", "question_file", "max_score", "question_type")
 
 
 class ExamNameSerializer(serializers.ModelSerializer):
@@ -85,27 +86,3 @@ class ParticipationSerializer(serializers.ModelSerializer):
             raise exceptions.ValidationError({"message": _("your account not student")})
 
         return attrs
-
-
-class AnswerSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Answer
-        fields = ('id', "answer", "created_at")
-
-    def create(self, validated_data):
-        student = validated_data.pop("get_student")
-        return Answer.objects.create(question_id=self.context['question_pk'], student=student, **validated_data)
-
-    def validate(self, attrs):
-        try:
-            get_student = Student.objects.get(user=self.context['request'].user)
-        except Student.DoesNotExist:
-            raise serializers.ValidationError({"user": "student can send answer"})
-        attrs['get_student'] = get_student
-        return attrs
-
-
-class ScoreSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Score
-        fields = ('id', "exam", "score", "created_at")

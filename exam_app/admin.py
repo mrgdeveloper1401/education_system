@@ -33,18 +33,22 @@ class ExamAdmin(admin.ModelAdmin):
 @admin.register(models.Question)
 class QuestionAdmin(admin.ModelAdmin):
     raw_id_fields = ("exam",)
-    list_display = ('exam', "exam_id", 'is_active', "created_at")
+    list_display = ('exam', "exam_id", 'is_active', "question_type", "max_score", "created_at")
     list_per_page = 30
     list_filter = ("is_active",)
     search_fields = ("exam__name",)
     search_help_text = _("برای جست و جو کردن میتوانید از نام ازمون استفاده کنید")
+    list_editable = ("question_type", "max_score", "is_active")
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related("exam").only(
             "is_active",
             "created_at",
             "exam__name",
-            "name"
+            "name",
+            "question_file",
+            "question_type",
+            "max_score"
         )
 
 
@@ -72,3 +76,13 @@ class ParticipationAdmin(admin.ModelAdmin):
 
     def get_student_phone(self, obj):
         return obj.student.user.mobile_phone
+
+
+@admin.register(models.Choice)
+class ChoiceAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(models.Answer)
+class AnswerAdmin(admin.ModelAdmin):
+    pass

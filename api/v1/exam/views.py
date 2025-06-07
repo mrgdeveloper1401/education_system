@@ -1,7 +1,8 @@
-from rest_framework import viewsets, permissions, mixins, exceptions
+from rest_framework import viewsets, permissions, mixins, exceptions, filters
 from django.utils.translation import gettext_lazy as _
+from django.db.models import Prefetch
 
-from exam_app.models import Exam, Question, Answer, Score, Participation
+from exam_app.models import Exam, Question, Participation
 from . import serializers
 from .pagination import ExamPagination
 
@@ -17,6 +18,8 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
             user_access__id=self.request.user.id
             ).select_related(
             "course"
+        ).prefetch_related(
+            Prefetch("questions", queryset=Question.objects.only("id", "exam_id"))
         ).only(
             "name",
             "description",
@@ -29,16 +32,30 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class QuestionViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    'MC' --> 'چند گزینه‌ای'
+    'DE', --> 'تشریحی'
+    filter query --> ?question_type=MC or ?question_type=DE
+    """
     serializer_class = serializers.QuestionSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
-        return Question.objects.filter(
+        queryset = Question.objects.filter(
             is_active=True,
             exam_id=self.kwargs["exam_pk"],
         ).only(
-            "name"
+            "name",
+            "question_file",
+            "max_score",
+            "question_type"
         )
+
+        # filter query based on field question_type
+        question_types = self.request.query_params.getlist("question_type")
+        if question_types:
+            queryset = queryset.filter(question_type__in=question_types)
+        return queryset
 
     # check permission user taken the exam
     def check_permission_view_question(self, request):
@@ -80,28 +97,3 @@ class ParticipationViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mix
         context = super().get_serializer_context()
         context["exam_pk"] = self.kwargs["exam_pk"]
         return context
-
-
-class AnswerViewSet(viewsets.ModelViewSet):
-    serializer_class = serializers.AnswerSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get_queryset(self):
-        return Answer.objects.filter(question_id=self.kwargs["question_pk"], student=self.request.user.student).only(
-            "id", "question", "answer", "created_at"
-        )
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context['question_pk'] = self.kwargs["question_pk"]
-        return context
-
-
-class ScoreViewSet(viewsets.ReadOnlyModelViewSet):
-    serializer_class = serializers.ScoreSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get_queryset(self):
-        return Score.objects.filter(exam_id=self.kwargs['exam_pk'], student=self.request.user.student).only(
-            "id", "score", "exam", "created_at"
-        )
