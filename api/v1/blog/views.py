@@ -17,7 +17,10 @@ from .serializers import (
     FavouritePostSerializer,
     CommentBlogSerializer,
     CreateCategorySerializer,
-    AuthorListSerializer, LatestPostSerializer, LikePostBlogSerializer, IncrementPostBlogSerializer,
+    AuthorListSerializer,
+    LatestPostSerializer,
+    LikePostBlogSerializer,
+    IncrementPostBlogSerializer,
     ListPostBlogSerializer
 )
 

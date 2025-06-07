@@ -25,7 +25,6 @@ class CategoryAdmin(TreeAdmin, ImportExportModelAdmin):
 class BlogPostAdmin(admin.ModelAdmin):
     raw_id_fields = ('category',)
     list_display = ('category', "post_title", "is_publish", "created_at")
-    prepopulated_fields = {"post_slug": ("post_title",)}
     filter_horizontal = ('tags', "author")
     list_select_related = ("category",)
     list_per_page = 20
