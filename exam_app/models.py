@@ -66,6 +66,9 @@ class Question(CreateMixin, UpdateMixin, SoftDeleteMixin):
         help_text=_("حداکثر نمره قابل کسب برای این سوال")
     )
 
+    def __str__(self):
+        return self.name
+
     class Meta:
         db_table = 'question'
 
@@ -98,10 +101,10 @@ class Choice(CreateMixin, UpdateMixin, SoftDeleteMixin):
 class Answer(CreateMixin, UpdateMixin, SoftDeleteMixin):
     participation = models.ForeignKey(
         'Participation',
-        on_delete=models.CASCADE,
-        related_name='answers'
+        on_delete=models.DO_NOTHING,
+        related_name='participation_answer'
     )
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, on_delete=models.DO_NOTHING, related_name="question_answer")
 
     # برای سوالات چندگزینه‌ای
     selected_choices = models.ManyToManyField(Choice, blank=True)
@@ -117,8 +120,7 @@ class Answer(CreateMixin, UpdateMixin, SoftDeleteMixin):
         help_text=_("نمره اختصاص داده شده توسط تصحیح کننده")
     )
 
-    # وضعیت تصحیح
-    is_corrected = models.BooleanField(default=False, help_text=_("آیا تصحیح شده است؟"))
+    # is_corrected = models.BooleanField(default=False, help_text=_("آیا تصحیح شده است؟"))
     choice_file = models.FileField(upload_to="choice_exam/file/%Y/%m/%d", blank=True, null=True,
                                    help_text=_("در صورتی که نیاز به ارسال فایل هست میتوانید فایل رو ارسال کیند"))
 

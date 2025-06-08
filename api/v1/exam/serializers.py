@@ -3,7 +3,7 @@ from rest_framework import serializers, exceptions
 from django.utils.translation import gettext_lazy as _
 
 from accounts.models import Student
-from exam_app.models import Exam, Question, Participation, Choice
+from exam_app.models import Exam, Question, Participation, Choice, Answer
 
 
 class ExamSerializer(serializers.ModelSerializer):
@@ -50,6 +50,7 @@ class ParticipationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Participation
         fields = (
+            "id",
             "student",
             "exam",
             "created_at",
@@ -98,3 +99,45 @@ class ParticipationSerializer(serializers.ModelSerializer):
             raise exceptions.ValidationError({"message": _("your account not student")})
 
         return attrs
+
+
+class AnswerSerializer(serializers.ModelSerializer):
+    question = serializers.PrimaryKeyRelatedField(
+        queryset=Question.objects.only(
+            "name"
+        ).filter(
+            is_active=True
+        ),
+    )
+    selected_choices = serializers.PrimaryKeyRelatedField(
+        queryset=Choice.objects.only(
+            "is_correct"
+        ),
+        many=True,
+    )
+    class Meta:
+        model = Answer
+        fields = (
+            "id",
+            "participation",
+            "question",
+            "selected_choices",
+            "text_answer",
+            "given_score",
+            "choice_file",
+            "created_at"
+        )
+        read_only_fields = ("given_score", "participation")
+
+    def create(self, validated_data):
+        participation_pk = self.context['participation_pk']
+        selected_choices = validated_data.pop("selected_choices", None)
+        answer = Answer.objects.create(
+            participation_id=participation_pk
+            **validated_data
+        )
+
+        if selected_choices:
+            answer.add(selected_choices)
+
+        return answer

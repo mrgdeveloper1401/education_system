@@ -14,8 +14,11 @@ exam_router = routers.NestedDefaultRouter(router, "exam", lookup="exam")
 exam_router.register("questions", views.QuestionViewSet, basename='question')
 exam_router.register('participation', views.ParticipationViewSet, basename='participation')
 
+participation_router = routers.NestedSimpleRouter(exam_router, r"participation", lookup="participation")
+participation_router.register("answer", views.AnswerViewSet, basename='answer')
 
 urlpatterns = [
     path("", include(exam_router.urls)),
+    path("", include(participation_router.urls)),
 ]
 urlpatterns += router.urls

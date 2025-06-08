@@ -91,4 +91,18 @@ class ChoiceAdmin(admin.ModelAdmin):
 
 @admin.register(models.Answer)
 class AnswerAdmin(admin.ModelAdmin):
-    pass
+    raw_id_fields = ("participation", 'question')
+    filter_horizontal = ("selected_choices",)
+    list_display = ("participation", "given_score", "created_at")
+    list_select_related = ("participation", "question")
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).only(
+            "participation__is_access",
+            "question__name",
+            "selected_choices",
+            "text_answer",
+            "given_score",
+            "choice_file",
+            "created_at"
+        )
