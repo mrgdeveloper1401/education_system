@@ -74,6 +74,7 @@ class Participation(CreateMixin, UpdateMixin, SoftDeleteMixin):
     student = models.ForeignKey('accounts.Student', on_delete=models.DO_NOTHING, related_name="participation_student")
     exam = models.ForeignKey(Exam, on_delete=models.DO_NOTHING, related_name="participation_exam")
     is_access = models.BooleanField(default=True)
+    score = models.FloatField(_("نمره"), blank=True, null=True)
 
     class Meta:
         db_table = 'participation'

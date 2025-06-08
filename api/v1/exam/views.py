@@ -2,7 +2,7 @@ from rest_framework import viewsets, permissions, mixins, exceptions, filters
 from django.utils.translation import gettext_lazy as _
 from django.db.models import Prefetch
 
-from exam_app.models import Exam, Question, Participation
+from exam_app.models import Exam, Question, Participation, Choice
 from . import serializers
 from .pagination import ExamPagination
 
@@ -44,6 +44,10 @@ class QuestionViewSet(viewsets.ReadOnlyModelViewSet):
         queryset = Question.objects.filter(
             is_active=True,
             exam_id=self.kwargs["exam_pk"],
+        ).prefetch_related(
+            Prefetch(
+                "choices", queryset=Choice.objects.only("id", "text", "question_id")
+            )
         ).only(
             "name",
             "question_file",
@@ -90,7 +94,8 @@ class ParticipationViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mix
             "created_at",
             "exam__name",
             "student_id",
-            "is_access"
+            "is_access",
+            "score"
         )
 
     def get_serializer_context(self):

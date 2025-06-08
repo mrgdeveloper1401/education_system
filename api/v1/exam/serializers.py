@@ -3,7 +3,7 @@ from rest_framework import serializers, exceptions
 from django.utils.translation import gettext_lazy as _
 
 from accounts.models import Student
-from exam_app.models import Exam, Question, Participation
+from exam_app.models import Exam, Question, Participation, Choice
 
 
 class ExamSerializer(serializers.ModelSerializer):
@@ -21,10 +21,21 @@ class ExamSerializer(serializers.ModelSerializer):
         )
 
 
+class ChoiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Choice
+        fields = (
+            "id",
+            "text"
+        )
+
+
 class QuestionSerializer(serializers.ModelSerializer):
+    choices = ChoiceSerializer(many=True)
+
     class Meta:
         model = Question
-        fields = ('id', "name", "question_file", "max_score", "question_type")
+        fields = ('id', "name", "question_file", "max_score", "question_type", "choices")
 
 
 class ExamNameSerializer(serializers.ModelSerializer):
@@ -42,9 +53,10 @@ class ParticipationSerializer(serializers.ModelSerializer):
             "student",
             "exam",
             "created_at",
-            "is_access"
+            "is_access",
+            "score"
         )
-        read_only_fields = ("student", 'is_access')
+        read_only_fields = ("student", 'is_access', "score")
 
     def create(self, validated_data):
         return Participation.objects.create(

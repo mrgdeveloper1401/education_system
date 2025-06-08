@@ -33,7 +33,7 @@ class ExamAdmin(admin.ModelAdmin):
 @admin.register(models.Question)
 class QuestionAdmin(admin.ModelAdmin):
     raw_id_fields = ("exam",)
-    list_display = ('exam', "exam_id", 'is_active', "question_type", "max_score", "created_at")
+    list_display = ('exam', "exam_id", "id", 'is_active', "question_type", "max_score", "created_at")
     list_per_page = 30
     list_filter = ("is_active",)
     search_fields = ("exam__name",)
@@ -71,7 +71,8 @@ class ParticipationAdmin(admin.ModelAdmin):
             "exam__name",
             "created_at",
             "student__user__mobile_phone",
-            "is_access"
+            "is_access",
+            "score"
         )
 
     def get_student_phone(self, obj):
@@ -80,8 +81,13 @@ class ParticipationAdmin(admin.ModelAdmin):
 
 @admin.register(models.Choice)
 class ChoiceAdmin(admin.ModelAdmin):
-    pass
-
+    raw_id_fields = ("question",)
+    list_display = ("question", "is_correct", "created_at")
+    list_filter = ("is_correct",)
+    list_per_page = 30
+    search_fields = ("question__name",)
+    search_help_text = _("برای جست و جو میتوانید فیلد سوال استفاده کنید")
+    list_select_related = ("question",)
 
 @admin.register(models.Answer)
 class AnswerAdmin(admin.ModelAdmin):
