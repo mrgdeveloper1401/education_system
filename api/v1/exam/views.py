@@ -82,15 +82,17 @@ class QuestionViewSet(viewsets.ReadOnlyModelViewSet):
         return super().retrieve(request, *args, **kwargs)
 
 
-class ParticipationViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.CreateModelMixin,
+class ParticipationViewSet(mixins.ListModelMixin,
+                           mixins.RetrieveModelMixin,
+                           mixins.CreateModelMixin,
+                           mixins.UpdateModelMixin,
                            viewsets.GenericViewSet):
     serializer_class = serializers.ParticipationSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
-        return Participation.objects.filter(
+        queryset = Participation.objects.filter(
             exam_id=self.kwargs["exam_pk"],
-            student__user_id=self.request.user.id
         ).select_related("exam").only(
             "created_at",
             "exam__name",
@@ -99,10 +101,25 @@ class ParticipationViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mix
             "score"
         )
 
+        #  check request has coach or student
+        if self.request.user.is_coach is False:
+            queryset = queryset.filter(student__user_id=self.request.user.id)
+        return queryset
+
     def get_serializer_context(self):
         context = super().get_serializer_context()
         context["exam_pk"] = self.kwargs["exam_pk"]
         return context
+
+    def get_serializer_class(self):
+        if self.action in ['update', "partial_update"]:
+            return serializers.ParticipationCoachSerializer
+        return super().get_serializer_class()
+
+    def get_permissions(self):
+        if self.request.method in ['PUT', 'PATCH']:
+            self.permission_classes = (permissions.IsAuthenticated, IsCoachUser)
+        return super().get_permissions()
 
 
 class AnswerViewSet(

@@ -54,7 +54,7 @@ class QuestionAdmin(admin.ModelAdmin):
 
 @admin.register(models.Participation)
 class ParticipationAdmin(admin.ModelAdmin):
-    list_display = ("student", "get_student_phone", "exam", "created_at", "is_access")
+    list_display = ("student", "get_student_phone", "exam", "score", "created_at", "is_access")
     raw_id_fields = ("student", "exam")
     list_per_page = 20
     search_fields = ("exam__name", "student__student_number")

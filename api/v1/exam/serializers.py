@@ -101,6 +101,22 @@ class ParticipationSerializer(serializers.ModelSerializer):
         return attrs
 
 
+class ParticipationCoachSerializer(serializers.ModelSerializer):
+    exam = serializers.StringRelatedField(read_only=True)
+
+    class Meta:
+        model = Participation
+        fields = (
+            "id",
+            "student",
+            "exam",
+            "created_at",
+            "is_access",
+            "score"
+        )
+        read_only_fields = ("student", 'is_access')
+
+
 class AnswerSerializer(serializers.ModelSerializer):
     question = serializers.PrimaryKeyRelatedField(
         queryset=Question.objects.only(
