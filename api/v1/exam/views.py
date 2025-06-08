@@ -1,7 +1,8 @@
-from rest_framework import viewsets, permissions, mixins, exceptions, filters
+from rest_framework import viewsets, permissions, mixins, exceptions, filters, generics
 from django.utils.translation import gettext_lazy as _
 from django.db.models import Prefetch
 
+from accounts.permissions import IsCoachUser
 from exam_app.models import Exam, Question, Participation, Choice, Answer
 from . import serializers
 from .pagination import ExamPagination
@@ -134,3 +135,13 @@ class AnswerViewSet(
         context = super().get_serializer_context()
         context['participation_pk'] = self.kwargs['participation_pk']
         return context
+
+
+class CoachScoreAnswerView(generics.UpdateAPIView):
+    queryset = Answer.objects.only(
+        "given_score",
+        "question__name",
+        "participation__is_access",
+    )
+    serializer_class = serializers.AnswerScoreSerializer
+    permission_classes = (permissions.IsAuthenticated, IsCoachUser)

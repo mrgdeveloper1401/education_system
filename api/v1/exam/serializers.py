@@ -141,3 +141,20 @@ class AnswerSerializer(serializers.ModelSerializer):
             answer.add(selected_choices)
 
         return answer
+
+
+class AnswerScoreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Answer
+        fields = ('id', 'given_score', 'question', 'participation')
+        read_only_fields = ('question', 'participation')
+
+    def validate_given_score(self, value):
+        question = self.instance.question
+        if value > question.max_score:
+            raise serializers.ValidationError(
+                {
+                    "message": _("نمره وارد شده بیشتر از نمره مجاز برای این سوال است.")
+                }
+            )
+        return value

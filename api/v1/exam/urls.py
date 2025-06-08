@@ -20,5 +20,6 @@ participation_router.register("answer", views.AnswerViewSet, basename='answer')
 urlpatterns = [
     path("", include(exam_router.urls)),
     path("", include(participation_router.urls)),
+    path('answers/<int:pk>/score/', views.CoachScoreAnswerView.as_view(), name='coach-score-answer'),
 ]
 urlpatterns += router.urls
