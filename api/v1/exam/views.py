@@ -4,19 +4,26 @@ from django.db.models import Prefetch
 
 from accounts.permissions import IsCoachUser
 from exam_app.models import Exam, Question, Participation, Choice, Answer
+from utils.pagination import CommonPagination
 from . import serializers
 from .pagination import ExamPagination
 
 
-class ExamViewSet(viewsets.ReadOnlyModelViewSet):
+class ExamViewSet(viewsets.ModelViewSet):
+    """
+    pagination --> 20 item
+    """
     serializer_class = serializers.ExamSerializer
     pagination_class = ExamPagination
-    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return serializers.CreateExamSerializer
+        return super().get_serializer_class()
 
     def get_queryset(self):
-        return Exam.objects.filter(
+        queryset =  Exam.objects.filter(
             is_active=True,
-            user_access__id=self.request.user.id
             ).select_related(
             "course"
         ).prefetch_related(
@@ -30,16 +37,34 @@ class ExamViewSet(viewsets.ReadOnlyModelViewSet):
             "number_of_time",
             "start_datetime"
         )
+        if self.request.user.is_coach is False:
+            queryset = queryset.filter(
+                user_access__id=self.request.user.id
+            )
+        return queryset
+
+    def get_permissions(self):
+        if self.request.method in ['POST', "PUT", "PATCH", "DELETE"]:
+            self.permission_classes = (permissions.IsAuthenticated, IsCoachUser)
+        else:
+            self.permission_classes = (permissions.IsAuthenticated,)
+        return super().get_permissions()
 
 
-class QuestionViewSet(viewsets.ReadOnlyModelViewSet):
+class QuestionViewSet(viewsets.ModelViewSet):
     """
     'MC' --> 'چند گزینه‌ای'
     'DE', --> 'تشریحی'
     filter query --> ?question_type=MC or ?question_type=DE
     """
     serializer_class = serializers.QuestionSerializer
-    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_permissions(self):
+        if self.request.method in ['POST', "PUT", "PATCH", "DELETE"]:
+            self.permission_classes = (permissions.IsAuthenticated, IsCoachUser)
+        else:
+            self.permission_classes = (permissions.IsAuthenticated,)
+        return super().get_permissions()
 
     def get_queryset(self):
         queryset = Question.objects.filter(
@@ -74,11 +99,13 @@ class QuestionViewSet(viewsets.ReadOnlyModelViewSet):
             raise exceptions.PermissionDenied(_("you not taken this exam"))
 
     def list(self, request, *args, **kwargs):
-        self.check_permission_view_question(request=request)
+        if request.user.is_coach is False:
+            self.check_permission_view_question(request=request)
         return super().list(request, *args, **kwargs)
 
     def retrieve(self, request, *args, **kwargs):
-        self.check_permission_view_question(request=request)
+        if request.user.is_coach is False:
+            self.check_permission_view_question(request=request)
         return super().retrieve(request, *args, **kwargs)
 
 

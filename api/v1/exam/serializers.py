@@ -1,8 +1,10 @@
+from django.db.models import Prefetch
 from django.utils import timezone
 from rest_framework import serializers, exceptions
 from django.utils.translation import gettext_lazy as _
 
-from accounts.models import Student
+from accounts.models import Student, User
+from course.models import Course
 from exam_app.models import Exam, Question, Participation, Choice, Answer
 
 
@@ -19,6 +21,28 @@ class ExamSerializer(serializers.ModelSerializer):
             "start_datetime",
             "get_exam_question_count"
         )
+
+
+class CreateExamSerializer(serializers.ModelSerializer):
+    course = serializers.PrimaryKeyRelatedField(
+        queryset=Course.objects.filter(is_publish=True).only(
+            "course_name"
+        ),
+        required=False
+    )
+    user_access = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.filter(is_active=True).only(
+                "mobile_phone",
+                "first_name",
+                "last_name"
+        ),
+        many=True,
+        required=False
+    )
+
+    class Meta:
+        model = Exam
+        exclude = ("is_deleted", "deleted_at", "updated_at")
 
 
 class ChoiceSerializer(serializers.ModelSerializer):
