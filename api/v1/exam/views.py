@@ -4,7 +4,6 @@ from django.db.models import Prefetch
 
 from accounts.permissions import IsCoachUser
 from exam_app.models import Exam, Question, Participation, Choice, Answer
-from utils.pagination import CommonPagination
 from . import serializers
 from .pagination import ExamPagination
 
