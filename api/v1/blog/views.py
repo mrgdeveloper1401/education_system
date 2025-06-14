@@ -1,3 +1,4 @@
+from django.db import IntegrityError
 from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets, permissions, filters, generics, exceptions, status
 from rest_framework.permissions import IsAuthenticated
@@ -51,6 +52,16 @@ class CategoryBlogViewSet(viewsets.ModelViewSet):
             return CreateCategorySerializer
         else:
             return CategoryBlogSerializer
+
+    def destroy(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+            instance.delete()
+        except IntegrityError:
+            raise exceptions.ValidationError(
+                {"message": "این دسته بندی نمی‌تواند حذف شود زیرا چندین پست به آن وابسته است."}
+            )
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class TagBlogViewSet(viewsets.ModelViewSet):

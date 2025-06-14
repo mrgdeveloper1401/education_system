@@ -21,7 +21,7 @@ class CategoryBlog(MP_Node, CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 class PostBlog(CreateMixin, UpdateMixin, SoftDeleteMixin):
     author = models.ManyToManyField('accounts.User', related_name='post_authors')
-    category = models.ForeignKey(CategoryBlog, on_delete=models.DO_NOTHING, related_name="blog_posts")
+    category = models.ForeignKey(CategoryBlog, on_delete=models.PROTECT, related_name="blog_posts")
     post_introduction = models.CharField(max_length=255, help_text=_("مقدمه ای در مورد پست"))
     post_title = models.CharField(max_length=255, help_text=_("عنوان پست"))
     post_slug = models.SlugField(max_length=255, allow_unicode=True)
