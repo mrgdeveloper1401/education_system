@@ -2,6 +2,7 @@ from rest_framework import viewsets, permissions, mixins, exceptions, filters, g
 from django.utils.translation import gettext_lazy as _
 from django.db.models import Prefetch
 
+from accounts.models import User
 from accounts.permissions import IsCoachUser
 from exam_app.models import Exam, Question, Participation, Choice, Answer
 from . import serializers
@@ -16,11 +17,19 @@ class ExamViewSet(viewsets.ModelViewSet):
     pagination_class = ExamPagination
 
     def get_serializer_class(self):
+        user = self.request.user
+
         if self.action == 'create':
             return serializers.CreateExamSerializer
+
+        if self.action == "retrieve" and (user.is_coach or user.is_staff):
+            return serializers.CoachAdminExamSerializer
+
         return super().get_serializer_class()
 
     def get_queryset(self):
+        user = self.request.user
+
         queryset =  Exam.objects.filter(
             is_active=True,
             ).select_related(
@@ -40,11 +49,21 @@ class ExamViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(
                 user_access__id=self.request.user.id
             )
+        if self.action == "retrieve" and (user.is_staff or user.is_coach):
+            queryset = queryset.prefetch_related(
+                Prefetch(
+                    "user_access", queryset=User.objects.filter(is_active=True).only(
+                        "first_name",
+                        "last_name",
+                        "mobile_phone"
+                    )
+                )
+            )
         return queryset
 
     def get_permissions(self):
         if self.request.method in ['POST', "PUT", "PATCH", "DELETE"]:
-            self.permission_classes = (permissions.IsAuthenticated, IsCoachUser)
+            self.permission_classes = (IsCoachUser,)
         else:
             self.permission_classes = (permissions.IsAuthenticated,)
         return super().get_permissions()

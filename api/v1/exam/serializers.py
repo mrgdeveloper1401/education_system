@@ -19,7 +19,47 @@ class ExamSerializer(serializers.ModelSerializer):
             "number_of_time",
             "is_done_exam",
             "start_datetime",
-            "get_exam_question_count"
+            "get_exam_question_count",
+            "is_active"
+        )
+
+    def to_representation(self, instance):
+        request = self.context.get("request")
+
+        data = super().to_representation(instance)
+
+        if request.user.is_coach is False and request.user.is_staff is False:
+            data.pop("is_active", None)
+
+        return data
+
+
+class UserAccessAdminCoachSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = (
+            "mobile_phone",
+            "first_name",
+            "last_name"
+        )
+
+
+class CoachAdminExamSerializer(serializers.ModelSerializer):
+    user_access = UserAccessAdminCoachSerializer(many=True)
+
+    class Meta:
+        model = Exam
+        fields = (
+            "id",
+            "name",
+            "description",
+            "exam_end_date",
+            "number_of_time",
+            "is_done_exam",
+            "start_datetime",
+            "get_exam_question_count",
+            "user_access",
+            "is_active"
         )
 
 
