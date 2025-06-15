@@ -1,7 +1,8 @@
 from django.db.models import Prefetch
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter, extend_schema_view
-from rest_framework import mixins, viewsets, permissions, decorators, response, status, exceptions, views, generics
+from rest_framework import mixins, viewsets, permissions, decorators, response, status, exceptions, views, generics, \
+    filters
 from rest_framework.permissions import IsAuthenticated
 
 from accounts.models import Student
@@ -929,3 +930,17 @@ class SendNotificationUserSendSectionFileView(generics.CreateAPIView):
     queryset = None
     serializer_class = serializers.SendNotificationUserSendSectionFile
     permission_classes = (permissions.IsAuthenticated,)
+
+
+class ListCourseIdTitleView(generics.ListAPIView):
+    """
+    list course contain --> id, title \n
+    search --> ?search=test
+    """
+    queryset = Course.objects.filter(is_publish=True).only(
+        "course_name"
+    )
+    serializer_class = serializers.ListCourseIdTitleSerializer
+    search_fields = ("course_name__icontains",)
+    filter_backends = (filters.SearchFilter,)
+    # permission_classes = (permissions.IsAdminUser,)

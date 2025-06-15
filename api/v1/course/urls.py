@@ -38,6 +38,7 @@ urlpatterns = [
     path("student_lesson_course/<int:student_lesson_course_pk>/student_online_link/",
          views.StudentOnlineLinkApiView.as_view(), name="student_online_link"),
     path("send_notification_when_user_send_file/", views.SendNotificationUserSendSectionFileView.as_view(),
-         name='send_notification_when_user_send_file')
+         name='send_notification_when_user_send_file'),
+    path("list_course_id_title/", views.ListCourseIdTitleView.as_view(), name='list_course_id_title')
 ]
 urlpatterns += router.urls

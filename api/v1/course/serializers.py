@@ -619,3 +619,12 @@ class SendNotificationUserSendSectionFile(serializers.Serializer):
         return {
             "message": res
         }
+
+
+class ListCourseIdTitleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Course
+        fields = (
+            "id",
+            "course_name"
+        )
