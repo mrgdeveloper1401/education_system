@@ -194,6 +194,7 @@ class AnswerSerializer(serializers.ModelSerializer):
             "is_correct"
         ),
         many=True,
+        required=False
     )
     class Meta:
         model = Answer

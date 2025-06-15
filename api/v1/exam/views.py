@@ -1,4 +1,4 @@
-from rest_framework import viewsets, permissions, mixins, exceptions, filters, generics
+from rest_framework import viewsets, permissions, mixins, exceptions, generics
 from django.utils.translation import gettext_lazy as _
 from django.db.models import Prefetch
 
