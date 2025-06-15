@@ -44,6 +44,13 @@ DATABASES = {
         "PASSWORD": config("COMPOSE_POSTGRES_PASSWORD", cast=str),
         'HOST': "education_postgres",
         "PORT": 5432,
+    },
+    "OPTIONS": {
+        "pool": {
+            "min_size": 1,
+            "max_size": 2,
+            "timeout": 10
+        }
     }
 }
 
