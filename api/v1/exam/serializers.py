@@ -103,7 +103,13 @@ class QuestionSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         exam_id = self.context['exam_pk']
-        return Question.objects.create(exam_id=exam_id, **validated_data)
+        choices = validated_data.pop("choices", [])
+        question = Question.objects.create(exam_id=exam_id, **validated_data)
+
+        if choices:
+            for choice in choices:
+                question.choices.add(choice)
+        return question
 
 
 class ExamNameSerializer(serializers.ModelSerializer):
