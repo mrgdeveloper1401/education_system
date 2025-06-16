@@ -79,7 +79,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
 
     def get_permissions(self):
         if self.request.method in ['POST', "PUT", "PATCH", "DELETE"]:
-            self.permission_classes = (permissions.IsAuthenticated, IsCoachUser)
+            self.permission_classes = (IsCoachUser,)
         else:
             self.permission_classes = (permissions.IsAuthenticated,)
         return super().get_permissions()
