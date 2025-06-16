@@ -77,6 +77,11 @@ class QuestionViewSet(viewsets.ModelViewSet):
     """
     serializer_class = serializers.QuestionSerializer
 
+    def get_serializer_context(self):
+        content = super().get_serializer_context()
+        content['exam_pk'] = self.kwargs['exam_pk']
+        return content
+
     def get_permissions(self):
         if self.request.method in ['POST', "PUT", "PATCH", "DELETE"]:
             self.permission_classes = (IsCoachUser,)
@@ -117,12 +122,12 @@ class QuestionViewSet(viewsets.ModelViewSet):
             raise exceptions.PermissionDenied(_("you not taken this exam"))
 
     def list(self, request, *args, **kwargs):
-        if request.user.is_coach is False:
+        if request.user.is_coach is False and request.user.is_staff is False:
             self.check_permission_view_question(request=request)
         return super().list(request, *args, **kwargs)
 
     def retrieve(self, request, *args, **kwargs):
-        if request.user.is_coach is False:
+        if request.user.is_coach is False and request.user.is_staff is False:
             self.check_permission_view_question(request=request)
         return super().retrieve(request, *args, **kwargs)
 

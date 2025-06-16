@@ -101,6 +101,10 @@ class QuestionSerializer(serializers.ModelSerializer):
         model = Question
         fields = ('id', "name", "question_file", "max_score", "question_type", "choices")
 
+    def create(self, validated_data):
+        exam_id = self.context['exam_pk']
+        return Question.objects.create(exam_id=exam_id, **validated_data)
+
 
 class ExamNameSerializer(serializers.ModelSerializer):
     class Meta:
