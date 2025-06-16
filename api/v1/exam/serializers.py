@@ -85,7 +85,7 @@ class CreateExamSerializer(serializers.ModelSerializer):
         exclude = ("is_deleted", "deleted_at", "updated_at")
 
 
-class ChoiceSerializer(serializers.ModelSerializer):
+class QuestionChoiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Choice
         fields = (
@@ -94,8 +94,22 @@ class ChoiceSerializer(serializers.ModelSerializer):
         )
 
 
+class CreateChoiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Choice
+        fields = (
+            "id",
+            "text",
+            "is_correct"
+        )
+
+    def create(self, validated_data):
+        question_pk = self.context.get("question_pk")
+        return Choice.objects.create(question_id=question_pk, **validated_data)
+
+
 class QuestionSerializer(serializers.ModelSerializer):
-    choices = ChoiceSerializer(many=True, required=False)
+    choices = QuestionChoiceSerializer(many=True, read_only=True)
 
     class Meta:
         model = Question
@@ -103,13 +117,7 @@ class QuestionSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         exam_id = self.context['exam_pk']
-        choices = validated_data.pop("choices", [])
-        question = Question.objects.create(exam_id=exam_id, **validated_data)
-
-        if choices:
-            for choice in choices:
-                question.choices.add(choice)
-        return question
+        return Question.objects.create(exam_id=exam_id, **validated_data)
 
 
 class ExamNameSerializer(serializers.ModelSerializer):
@@ -120,6 +128,10 @@ class ExamNameSerializer(serializers.ModelSerializer):
 
 class ParticipationSerializer(serializers.ModelSerializer):
     exam = serializers.StringRelatedField(read_only=True)
+    exam_time = serializers.SerializerMethodField()
+
+    def get_exam_time(self, obj):
+        return obj.exam.number_of_time
 
     class Meta:
         model = Participation
@@ -129,7 +141,10 @@ class ParticipationSerializer(serializers.ModelSerializer):
             "exam",
             "created_at",
             "is_access",
-            "score"
+            "score",
+            "created_at",
+            "expired_exam",
+            "exam_time"
         )
         read_only_fields = ("student", 'is_access', "score")
 

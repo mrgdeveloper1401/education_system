@@ -1,4 +1,4 @@
-from rest_framework import viewsets, permissions, mixins, exceptions, generics
+from rest_framework import viewsets, permissions, mixins, exceptions, generics, filters
 from django.utils.translation import gettext_lazy as _
 from django.db.models import Prefetch
 
@@ -71,11 +71,13 @@ class ExamViewSet(viewsets.ModelViewSet):
 
 class QuestionViewSet(viewsets.ModelViewSet):
     """
-    'MC' --> 'چند گزینه‌ای'
-    'DE', --> 'تشریحی'
-    filter query --> ?question_type=MC or ?question_type=DE
+    'MC' --> 'چند گزینه‌ای' \n
+    'DE', --> 'تشریحی' \n
+    filter query --> ?search=MC or ?search=DE
     """
     serializer_class = serializers.QuestionSerializer
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ("question_type__iexact",)
 
     def get_serializer_context(self):
         content = super().get_serializer_context()
@@ -90,7 +92,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
         return super().get_permissions()
 
     def get_queryset(self):
-        queryset = Question.objects.filter(
+        return Question.objects.filter(
             is_active=True,
             exam_id=self.kwargs["exam_pk"],
         ).prefetch_related(
@@ -103,12 +105,6 @@ class QuestionViewSet(viewsets.ModelViewSet):
             "max_score",
             "question_type"
         )
-
-        # filter query based on field question_type
-        question_types = self.request.query_params.getlist("question_type")
-        if question_types:
-            queryset = queryset.filter(question_type__in=question_types)
-        return queryset
 
     # check permission user taken the exam
     def check_permission_view_question(self, request):
@@ -132,6 +128,22 @@ class QuestionViewSet(viewsets.ModelViewSet):
         return super().retrieve(request, *args, **kwargs)
 
 
+class QuestionChoiceViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.CreateChoiceSerializer
+    permission_classes = (permissions.IsAdminUser,)
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['question_pk'] = self.kwargs['question_pk']
+        return context
+
+    def get_queryset(self):
+        return Choice.objects.filter(question_id=self.kwargs['question_pk']).only(
+            "text",
+            "is_correct"
+        )
+
+
 class ParticipationViewSet(mixins.ListModelMixin,
                            mixins.RetrieveModelMixin,
                            mixins.CreateModelMixin,
@@ -148,7 +160,9 @@ class ParticipationViewSet(mixins.ListModelMixin,
             "exam__name",
             "student_id",
             "is_access",
-            "score"
+            "score",
+            "created_at",
+            "exam__number_of_time"
         )
 
         #  check request has coach or student

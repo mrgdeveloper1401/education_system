@@ -17,9 +17,13 @@ exam_router.register('participation', views.ParticipationViewSet, basename='part
 participation_router = routers.NestedSimpleRouter(exam_router, r"participation", lookup="participation")
 participation_router.register("answer", views.AnswerViewSet, basename='answer')
 
+question_router = routers.NestedSimpleRouter(exam_router, r"questions", lookup="question")
+question_router.register("choices", views.QuestionChoiceViewSet, basename="question")
+
 urlpatterns = [
     path("", include(exam_router.urls)),
     path("", include(participation_router.urls)),
+    path("", include(question_router.urls)),
     path('answers/<int:pk>/score/', views.CoachScoreAnswerView.as_view(), name='coach-score-answer'),
 ]
 urlpatterns += router.urls

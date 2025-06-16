@@ -82,6 +82,10 @@ class Participation(CreateMixin, UpdateMixin, SoftDeleteMixin):
     class Meta:
         db_table = 'participation'
 
+    @property
+    def expired_exam(self):
+        return self.created_at + timedelta(minutes=self.exam.number_of_time)
+
 
 class Choice(CreateMixin, UpdateMixin, SoftDeleteMixin):
     question = models.ForeignKey(
