@@ -40,7 +40,7 @@ services:
   nginx:
     container_name: education_nginx
     restart: always
-    image: docker.arvancloud.ir/nginx:1.27.5-alpine
+#    image: docker.arvancloud.ir/nginx:1.27.5-alpine
     build:
       context: nginx
       dockerfile: Dockerfile

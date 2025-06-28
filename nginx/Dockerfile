@@ -1,4 +1,4 @@
-FROM docker.arvancloud.ir/nginx:1.27-alpine
+FROM docker.arvancloud.ir/nginx:1.27.5-alpine
 
 COPY ./nginx.conf /etc/nginx/nginx.conf
 
