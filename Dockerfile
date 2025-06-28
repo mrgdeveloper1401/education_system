@@ -6,7 +6,7 @@ COPY . .
 
 RUN adduser -D -H mohammad && \
     chown -R mohammad:mohammad /home/app && \
-    pip install httpx
+    pip install -i https://mirror-pypi.runflare.com/simple httpx
 
 USER mohammad
 
