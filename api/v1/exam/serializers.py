@@ -38,9 +38,9 @@ class UserAccessAdminCoachSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
+            "id",
             "mobile_phone",
-            "first_name",
-            "last_name"
+            "get_full_name"
         )
 
 
