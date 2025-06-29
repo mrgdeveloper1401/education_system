@@ -56,7 +56,7 @@ class Course(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = 'course'
-        ordering = ("-created_at",)
+        ordering = ("-id",)
 
 
 class CourseTypeModel(CreateMixin, UpdateMixin, SoftDeleteMixin):
