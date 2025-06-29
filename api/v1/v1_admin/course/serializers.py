@@ -42,6 +42,11 @@ class AdminCourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         exclude = ('is_deleted', "deleted_at", "category")
+        extra_kwargs = {
+            "facilities": {
+                "required": False
+            }
+        }
 
     def create(self, validated_data):
         return Course.objects.create(category_id=self.context['category_pk'],**validated_data)

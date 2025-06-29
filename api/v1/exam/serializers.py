@@ -1,4 +1,3 @@
-from django.db.models import Prefetch
 from django.utils import timezone
 from rest_framework import serializers, exceptions
 from django.utils.translation import gettext_lazy as _
