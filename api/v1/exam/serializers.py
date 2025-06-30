@@ -224,7 +224,6 @@ class AnswerSerializer(serializers.ModelSerializer):
         model = Answer
         fields = (
             "id",
-            "participation",
             "question",
             "selected_choices",
             "text_answer",
