@@ -257,6 +257,7 @@ CELERY_QUEUES = (
 CELERY_TASK_ROUTES = {
     "accounts.tasks.send_sms_otp_code": {"queue": "sms_otp"},
     "advertise.tasks.send_sms_accept_advertise": {"queue": "advertise"},
+    "subscription_app.tasks.send_sms_before_expire_subscription": {"queue": "reminder"},
 }
 
 # celery beat config

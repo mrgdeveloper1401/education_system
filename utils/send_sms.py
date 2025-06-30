@@ -1,3 +1,5 @@
+import json
+
 import httpx
 from typing import List
 
@@ -53,12 +55,14 @@ class SmsIrPanel(BasePanel):
         mobiles --> شماره ها
         send_date_time --> زمان ارسال پیام
         """
-        url = self.base_url + "/send/bulk"
+        url = self.base_url + "/send/bulk/"
         data = {
             "lineNumber": line_number,
-            "messageText": message_text,
-            "mobiles": mobiles,
+            "MessageText": message_text,
+            "Mobiles": mobiles,
         }
+        data = json.dumps(data)
+        # print(data)
         return self.send_post_request(url, data, self.header())
 
     def header(self):

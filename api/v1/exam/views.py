@@ -30,9 +30,7 @@ class ExamViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
 
-        queryset =  Exam.objects.filter(
-            is_active=True,
-            ).select_related(
+        queryset =  Exam.objects.select_related(
             "course"
         ).prefetch_related(
             Prefetch("questions", queryset=Question.objects.only("id", "exam_id"))
@@ -45,9 +43,10 @@ class ExamViewSet(viewsets.ModelViewSet):
             "number_of_time",
             "start_datetime"
         )
-        if self.request.user.is_coach is False:
+        if self.request.user.is_coach is False and user.is_staff is False:
             queryset = queryset.filter(
-                user_access__id=self.request.user.id
+                user_access__id=self.request.user.id,
+                is_active=True
             )
         if self.action == "retrieve" and (user.is_staff or user.is_coach):
             queryset = queryset.prefetch_related(

@@ -30,25 +30,25 @@ def send_sms_otp_code(phone, code):
     ))
 
 
-@shared_task
-def send_coupon_when_user_referral_signup(phone, coupon_code):
-    asyncio.run(
-        instance.send_fast_sms(
-            phone=phone,
-            value=coupon_code,
-            template_id=config("SMS_IR_COUPON_TEMPLATE_ID", cast=str),
-            template_name="coupon_user_referral_signup"
-        )
-    )
+# @shared_task
+# def send_coupon_when_user_referral_signup(phone, coupon_code):
+#     asyncio.run(
+#         instance.send_fast_sms(
+#             phone=phone,
+#             value=coupon_code,
+#             template_id=config("SMS_IR_COUPON_TEMPLATE_ID", cast=str),
+#             template_name="coupon_user_referral_signup"
+#         )
+#     )
 
 
-@shared_task
-def send_multiple_message(phone: List[str], message):
-    asyncio.gather(
-        *instance.send_bulk(
-            line_number=config("SMS_IR_LINE_NUMBER", cast=str),
-            message_text=message,
-            mobiles=phone,
-            send_date_time=None
-        )
-    )
+# @shared_task
+# def send_multiple_message(phone: List[str], message):
+#     asyncio.gather(
+#         *instance.send_bulk(
+#             line_number=config("SMS_IR_LINE_NUMBER", cast=str),
+#             message_text=message,
+#             mobiles=phone,
+#             send_date_time=None
+#         )
+#     )
