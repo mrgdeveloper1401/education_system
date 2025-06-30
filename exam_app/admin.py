@@ -4,6 +4,11 @@ from django.utils.translation import gettext_lazy as _
 from . import models
 
 
+class QuestionChoiceInline(admin.TabularInline):
+    model = models.Choice
+    extra = 0
+
+
 @admin.register(models.Exam)
 class ExamAdmin(admin.ModelAdmin):
     list_display = ("name", "course", "start_datetime", "exam_end_date", "is_done_exam", "is_active", "created_at")
@@ -39,6 +44,7 @@ class QuestionAdmin(admin.ModelAdmin):
     search_fields = ("exam__name",)
     search_help_text = _("برای جست و جو کردن میتوانید از نام ازمون استفاده کنید")
     list_editable = ("question_type", "max_score", "is_active")
+    inlines = (QuestionChoiceInline,)
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related("exam").only(

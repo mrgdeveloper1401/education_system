@@ -234,15 +234,15 @@ class AnswerSerializer(serializers.ModelSerializer):
         read_only_fields = ("given_score", "participation")
 
     def create(self, validated_data):
-        participation_pk = self.context['participation_pk']
-        selected_choices = validated_data.pop("selected_choices", None)
+        participation_pk = int(self.context['participation_pk'])
+        selected_choices = validated_data.pop("selected_choices", [])
         answer = Answer.objects.create(
-            participation_id=participation_pk
+            participation_id=participation_pk,
             **validated_data
         )
 
         if selected_choices:
-            answer.add(selected_choices)
+            answer.selected_choices.set(selected_choices)
 
         return answer
 
