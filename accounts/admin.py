@@ -67,7 +67,7 @@ class UserAdmin(ImportExportModelAdmin, BaseUserAdmin):
 
 @admin.register(models.Otp)
 class OtpAdmin(admin.ModelAdmin):
-    list_display = ('mobile_phone', 'code', 'expired_date')
+    list_display = ('mobile_phone', 'code', "created_at", 'expired_date')
     search_fields = ('mobile_phone',)
     list_filter = ('expired_date', "created_at")
     date_hierarchy = 'created_at'

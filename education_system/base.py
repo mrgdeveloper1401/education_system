@@ -3,6 +3,8 @@ import os.path
 from datetime import timedelta
 from pathlib import Path
 from decouple import config
+from kombu import Queue
+
 from education_system.dj_ckeditor_config import CKEDITOR_5_CONFIGS, customColorPalette
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -237,8 +239,30 @@ CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Asia/Tehran'
-CELERY_ACCEPT_CONTENT = ['json']
+CELERY_ACCEPT_CONTENT = ["application/json"]
+CELERY_WORKER_PREFETCH_MULTIPLIER = 1  # do the same time task in worker
+CELERY_WORKER_CONCURRENCY = config("CELERY_WORKER_CONCURRENCY", cast=int, default=1)
+CELERY_TASK_ACKS_LATE = True  # if not start, retry again
 
+# define queue
+CELERY_QUEUES = (
+    Queue("sms_otp"),
+    Queue("coupon_code"),
+    Queue("advertise"),
+    Queue("reminder"),
+    Queue("login_information"),
+)
+
+# define task route
+CELERY_TASK_ROUTES = {
+    "accounts.tasks.send_sms_otp_code": {"queue": "sms_otp"},
+    "advertise.tasks.send_sms_accept_advertise": {"queue": "advertise"},
+}
+
+# celery beat config
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+
+# cache config
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
@@ -261,6 +285,3 @@ BITPAY_CALLBACK_URL='https://api.codeima.ir/api_subscription/verify_payment/?tra
 
 ZIBAL_CALLBACK_URL="https://codeima.ir//p-student/subscription/result-payment/"
 ZIBAL_MERCHENT_ID=config("ZIBAL_MERCHENT_ID", cast=str)
-
-# django celery beat schedule
-CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'

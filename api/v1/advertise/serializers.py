@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from django.utils.translation import gettext_lazy as _
 from rest_framework.exceptions import ValidationError
+from django.utils import timezone
+
 from advertise.tasks import send_sms_accept_advertise
 
 from advertise.models import ConsultationTopic, ConsultationSchedule, ConsultationSlot, ConsultationRequest
@@ -30,7 +32,13 @@ class ConsultationSlotSerializer(serializers.ModelSerializer):
 
 class UserConsultationRequestSerializer(serializers.ModelSerializer):
     slot = serializers.PrimaryKeyRelatedField(
-        queryset=ConsultationSlot.objects.only("date", "is_available").filter(is_available=True)
+        queryset=ConsultationSlot.objects.only(
+            "date",
+            "is_available"
+        ).filter(
+            is_available=True,
+            date__gte=timezone.now().date()
+        )
     )
     def validate(self, attrs):
         try:

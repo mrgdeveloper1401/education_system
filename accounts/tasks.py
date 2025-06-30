@@ -20,7 +20,7 @@ headers = {
 instance = SmsIrPanel(api_key=config("SMS_IR_API_KEY", cast=str), base_url=config("SMS_IR_BASE_URL", cast=str))
 
 
-@shared_task
+@shared_task(queue='sms_otp')
 def send_sms_otp_code(phone, code):
     asyncio.run(instance.send_fast_sms(
         phone=phone,

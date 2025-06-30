@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated, SAFE_METHODS, IsAdminUse
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED
 from rest_framework.views import APIView
-from rest_framework.generics import ListAPIView, CreateAPIView
+from rest_framework.generics import ListAPIView
 from rest_framework.generics import get_object_or_404
 from rest_framework.filters import SearchFilter
 from rest_framework import viewsets, status, generics
@@ -343,14 +343,21 @@ class UserNotificationViewSet(viewsets.ModelViewSet):
             return serializers.CreateUserNotificationSerializer
 
 
-class RequestPhoneView(CreateAPIView):
+class RequestPhoneView(APIView):
     serializer_class = serializers.RequestPhoneSerializer
     permission_classes = (NotAuthenticate,)
     queryset = None
 
-    def perform_create(self, serializer):
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
         otp = Otp.objects.create(mobile_phone=serializer.validated_data['mobile_phone'])
         send_sms_otp_code.delay(otp.mobile_phone, otp.code)
+        return Response(
+            {
+                "message": "code send"
+            }
+        )
 
 
 class RequestOtpVerifyView(APIView):
