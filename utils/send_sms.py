@@ -1,3 +1,4 @@
+import asyncio
 import json
 
 import httpx
@@ -72,14 +73,28 @@ class SmsIrPanel(BasePanel):
         }
 
 
-# s1 = SmsIrPanel(
-#     api_key=config("SMS_IR_API_KEY", cast=str),
-#     base_url=config("SMS_IR_BASE_URL", cast=str),
-# )
+if __name__ == "__main__":
+    from decouple import config
 
-# print(asyncio.run(s1.send_verify(
-#     phone="9391640664",
-#     value="123456",
-#     template_id=123456,
-#     template_name="CODE"
-# )))
+    s1 = SmsIrPanel(
+        api_key=config("SMS_IR_API_KEY", cast=str),
+        base_url=config("SMS_IR_BASE_URL", cast=str),
+    )
+
+    print(
+        asyncio.run(
+            s1.send_fast_sms(
+                phone="09391640664",
+                value=1234,
+                template_id=config("SMS_IR_FORGET_PASSWORD_TEMPLATE_ID", cast=int),
+                template_name=config("SMS_IR_FORGET_PASSWORD_TEMPLATE_NAME", cast=str)
+            )
+        )
+    )
+
+    # print(asyncio.run(s1.send_verify(
+    #     phone="9391640664",
+    #     value="123456",
+    #     template_id=123456,
+    #     template_name="CODE"
+    # )))

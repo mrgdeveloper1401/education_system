@@ -25,9 +25,21 @@ def send_sms_otp_code(phone, code):
     asyncio.run(instance.send_fast_sms(
         phone=phone,
         value=code,
-        template_id=config("SMS_IR_OTP_TEMPLATE_ID", cast=str),
+        template_id=config("SMS_IR_OTP_TEMPLATE_ID", cast=int),
         template_name="CODE"
     ))
+
+
+@shared_task(queue="sms_otp")
+def send_sms_forget_password(phone, code):
+    asyncio.run(
+        instance.send_fast_sms(
+            phone=phone,
+            value=code,
+            template_id=config("SMS_IR_FORGET_PASSWORD_TEMPLATE_ID", cast=int),
+            template_name=config("SMS_IR_FORGET_PASSWORD_TEMPLATE_NAME", cast=str)
+        )
+    )
 
 
 # @shared_task

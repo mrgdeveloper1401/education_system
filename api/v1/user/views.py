@@ -16,11 +16,10 @@ from django.contrib.auth import authenticate
 from django.conf import settings
 from rest_framework.validators import ValidationError
 from drf_spectacular.utils import extend_schema, OpenApiParameter
-from rest_framework_simplejwt.tokens import RefreshToken
 
 from accounts.models import User, State, City, Student, Coach, Ticket, TicketRoom, BestStudent, PrivateNotification, \
     Otp, Invitation
-from accounts.tasks import send_sms_otp_code
+from accounts.tasks import send_sms_otp_code, send_sms_forget_password
 from utils.filters import UserFilter
 from utils.pagination import StudentCoachTicketPagination
 from utils.permissions import NotAuthenticate
@@ -154,12 +153,17 @@ class ForgetPasswordApiView(APIView):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
 
+        # get mobile phone in data
         mobile_phone = serializer.validated_data['mobile_phone']
 
-        if not User.objects.filter(mobile_phone=mobile_phone).exists():
+        # check user exists
+        if not User.objects.filter(mobile_phone=mobile_phone, is_active=True).exists():
             raise ValidationError({"message": "phone number dose not exits"})
         else:
-            have_otp = Otp.objects.filter(mobile_phone=mobile_phone, expired_date__gt=timezone.now()).only(
+            have_otp = Otp.objects.filter(
+                mobile_phone=mobile_phone,
+                expired_date__gt=timezone.now()
+            ).only(
                 "mobile_phone", "expired_date"
             )
 
@@ -167,7 +171,7 @@ class ForgetPasswordApiView(APIView):
                 raise ValidationError({"message": "you have already otp code, please 2 minute wait"})
             else:
                 otp = Otp.objects.create(mobile_phone=mobile_phone)
-                send_sms_otp_code.delay(otp.mobile_phone, otp.code)
+                send_sms_forget_password.delay(otp.mobile_phone, otp.code)
                 return Response({'message': "code sent"}, status=HTTP_200_OK)
 
 
