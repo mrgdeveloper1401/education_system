@@ -64,7 +64,6 @@ class CourseSignUpSerializer(serializers.ModelSerializer):
             )
 
         else:
-
             # create otp
             otp = Otp.objects.create(
                 mobile_phone=mobile_phone

@@ -41,7 +41,7 @@ instance = SmsIrPanel(
 @shared_task(queue="course_signup")
 def send_successfully_signup(phone, password, full_name):
     asyncio.run(
-        instance.send_fast_sms(
+        instance.send_fast_multiple(
             phone=phone,
             value=[full_name, password],
             template_id=config("SMS_IR_COURSE_SIGNUP_TEMPLATE_ID", cast=int),

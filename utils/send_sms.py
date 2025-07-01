@@ -48,6 +48,29 @@ class SmsIrPanel(BasePanel):
         }
         return self.send_post_request(url, data, self.header())
 
+    def send_fast_multiple(self, phone: str, value: list, template_id: int, template_name: list):
+        """
+        در این جا میتوان چندین متغییر رو فرستاد
+        phone --> phone number:
+        value --> مقدار کلید تعیین شده برای جایگزینی در قالب پیامک (حداکثر 25 کاراکتر):
+        template_id --> شناسه قالب (قالب ها از طریق پنل قابل تعریف و مدیریت می‌باشند):
+        template_name: کلید تعیین شده در قالب (بدون در نظر گرفتن # در ابتدا و انتهای آن)
+        """
+        url = self.base_url + "send/verify"
+        data = {
+            "Mobile": phone,
+            "TemplateId": template_id,
+            "parameters": [
+                {
+                    "name": j,
+                    "value": i
+                }
+                for i, j in zip(value, template_name)
+            ]
+        }
+        # print(data)
+        # return data
+        return self.send_post_request(url, data, self.header())
 
     def send_bulk(self, line_number, message_text, mobiles: List[str], send_date_time=None):
         """
@@ -92,16 +115,27 @@ if __name__ == "__main__":
     #     )
     # )
 
-    print(
-        asyncio.run(
-            s1.send_fast_sms(
-                phone="09391640664",
-                value=["محمد گودرزی", "09391640664"],
-                template_id=config("SMS_IR_COURSE_SIGNUP_TEMPLATE_ID", cast=int),
-                template_name=["FULL_NAME", "CODE"]
-            )
-        )
-    )
+    # print(
+    #     asyncio.run(
+    #         s1.send_fast_sms(
+    #             phone="09391640664",
+    #             value=["محمد گودرزی", "09391640664"],
+    #             template_id=config("SMS_IR_COURSE_SIGNUP_TEMPLATE_ID", cast=int),
+    #             template_name=["FULL_NAME", "CODE"]
+    #         )
+    #     )
+    # )
+
+    # print(
+    #     asyncio.run(
+    #         s1.send_fast_multiple(
+    #             phone="09391640664",
+    #             value=["محمد گودرزی", "09391640664"],
+    #             template_name=["FULL_NAME", "LOGIN"],
+    #             template_id=config("SMS_IR_COURSE_SIGNUP_TEMPLATE_ID", cast=int)
+    #     )
+    # )
+    # )
 
     # print(asyncio.run(s1.send_verify(
     #     phone="9391640664",
