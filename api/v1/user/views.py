@@ -385,6 +385,7 @@ class RequestOtpVerifyView(APIView):
 class InvitationView(generics.ListAPIView):
     """
     pagination --> 20 item
+    لیست کاربران دعوت شده توسط شما
     """
     serializer_class = serializers.InvitationSerializer
     permission_classes = (IsAuthenticated,)
@@ -392,12 +393,12 @@ class InvitationView(generics.ListAPIView):
 
     def get_queryset(self):
         return Invitation.objects.filter(
-            to_student__user=self.request.user
+            from_student__user=self.request.user
         ).select_related(
             "to_student__user"
         ).only(
             "to_student__user__first_name",
             "to_student__user__last_name",
-            "to_student__referral_code",
+            # "to_student__referral_code",
             "created_at"
         )

@@ -339,18 +339,18 @@ class RequestPhoneVerifySerializer(serializers.Serializer):
 
 class InvitationSerializer(serializers.ModelSerializer):
     to_student_full_name = serializers.SerializerMethodField()
-    to_student_referral_code = serializers.SerializerMethodField()
+    # to_student_referral_code = serializers.SerializerMethodField()
 
     def get_to_student_full_name(self, obj):
         return obj.to_student.user.get_full_name
 
-    def get_to_student_referral_code(self, obj):
-        return obj.to_student.referral_code
+    # def get_to_student_referral_code(self, obj):
+    #     return obj.to_student.referral_code
 
     class Meta:
         model = Invitation
         fields = (
             "to_student_full_name",
-            "to_student_referral_code",
+            # "to_student_referral_code",
             'created_at'
         )
