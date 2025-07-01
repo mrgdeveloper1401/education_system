@@ -10,6 +10,9 @@ class OrderViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
 
 
 class CourseSignupViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin):
+    """
+    referral_code can be sent null data
+    """
     serializer_class = serializers.CourseSignUpSerializer
     queryset = CourseSignUp.objects.only(
         "course__course_name",

@@ -81,13 +81,24 @@ if __name__ == "__main__":
         base_url=config("SMS_IR_BASE_URL", cast=str),
     )
 
+    # print(
+    #     asyncio.run(
+    #         s1.send_fast_sms(
+    #             phone="09391640664",
+    #             value="1234",
+    #             template_id=config("SMS_IR_FORGET_PASSWORD_TEMPLATE_ID", cast=int),
+    #             template_name="CODE"
+    #         )
+    #     )
+    # )
+
     print(
         asyncio.run(
             s1.send_fast_sms(
                 phone="09391640664",
-                value="1234",
-                template_id=config("SMS_IR_FORGET_PASSWORD_TEMPLATE_ID", cast=int),
-                template_name="CODE"
+                value=["محمد گودرزی", "09391640664"],
+                template_id=config("SMS_IR_COURSE_SIGNUP_TEMPLATE_ID", cast=int),
+                template_name=["FULL_NAME", "CODE"]
             )
         )
     )
