@@ -37,7 +37,7 @@ def send_sms_forget_password(phone, code):
             phone=phone,
             value=code,
             template_id=config("SMS_IR_FORGET_PASSWORD_TEMPLATE_ID", cast=int),
-            template_name=config("SMS_IR_FORGET_PASSWORD_TEMPLATE_NAME", cast=str)
+            template_name="CODE"
         )
     )
 

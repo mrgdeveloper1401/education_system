@@ -85,9 +85,9 @@ if __name__ == "__main__":
         asyncio.run(
             s1.send_fast_sms(
                 phone="09391640664",
-                value=1234,
+                value="1234",
                 template_id=config("SMS_IR_FORGET_PASSWORD_TEMPLATE_ID", cast=int),
-                template_name=config("SMS_IR_FORGET_PASSWORD_TEMPLATE_NAME", cast=str)
+                template_name="CODE"
             )
         )
     )
