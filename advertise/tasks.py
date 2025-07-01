@@ -31,7 +31,7 @@ def send_sms_accept_advertise(phone, advertise_date):
             phone=phone,
             value=advertise_date,
             template_id=config("SMS_IR_ADVERTISE_TEMPLATE_ID", cast=int),
-            template_name=config("SMS_IR_ADVERTISE_TEMPLATE_NAME", cast=str),
+            template_name="DATE",
         )
     )
 
