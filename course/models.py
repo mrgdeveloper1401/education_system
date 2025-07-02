@@ -3,6 +3,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils import timezone
 from rest_framework import exceptions
+from uuid import uuid4
 
 from accounts.models import Student
 from core.models import UpdateMixin, CreateMixin, SoftDeleteMixin
@@ -271,7 +272,7 @@ class Certificate(CreateMixin, UpdateMixin, SoftDeleteMixin):
         related_name="student_certificates"
     )
     unique_code = models.CharField(
-        max_length=50,
+        max_length=36,
         unique=True,
         blank=True,
         null=True
@@ -290,6 +291,11 @@ class Certificate(CreateMixin, UpdateMixin, SoftDeleteMixin):
     class Meta:
         unique_together = ("section", "student")
         ordering = ["-id"]
+
+    def save(self, *args, **kwargs):
+        if self.unique_code is None and self.pk is None:
+            self.unique_code = str(uuid4())
+        super().save(*args, **kwargs)
 
 
 class Comment(MP_Node, CreateMixin, UpdateMixin, SoftDeleteMixin):
