@@ -316,7 +316,7 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
 
     @extend_schema(
         responses={
-            200: serializers.CertificateSerializer
+            201: serializers.CertificateSerializer
         }
     )
     @decorators.action(
@@ -340,13 +340,15 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
                 section__course__lesson_course__exact=pk,
                 student__user=request.user
             ).only(
-                "student__user__first_name",
-                "student__user__last_name",
+                # "student__user__first_name",
+                # "student__user__last_name",
                 "section_id",
-                "created_at"
-            ).select_related(
-                "student__user"
+                # "created_at",
+                "final_pdf"
             ).first()
+            #.select_related(
+            #     "student__user"
+            # ).first()
             serializer = serializers.CertificateSerializer
             ser = serializer(queryset)
             return response.Response(ser.data)

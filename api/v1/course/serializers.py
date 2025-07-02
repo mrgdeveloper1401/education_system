@@ -517,27 +517,30 @@ class HomeCourseSerializer(serializers.ModelSerializer):
 
 
 class CertificateSerializer(serializers.ModelSerializer):
-    student_full_name = serializers.SerializerMethodField()
+    # student_full_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Certificate
-        fields = ("id", "created_at", "student_full_name",)
+        fields = ("id", "final_pdf")
+        read_only_fields = ("final_pdf",)
 
-    def get_student_full_name(self, obj):
-        return obj.student.student_name if obj.student.user.first_name else None
+    # def get_student_full_name(self, obj):
+    #     return obj.student.student_name if obj.student.user.first_name else None
 
     def create(self, validated_data):
         section_pk = self.context['section_pk']
-        user_id = self.context['request'].user.id
+        # user_id = self.context['request'].user.id
+        student_id = self.context['request'].user.student.id
 
-        try:
-            student_id = Student.objects.filter(user_id=user_id).only("student_number")
-        except Student.DoesNotExist:
-            raise exceptions.ValidationError(
-                {
-                    "message": _("you not student")
-                }
-            )
+        # try:
+        #     student_id = Student.objects.filter(user_id=user_id)
+        # except Student.DoesNotExist:
+        #     raise exceptions.ValidationError(
+        #         {
+        #             "message": _("you not student")
+        #         }
+        #     )
+
 
         return Certificate.objects.create(
             student_id=student_id,
