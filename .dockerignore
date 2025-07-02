@@ -287,3 +287,4 @@ education.zip
 general_log_django
 .gitignore
 .env
+base_image_docker

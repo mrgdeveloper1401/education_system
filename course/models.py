@@ -152,7 +152,7 @@ class Section(CreateMixin, UpdateMixin, SoftDeleteMixin):
                                     validators=[max_upload_image_validator])
     is_publish = models.BooleanField(default=True)
     is_last_section = models.BooleanField(default=False,
-                                    help_text=_("اگر این مقدار برابر با ترو باشد یعنی اخرین سکشن برای درس خواهد بود"))
+                                    help_text=_("اگر تیک این مورد خورده باشد یعنی اخرین سکشن برای درس خواهد بود"))
 
     class Meta:
         ordering = ('created_at',)

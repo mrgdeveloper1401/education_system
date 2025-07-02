@@ -1,13 +1,10 @@
 from django.db.models import Prefetch
-from django_filters.rest_framework import DjangoFilterBackend
-from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import  OpenApiParameter
-from rest_framework import viewsets, permissions, exceptions, generics, filters, decorators, response, views, status, \
-    mixins
+from rest_framework import viewsets, permissions, exceptions, generics, decorators, response, views, status, \
+    mixins, filters
 from drf_spectacular.views import extend_schema
+from django_filters.rest_framework import DjangoFilterBackend
 
 from accounts.models import Student
-from utils.permissions import NotAuthenticate
 from . import serializers
 from course.models import Category, Course, Section, SectionFile, SectionVideo, LessonCourse, Certificate, \
     PresentAbsent, SectionQuestion, AnswerQuestion, Comment, SignupCourse, StudentEnrollment
@@ -61,11 +58,15 @@ class AdminCourseViewSet(viewsets.ModelViewSet):
 
 class AdminCourseSectionViewSet(viewsets.ModelViewSet):
     """
-    filter query --> ?title=title
+    filter query --> ?search=title \n
+    ??is_last_section=true or false
     """
     permission_classes = (permissions.IsAdminUser,)
     pagination_class = CommonPagination
     serializer_class = serializers.AdminCreateCourseSectionSerializer
+    filter_backends = (DjangoFilterBackend, filters.SearchFilter)
+    filterset_fields = ("is_last_section",)
+    search_fields = ("title",)
 
     def get_queryset(self):
         return Section.objects.filter(course_id=self.kwargs["course_pk"]).defer("deleted_at", "is_deleted")
@@ -74,14 +75,14 @@ class AdminCourseSectionViewSet(viewsets.ModelViewSet):
         context = super().get_serializer_context()
         context["course_pk"] = self.kwargs["course_pk"]
         return context
-
-    def filter_queryset(self, queryset):
-        title = self.request.query_params.get("title", None)
-        query = queryset
-
-        if title:
-            query = queryset.filter(title__icontains=title)
-        return query
+    #
+    # def filter_queryset(self, queryset):
+    #     title = self.request.query_params.get("title", None)
+    #     query = queryset
+    #
+    #     if title:
+    #         query = queryset.filter(title__icontains=title)
+    #     return query
 
 
 class AdminSectionFileViewSet(viewsets.ModelViewSet):

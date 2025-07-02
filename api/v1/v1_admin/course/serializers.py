@@ -58,6 +58,26 @@ class AdminCreateCourseSectionSerializer(serializers.ModelSerializer):
         exclude = ("is_deleted", "deleted_at", "course")
         read_only_fields = ("course",)
 
+    def validate(self, attrs):
+        # get course by context
+        course_id = self.context['course_pk']
+
+        try:
+            course = Course.objects.filter(id=course_id).only("course_name")
+        except Course.DoesNotExist:
+            raise exceptions.ValidationError("Course does not exist")
+
+        # get all section and filter is_last_section
+        course_sections_is_last = course.first().sections.filter(is_last_section=True, is_publish=True).only(
+            "course_id"
+        )
+
+        # check is_last_section dose it exists or not?
+        if course_sections_is_last:
+            raise exceptions.ValidationError("you have already is_last_section")
+
+        return attrs
+
     def create(self, validated_data):
         course_id = self.context['course_pk']
         return Section.objects.create(course_id=course_id,**validated_data)

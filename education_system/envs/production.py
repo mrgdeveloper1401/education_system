@@ -83,10 +83,15 @@ CSRF_COOKIE_AGE = 3600
 # MEDIA_ROOT = config("MEDIA_ROOT", cast=str)
 
 
-STORAGES["staticfiles"] = {
-    "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STORAGES = {
+    "default": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "storages.backends.s3.S3Storage",
+    },
 }
-STORAGES['default']['BACKEND'] = "storages.backends.s3.S3Storage"
+# print(STORAGES)
 
 # celery compose config
 CELERY_BROKER_URL = "redis://education_redis:6379/0"
