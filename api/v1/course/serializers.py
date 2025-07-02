@@ -547,40 +547,39 @@ class CertificateSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         section_pk=self.context['section_pk']
+        user_id=self.context['request'].user.id
 
-        # get is_last_section
-        # is_last_section = Section.objects.filter(
-        #     id=section_pk,
-        #     is_last_section=True,
-        #     is_publish=True
-        # ).only(
-        #     "id",
-        # )
-        #
-        # # check is_last_section dose exists or not
-        # if not is_last_section.exists():
-        #     raise exceptions.ValidationError(
-        #         {
-        #             "message": _("this section not is_last_section")
-        #         }
-        #     )
-
-        # else:
-            # check student access section
-        student_access_section = StudentAccessSection.objects.filter(
+        # get section_score
+        section_score = StudentSectionScore.objects.filter(
             section_id=section_pk,
-            student__user_id=self.context['request'].user.id,
-            section__is_last_section=True,
-            section__is_publish=True,
-            is_access=True
+            student__user_id=user_id,
+            score__gte=60
         ).only(
             "id"
         )
 
-        if not student_access_section.exists():
+        if section_score:
+            # check student access section
+            student_access_section = StudentAccessSection.objects.filter(
+                section_id=section_pk,
+                student__user_id=self.context['request'].user.id,
+                section__is_last_section=True,
+                section__is_publish=True,
+                is_access=True
+            ).only(
+                "id"
+            )
+
+            if not student_access_section.exists():
+                raise exceptions.ValidationError(
+                    {
+                        "message": _("you not arrived last_section or this section not last_section")
+                    }
+                )
+        else:
             raise exceptions.ValidationError(
                 {
-                    "message": _("you not arrived last_section or this section not last_section")
+                    "message": _("this section you have not been accept")
                 }
             )
         return attrs
