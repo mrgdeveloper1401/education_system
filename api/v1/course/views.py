@@ -322,24 +322,37 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
     @decorators.action(
         detail=True,
         url_path="sections/(?P<section_pk>[^/.]+)/certificate",
-        methods=['GET']
+        methods=['GET', "POST"]
     )
     def section_certificate(self, request, pk=None, section_pk=None):
-        queryset = Certificate.objects.filter(
-            section_id=section_pk,
-            section__course__lesson_course__exact=pk,
-            student__user=request.user
-        ).only(
-            "student__user__first_name",
-            "student__user__last_name",
-            "section_id",
-            "created_at"
-        ).select_related(
-            "student__user"
-        ).first()
-        serializer = serializers.CertificateSerializer
-        ser = serializer(queryset)
-        return response.Response(ser.data)
+        if request.method == "POST":
+            serializer = serializers.CertificateSerializer(
+                data=request.data,
+                context={"section_pk": section_pk, "request": request}
+            )
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return response.Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        if request.method == "GET":
+            queryset = Certificate.objects.filter(
+                section_id=section_pk,
+                section__course__lesson_course__exact=pk,
+                student__user=request.user
+            ).only(
+                "student__user__first_name",
+                "student__user__last_name",
+                "section_id",
+                "created_at"
+            ).select_related(
+                "student__user"
+            ).first()
+            serializer = serializers.CertificateSerializer
+            ser = serializer(queryset)
+            return response.Response(ser.data)
+
+        else:
+            raise exceptions.MethodNotAllowed(request.method)
 
 
 class StudentPollAnswer(mixins.CreateModelMixin, viewsets.GenericViewSet):

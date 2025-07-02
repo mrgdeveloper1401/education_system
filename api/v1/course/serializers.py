@@ -3,6 +3,7 @@ from rest_framework import serializers, exceptions
 from drf_spectacular.utils import extend_schema_field
 from rest_framework.generics import get_object_or_404
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 
 from accounts.models import Student, PrivateNotification
 from course.enums import RateChoices, StudentStatusChoices
@@ -520,24 +521,68 @@ class CertificateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Certificate
-        fields = ("id", "created_at", "student_full_name", "image")
-        read_only_fields = ("image",)
+        fields = ("id", "created_at", "student_full_name",)
 
     def get_student_full_name(self, obj):
         return obj.student.student_name if obj.student.user.first_name else None
 
     def create(self, validated_data):
         section_pk = self.context['section_pk']
-        student_id = self.context['request'].user.student.id
-        return Certificate.objects.create(student_id=student_id, section_id=section_pk, **validated_data)
+        user_id = self.context['request'].user.id
+
+        try:
+            student_id = Student.objects.filter(user_id=user_id).only("student_number")
+        except Student.DoesNotExist:
+            raise exceptions.ValidationError(
+                {
+                    "message": _("you not student")
+                }
+            )
+
+        return Certificate.objects.create(
+            student_id=student_id,
+            section_id=section_pk,
+            **validated_data
+        )
 
     def validate(self, attrs):
         section_pk=self.context['section_pk']
-        student_id = self.context['request'].user.student.id
 
-        if Certificate.objects.filter(section_id=section_pk, student_id=student_id).exists():
-            raise exceptions.ValidationError({"message": "you have already certificate"})
+        # get is_last_section
+        # is_last_section = Section.objects.filter(
+        #     id=section_pk,
+        #     is_last_section=True,
+        #     is_publish=True
+        # ).only(
+        #     "id",
+        # )
+        #
+        # # check is_last_section dose exists or not
+        # if not is_last_section.exists():
+        #     raise exceptions.ValidationError(
+        #         {
+        #             "message": _("this section not is_last_section")
+        #         }
+        #     )
 
+        # else:
+            # check student access section
+        student_access_section = StudentAccessSection.objects.filter(
+            section_id=section_pk,
+            student__user_id=self.context['request'].user.id,
+            section__is_last_section=True,
+            section__is_publish=True,
+            is_access=True
+        ).only(
+            "id"
+        )
+
+        if not student_access_section.exists():
+            raise exceptions.ValidationError(
+                {
+                    "message": _("you not arrived last_section or this section not last_section")
+                }
+            )
         return attrs
 
 

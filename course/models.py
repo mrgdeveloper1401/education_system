@@ -259,17 +259,37 @@ class SendSectionFile(CreateMixin, UpdateMixin, SoftDeleteMixin):
                 self.send_file_status = SendFileChoices.rejected
         super().save(*args, **kwargs)
 
-# TODO, when clean migration, we remove field null in model Certificate
 class Certificate(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    section = models.ForeignKey(Section, on_delete=models.CASCADE, related_name="section_certificates",
-                               limit_choices_to={"is_publish": True}, null=True)
-    student = models.ForeignKey("accounts.Student", on_delete=models.CASCADE, related_name="student_certificates",
-                                limit_choices_to={"is_active": True})
-    image = models.ForeignKey("images.Image", related_name="image_certificate", null=True, on_delete=models.CASCADE)
+    section = models.ForeignKey(
+        Section,
+        on_delete=models.PROTECT,
+        related_name="section_certificates"
+    )
+    student = models.ForeignKey(
+        "accounts.Student",
+        on_delete=models.PROTECT,
+        related_name="student_certificates"
+    )
+    unique_code = models.CharField(
+        max_length=50,
+        unique=True,
+        blank=True,
+        null=True
+    )
+    qr_code = models.ImageField(
+        upload_to="certificates/qr_codes/%Y/%m/%d/",
+        blank=True
+    )
+    final_pdf = models.FileField(
+        upload_to="certificates/pdf/%Y/%m/%d/",
+        null=True,
+        blank=True
+    )
+    is_active = models.BooleanField(default=True)
 
     class Meta:
-        db_table = 'course_certificate'
         unique_together = ("section", "student")
+        ordering = ["-id"]
 
 
 class Comment(MP_Node, CreateMixin, UpdateMixin, SoftDeleteMixin):

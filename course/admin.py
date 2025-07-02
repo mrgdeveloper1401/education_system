@@ -100,9 +100,19 @@ class LessonCourseAdmin(admin.ModelAdmin):
 @admin.register(models.Certificate)
 class CertificateAdmin(admin.ModelAdmin):
     list_display = ('section', "student", "created_at")
-    list_select_related = ('student', "section")
-    raw_id_fields = ('section', "student", "image")
+    # list_select_related = ('student', "section")
+    raw_id_fields = ('section', "student",)
 
+    def get_queryset(self, request):
+        return super().get_queryset(request).only(
+            "section_id",
+            "student__student_number",
+            "is_active",
+            "final_pdf",
+            "qr_code",
+            "unique_code",
+            "created_at",
+        )
 
 @admin.register(models.StudentSectionScore)
 class SectionScoreAdmin(admin.ModelAdmin):
