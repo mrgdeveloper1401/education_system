@@ -1,3 +1,4 @@
+import json
 from datetime import timedelta
 from django.conf import settings
 from django.utils import timezone
@@ -103,10 +104,12 @@ class PaySubscriptionSerializer(serializers.ModelSerializer):
         fields = ("subscription", "coupon_code")
 
     def validate(self, attrs):
+        # print(attrs)
+        # print(attrs.get("subscription").id)
         get_sub = Subscription.objects.filter(
             id=attrs['subscription'].id,
             status="pending",
-            user=self.context['request'].user
+            user_id=self.context['request'].user.id
         ).only(
             "user__mobile_phone",
             "user__email",
@@ -115,40 +118,83 @@ class PaySubscriptionSerializer(serializers.ModelSerializer):
             "status"
         )
 
-        if not get_sub:
+        if not get_sub.exists():
             raise exceptions.NotFound()
         attrs['get_sub'] = get_sub
         return attrs
 
-    def validate_coupon_code(self, data):
-        if not Coupon.objects.filter(
-                code=data,
-                is_active=True,
-                valid_from__lte=timezone.now(),
-                valid_to__gte=timezone.now()
-        ).exists():
-            raise exceptions.ValidationError({"message": _("code is not exits or wrong")})
-        return data
+    # def validate_coupon_code(self, data):
+    #     if not Coupon.objects.filter(
+    #             code=data,
+    #             is_active=True,
+    #             valid_from__lte=timezone.now(),
+    #             valid_to__gte=timezone.now()
+    #     ).exists():
+    #         raise exceptions.ValidationError({"message": _("code is not exits or wrong")})
+    #     return data
 
     def create(self, validated_data):
         # gateway merchant id
         zibal_api_key = settings.ZIBAL_MERCHENT_ID
-        get_sub = validated_data['get_sub'].last()
+
+        # get sub after validate
+        get_sub = validated_data['get_sub']
+
+        # get coupon_code
         coupon_code = validated_data.get('coupon_code', None)
-        instance = Zibal(
-            api_key=zibal_api_key,
-            call_back_url=settings.ZIBAL_CALLBACK_URL,
-            amount=int(get_sub.final_price_by_tax_coupon(coupon_code)),
+
+        # validate coupon code
+        coupon = Coupon.objects.filter(
+                code=coupon_code,
+                is_active=True,
+                valid_from__lte=timezone.now(),
+                valid_to__gte=timezone.now()
+        ).only(
+            "id",
+            "discount"
         )
-        pay_sub = PaymentSubscription.objects.create(
-            subscription=get_sub
-        )
-        pay_sub.response_payment = instance.request_url()
-        pay_sub.save()
-        return pay_sub
+
+        if not coupon.exists():
+            raise exceptions.ValidationError({"message": _("code is not exits or wrong")})
+
+        else:
+
+            # check amount discount coupon
+            if coupon.last().discount == 100:
+                # create payment subscription
+                data = {
+                        "status": "success",
+                        "message": "you successfully active subscription"
+                }
+                data = json.dumps(data)
+                pay_sub = PaymentSubscription.objects.create(
+                    subscription=get_sub.last(),
+                    response_payment = data
+                )
+                # update status subscription
+                get_sub.update(status="ACTIVE")
+                # return data
+                return pay_sub
+
+            else:
+
+                # create gateway
+                instance = Zibal(
+                    api_key=zibal_api_key,
+                    call_back_url=settings.ZIBAL_CALLBACK_URL,
+                    amount=int(get_sub.last().final_price_by_tax_coupon(coupon_code)),
+                )
+
+                # create payment subscription
+                pay_sub = PaymentSubscription.objects.create(
+                    subscription=get_sub.last()
+                )
+                pay_sub.response_payment = instance.request_url()
+                pay_sub.save()
+                return pay_sub
 
     def to_representation(self, instance):
-        return instance.response_payment
+        return json.loads(instance.response_payment)
 
 
 class PaymentVerifySerializer(serializers.ModelSerializer):
