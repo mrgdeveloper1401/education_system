@@ -59,7 +59,7 @@ class Question(CreateMixin, UpdateMixin, SoftDeleteMixin):
         help_text=_("پیوست یک فایل برای سوال"
                     "فورمت های مجاز"
                     "zip - pdf - png - jpeg"),
-        validators=FileExtensionValidator(allowed_extensions=("zip","pdf", "png", "jpeg"))
+        validators=(FileExtensionValidator(allowed_extensions=("zip","pdf", "png", "jpeg")),)
     )
     question_type = models.CharField(
         max_length=2,
