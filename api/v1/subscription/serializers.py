@@ -154,19 +154,18 @@ class PaySubscriptionSerializer(serializers.ModelSerializer):
             "discount"
         )
 
-        if not coupon.exists():
+        # if coupon is existing we check coupon
+        if coupon_code and not coupon.exists():
             raise exceptions.ValidationError({"message": _("code is not exits or wrong")})
 
         else:
-
             # check amount discount coupon
-            if coupon.last().discount == 100:
+            if coupon and coupon.last().discount == 100:
                 # create payment subscription
                 data = {
                         "status": "success",
                         "message": "you successfully active subscription"
                 }
-                data = json.dumps(data)
                 pay_sub = PaymentSubscription.objects.create(
                     subscription=get_sub.last(),
                     response_payment = data
@@ -194,7 +193,8 @@ class PaySubscriptionSerializer(serializers.ModelSerializer):
                 return pay_sub
 
     def to_representation(self, instance):
-        return json.loads(instance.response_payment)
+        # if instance.response_payment
+        return instance.response_payment
 
 
 class PaymentVerifySerializer(serializers.ModelSerializer):

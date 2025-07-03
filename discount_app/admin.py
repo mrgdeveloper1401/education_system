@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 
-from .models import Discount, Coupon
+from .models import Discount, Coupon, UserCoupon
 
 
 @admin.register(Discount)
@@ -34,4 +34,27 @@ class CouponAdmin(admin.ModelAdmin):
             "is_active",
             "created_at",
             "max_usage"
+        )
+
+
+@admin.register(UserCoupon)
+class UserCouponAdmin(admin.ModelAdmin):
+    list_display = (
+        "user",
+        "coupon",
+        "created_at"
+    )
+    raw_id_fields = (
+        "user",
+        "coupon"
+    )
+    list_per_page = 20
+    search_fields = ("user__mobile_phone",)
+    search_help_text = _("برای جست و جو میتوانید از شماره موبایل کاربر استفاده کنید")
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related("user", "coupon").only(
+            "user__mobile_phone",
+            "coupon__code",
+            "created_at"
         )

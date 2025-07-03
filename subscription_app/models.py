@@ -3,6 +3,7 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import ValidationError, MinValueValidator, MaxValueValidator
+from rest_framework import exceptions
 
 from core.models import CreateMixin, UpdateMixin, SoftDeleteMixin
 from course.enums import NumberOfDaysChoices
@@ -38,6 +39,15 @@ class Subscription(CreateMixin, UpdateMixin, SoftDeleteMixin):
         return f"{self.user.mobile_phone} - {self.status}"
 
     def final_price_by_tax_coupon(self, coupon_code):
+
+        # check price
+        if self.price is None:
+            raise exceptions.ValidationError(
+                {
+                    "message": _("you subscription dose not price!!")
+                }
+            )
+
         coupon = Coupon.objects.filter(
             is_active=True,
             valid_from__lte=timezone.now(),
@@ -46,6 +56,8 @@ class Subscription(CreateMixin, UpdateMixin, SoftDeleteMixin):
         ).only("is_active", "valid_from", "valid_to", "code")
 
         tax_value = 10
+        # print(self.price)
+
         price_tax = (self.price + (self.price * tax_value) / 100) * 10
 
         if coupon:
@@ -55,6 +67,7 @@ class Subscription(CreateMixin, UpdateMixin, SoftDeleteMixin):
             final_price = calc_discount + (calc_discount * tax_value) / 100
             return final_price
         return price_tax
+
 
     class Meta:
         db_table = 'subscription'

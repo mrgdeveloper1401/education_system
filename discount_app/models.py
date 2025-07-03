@@ -57,3 +57,19 @@ class Discount(CreateMixin, UpdateMixin, SoftDeleteMixin):
         verbose_name = "تخفیف"
         verbose_name_plural = "تخفیف‌ها"
         # unique_together = ("content_type", "object_id")
+
+
+class UserCoupon(CreateMixin, SoftDeleteMixin):
+    user = models.ForeignKey(
+        "accounts.User",
+        on_delete=models.PROTECT,
+        related_name="user_coupon"
+    )
+    coupon = models.ForeignKey(
+        Coupon,
+        related_name="coupon_user_coupon",
+        on_delete=models.PROTECT
+    )
+
+    class Meta:
+        db_table = "user_coupon"
