@@ -97,123 +97,119 @@ class PaySubscriptionSerializer(serializers.ModelSerializer):
     subscription = serializers.PrimaryKeyRelatedField(
         queryset=Subscription.objects.only("status", "user__mobile_phone"),
     )
-    coupon_code = serializers.CharField(required=False)
+    coupon_code = serializers.CharField(required=False, allow_null=True)
 
     class Meta:
         model = PaymentSubscription
         fields = ("subscription", "coupon_code")
 
     def validate(self, attrs):
-        # print(attrs)
-        # print(attrs.get("subscription").id)
+        request = self.context['request']
+        subscription = attrs['subscription']
+
+        # بررسی وجود اشتراک با شرایط مورد نظر
         get_sub = Subscription.objects.filter(
-            id=attrs['subscription'].id,
+            id=subscription.id,
             status="pending",
-            user_id=self.context['request'].user.id
+            user_id=request.user.id
         ).only(
             "user__mobile_phone",
             "user__email",
             "user__first_name",
             "user__last_name",
             "status"
-        )
+        ).first()  # استفاده از first() به جای فیلتر کامل
 
-        if not get_sub.exists():
+        if not get_sub:
             raise exceptions.NotFound()
+
         attrs['get_sub'] = get_sub
         return attrs
 
-    # def validate_coupon_code(self, data):
-    #     if not Coupon.objects.filter(
-    #             code=data,
-    #             is_active=True,
-    #             valid_from__lte=timezone.now(),
-    #             valid_to__gte=timezone.now()
-    #     ).exists():
-    #         raise exceptions.ValidationError({"message": _("code is not exits or wrong")})
-    #     return data
-
     def create(self, validated_data):
-        # gateway merchant id
-        zibal_api_key = settings.ZIBAL_MERCHENT_ID
-
-        # get sub after validate
+        request = self.context['request']
         get_sub = validated_data['get_sub']
+        coupon_code = validated_data.get('coupon_code')
+        user = request.user
 
-        # get coupon_code
-        coupon_code = validated_data.get('coupon_code', None)
+        # اگر کد تخفیف وجود دارد
+        if coupon_code:
+            coupon = self._validate_coupon(coupon_code, user)
 
-        # validate coupon code
+            if coupon.discount == 100:
+                return self._handle_full_discount(get_sub, coupon)
+
+            # برای تخفیف‌های کمتر از 100%
+            return self._process_payment(get_sub, coupon_code)
+
+        # اگر کد تخفیف وجود ندارد
+        return self._process_payment(get_sub)
+
+    def _validate_coupon(self, coupon_code, user):
+        """اعتبارسنجی کوپن و بررسی استفاده کاربر"""
+        now = timezone.now()
         coupon = Coupon.objects.filter(
-                code=coupon_code,
-                is_active=True,
-                valid_from__lte=timezone.now(),
-                valid_to__gte=timezone.now()
-        ).only(
-            "id",
-            "discount",
-            "max_usage"
+            code=coupon_code,
+            is_active=True,
+            valid_from__lte=now,
+            valid_to__gte=now
+        ).first()
+
+        if not coupon:
+            raise exceptions.ValidationError({"message": _("کد تخفیف معتبر نیست")})
+
+        # بررسی تعداد استفاده کاربر از این کوپن
+        usage_count = UserCoupon.objects.filter(
+            user_id=user.id,
+            coupon_id=coupon.id
+        ).count()
+
+        if usage_count >= coupon.max_usage:
+            raise exceptions.ValidationError(
+                {"message": _("شما قبلاً از این کد تخفیف استفاده کرده‌اید")}
+            )
+
+        # ثبت استفاده کاربر از کوپن
+        UserCoupon.objects.create(user_id=user.id, coupon_id=coupon.id)
+        return coupon
+
+    def _handle_full_discount(self, subscription, coupon):
+        """پردازش تخفیف 100%"""
+        data = {
+            "status": "success",
+            "message": "اشتراک شما با موفقیت فعال شد"
+        }
+
+        # ایجاد پرداخت و به‌روزرسانی وضعیت اشتراک
+        pay_sub = PaymentSubscription.objects.create(
+            subscription=subscription,
+            response_payment=data
         )
 
-        # if coupon is existing we check coupon
-        if coupon_code and not coupon.exists():
-            raise exceptions.ValidationError({"message": _("code is not exits or wrong")})
+        subscription.status = "ACTIVE"
+        subscription.save()
 
-        elif coupon_code and coupon.exists():
-            # if coupon exiting we check max_usage
-            user_coupon = UserCoupon.objects.filter(
-                user_id=self.context['request'].user.id,
-                coupon_id=coupon.last().id
-            ).only("id")
+        return pay_sub
 
-            if user_coupon and user_coupon.count() == coupon.last().max_usage:
-                raise exceptions.ValidationError(
-                    {
-                        "message": _("you have already user this coupon")
-                    }
-                )
+    def _process_payment(self, subscription, coupon_code=None):
+        """پردازش پرداخت از طریق درگاه"""
+        amount = subscription.final_price_by_tax_coupon(coupon_code) if coupon_code else subscription.price
 
-            else:
-                UserCoupon.objects.create(
-                    user_id=self.context['request'].user.id,
-                    coupon_id=coupon.last().id,
-                )
-                # check amount discount coupon
-            if coupon and coupon.last().discount == 100:
-                # create payment subscription
-                data = {
-                    "status": "success",
-                    "message": "you successfully active subscription"
-                }
-                pay_sub = PaymentSubscription.objects.create(
-                    subscription=get_sub.last(),
-                    response_payment=data
-                )
-                # update status subscription
-                get_sub.update(status="ACTIVE")
-                # return data
-                return pay_sub
+        instance = Zibal(
+            api_key=settings.ZIBAL_MERCHENT_ID,
+            call_back_url=settings.ZIBAL_CALLBACK_URL,
+            amount=int(amount),
+        )
 
-        else:
-            # create gateway
-            instance = Zibal(
-                api_key=zibal_api_key,
-                call_back_url=settings.ZIBAL_CALLBACK_URL,
-                amount=int(get_sub.last().final_price_by_tax_coupon(coupon_code)),
-            )
+        pay_sub = PaymentSubscription.objects.create(
+            subscription=subscription,
+            response_payment=instance.request_url()
+        )
 
-            # create payment subscription
-            pay_sub = PaymentSubscription.objects.create(
-                subscription=get_sub.last()
-            )
-            pay_sub.response_payment = instance.request_url()
-            pay_sub.save()
-            return pay_sub
+        return pay_sub
 
     def to_representation(self, instance):
-        # if instance.response_payment
         return instance.response_payment
-
 
 class PaymentVerifySerializer(serializers.ModelSerializer):
     class Meta:
