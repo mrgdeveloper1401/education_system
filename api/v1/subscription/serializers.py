@@ -8,7 +8,7 @@ from django.utils.translation import gettext_lazy as _
 
 from course.enums import PlanTypeEnum
 from course.models import Course, CourseTypeModel
-from discount_app.models import Coupon
+from discount_app.models import Coupon, UserCoupon
 from subscription_app.models import Subscription, PaymentSubscription, PaymentVerify
 from utils.gateway import Zibal
 
@@ -151,7 +151,8 @@ class PaySubscriptionSerializer(serializers.ModelSerializer):
                 valid_to__gte=timezone.now()
         ).only(
             "id",
-            "discount"
+            "discount",
+            "max_usage"
         )
 
         # if coupon is existing we check coupon
@@ -159,6 +160,22 @@ class PaySubscriptionSerializer(serializers.ModelSerializer):
             raise exceptions.ValidationError({"message": _("code is not exits or wrong")})
 
         else:
+            # if coupon exiting we check max_usage
+            user_coupon = UserCoupon.objects.filter(
+                user_id=self.context['request'].user.id,
+                coupon_id=coupon.last().id
+            )
+            if user_coupon and user_coupon.count() == coupon.last().max_usage:
+                raise exceptions.ValidationError(
+                    {
+                        "message": _("you have already user this coupon")
+                    }
+                )
+            else:
+                UserCoupon.objects.create(
+                    user_id=self.context['request'].user.id,
+                    coupon_id=coupon.last().id,
+                )
             # check amount discount coupon
             if coupon and coupon.last().discount == 100:
                 # create payment subscription
