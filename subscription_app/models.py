@@ -53,7 +53,7 @@ class Subscription(CreateMixin, UpdateMixin, SoftDeleteMixin):
             valid_from__lte=timezone.now(),
             valid_to__gte=timezone.now(),
             code=coupon_code
-        ).only("is_active", "valid_from", "valid_to", "code")
+        ).only("discount", "code")
 
         tax_value = 10
         # print(self.price)

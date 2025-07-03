@@ -159,55 +159,56 @@ class PaySubscriptionSerializer(serializers.ModelSerializer):
         if coupon_code and not coupon.exists():
             raise exceptions.ValidationError({"message": _("code is not exits or wrong")})
 
-        else:
+        elif coupon_code and coupon.exists():
             # if coupon exiting we check max_usage
             user_coupon = UserCoupon.objects.filter(
                 user_id=self.context['request'].user.id,
                 coupon_id=coupon.last().id
-            )
+            ).only("id")
+
             if user_coupon and user_coupon.count() == coupon.last().max_usage:
                 raise exceptions.ValidationError(
                     {
                         "message": _("you have already user this coupon")
                     }
                 )
+
             else:
                 UserCoupon.objects.create(
                     user_id=self.context['request'].user.id,
                     coupon_id=coupon.last().id,
                 )
-            # check amount discount coupon
+                # check amount discount coupon
             if coupon and coupon.last().discount == 100:
                 # create payment subscription
                 data = {
-                        "status": "success",
-                        "message": "you successfully active subscription"
+                    "status": "success",
+                    "message": "you successfully active subscription"
                 }
                 pay_sub = PaymentSubscription.objects.create(
                     subscription=get_sub.last(),
-                    response_payment = data
+                    response_payment=data
                 )
                 # update status subscription
                 get_sub.update(status="ACTIVE")
                 # return data
                 return pay_sub
 
-            else:
+        else:
+            # create gateway
+            instance = Zibal(
+                api_key=zibal_api_key,
+                call_back_url=settings.ZIBAL_CALLBACK_URL,
+                amount=int(get_sub.last().final_price_by_tax_coupon(coupon_code)),
+            )
 
-                # create gateway
-                instance = Zibal(
-                    api_key=zibal_api_key,
-                    call_back_url=settings.ZIBAL_CALLBACK_URL,
-                    amount=int(get_sub.last().final_price_by_tax_coupon(coupon_code)),
-                )
-
-                # create payment subscription
-                pay_sub = PaymentSubscription.objects.create(
-                    subscription=get_sub.last()
-                )
-                pay_sub.response_payment = instance.request_url()
-                pay_sub.save()
-                return pay_sub
+            # create payment subscription
+            pay_sub = PaymentSubscription.objects.create(
+                subscription=get_sub.last()
+            )
+            pay_sub.response_payment = instance.request_url()
+            pay_sub.save()
+            return pay_sub
 
     def to_representation(self, instance):
         # if instance.response_payment
