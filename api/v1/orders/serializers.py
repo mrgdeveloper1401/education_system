@@ -1,7 +1,13 @@
+import datetime
+import random
+import string
+
+from django.utils import timezone
 from rest_framework import serializers, exceptions
 
-from accounts.models import User, Otp, Student, Invitation
+from accounts.models import User, Otp, Student, Invitation, PrivateNotification
 from course.models import Course
+from discount_app.models import Coupon
 from order_app.models import Order, CourseSignUp
 from order_app.tasks import send_successfully_signup
 from accounts.tasks import send_sms_otp_code
@@ -85,6 +91,24 @@ class CourseSignUpSerializer(serializers.ModelSerializer):
             Invitation.objects.create(
                 from_student=referral.first(),
                 to_student=to_student.first()
+            )
+            # create coupon
+            new_coupon = Coupon.objects.create(
+                code=''.join(random.choices(
+                    string.ascii_letters + string.digits,
+                    k=20
+                )),
+                max_usage=1,
+                valid_from=timezone.now(),
+                valid_to=timezone.now() + datetime.timedelta(days=30),
+                discount=30
+            )
+            # create notification
+            PrivateNotification.objects.create(
+                user_id=referral.first().user_id,
+                title="کد تخفیف",
+                body=f' کاربر تخفیف جدید شما به واسط دعوت جدید{new_coupon.code} \n'
+                     f'انقضای این کد تخفیف یک ماه هست'
             )
 
         # return data

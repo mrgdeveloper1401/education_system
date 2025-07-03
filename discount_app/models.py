@@ -60,6 +60,9 @@ class Discount(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 
 class UserCoupon(CreateMixin, SoftDeleteMixin):
+    """
+    In this model, it displays the discount codes used by the user.
+    """
     user = models.ForeignKey(
         "accounts.User",
         on_delete=models.PROTECT,
