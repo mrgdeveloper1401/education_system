@@ -1,7 +1,7 @@
 from datetime import timedelta
 
 from django.core import exceptions
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, FileExtensionValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
@@ -52,8 +52,15 @@ class Question(CreateMixin, UpdateMixin, SoftDeleteMixin):
     name = models.TextField(help_text=_("سوال"))
     exam = models.ForeignKey(Exam, on_delete=models.PROTECT, related_name="questions")
     is_active = models.BooleanField(default=True)
-    question_file = models.FileField(upload_to="question_exam/file/%Y/%m/%d", blank=True, null=True,
-                                     help_text=_("پیوست یک فایل برای سوال"))
+    question_file = models.FileField(
+        upload_to="question_exam/file/%Y/%m/%d",
+        blank=True,
+        null=True,
+        help_text=_("پیوست یک فایل برای سوال"
+                    "فورمت های مجاز"
+                    "zip - pdf - png - jpeg"),
+        validators=FileExtensionValidator(allowed_extensions=("zip","pdf", "png", "jpeg"))
+    )
     question_type = models.CharField(
         max_length=2,
         choices=QuestionType.choices,
