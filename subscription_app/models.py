@@ -1,5 +1,3 @@
-from datetime import timedelta
-
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.utils import timezone

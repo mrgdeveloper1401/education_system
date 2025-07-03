@@ -12,6 +12,12 @@ class Coupon(CreateMixin, UpdateMixin, SoftDeleteMixin):
     code = models.CharField(max_length=50, unique=True)
     valid_from = models.DateTimeField(_("از تاریخ"))
     valid_to = models.DateTimeField(_("تا تاریخ"))
+    max_usage = models.PositiveIntegerField(
+        _("حداکثر استفاده"),
+        blank=True,
+        null=True,
+        help_text=_("توسط کاربر چند بار استفاده شود")
+    )
     discount = models.IntegerField(help_text=_("درصد کد تخفیف"),
         validators=[MinValueValidator(0), MaxValueValidator(100)]
     )

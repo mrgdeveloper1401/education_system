@@ -100,7 +100,7 @@ class LessonCourseAdmin(admin.ModelAdmin):
 @admin.register(models.Certificate)
 class CertificateAdmin(admin.ModelAdmin):
     list_display = ('section', "student", "created_at")
-    # list_select_related = ('student', "section")
+    list_select_related = ('student', "section")
     raw_id_fields = ('section', "student",)
 
     def get_queryset(self, request):

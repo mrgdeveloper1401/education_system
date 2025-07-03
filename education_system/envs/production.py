@@ -85,7 +85,7 @@ CSRF_COOKIE_AGE = 3600
 
 STORAGES = {
     "default": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
     },
     "staticfiles": {
         "BACKEND": "storages.backends.s3.S3Storage",

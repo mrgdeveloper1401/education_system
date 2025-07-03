@@ -19,13 +19,19 @@ class DiscountAdmin(admin.ModelAdmin):
 @admin.register(Coupon)
 class CouponAdmin(admin.ModelAdmin):
     list_per_page = 20
-    list_display = ("code", "valid_from", "valid_to", "discount", "is_active", "created_at")
-    list_editable = ("is_active",)
+    list_display = ("code", "valid_from", "valid_to", "max_usage", "discount", "is_active", "created_at")
+    list_editable = ("is_active", 'max_usage')
     search_fields = ("code",)
     search_help_text = _("برای سرچ کردن میتوانید کد مورد نظر رو سرچ کنید")
     list_filter = ("is_active", "for_first")
 
     def get_queryset(self, request):
         return super().get_queryset(request).only(
-            "code", "valid_from", "valid_to", "discount", "is_active", "created_at"
+            "code",
+            "valid_from",
+            "valid_to",
+            "discount",
+            "is_active",
+            "created_at",
+            "max_usage"
         )
