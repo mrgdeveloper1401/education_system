@@ -14,6 +14,9 @@ DATABASES = {
         "PASSWORD": "postgres",
         'HOST': "localhost",
         "PORT": 5433,
+        "OPTIONS": {
+            "pool": True
+        }
     },
     # "chat_db": {
     #     "ENGINE": "djongo",
