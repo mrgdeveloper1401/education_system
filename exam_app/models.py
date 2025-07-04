@@ -53,9 +53,11 @@ class Exam(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     @property
     def exam_end_date(self):
-        d = (self.start_datetime + timedelta(minutes=self.number_of_time)) if self.start_datetime else None
-        d = d.astimezone(tz=pytz.timezone(settings.TIME_ZONE))
-        return d
+        if self.start_datetime:
+            d = (self.start_datetime + timedelta(minutes=self.number_of_time))
+            d = d.astimezone(tz=pytz.timezone(settings.TIME_ZONE))
+            return d
+        return None
 
     def clean(self):
         if self.course and not self.start_datetime:
