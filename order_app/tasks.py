@@ -58,15 +58,15 @@ def send_successfully_signup(phone, password, full_name):
 
 @shared_task(queue="coupon_send")
 def coupon_send(phone, coupon_code):
-    # print("task done!")
-    asyncio.run(
-        instance.send_fast_sms(
-            phone=phone,
-            value=coupon_code,
-            template_id=config("SMS_IR_COUPON_SEND_TEMPLATE_ID", cast=int),
-            template_name="coupon_send"
-        )
-    )
+    print("task done!")
+    # asyncio.run(
+    #     instance.send_fast_sms(
+    #         phone=phone,
+    #         value=coupon_code,
+    #         template_id=config("SMS_IR_COUPON_SEND_TEMPLATE_ID", cast=int),
+    #         template_name="coupon_send"
+    #     )
+    # )
 
 @shared_task(queue="celery")
 def process_referral(referral_code, mobile_phone):
