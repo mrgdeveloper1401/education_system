@@ -349,9 +349,20 @@ class ParticipationListRetrieveSerializer(serializers.ModelSerializer):
         )
 
 
+class CoachUserAnswerSelectedChoiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Choice
+        fields = (
+            "id",
+            "text",
+            "is_correct"
+        )
+
+
 class CoachUserAnswerSerializer(serializers.ModelSerializer):
     question_name = serializers.SerializerMethodField()
     question_max_score = serializers.SerializerMethodField()
+    selected_choices = CoachUserAnswerSelectedChoiceSerializer(many=True, read_only=True)
 
     def get_question_name(self, obj):
         return obj.question.name
@@ -375,19 +386,4 @@ class CoachUserAnswerSerializer(serializers.ModelSerializer):
             "choice_file",
             "question_name",
             "question_max_score",
-            "selected_choices"
         )
-
-
-# class UpdateCoachUserAnswerSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Answer
-#         fields = (
-#             "id",
-#             "given_score"
-#         )
-#
-#     def validate(self, attrs):
-#         score = attrs.get("given_score")
-#
-#         if score >

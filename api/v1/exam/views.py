@@ -246,11 +246,11 @@ class ParticipationListRetrieveViewSet(
         exam_id=self.kwargs['exam_pk'],
         exam__coach_access__id=self.request.user.id
     ).select_related(
-        "exam__coach_access",
+        # "exam__coach_access",
         "student__user"
     ).only(
-        "exam__coach_access__mobile_phone",
-        "student__user__mobile_phone",
+        # "exam__coach_access__mobile_phone",
+        # "student__user__mobile_phone",
         "student__user__first_name",
         "student__user__last_name",
         "score"
