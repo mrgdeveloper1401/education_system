@@ -55,25 +55,6 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
             self.permission_classes = (IsAuthenticated, IsAccessPermission)
         return super().get_permissions()
 
-    # @extend_schema(
-    #     parameters=[
-    #         OpenApiParameter(
-    #             name="class_name",
-    #             type=OpenApiTypes.STR,
-    #             location=OpenApiParameter.QUERY,
-    #             description="The name of the purchase.",
-    #         ),
-    #         OpenApiParameter(
-    #             name="progress_lesson",
-    #             type=OpenApiTypes.STR,
-    #             location=OpenApiParameter.QUERY,
-    #             description="The name of the progress lesson.",
-    #         )
-    #     ]
-    # )
-    # def list(self, request, *args, **kwargs):
-    #     res = super().list(request, *args, **kwargs)
-    #     return res
 
     def get_queryset(self):
         query = (LessonCourse.objects.filter(
@@ -86,12 +67,13 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
             "course__course_name", "course__course_image", "course__project_counter", "coach__user__last_name",
             "coach__user__first_name", "progress", "class_name", "course__category__category_name"
         ).distinct()
-        std_enrollment = StudentEnrollment.objects.filter(student__user=self.request.user).only(
-            "student_id"
-        ).distinct()
-        if std_enrollment:
-            return query
-        return []
+        # std_enrollment = StudentEnrollment.objects.filter(student__user=self.request.user).only(
+        #     "student_id"
+        # ).distinct()
+        # if std_enrollment:
+        #     return query
+        # return []
+        return query
 
     # def filter_queryset(self, queryset):
     #     class_name = self.request.query_params.get("class_name") # for use search
