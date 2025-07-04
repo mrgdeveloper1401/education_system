@@ -315,6 +315,7 @@ class UserNotificationViewSet(viewsets.ModelViewSet):
     you can use \n
     ?read=True \n
     ?read=False
+    ?title=xyz
     """
     pagination_class = CommonPagination
 
@@ -333,9 +334,14 @@ class UserNotificationViewSet(viewsets.ModelViewSet):
 
     def filter_queryset(self, queryset):
         is_read = self.request.query_params.get("read", None)
+        title = self.request.query_params.get("title", None)
 
+        if is_read and title:
+            queryset = queryset.filter(is_read=is_read, title__icontains=title)
         if is_read:
-            return queryset.filter(is_read=is_read)
+            queryset = queryset.filter(is_read=is_read)
+        if title:
+            queryset = queryset.filter(title__icontains=title)
         return queryset
 
     def get_serializer_class(self):
