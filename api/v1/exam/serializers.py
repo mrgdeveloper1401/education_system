@@ -47,6 +47,16 @@ class UserAccessAdminCoachSerializer(serializers.ModelSerializer):
 
 class CoachAdminExamSerializer(serializers.ModelSerializer):
     user_access = UserAccessAdminCoachSerializer(many=True)
+    coach_access = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.filter(
+            is_coach=True,
+            is_active=True
+        ).only(
+            "mobile_phone",
+            "first_name",
+            "last_name"
+        )
+    )
 
     class Meta:
         model = Exam
@@ -60,7 +70,8 @@ class CoachAdminExamSerializer(serializers.ModelSerializer):
             "start_datetime",
             "get_exam_question_count",
             "user_access",
-            "is_active"
+            "is_active",
+            "coach_access"
         )
 
 
@@ -79,6 +90,9 @@ class CreateExamSerializer(serializers.ModelSerializer):
         ),
         many=True,
         required=False
+    )
+    coach_access = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.filter(is_coach=True).only("mobile_phone")
     )
 
     class Meta:

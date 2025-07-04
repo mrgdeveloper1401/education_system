@@ -47,9 +47,12 @@ class Exam(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     @property
     def is_done_exam(self):
-        if self.exam_end_date > timezone.now():
-            return False
-        return True
+        if self.exam_end_date is None:
+            return None
+        else:
+            if self.exam_end_date > timezone.now():
+                return False
+            return True
 
     @property
     def exam_end_date(self):
