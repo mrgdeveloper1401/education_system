@@ -9,7 +9,7 @@ from rest_framework.permissions import IsAuthenticated
 from accounts.models import Student
 from course.models import Comment, SectionVideo, SectionFile, LessonCourse, StudentSectionScore, \
     PresentAbsent, StudentAccessSection, SendSectionFile, OnlineLink, SectionQuestion, Section, \
-    Category, CallLessonCourse, Course, Certificate, CourseTypeModel, StudentEnrollment
+    Category, CallLessonCourse, Course, Certificate, CourseTypeModel, StudentEnrollment, CertificateTemplate
 from .filters import LessonCourseFilter
 
 from .pagination import CommentPagination
@@ -17,6 +17,27 @@ from .paginations import CommonPagination
 
 from . import serializers
 from .permissions import IsCoachPermission, IsAccessPermission, IsOwnerOrReadOnly
+
+
+class CertificateTemplateViewSet(viewsets.ModelViewSet):
+    serializer_class = serializers.CertificateTemplateSerializer
+
+    def get_permissions(self):
+        if self.action in ("create", "update", "partial_update", "destroy"):
+            self.permission_classes = (permissions.IsAdminUser,)
+        else:
+            self.permission_classes = (permissions.IsAuthenticated,)
+        return super().get_permissions()
+
+    def get_queryset(self):
+        queryset = CertificateTemplate.objects.only(
+            "template_image",
+            "is_active"
+        )
+
+        if self.request.user.is_staff is False:
+            queryset = queryset.filter(is_active=True)
+        return queryset
 
 
 class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):

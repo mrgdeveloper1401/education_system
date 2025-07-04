@@ -9,7 +9,7 @@ from accounts.models import Student, PrivateNotification
 from course.enums import RateChoices, StudentStatusChoices
 from course.models import Course, Category, Comment, Section, SectionVideo, SectionFile, SendSectionFile, LessonCourse, \
     StudentSectionScore, PresentAbsent, StudentAccessSection, OnlineLink, SectionQuestion, AnswerQuestion, \
-    CallLessonCourse, Certificate, CourseTypeModel, StudentEnrollment
+    CallLessonCourse, Certificate, CourseTypeModel, StudentEnrollment, CertificateTemplate
 from discount_app.models import Discount
 
 
@@ -586,6 +586,25 @@ class CertificateSerializer(serializers.ModelSerializer):
                 }
             )
         return attrs
+
+
+class CertificateTemplateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CertificateTemplate
+        fields = (
+            "id",
+            "template_image",
+            "is_active"
+        )
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+
+        user_is_staff = self.context['request'].user.is_staff
+        if user_is_staff is False:
+             data.pop("is_active", None)
+
+        return data
 
 
 class CrudCourseTypeSerializer(serializers.ModelSerializer):
