@@ -157,6 +157,7 @@ class ParticipationViewSet(mixins.ListModelMixin,
         ).select_related("exam").only(
             "created_at",
             "exam__name",
+            "exam__start_datetime",
             "student_id",
             "is_access",
             "score",

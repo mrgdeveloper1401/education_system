@@ -1,4 +1,5 @@
 from django.utils import timezone
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers, exceptions
 from django.utils.translation import gettext_lazy as _
 
@@ -128,9 +129,14 @@ class ExamNameSerializer(serializers.ModelSerializer):
 class ParticipationSerializer(serializers.ModelSerializer):
     exam = serializers.StringRelatedField(read_only=True)
     exam_time = serializers.SerializerMethodField()
+    is_done = serializers.SerializerMethodField()
 
     def get_exam_time(self, obj):
         return obj.exam.number_of_time
+
+    @extend_schema_field(serializers.BooleanField())
+    def get_is_done(self, obj):
+        return obj.exam.is_done_exam
 
     class Meta:
         model = Participation
@@ -143,7 +149,8 @@ class ParticipationSerializer(serializers.ModelSerializer):
             "score",
             "created_at",
             "expired_exam",
-            "exam_time"
+            "exam_time",
+            "is_done",
         )
         read_only_fields = ("student", 'is_access', "score")
 
