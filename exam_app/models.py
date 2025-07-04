@@ -1,4 +1,6 @@
 from datetime import timedelta
+import pytz
+from django.conf import settings
 
 from django.core import exceptions
 from django.core.validators import MinValueValidator, FileExtensionValidator
@@ -35,7 +37,9 @@ class Exam(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     @property
     def exam_end_date(self):
-        return (self.start_datetime + timedelta(minutes=self.number_of_time)) if self.start_datetime else None
+        d = (self.start_datetime + timedelta(minutes=self.number_of_time)) if self.start_datetime else None
+        d = d.astimezone(tz=pytz.timezone(settings.TIME_ZONE))
+        return d
 
     def clean(self):
         if self.course and not self.start_datetime:

@@ -111,6 +111,7 @@ def process_referral(referral_code, mobile_phone):
                 # "برای استفاده، کافی است در زمان تسویه‌حساب این کد را وارد کنید."
             )
         )
+        # send coupon_code into mobile_phone
         coupon_send.delay(
             phone=notification.user.mobile_phone,
             coupon_code=new_coupon.code
