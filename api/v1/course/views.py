@@ -1,4 +1,5 @@
 from django.db.models import Prefetch
+from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter, extend_schema_view
 from rest_framework import mixins, viewsets, permissions, decorators, response, status, exceptions, views, generics, \
@@ -9,6 +10,7 @@ from accounts.models import Student
 from course.models import Comment, SectionVideo, SectionFile, LessonCourse, StudentSectionScore, \
     PresentAbsent, StudentAccessSection, SendSectionFile, OnlineLink, SectionQuestion, Section, \
     Category, CallLessonCourse, Course, Certificate, CourseTypeModel, StudentEnrollment
+from .filters import LessonCourseFilter
 
 from .pagination import CommentPagination
 from .paginations import CommonPagination
@@ -24,6 +26,8 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = serializers.LessonCourseSerializer
     permission_classes = (permissions.IsAuthenticated,)
     pagination_class = CommonPagination
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = LessonCourseFilter
 
     def get_serializer_class(self):
         if self.action == "send_file" and self.request.method == 'POST':
@@ -51,25 +55,25 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
             self.permission_classes = (IsAuthenticated, IsAccessPermission)
         return super().get_permissions()
 
-    @extend_schema(
-        parameters=[
-            OpenApiParameter(
-                name="class_name",
-                type=OpenApiTypes.STR,
-                location=OpenApiParameter.QUERY,
-                description="The name of the purchase.",
-            ),
-            OpenApiParameter(
-                name="progress_lesson",
-                type=OpenApiTypes.STR,
-                location=OpenApiParameter.QUERY,
-                description="The name of the progress lesson.",
-            )
-        ]
-    )
-    def list(self, request, *args, **kwargs):
-        res = super().list(request, *args, **kwargs)
-        return res
+    # @extend_schema(
+    #     parameters=[
+    #         OpenApiParameter(
+    #             name="class_name",
+    #             type=OpenApiTypes.STR,
+    #             location=OpenApiParameter.QUERY,
+    #             description="The name of the purchase.",
+    #         ),
+    #         OpenApiParameter(
+    #             name="progress_lesson",
+    #             type=OpenApiTypes.STR,
+    #             location=OpenApiParameter.QUERY,
+    #             description="The name of the progress lesson.",
+    #         )
+    #     ]
+    # )
+    # def list(self, request, *args, **kwargs):
+    #     res = super().list(request, *args, **kwargs)
+    #     return res
 
     def get_queryset(self):
         query = (LessonCourse.objects.filter(
@@ -89,17 +93,17 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
             return query
         return []
 
-    def filter_queryset(self, queryset):
-        class_name = self.request.query_params.get("class_name") # for use search
-        progress_lesson = self.request.query_params.get("progress_lesson") # for use search
-
-        if class_name and progress_lesson:
-            queryset = queryset.filter(class_name__icontains=class_name, progress__exact=progress_lesson)
-        elif class_name:
-            queryset = queryset.filter(class_name__icontains=class_name)
-        elif progress_lesson:
-            queryset = queryset.filter(progress__exact=progress_lesson)
-        return queryset
+    # def filter_queryset(self, queryset):
+    #     class_name = self.request.query_params.get("class_name") # for use search
+    #     progress_lesson = self.request.query_params.get("progress_lesson") # for use search
+    #
+    #     if class_name and progress_lesson:
+    #         queryset = queryset.filter(class_name__icontains=class_name, progress__exact=progress_lesson)
+    #     elif class_name:
+    #         queryset = queryset.filter(class_name__icontains=class_name)
+    #     elif progress_lesson:
+    #         queryset = queryset.filter(progress__exact=progress_lesson)
+    #     return queryset
 
     @extend_schema(
         responses={200: serializers.StudentAccessSectionSerializer(many=True)}
