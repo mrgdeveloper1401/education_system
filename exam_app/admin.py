@@ -97,15 +97,16 @@ class ChoiceAdmin(admin.ModelAdmin):
 
 @admin.register(models.Answer)
 class AnswerAdmin(admin.ModelAdmin):
-    raw_id_fields = ("participation", 'question')
+    raw_id_fields = ("participation", 'question', "user")
     filter_horizontal = ("selected_choices",)
-    list_display = ("participation", "given_score", "created_at")
-    list_select_related = ("participation", "question")
+    list_display = ("participation", "user", "given_score", "created_at")
+    list_select_related = ("participation", "question", "user")
 
     def get_queryset(self, request):
         return super().get_queryset(request).only(
             "participation__is_access",
             "question__name",
+            "user__mobile_phone",
             "selected_choices",
             "text_answer",
             "given_score",

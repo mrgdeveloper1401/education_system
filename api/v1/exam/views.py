@@ -215,6 +215,7 @@ class AnswerViewSet(
     def get_serializer_context(self):
         context = super().get_serializer_context()
         context['participation_pk'] = self.kwargs['participation_pk']
+        context['exam_pk'] = self.kwargs['exam_pk']
         return context
 
 

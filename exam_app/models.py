@@ -32,8 +32,14 @@ class Exam(CreateMixin, UpdateMixin, SoftDeleteMixin):
         return self.questions.count()
 
     @property
+    def is_exam_start(self):
+        return self.start_datetime < timezone.now() if self.start_datetime else None
+
+    @property
     def is_done_exam(self):
-        return (self.start_datetime + timedelta(minutes=self.number_of_time)) < timezone.now() if self.start_datetime else None
+        if self.exam_end_date > timezone.now():
+            return False
+        return True
 
     @property
     def exam_end_date(self):
@@ -114,6 +120,13 @@ class Choice(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 
 class Answer(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    user = models.ForeignKey(
+        "accounts.User",
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+        related_name="user_answer"
+    )
     participation = models.ForeignKey(
         'Participation',
         on_delete=models.DO_NOTHING,

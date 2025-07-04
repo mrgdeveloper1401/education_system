@@ -18,6 +18,7 @@ class ExamSerializer(serializers.ModelSerializer):
             "exam_end_date",
             "number_of_time",
             "is_done_exam",
+            "is_exam_start",
             "start_datetime",
             "get_exam_question_count",
             "is_active"
@@ -240,11 +241,73 @@ class AnswerSerializer(serializers.ModelSerializer):
         )
         read_only_fields = ("given_score", "participation")
 
+    def validate(self, attrs):
+        participation_pk = int(self.context['participation_pk'])
+        user_id = int(self.context['request'].user.id)
+        exam_pk = int(self.context['exam_pk'])
+
+        # get participation
+        participation = Participation.objects.filter(
+            id=participation_pk,
+            student__user_id=user_id,
+            exam_id=exam_pk,
+        ).select_related(
+            "exam"
+        ).only(
+            "id",
+            "exam__start_datetime",
+            "exam__number_of_time"
+        )
+        p_first = participation.first()  # get object
+
+        # check send duplicat question
+        if self.instance is None:
+            if Answer.objects.filter(
+                user_id=user_id,
+                participation_id=participation_pk,
+                question=attrs.get("question"),
+            ).exists():
+                raise serializers.ValidationError(
+                    {
+                        "message": _("you already have question please edit")
+                    }
+                )
+
+        # check user exists in exam
+        if not p_first.exam.user_access.filter(id=user_id).exists():
+            raise exceptions.PermissionDenied()
+
+        # check participation dose exiting
+        if not participation.exists():
+            raise exceptions.ValidationError(
+                {
+                    "message": _("participation is not exits")
+                }
+            )
+        else:
+            # check dose exam is done or not
+            if p_first.exam.is_done_exam: # exam is done
+                raise exceptions.ValidationError(
+                    {
+                        "message": _("exam is done!")
+                    }
+                )
+            if p_first.exam.is_exam_start is False: # exam not start
+                raise exceptions.ValidationError(
+                    {
+                        "message": _("exam not started!")
+                    }
+                )
+
+        return attrs
+
     def create(self, validated_data):
         participation_pk = int(self.context['participation_pk'])
         selected_choices = validated_data.pop("selected_choices", [])
+        user_id = int(self.context['request'].user.id)
         answer = Answer.objects.create(
             participation_id=participation_pk,
+            user_id=user_id,
             **validated_data
         )
 
