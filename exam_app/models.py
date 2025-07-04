@@ -1,7 +1,7 @@
 from datetime import timedelta
 import pytz
 from django.conf import settings
-
+from rest_framework import exceptions as rest_framework_exceptions
 from django.core import exceptions
 from django.core.validators import MinValueValidator, FileExtensionValidator
 from django.db import models
@@ -24,6 +24,16 @@ class Exam(CreateMixin, UpdateMixin, SoftDeleteMixin):
         help_text=_("تاریخ شروع ازمون میتوانید از یک زمان خاصی بگید ازمون شروع شود یا میتوان ان را خالی گذاشت"))
     number_of_time = models.PositiveSmallIntegerField(help_text=_("مدت زمان ازمون بر اساس دقیقه"))
     user_access = models.ManyToManyField(User, related_name="user_access", blank=True)
+    coach_access = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,
+        related_name="user_coach_exam_access",
+        blank=True,
+        null=True,
+        limit_choices_to={
+            "is_coach": True
+        }
+    )
 
     def __str__(self):
         return self.name
@@ -154,3 +164,12 @@ class Answer(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = 'answer'
+
+    def save(self, *args, **kwargs):
+        if self.given_score > self.question.max_score:
+            raise rest_framework_exceptions.ValidationError(
+                {
+                    "message": _("given score can not biggest question_max_score")
+                }
+            )
+        super().save(*args, **kwargs)

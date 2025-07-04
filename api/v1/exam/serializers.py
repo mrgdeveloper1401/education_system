@@ -332,3 +332,62 @@ class AnswerScoreSerializer(serializers.ModelSerializer):
                 }
             )
         return value
+
+
+class ParticipationListRetrieveSerializer(serializers.ModelSerializer):
+    student_get_full_name = serializers.SerializerMethodField()
+
+    def get_student_get_full_name(self, obj):
+        return obj.student.user.get_full_name
+
+    class Meta:
+        model = Participation
+        fields = (
+            "id",
+            "score",
+            "student_get_full_name"
+        )
+
+
+class CoachUserAnswerSerializer(serializers.ModelSerializer):
+    question_name = serializers.SerializerMethodField()
+    question_max_score = serializers.SerializerMethodField()
+
+    def get_question_name(self, obj):
+        return obj.question.name
+
+    def get_question_max_score(self, obj):
+        return obj.question.max_score
+
+    class Meta:
+        model = Answer
+        fields = (
+            "id",
+            "text_answer",
+            "given_score",
+            "choice_file",
+            "question_name",
+            "question_max_score",
+            "selected_choices"
+        )
+        read_only_fields = (
+            "text_answer",
+            "choice_file",
+            "question_name",
+            "question_max_score",
+            "selected_choices"
+        )
+
+
+# class UpdateCoachUserAnswerSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Answer
+#         fields = (
+#             "id",
+#             "given_score"
+#         )
+#
+#     def validate(self, attrs):
+#         score = attrs.get("given_score")
+#
+#         if score >

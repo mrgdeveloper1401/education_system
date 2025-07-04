@@ -227,3 +227,71 @@ class CoachScoreAnswerView(generics.UpdateAPIView):
     )
     serializer_class = serializers.AnswerScoreSerializer
     permission_classes = (permissions.IsAuthenticated, IsCoachUser)
+
+
+class ParticipationListRetrieveViewSet(
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet
+):
+    """
+    filter query --> score=1 (return score null)
+    """
+    serializer_class = serializers.ParticipationListRetrieveSerializer
+    permission_classes = (IsCoachUser,)
+
+    def get_queryset(self):
+        return Participation.objects.filter(
+        exam_id=self.kwargs['exam_pk'],
+        exam__coach_access__id=self.request.user.id
+    ).select_related(
+        "exam__coach_access",
+        "student__user"
+    ).only(
+        "exam__coach_access__mobile_phone",
+        "student__user__mobile_phone",
+        "student__user__first_name",
+        "student__user__last_name",
+        "score"
+    )
+
+    def filter_queryset(self, queryset):
+        score = self.request.query_params.get("score", None)
+
+        if score == 1:
+            queryset = queryset.filter(score__isnull=True)
+        return queryset
+
+
+class CoachUserAnswerViewSet(
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    viewsets.GenericViewSet
+):
+    serializer_class = serializers.CoachUserAnswerSerializer
+    permission_classes = (IsCoachUser,)
+
+    # def get_serializer_class(self):
+    #     if self.action in ['update', "partial_update"]:
+    #         return serializers.UpdateCoachUserAnswerSerializer
+    #     else:
+    #         return super().get_serializer_class()
+
+    def get_queryset(self):
+        return Answer.objects.filter(
+            participation_id=self.kwargs['coach_participation_pk']
+        ).select_related(
+            "question"
+        ).prefetch_related(
+            Prefetch(
+                "selected_choices", queryset=Choice.objects.only("text", "is_correct")
+            )
+        ).only(
+            "question__name",
+            "text_answer",
+            "given_score",
+            "choice_file",
+            "selected_choices",
+            "question__max_score"
+        )

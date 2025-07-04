@@ -15,18 +15,20 @@ class ExamAdmin(admin.ModelAdmin):
     list_filter = ("is_active",)
     search_fields = ("name", "course__course_name")
     list_per_page = 20
-    raw_id_fields = ("course",)
+    raw_id_fields = ("course", "coach_access")
     search_help_text = _("برای جست و جو میتوانید از نام ازمون استفاده کنید")
     filter_horizontal = ("user_access",)
     list_editable = ("is_active",)
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related(
-            'course'
+            'course',
+            "coach_access"
         ).only(
             "course__course_name",
             "name",
             "start_datetime",
+            "coach_access__mobile_phone",
             "is_active",
             "created_at",
             "description",
