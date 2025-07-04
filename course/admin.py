@@ -266,3 +266,17 @@ class StudentEnrollmentAdmin(admin.ModelAdmin):
         return super().get_queryset(request).only(
             "student_status", "created_at", "updated_at", "student__referral_code", "lesson_course__class_name"
         )
+
+
+@admin.register(models.CertificateTemplate)
+class CertificateTemplateAdmin(admin.ModelAdmin):
+    list_display = ("template_image", "is_active", "created_at", "updated_at")
+    list_filter = ('is_active',)
+    list_editable = ("is_active",)
+    list_per_page = 20
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).defer(
+            "is_deleted",
+            "deleted_at",
+        )

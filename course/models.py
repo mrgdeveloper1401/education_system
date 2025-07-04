@@ -260,6 +260,19 @@ class SendSectionFile(CreateMixin, UpdateMixin, SoftDeleteMixin):
                 self.send_file_status = SendFileChoices.rejected
         super().save(*args, **kwargs)
 
+
+class CertificateTemplate(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    template_image = models.ImageField(
+        upload_to="certificate_template/%Y/%m/%d",
+        validators=(max_upload_image_validator,),
+        help_text=_("حداکثر اندازه سایز تمپلیت ۲ مگابایت باشد")
+    )
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        db_table = 'certificate_template'
+
+
 class Certificate(CreateMixin, UpdateMixin, SoftDeleteMixin):
     section = models.ForeignKey(
         Section,
