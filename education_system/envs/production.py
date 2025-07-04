@@ -44,14 +44,10 @@ DATABASES = {
         "PASSWORD": config("COMPOSE_POSTGRES_PASSWORD", cast=str),
         'HOST': "education_postgres",
         "PORT": 5432,
-    },
-    "OPTIONS": {
-        "pool": {
-            "min_size": 1,
-            "max_size": 3,
-            "timeout": 10
+        "OPTIONS": {
+            "pool": True
         }
-    }
+    },
 }
 
 SIMPLE_JWT['SIGNING_KEY'] = SECRET_KEY
