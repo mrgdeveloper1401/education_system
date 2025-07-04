@@ -18,6 +18,9 @@ from .permissions import IsCoachPermission, IsAccessPermission, IsOwnerOrReadOnl
 
 
 class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    search query --> ?class_name=xyz or ?progress_lesson=xyz
+    """
     serializer_class = serializers.LessonCourseSerializer
     permission_classes = (permissions.IsAuthenticated,)
     pagination_class = CommonPagination
@@ -87,19 +90,16 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
         return []
 
     def filter_queryset(self, queryset):
-        query = queryset
-        class_name = self.request.query_params.get("class_name")
-        progress_lesson = self.request.query_params.get("progress_lesson")
+        class_name = self.request.query_params.get("class_name") # for use search
+        progress_lesson = self.request.query_params.get("progress_lesson") # for use search
 
         if class_name and progress_lesson:
-            query = query.filter(class_name__icontains=class_name, progress__exact=progress_lesson)
+            queryset = queryset.filter(class_name__icontains=class_name, progress__exact=progress_lesson)
         elif class_name:
-            query = query.filter(class_name__icontains=class_name)
+            queryset = queryset.filter(class_name__icontains=class_name)
         elif progress_lesson:
-            query = query.filter(progress__exact=progress_lesson)
-        else:
-            query = query
-        return query
+            queryset = queryset.filter(progress__exact=progress_lesson)
+        return queryset
 
     @extend_schema(
         responses={200: serializers.StudentAccessSectionSerializer(many=True)}
