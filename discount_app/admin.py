@@ -23,7 +23,7 @@ class CouponAdmin(admin.ModelAdmin):
     list_editable = ("is_active", 'max_usage')
     search_fields = ("code",)
     search_help_text = _("برای سرچ کردن میتوانید کد مورد نظر رو سرچ کنید")
-    list_filter = ("is_active", "for_first")
+    list_filter = ("is_active",)
 
     def get_queryset(self, request):
         return super().get_queryset(request).only(

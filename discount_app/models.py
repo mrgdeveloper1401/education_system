@@ -22,7 +22,7 @@ class Coupon(CreateMixin, UpdateMixin, SoftDeleteMixin):
         validators=[MinValueValidator(0), MaxValueValidator(100)]
     )
     is_active = models.BooleanField(default=True)
-    for_first = models.BooleanField(default=False)
+    # for_first = models.BooleanField(default=False)
 
     def __str__(self):
         return self.code

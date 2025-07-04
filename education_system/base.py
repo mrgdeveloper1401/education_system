@@ -238,10 +238,11 @@ CELERY_TASK_ACKS_LATE = True  # if not start, retry again
 # define queue
 CELERY_QUEUES = (
     Queue("sms_otp"),
-    # Queue("coupon_code"),
+    Queue("coupon_send"),
     Queue("advertise"),
     Queue("reminder"),
     Queue("course_signup"),
+    Queue("referral_process"),
 )
 
 # define task route
@@ -250,6 +251,8 @@ CELERY_TASK_ROUTES = {
     "accounts.tasks.send_sms_forget_password": {"queue": "sms_otp"},
     "advertise.tasks.send_sms_accept_advertise": {"queue": "advertise"},
     "order_app.tasks.send_successfully_signup": {"queue": "course_signup"},
+    "order_app.tasks.process_referral": {"queue": "referral_process"},
+    "order_app.tasks.coupon_send": {"queue": "coupon_send"},
     "subscription_app.tasks.send_sms_before_expire_subscription": {"queue": "reminder"},
 }
 

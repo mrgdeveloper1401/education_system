@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.translation import gettext_lazy as _
 
 from . import models
 
@@ -24,6 +25,7 @@ class CourseSignUpAdmin(admin.ModelAdmin):
     search_fields = ("mobile_phone",)
     list_per_page = 20
     raw_id_fields = ("course",)
+    search_help_text = _("برای جست و جو میتوانید از شماره موبایل استفاده کنید")
 
     def get_queryset(self, request):
         return super().get_queryset(request).defer(

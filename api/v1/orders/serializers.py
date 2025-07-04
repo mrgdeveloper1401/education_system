@@ -9,7 +9,7 @@ from accounts.models import User, Otp, Student, Invitation, PrivateNotification
 from course.models import Course
 from discount_app.models import Coupon
 from order_app.models import Order, CourseSignUp
-from order_app.tasks import send_successfully_signup
+from order_app.tasks import send_successfully_signup, process_referral
 from accounts.tasks import send_sms_otp_code
 
 
@@ -45,9 +45,6 @@ class CourseSignUpSerializer(serializers.ModelSerializer):
         # get data mobile_phone
         mobile_phone = validated_data['mobile_phone']
 
-        # create object
-        # obj = super().create(validated_data)
-
         # get user
         get_user = User.objects.filter(mobile_phone=mobile_phone).only("mobile_phone")
 
@@ -78,37 +75,11 @@ class CourseSignUpSerializer(serializers.ModelSerializer):
             # send sms otp
             send_sms_otp_code.delay(otp.mobile_phone, otp.code)
 
-        # check_referral_code if exits
-        referral = Student.objects.filter(
-            referral_code=referral_code
-        )
-        if referral.exists():
-            to_student = Student.objects.filter(
-                user__mobile_phone=mobile_phone
-            )
-
-            # create invasion
-            Invitation.objects.create(
-                from_student=referral.first(),
-                to_student=to_student.first()
-            )
-            # create coupon
-            new_coupon = Coupon.objects.create(
-                code=''.join(random.choices(
-                    string.ascii_letters + string.digits,
-                    k=20
-                )),
-                max_usage=1,
-                valid_from=timezone.now(),
-                valid_to=timezone.now() + datetime.timedelta(days=30),
-                discount=30
-            )
-            # create notification
-            PrivateNotification.objects.create(
-                user_id=referral.first().user_id,
-                title="کد تخفیف",
-                body=f' کاربر تخفیف جدید شما به واسط دعوت جدید{new_coupon.code} \n'
-                     f'انقضای این کد تخفیف یک ماه هست'
+        # if referral_code is exiting, do task
+        if referral_code:
+            process_referral.delay(
+                referral_code=referral_code,
+                mobile_phone=mobile_phone
             )
 
         # return data

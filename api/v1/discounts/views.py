@@ -30,7 +30,8 @@ class FirstOneCouponViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         is_active=True,
         valid_from__lte=timezone.now(),
         valid_to__gt=timezone.now(),
-        for_first=True
+        # for_first=True,
+        max_usage=1
     ).only(
         "code", "valid_to", "valid_from"
     )
