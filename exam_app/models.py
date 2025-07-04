@@ -171,10 +171,11 @@ class Answer(CreateMixin, UpdateMixin, SoftDeleteMixin):
         db_table = 'answer'
 
     def save(self, *args, **kwargs):
-        if self.given_score > self.question.max_score:
-            raise rest_framework_exceptions.ValidationError(
-                {
-                    "message": _("given score can not biggest question_max_score")
-                }
-            )
+        if self.given_score:
+            if self.given_score > self.question.max_score:
+                raise rest_framework_exceptions.ValidationError(
+                    {
+                        "message": _("given score can not biggest question_max_score")
+                    }
+                )
         super().save(*args, **kwargs)
