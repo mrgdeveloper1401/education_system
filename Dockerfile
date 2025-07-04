@@ -6,7 +6,7 @@ COPY . .
 
 RUN adduser -D -H mohammad && \
     chown -R mohammad:mohammad /home/app && \
-    apk add libpq && \
+#    apk add libpq && \
     pip install -i https://mirror-pypi.runflare.com/simple httpx && \
     pip install -i https://mirror-pypi.runflare.com/simple psycopg_pool && \
     pip install -i https://mirror-pypi.runflare.com/simple psycopg_binary
