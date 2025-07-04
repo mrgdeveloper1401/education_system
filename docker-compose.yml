@@ -65,17 +65,17 @@ services:
     entrypoint: "celery -A education_system.dj_celery worker -l INFO -Q sms_otp,advertise,reminder,course_signup,referral_process,coupon_send"
     env_file: ".env"
 
-  celery_beat:
-    container_name: education_celery_beat
-    restart: always
-    build: .
-    depends_on:
-      - celery
-    environment:
-      - CELERY_BROKER_URL=redis://education_redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://education_redis:6379/1
-    entrypoint: "celery -A education_system.dj_celery beat"
-    env_file: ".env"
+#  celery_beat:
+#    container_name: education_celery_beat
+#    restart: always
+#    build: .
+#    depends_on:
+#      - celery
+#    environment:
+#      - CELERY_BROKER_URL=redis://education_redis:6379/0
+#      - CELERY_RESULT_BACKEND=redis://education_redis:6379/1
+#    entrypoint: "celery -A education_system.dj_celery beat"
+#    env_file: ".env"
 
   pg_hero:
     container_name: pg_hero
