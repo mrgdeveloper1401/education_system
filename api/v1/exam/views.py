@@ -232,6 +232,7 @@ class CoachScoreAnswerView(generics.UpdateAPIView):
 class ParticipationListRetrieveViewSet(
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
     viewsets.GenericViewSet
 ):
     """
