@@ -392,6 +392,7 @@ class CoachUserAnswerSerializer(serializers.ModelSerializer):
             "given_score",
             "choice_file",
             "question_name",
+            "question_id",
             "question_max_score",
             "selected_choices"
         )
