@@ -350,16 +350,21 @@ class AnswerScoreSerializer(serializers.ModelSerializer):
 
 class ParticipationListRetrieveSerializer(serializers.ModelSerializer):
     student_get_full_name = serializers.SerializerMethodField()
+    exam_questions_count = serializers.SerializerMethodField()
 
     def get_student_get_full_name(self, obj):
         return obj.student.user.get_full_name
+
+    def get_exam_questions_count(self, obj):
+        return obj.exam.questions.count()
 
     class Meta:
         model = Participation
         fields = (
             "id",
             "score",
-            "student_get_full_name"
+            "student_get_full_name",
+            "exam_questions_count"
         )
 
 

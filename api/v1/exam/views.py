@@ -1,6 +1,6 @@
 from rest_framework import viewsets, permissions, mixins, exceptions, generics, filters
 from django.utils.translation import gettext_lazy as _
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Count
 
 from accounts.models import User
 from accounts.permissions import IsCoachUser
@@ -247,9 +247,10 @@ class ParticipationListRetrieveViewSet(
         exam__coach_access__id=self.request.user.id
     ).select_related(
         # "exam__coach_access",
-        "student__user"
+        "student__user",
+        "exam"
     ).only(
-        # "exam__coach_access__mobile_phone",
+        "exam__name",
         # "student__user__mobile_phone",
         "student__user__first_name",
         "student__user__last_name",
