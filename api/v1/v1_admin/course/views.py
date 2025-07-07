@@ -288,9 +288,12 @@ class AdminCertificateViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.AdminCertificateSerializer
 
     def get_queryset(self):
-        return Certificate.objects.filter(section_id=self.kwargs['section_pk']).select_related("image").only(
-            "image__file_hash",
-            "image__title",
+        return Certificate.objects.filter(section_id=self.kwargs['section_pk']).only(
+            "student__student_number",
+            "unique_code",
+            "qr_code",
+            "final_pdf",
+            "is_active",
             "created_at",
             "updated_at",
             "student__student_number"

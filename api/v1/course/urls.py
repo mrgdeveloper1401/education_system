@@ -11,7 +11,7 @@ router.register("student_coach_lesson_course", views.StudentLessonCourseViewSet,
 router.register("poll_answer", views.StudentPollAnswer, basename="student_poll_answer")
 router.register("home_category", views.HomeCategoryViewSet, basename="home_category")
 router.register("all_course", views.AllCourseViewSet, basename="all_course")
-router.register("certificate_template", views.CertificateTemplateViewSet, basename="certificate_template")
+# router.register("certificate_template", views.CertificateTemplateViewSet, basename="certificate_template")
 
 lesson_course_router = routers.NestedDefaultRouter(router, "student_lesson_course",
                                                    lookup="student_lesson_course")

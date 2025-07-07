@@ -302,7 +302,7 @@ class Certificate(CreateMixin, UpdateMixin, SoftDeleteMixin):
     is_active = models.BooleanField(default=True)
 
     class Meta:
-        unique_together = ("section", "student")
+        # unique_together = ("section", "student")
         ordering = ["-id"]
 
     def save(self, *args, **kwargs):

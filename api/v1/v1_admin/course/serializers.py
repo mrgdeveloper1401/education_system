@@ -244,16 +244,12 @@ class SignUpCourseSerializer(serializers.ModelSerializer):
 
 class AdminCertificateSerializer(serializers.ModelSerializer):
     student = serializers.PrimaryKeyRelatedField(
-        queryset=Student.objects.only("student_number", "is_active").filter(is_active=True)
+        queryset=Student.objects.only("student_number")
     )
-    certificate_image_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Certificate
         exclude = ("is_deleted", "deleted_at", "section")
-
-    def get_certificate_image_url(self, obj):
-        return obj.image.image_url
 
     def validate(self, attrs):
         student_section = StudentAccessSection.objects.filter(

@@ -335,7 +335,7 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
         if request.method == "POST":
             serializer = serializers.CertificateSerializer(
                 data=request.data,
-                context={"section_pk": section_pk, "request": request}
+                context={"section_pk": section_pk, "request": request, "lesson_course_pk": pk}
             )
             serializer.is_valid(raise_exception=True)
             serializer.save()

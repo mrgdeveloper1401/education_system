@@ -11,6 +11,7 @@ from course.models import Course, Category, Comment, Section, SectionVideo, Sect
     StudentSectionScore, PresentAbsent, StudentAccessSection, OnlineLink, SectionQuestion, AnswerQuestion, \
     CallLessonCourse, Certificate, CourseTypeModel, StudentEnrollment, CertificateTemplate
 from discount_app.models import Discount
+from course.tasks import create_qr_code
 
 
 class CategoryTreeNodeSerializer(serializers.ModelSerializer):
@@ -529,24 +530,38 @@ class CertificateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         section_pk = self.context['section_pk']
-        # user_id = self.context['request'].user.id
-        student_id = self.context['request'].user.student.id
+        lesson_course_pk = self.context["lesson_course_pk"]
+        user_id = self.context['request'].user.id # get user_id by context serializer
+        student = Student.objects.filter(user_id=user_id).only("student_number") # queryset student
 
-        # try:
-        #     student_id = Student.objects.filter(user_id=user_id)
-        # except Student.DoesNotExist:
-        #     raise exceptions.ValidationError(
-        #         {
-        #             "message": _("you not student")
-        #         }
-        #     )
+        # check dose exists student
+        if not student.exists():
+            raise exceptions.NotFound()
 
+        # get object student id
+        student_id = student.first().id
 
-        return Certificate.objects.create(
+        # create request certificate
+        certificate = Certificate.objects.create(
             student_id=student_id,
             section_id=section_pk,
             **validated_data
         )
+        # call celery task
+        create_qr_code.delay(
+            information = {
+                "unique_code_certificate": certificate.unique_code,
+                "student_number": certificate.student.student_number,
+                "student_name": certificate.student.student_name,
+                "section_id": section_pk,
+                "lesson_course_pk": lesson_course_pk
+            },
+            certificate_id = {
+                "id": certificate.id
+            }
+        )
+
+        return certificate
 
     def validate(self, attrs):
         section_pk=self.context['section_pk']
