@@ -246,6 +246,10 @@ class AdminCertificateSerializer(serializers.ModelSerializer):
     student = serializers.PrimaryKeyRelatedField(
         queryset=Student.objects.only("student_number")
     )
+    student_name = serializers.SerializerMethodField()
+
+    def get_student_name(self, obj):
+        return obj.student.student_name
 
     class Meta:
         model = Certificate

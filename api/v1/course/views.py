@@ -966,3 +966,14 @@ class ListCourseIdTitleView(generics.ListAPIView):
     search_fields = ("course_name__icontains",)
     filter_backends = (filters.SearchFilter,)
     # permission_classes = (permissions.IsAdminUser,)
+
+
+class CertificateValidateView(views.APIView):
+    serializer_class = serializers.CertificateValidateSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return response.Response(serializer.data)
+

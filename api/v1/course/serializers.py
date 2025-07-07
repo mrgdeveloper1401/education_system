@@ -709,3 +709,20 @@ class ListCourseIdTitleSerializer(serializers.ModelSerializer):
             "id",
             "course_name"
         )
+
+
+class CertificateValidateSerializer(serializers.Serializer):
+    uuid_field = serializers.UUIDField()
+
+    def validate_uuid_field(self, data):
+        certificate = Certificate.objects.filter(unique_code=data).only("id")
+
+        if not certificate:
+            raise exceptions.NotFound()
+
+        return data
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['message'] = "validate sucessful"
+        return data

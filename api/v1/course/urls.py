@@ -40,6 +40,7 @@ urlpatterns = [
          views.StudentOnlineLinkApiView.as_view(), name="student_online_link"),
     path("send_notification_when_user_send_file/", views.SendNotificationUserSendSectionFileView.as_view(),
          name='send_notification_when_user_send_file'),
-    path("list_course_id_title/", views.ListCourseIdTitleView.as_view(), name='list_course_id_title')
+    path("list_course_id_title/", views.ListCourseIdTitleView.as_view(), name='list_course_id_title'),
+    path("certificate_validate/", views.CertificateValidateView.as_view(), name='certificate_validate')
 ]
 urlpatterns += router.urls
