@@ -1,6 +1,6 @@
 from rest_framework import viewsets, permissions, mixins, exceptions, generics, filters
 from django.utils.translation import gettext_lazy as _
-from django.db.models import Prefetch, Count
+from django.db.models import Prefetch, Count, Q
 
 from accounts.models import User
 from accounts.permissions import IsCoachUser
@@ -249,7 +249,18 @@ class ParticipationListRetrieveViewSet(
         # "exam__coach_access",
         "student__user",
         "exam"
-    ).only(
+    ).annotate(
+            exam_questions_count=Count(
+                "exam__questions",
+                distinct=True,
+                filter=(Q(exam__questions__is_deleted=False) | Q(exam__questions__is_deleted=None))
+            ),
+            user_answer_count=Count(
+                "participation_answer",
+                distinct=True,
+                filter=(Q(participation_answer__is_deleted=False) | Q(participation_answer__is_deleted=None))
+            ),
+        ).only(
         "exam__name",
         # "student__user__mobile_phone",
         "student__user__first_name",
