@@ -352,6 +352,7 @@ class ParticipationListRetrieveSerializer(serializers.ModelSerializer):
     student_get_full_name = serializers.SerializerMethodField()
     exam_questions_count = serializers.SerializerMethodField()
     user_answer_count = serializers.SerializerMethodField()
+    percentage_answered = serializers.SerializerMethodField()
 
     def get_student_get_full_name(self, obj):
         return obj.student.user.get_full_name
@@ -362,6 +363,13 @@ class ParticipationListRetrieveSerializer(serializers.ModelSerializer):
     def get_user_answer_count(self, obj):
         return obj.user_answer_count
 
+    def get_percentage_answered(self, obj):
+        if obj.exam_questions_count == 0:
+            return 0
+        return round(
+            (obj.user_answer_count / obj.exam_questions_count) * 100, 2
+        )
+
     class Meta:
         model = Participation
         fields = (
@@ -369,7 +377,8 @@ class ParticipationListRetrieveSerializer(serializers.ModelSerializer):
             "score",
             "student_get_full_name",
             "exam_questions_count",
-            "user_answer_count"
+            "user_answer_count",
+            "percentage_answered"
         )
 
 
