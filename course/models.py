@@ -276,7 +276,7 @@ class CertificateTemplate(CreateMixin, UpdateMixin, SoftDeleteMixin):
 class Certificate(CreateMixin, UpdateMixin, SoftDeleteMixin):
     section = models.ForeignKey(
         Section,
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         related_name="section_certificates"
     )
     student = models.ForeignKey(
