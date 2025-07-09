@@ -130,8 +130,10 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
             student__user=request.user,
             section__is_publish=True,
         ).only(
-            "section__cover_image", "section__title", 'is_access'
-        ).select_related("section").order_by("created_at")
+            "section__cover_image",
+            "section__title",
+            'is_access'
+        ).select_related("section")
         serializer = serializers.StudentAccessSectionSerializer(sections, many=True)
         return response.Response(serializer.data)
 
@@ -140,17 +142,24 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
     )
     @decorators.action(detail=True, methods=['GET'], url_path='sections/(?P<section_pk>[^/.]+)')
     def section_detail(self, request, pk=None, section_pk=None):
-        section = (StudentAccessSection.objects.filter(
-            section__course__lesson_course__exact=pk, student__user=request.user, section_id=section_pk,
+        section = StudentAccessSection.objects.filter(
+            section__course__lesson_course__exact=pk,
+            student__user_id=request.user.id,
+            section_id=section_pk,
             section__is_publish=True
-        ).only('section__created_at', "section__cover_image", "section__title", "section__description", "is_access").
-                   select_related("section").first())
+        ).only(
+            'section__created_at',
+            "section__cover_image",
+            "section__title",
+            "section__description",
+            "is_access"
+        ).select_related("section").first()
 
-        if not section:
-            raise exceptions.NotFound()
-
-        if section.is_access is False and request.user.student:
-            raise exceptions.PermissionDenied("you do not view this section")
+        # if not section:
+        #     raise exceptions.NotFound()
+        #
+        # if section.is_access is False and request.user.student:
+        #     raise exceptions.PermissionDenied("you do not view this section")
 
         serializer = serializers.StudentAccessSectionDetailSerializer(section)
         return response.Response(serializer.data)
@@ -357,7 +366,7 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
             queryset = Certificate.objects.filter(
                 section_id=section_pk,
                 section__course__lesson_course__exact=pk,
-                student__user=request.user
+                student__user_id=request.user.id
             ).only(
                 # "student__user__first_name",
                 # "student__user__last_name",

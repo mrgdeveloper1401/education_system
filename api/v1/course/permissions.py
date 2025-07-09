@@ -10,7 +10,8 @@ class IsCoachPermission(permissions.BasePermission):
 
 class IsAccessPermission(permissions.BasePermission):
     def has_permission(self, request, view):
-        print(view)
+        # print(view) # api.v1.course.views.PurchasesViewSet object at 0x7fd824198d10>
+        # print(view.kwargs) # {'pk': '1', 'section_pk': '1'}
         section_pk = view.kwargs.get('section_pk')
 
         has_access = True
@@ -18,7 +19,7 @@ class IsAccessPermission(permissions.BasePermission):
         if section_pk:
             has_access = StudentAccessSection.objects.filter(
                 section_id=section_pk,
-                student__user=request.user,
+                student__user_id=request.user.id,
                 is_access=True
             ).only("id").exists()
         return has_access

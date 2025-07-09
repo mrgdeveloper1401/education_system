@@ -562,18 +562,28 @@ class CertificateSerializer(serializers.ModelSerializer):
         section_pk = self.context['section_pk']
         lesson_course_pk = self.context["lesson_course_pk"]
         user_id = self.context['request'].user.id # get user_id by context serializer
-        student = Student.objects.filter(user_id=user_id).only("student_number") # queryset student
+        student = Student.objects.filter(user_id=user_id).select_related(
+            "user"
+        ).only(
+            "student_number",
+            "user__first_name",
+            "user__last_name",
+        ) # queryset student
 
         # check dose exists student
         if not student.exists():
-            raise exceptions.NotFound()
+            raise exceptions.ValidationError(
+                {
+                    "message": _("student not found")
+                }
+            )
 
         # get object student id
-        student_id = student.first().id
+        student = student.first()
 
         # create request certificate
         certificate = Certificate.objects.create(
-            student_id=student_id,
+            student_id=student.id,
             section_id=section_pk,
             **validated_data
         )
@@ -581,8 +591,8 @@ class CertificateSerializer(serializers.ModelSerializer):
         create_qr_code.delay(
             information = {
                 "unique_code_certificate": certificate.unique_code,
-                "student_number": certificate.student.student_number,
-                "student_name": certificate.student.student_name,
+                "student_number": student.student_number,
+                "student_name": student.student_name,
                 "section_id": section_pk,
                 "lesson_course_pk": lesson_course_pk
             },
@@ -595,7 +605,8 @@ class CertificateSerializer(serializers.ModelSerializer):
             #     f"/api_course/student_lesson_course/{lesson_course_pk}/sections/{section_pk}/certificate/"
             # }
             body=f"ادمین محترم کاربر {certificate.student.student_name} \n"
-                 f"درخواست گواهی نامه داده هست"
+                 f"درخواست گواهی نامه داده هست",
+            link=f"lesson_course_id:{lesson_course_pk}/section_id:{section_pk}/"
         )
         return certificate
 
@@ -633,7 +644,7 @@ class CertificateSerializer(serializers.ModelSerializer):
         else:
             raise exceptions.ValidationError(
                 {
-                    "message": _("this section you have not been accept")
+                    "message": _("this section you have not been accept or this section not last_section")
                 }
             )
         return attrs

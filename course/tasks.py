@@ -46,7 +46,7 @@ def create_qr_code(*args, **kwargs):
 
 
 @shared_task(queue="notification")
-def admin_user_request_certificate(body):
+def admin_user_request_certificate(body, link):
     admin_user = User.objects.filter(
         is_active=True,
         is_staff=True
@@ -58,7 +58,8 @@ def admin_user_request_certificate(body):
             user=i,
             body=body,
             title = "certificate",
-            notification_type="certificate"
+            notification_type="certificate",
+            char_link=link
         )
         for i in admin_user
     ]
