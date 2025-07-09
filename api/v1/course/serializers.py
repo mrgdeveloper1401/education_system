@@ -11,7 +11,7 @@ from course.models import Course, Category, Comment, Section, SectionVideo, Sect
     StudentSectionScore, PresentAbsent, StudentAccessSection, OnlineLink, SectionQuestion, AnswerQuestion, \
     CallLessonCourse, Certificate, CourseTypeModel, StudentEnrollment, CertificateTemplate
 from discount_app.models import Discount
-from course.tasks import create_qr_code
+from course.tasks import create_qr_code, admin_user_request_certificate
 
 
 class CategoryTreeNodeSerializer(serializers.ModelSerializer):
@@ -571,7 +571,9 @@ class CertificateSerializer(serializers.ModelSerializer):
                 "id": certificate.id
             }
         )
-
+        # admin_user_request_certificate.delay(
+        #
+        # )
         return certificate
 
     def validate(self, attrs):
@@ -724,16 +726,3 @@ class ListCourseIdTitleSerializer(serializers.ModelSerializer):
 
 class CertificateValidateSerializer(serializers.Serializer):
     uuid_field = serializers.UUIDField()
-
-    def validate_uuid_field(self, data):
-        certificate = Certificate.objects.filter(unique_code=data).only("id")
-
-        if not certificate:
-            raise exceptions.NotFound()
-
-        return data
-
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        data['message'] = "validate sucessful"
-        return data

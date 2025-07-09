@@ -243,7 +243,8 @@ CELERY_QUEUES = (
     Queue("reminder"),
     Queue("course_signup"),
     Queue("referral_process"),
-    Queue("create_qrcode")
+    Queue("create_qrcode"),
+    Queue("notification")
 )
 
 # define task route
@@ -255,6 +256,7 @@ CELERY_TASK_ROUTES = {
     "order_app.tasks.process_referral": {"queue": "referral_process"},
     "order_app.tasks.coupon_send": {"queue": "coupon_send"},
     "course.tasks.create_qr_code": {"queue": "create_qrcode"},
+    "course.tasks.admin_user_request_certificate": {"queue": "notification"},
     "subscription_app.tasks.send_sms_before_expire_subscription": {"queue": "reminder"},
 }
 

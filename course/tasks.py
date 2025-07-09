@@ -41,3 +41,8 @@ def create_qr_code(*args, **kwargs):
     )
 
     return f"QR code generated for certificate {certificate_id}"
+
+
+@shared_task(queue="notification")
+def admin_user_request_certificate(*args, **kwargs):
+    pass

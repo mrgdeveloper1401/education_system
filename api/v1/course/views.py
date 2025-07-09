@@ -971,11 +971,26 @@ class ListCourseIdTitleView(generics.ListAPIView):
 
 
 class CertificateValidateView(views.APIView):
-    serializer_class = serializers.CertificateValidateSerializer
-    permission_classes = (permissions.IsAuthenticated,)
+    """
+    validate certificate --? ?uid=uuid_field
+    """
+    # serializer_class = serializers.CertificateValidateSerializer
+    # permission_classes = (permissions.IsAuthenticated,)
 
-    def post(self, request):
-        serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        return response.Response(serializer.data)
+    def get(self, request, *args, **kwargs):
+        uid = request.query_params.get("uid", None)
+        print(uid)
 
+        if uid is None:
+            raise exceptions.NotFound()
+        else:
+            certificate = Certificate.objects.filter(unique_code=uid).only("id")
+
+            if not certificate.exists():
+                raise exceptions.NotFound()
+
+            return response.Response(
+                data={
+                    "message": "certificate validate successfully"
+                }
+            )
