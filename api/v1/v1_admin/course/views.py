@@ -9,6 +9,7 @@ from . import serializers
 from course.models import Category, Course, Section, SectionFile, SectionVideo, LessonCourse, Certificate, \
     PresentAbsent, SectionQuestion, AnswerQuestion, Comment, SignupCourse, StudentEnrollment
 from .paginations import AdminPagination
+from ...course.filters import LessonCourseFilter
 from ...course.paginations import CommonPagination
 
 
@@ -151,19 +152,17 @@ class AdminCourseListApiView(generics.ListAPIView):
 
 class AdminLessonCourseViewSet(viewsets.ModelViewSet):
     """
-    filter query --> ?progress=progress(not_started, finished, in_progress)
+    filter query --> ?class_name=java \n
+    ?class_name=python&progress=finished \n
+    ?class_name=&progress=finished \n
+    ?progress=not_started \n \n
+
+    progress --> (not_started, finished, in_progress)
     """
     permission_classes = (permissions.IsAdminUser,)
     serializer_class = serializers.AdminLessonCourseSerializer
     pagination_class = CommonPagination
-
-    def filter_queryset(self, queryset):
-        query = queryset
-
-        progress = self.request.query_params.get('progress', None)
-        if progress:
-            query = query.filter(progress=progress)
-        return query
+    filterset_class = LessonCourseFilter
 
     def get_queryset(self):
         return LessonCourse.objects.filter(course_id=self.kwargs['course_pk']).prefetch_related(

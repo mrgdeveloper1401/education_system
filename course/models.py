@@ -131,7 +131,8 @@ class StudentEnrollment(CreateMixin, UpdateMixin, SoftDeleteMixin):
         return f'{self.student.referral_code} {str(self.student_status)}'
 
     def save(self, *args, **kwargs):
-        if StudentEnrollment.objects.filter(
+        # check student dont add in same class
+        if self.pk is None and StudentEnrollment.objects.filter(
             student=self.student,
             lesson_course=self.lesson_course,
         ).exists():
