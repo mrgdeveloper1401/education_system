@@ -20,7 +20,7 @@ class IsAccessPermission(permissions.BasePermission):
                 section_id=section_pk,
                 student__user=request.user,
                 is_access=True
-            ).exists()
+            ).only("id").exists()
         return has_access
 
 

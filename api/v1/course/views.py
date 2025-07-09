@@ -42,7 +42,12 @@ from .permissions import IsCoachPermission, IsAccessPermission, IsOwnerOrReadOnl
 
 class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
     """
-    search query --> ?class_name=xyz or ?progress_lesson=xyz
+    filter query --> ?class_name=java \n
+    ?class_name=python&progress=finished \n
+    ?class_name=&progress=finished \n
+    ?progress=not_started \n \n
+
+    progress --> (not_started, finished, in_progress)
     """
     serializer_class = serializers.LessonCourseSerializer
     permission_classes = (permissions.IsAuthenticated,)
@@ -78,15 +83,22 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
 
 
     def get_queryset(self):
-        query = (LessonCourse.objects.filter(
-           students__user=self.request.user,
+        return LessonCourse.objects.filter(
+            students__user=self.request.user,
+            students__user__is_coach=False,
             is_active=True,
-        )
         ).select_related(
-            "course__category", "coach__user"
+            "course",
+            "coach__user"
         ).only(
-            "course__course_name", "course__course_image", "course__project_counter", "coach__user__last_name",
-            "coach__user__first_name", "progress", "class_name", "course__category__category_name"
+            "course__course_name",
+            "course__course_image",
+            "course__project_counter",
+            "coach__user__last_name",
+            "coach__user__first_name",
+            "progress",
+            "class_name",
+            "course__category_id"
         ).distinct()
         # std_enrollment = StudentEnrollment.objects.filter(student__user=self.request.user).only(
         #     "student_id"
@@ -94,7 +106,7 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
         # if std_enrollment:
         #     return query
         # return []
-        return query
+        # return query
 
     # def filter_queryset(self, queryset):
     #     class_name = self.request.query_params.get("class_name") # for use search
@@ -407,7 +419,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     pagination_class = CommentPagination
 
     def get_queryset(self):
-        is_student = getattr(self.request.user, "is_student")
+        is_student = getattr(self.request.user, "is_student") # get object student on request
         query = Comment.objects.select_related("user").filter(is_publish=True).only(
             "comment_body",
             "user__first_name",

@@ -299,3 +299,4 @@ nginx/privkey.pem
 nginx/README
 nginx/codeima
 base_image_docker
+test.json
