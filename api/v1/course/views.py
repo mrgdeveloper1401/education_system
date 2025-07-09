@@ -6,10 +6,10 @@ from rest_framework import mixins, viewsets, permissions, decorators, response, 
     filters
 from rest_framework.permissions import IsAuthenticated
 
-from accounts.models import Student
+# from accounts.models import Student
 from course.models import Comment, SectionVideo, SectionFile, LessonCourse, StudentSectionScore, \
     PresentAbsent, StudentAccessSection, SendSectionFile, OnlineLink, SectionQuestion, Section, \
-    Category, CallLessonCourse, Course, Certificate, CourseTypeModel, StudentEnrollment, CertificateTemplate
+    Category, CallLessonCourse, Course, Certificate, CourseTypeModel, StudentEnrollment
 from .filters import LessonCourseFilter
 
 from .pagination import CommentPagination
@@ -19,25 +19,25 @@ from . import serializers
 from .permissions import IsCoachPermission, IsAccessPermission, IsOwnerOrReadOnly
 
 
-class CertificateTemplateViewSet(viewsets.ModelViewSet):
-    serializer_class = serializers.CertificateTemplateSerializer
-
-    def get_permissions(self):
-        if self.action in ("create", "update", "partial_update", "destroy"):
-            self.permission_classes = (permissions.IsAdminUser,)
-        else:
-            self.permission_classes = (permissions.IsAuthenticated,)
-        return super().get_permissions()
-
-    def get_queryset(self):
-        queryset = CertificateTemplate.objects.only(
-            "template_image",
-            "is_active"
-        )
-
-        if self.request.user.is_staff is False:
-            queryset = queryset.filter(is_active=True)
-        return queryset
+# class CertificateTemplateViewSet(viewsets.ModelViewSet):
+#     serializer_class = serializers.CertificateTemplateSerializer
+#
+#     def get_permissions(self):
+#         if self.action in ("create", "update", "partial_update", "destroy"):
+#             self.permission_classes = (permissions.IsAdminUser,)
+#         else:
+#             self.permission_classes = (permissions.IsAuthenticated,)
+#         return super().get_permissions()
+#
+#     def get_queryset(self):
+#         queryset = CertificateTemplate.objects.only(
+#             "template_image",
+#             "is_active"
+#         )
+#
+#         if self.request.user.is_staff is False:
+#             queryset = queryset.filter(is_active=True)
+#         return queryset
 
 
 class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
@@ -409,8 +409,20 @@ class CommentViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         is_student = getattr(self.request.user, "is_student")
         query = Comment.objects.select_related("user").filter(is_publish=True).only(
-            "comment_body", "user__first_name", "user__last_name", "created_at", "numchild", 'depth', "path",
-            "numchild", "depth", "path", "user__image", "category_id", "user__is_coach", "is_pined"
+            "comment_body",
+            "user__first_name",
+            "user__last_name",
+            "created_at",
+            "numchild",
+            'depth',
+            "path",
+            "numchild",
+            "depth",
+            "path",
+            "user__image",
+            "category_id",
+            "user__is_coach",
+            "is_pined"
         ).order_by("-id")
         # print(self.request.query_params.get("is_pined"))
         # print(int(self.request.query_params.get("is_pined")) == 1)
@@ -434,9 +446,19 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 
 class CoachLessonCourseViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    filter query --> ?class_name=java \n
+    ?class_name=python&progress=finished \n
+    ?class_name=&progress=finished \n
+    ?progress=not_started \n \n
+
+    progress --> (not_started, finished, in_progress)
+    """
     serializer_class = serializers.ListCoachLessonCourseSerializer
     permission_classes = (permissions.IsAuthenticated,)
     pagination_class = CommonPagination
+    filterset_class = LessonCourseFilter
+    filter_backends = (DjangoFilterBackend,)
 
     def get_serializer_class(self):
         if self.action == "detail_student_send_files" and self.request.method in ('PUT', 'PATCH'):
@@ -450,53 +472,57 @@ class CoachLessonCourseViewSet(viewsets.ReadOnlyModelViewSet):
         return super().get_serializer_class()
 
     def get_queryset(self):
-        query = LessonCourse.objects.filter(coach__user=self.request.user).select_related(
-            "course__category", "coach__user"
+        query = LessonCourse.objects.filter(
+            coach__user_id=self.request.user.id
+        ).select_related(
+            "course",
+            # "coach__user"
         ).only(
             "course__course_name",
             "course__course_image",
             "course__project_counter",
             "progress",
-            "coach__user__first_name",
-            "coach__user__last_name",
+            # "coach__user__first_name",
+            # "coach__user__last_name",
             "class_name",
-            "course__category__category_name"
+            "course__category_id"
         )
 
-        if "pk" in self.kwargs:
-            query = query.prefetch_related(
-                Prefetch("students",
-                         queryset=Student.objects.select_related("user").only("user__first_name", "user__last_name"))
-            )
+        # if "pk" in self.kwargs:
+        #     query = query.prefetch_related(
+        #         Prefetch("students",
+        #                  queryset=Student.objects.select_related("user").only("user__first_name", "user__last_name"))
+        #     )
 
-        class_name = self.request.query_params.get("class_name")
-        progress_lesson = self.request.query_params.get("progress_lesson")
+        # class_name = self.request.query_params.get("class_name")
+        # progress_lesson = self.request.query_params.get("progress_lesson")
+        #
+        # if class_name and progress_lesson:
+        #     query = query.filter(class_name__icontains=class_name, progress__exact=progress_lesson)
+        # if class_name:
+        #     query = query.filter(class_name__icontains=class_name)
+        # if progress_lesson:
+        #     query = query.filter(progress__exact=progress_lesson)
+        # return query
 
-        if class_name and progress_lesson:
-            query = query.filter(class_name__icontains=class_name, progress__exact=progress_lesson)
-        if class_name:
-            query = query.filter(class_name__icontains=class_name)
-        if progress_lesson:
-            query = query.filter(progress__exact=progress_lesson)
-        return query
-
-    @extend_schema(
-        tags=['api_coach_course'],
-        parameters=[
-            OpenApiParameter(
-                name="class_name",
-                type=OpenApiTypes.STR,
-                location=OpenApiParameter.QUERY,
-                description="The name of the purchase.",
-            ),
-            OpenApiParameter(
-                name="progress_lesson",
-                type=OpenApiTypes.STR,
-                location=OpenApiParameter.QUERY,
-                description="The name of the progress lesson.",
-            )
-        ]
-    )
+    # @extend_schema(
+    #     tags=['api_coach_course'],
+    #     parameters=[
+    #         OpenApiParameter(
+    #             name="class_name",
+    #             type=OpenApiTypes.STR,
+    #             location=OpenApiParameter.QUERY,
+    #             description="The name of the purchase.",
+    #         ),
+    #         OpenApiParameter(
+    #             name="progress_lesson",
+    #             type=OpenApiTypes.STR,
+    #             location=OpenApiParameter.QUERY,
+    #             description="The name of the progress lesson.",
+    #         )
+    #     ]
+    # )
+    @extend_schema(tags=['api_coach_course'])
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
@@ -946,7 +972,7 @@ class AllCourseViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewset
         name = self.request.query_params.get("name", None)
 
         if name:
-            return queryset.filter(course_name=name)
+            queryset = queryset.filter(course_name=name)
         return queryset
 
 
@@ -979,8 +1005,9 @@ class CertificateValidateView(views.APIView):
 
     def get(self, request, *args, **kwargs):
         uid = request.query_params.get("uid", None)
-        print(uid)
+        # print(uid)
 
+        # check unique_code dose exists
         if uid is None:
             raise exceptions.NotFound()
         else:

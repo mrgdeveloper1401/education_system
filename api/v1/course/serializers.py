@@ -620,23 +620,23 @@ class CertificateSerializer(serializers.ModelSerializer):
         return attrs
 
 
-class CertificateTemplateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CertificateTemplate
-        fields = (
-            "id",
-            "template_image",
-            "is_active"
-        )
-
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-
-        user_is_staff = self.context['request'].user.is_staff
-        if user_is_staff is False:
-             data.pop("is_active", None)
-
-        return data
+# class CertificateTemplateSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = CertificateTemplate
+#         fields = (
+#             "id",
+#             "template_image",
+#             "is_active"
+#         )
+#
+#     def to_representation(self, instance):
+#         data = super().to_representation(instance)
+#
+#         user_is_staff = self.context['request'].user.is_staff
+#         if user_is_staff is False:
+#              data.pop("is_active", None)
+#
+#         return data
 
 
 class CrudCourseTypeSerializer(serializers.ModelSerializer):
@@ -668,6 +668,7 @@ class AllCourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         fields = (
+            "id",
             "course_name",
             "course_description",
             "course_image",

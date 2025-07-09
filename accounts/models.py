@@ -196,8 +196,8 @@ class Coach(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = 'coach'
-        verbose_name = _("استاد")
-        verbose_name_plural = _("اساتید")
+        # verbose_name = _("استاد")
+        # verbose_name_plural = _("اساتید")
 
 
 class Student(CreateMixin, UpdateMixin, SoftDeleteMixin):

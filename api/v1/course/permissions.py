@@ -10,6 +10,7 @@ class IsCoachPermission(permissions.BasePermission):
 
 class IsAccessPermission(permissions.BasePermission):
     def has_permission(self, request, view):
+        print(view)
         section_pk = view.kwargs.get('section_pk')
 
         has_access = True
