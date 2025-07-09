@@ -46,7 +46,7 @@ class SectionAdmin(admin.ModelAdmin):
 
 @admin.register(models.Comment)
 class CommentAdmin(TreeAdmin):
-    list_display = ['user', "category", "is_publish", "created_at"]
+    list_display = ['user', "id", "category", "is_publish", "created_at"]
     list_editable = ['is_publish']
     raw_id_fields = ['user', "category"]
     list_filter = ['is_publish']

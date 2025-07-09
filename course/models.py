@@ -322,7 +322,7 @@ class Comment(MP_Node, CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = 'comment'
-        ordering = ("created_at",)
+        ordering = ("-id",)
 
 
 class OnlineLink(CreateMixin, UpdateMixin, SoftDeleteMixin):
