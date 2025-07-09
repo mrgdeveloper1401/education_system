@@ -376,9 +376,10 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
             raise exceptions.MethodNotAllowed(request.method)
 
 
+@extend_schema(tags=['api_course'])
 class StudentPollAnswer(mixins.CreateModelMixin, viewsets.GenericViewSet):
     serializer_class = serializers.AnswerSectionQuestionSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = (permissions.IsAuthenticated,)
 
 
 @extend_schema_view(
@@ -908,13 +909,24 @@ class HomeCourseViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewse
     serializer_class = serializers.HomeCourseSerializer
 
     def get_queryset(self):
-        query = Course.objects.filter(category_id=self.kwargs['home_category_pk']).defer(
-            "is_deleted", "deleted_at", "updated_at", "created_at"
+        query = Course.objects.filter(
+            category_id=self.kwargs['home_category_pk']
+        ).defer(
+            "is_deleted",
+            "deleted_at",
+            "updated_at",
+            "created_at"
         ).prefetch_related(
             Prefetch("course_type_model", queryset=CourseTypeModel.objects.filter(is_active=True).only(
-                "price", "course_type", "description", "course_id", "plan_type", "amount"
+                "price",
+                "course_type",
+                "description",
+                "course_id",
+                "plan_type",
+                "amount"
             ))
         ).order_by("id")
+
         course_level = self.request.query_params.get("course_level", None)
 
         if course_level:

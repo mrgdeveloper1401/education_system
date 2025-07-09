@@ -116,7 +116,7 @@ class LessonCourse(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = 'lesson_course'
-        ordering = ("-created_at",)
+        ordering = ("-id",)
 
 
 class StudentEnrollment(CreateMixin, UpdateMixin, SoftDeleteMixin):
@@ -141,7 +141,7 @@ class StudentEnrollment(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = "lesson_course_students"
-        ordering = ('created_at',)
+        ordering = ('id',)
         # unique_together = ("student", "lesson_course")
 
 
@@ -157,7 +157,7 @@ class Section(CreateMixin, UpdateMixin, SoftDeleteMixin):
                                     help_text=_("اگر تیک این مورد خورده باشد یعنی اخرین سکشن برای درس خواهد بود"))
 
     class Meta:
-        ordering = ('created_at',)
+        ordering = ('id',)
         db_table = 'course_section'
         permissions = [
             ("can_access_section", "can access section")
@@ -206,7 +206,7 @@ class StudentAccessSection(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = "student_access_section"
-        ordering = ("created_at",)
+        ordering = ("id",)
 
 
 class PresentAbsent(CreateMixin, UpdateMixin):
@@ -219,7 +219,7 @@ class PresentAbsent(CreateMixin, UpdateMixin):
 
     class Meta:
         db_table = "course_section_present_absent"
-        ordering = ("-created_at",)
+        ordering = ("-id",)
         constraints = [
             models.UniqueConstraint(fields=['section', "student"], name="unique_section_student")
         ]
@@ -251,7 +251,7 @@ class SendSectionFile(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = "send_file"
-        ordering = ('-created_at',)
+        ordering = ('-id',)
 
     def save(self, *args, **kwargs):
         if self.score:
@@ -304,7 +304,7 @@ class Certificate(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     class Meta:
         # unique_together = ("section", "student")
-        ordering = ["-id"]
+        ordering = ("-id",)
 
     def save(self, *args, **kwargs):
         if self.unique_code is None and self.pk is None:
@@ -334,7 +334,7 @@ class OnlineLink(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = "online_link"
-        ordering = ("-created_at",)
+        ordering = ("-id",)
 
 
 class Question(CreateMixin, UpdateMixin, SoftDeleteMixin):
@@ -343,7 +343,7 @@ class Question(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = "poll_question"
-        ordering = ("-created_at",)
+        ordering = ("-id",)
 
 
 class SectionQuestion(CreateMixin, UpdateMixin, SoftDeleteMixin):
@@ -354,7 +354,7 @@ class SectionQuestion(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = "section_question"
-        ordering = ("-created_at",)
+        ordering = ("-id",)
 
 
 class AnswerQuestion(CreateMixin, UpdateMixin, SoftDeleteMixin):
@@ -365,7 +365,7 @@ class AnswerQuestion(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = "poll_answer"
-        ordering = ("created_at",)
+        ordering = ("-id",)
 
 
 class CallLessonCourse(CreateMixin, UpdateMixin, SoftDeleteMixin):
@@ -386,7 +386,7 @@ class CallLessonCourse(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = "call_lesson_course"
-        ordering = ("-created_at",)
+        ordering = ("-id",)
 
 
 class SignupCourse(CreateMixin, UpdateMixin, SoftDeleteMixin):
@@ -400,3 +400,4 @@ class SignupCourse(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = "course_signup"
+        ordering = ("-id",)

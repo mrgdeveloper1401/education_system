@@ -401,8 +401,21 @@ class AnswerSectionQuestionSerializer(serializers.Serializer):
     rates = RateAnswerSerializer(many=True)
 
     def create(self, validated_data):
-        student = self.context['request'].user.student
+        user_id = self.context['request'].user.id # get user_id by context
+        student = Student.objects.filter(user_id=user_id).only("student_number") # filter query student
+
+        # check user is student
+        if not student.exists():
+            raise exceptions.ValidationError(
+                {
+                    "message": _("your account not student")
+                }
+            )
+
+        student = student.first()
+
         answers = []
+
         for item in validated_data['rates']:
             answer = AnswerQuestion(
                 student=student,
@@ -410,16 +423,22 @@ class AnswerSectionQuestionSerializer(serializers.Serializer):
                 rate=item['rate'],
             )
             answers.append(answer)
-        created = AnswerQuestion.objects.bulk_create(answers)
-        return {
-            "rates": [
-                {
-                    "rate": i.rate,
-                    "section_question_id": i.section_question_id,
-                }
-                for i in created
-            ]
-        }
+
+        if answers:
+            created = AnswerQuestion.objects.bulk_create(answers)
+
+            return {
+                "rates": [
+                    {
+                        "rate": i.rate,
+                        "section_question_id": i.section_question_id,
+                    }
+                    for i in created
+                ]
+            }
+
+        # print(answers)
+        return {"rates": []}
 
 
 class CoachStudentSendFilesSerializer(serializers.ModelSerializer):
