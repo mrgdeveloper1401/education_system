@@ -2,6 +2,8 @@ from celery import shared_task
 import qrcode
 from io import BytesIO
 from django.core.files.base import ContentFile
+
+from accounts.models import User, PrivateNotification
 from course.models import Certificate
 
 
@@ -44,5 +46,22 @@ def create_qr_code(*args, **kwargs):
 
 
 @shared_task(queue="notification")
-def admin_user_request_certificate(*args, **kwargs):
-    pass
+def admin_user_request_certificate(body):
+    admin_user = User.objects.filter(
+        is_active=True,
+        is_staff=True
+    ).only(
+        "mobile_phone"
+    )
+    lst = [
+        PrivateNotification(
+            user=i,
+            body=body,
+            title = "certificate",
+            notification_type="certificate"
+        )
+        for i in admin_user
+    ]
+
+    if lst:
+        PrivateNotification.objects.bulk_create(lst)

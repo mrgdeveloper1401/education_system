@@ -571,9 +571,13 @@ class CertificateSerializer(serializers.ModelSerializer):
                 "id": certificate.id
             }
         )
-        # admin_user_request_certificate.delay(
-        #
-        # )
+        admin_user_request_certificate.delay(
+            # url_id = {
+            #     f"/api_course/student_lesson_course/{lesson_course_pk}/sections/{section_pk}/certificate/"
+            # }
+            body=f"ادمین محترم کاربر {certificate.student.student_name} \n"
+                 f"درخواست گواهی نامه داده هست"
+        )
         return certificate
 
     def validate(self, attrs):
