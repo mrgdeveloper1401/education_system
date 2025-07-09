@@ -26,4 +26,12 @@ class IsAccessPermission(permissions.BasePermission):
 
 class IsOwnerOrReadOnly(permissions.IsAuthenticated):
     def has_object_permission(self, request, view, obj):
+
+        # print(view) # <api.v1.course.views.CommentViewSet object at 0x7fa4c922a3d0>
+
+        # print(obj) Comment object (4)
+
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
         return bool(obj.user == request.user)

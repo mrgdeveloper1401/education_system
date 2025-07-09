@@ -408,53 +408,44 @@ class StudentListPresentAbsentViewSet(viewsets.ReadOnlyModelViewSet):
         ).select_related("section").only("student_status", "section__title", "created_at")
 
 
+@extend_schema(tags=['api_coach_student_course'])
 class CommentViewSet(viewsets.ModelViewSet):
     """
-    pagination --> 20 item
-    permission --> is owner (everybody can delete, update own comment)
-    query filter ?is_pined=1
+    Comment management for both coaches and students
+    - Pagination: 20 items
+    - Permission: Owner can modify
+    - Filter: ?is_pined=1
     """
     serializer_class = serializers.CommentSerializer
     permission_classes = (IsOwnerOrReadOnly,)
     pagination_class = CommentPagination
 
     def get_queryset(self):
-        is_student = getattr(self.request.user, "is_student") # get object student on request
-        query = Comment.objects.select_related("user").filter(is_publish=True).only(
-            "comment_body",
-            "user__first_name",
-            "user__last_name",
-            "created_at",
-            "numchild",
-            'depth',
-            "path",
-            "numchild",
-            "depth",
-            "path",
-            "user__image",
-            "category_id",
-            "user__is_coach",
-            "is_pined"
-        ).order_by("-id")
-        # print(self.request.query_params.get("is_pined"))
-        # print(int(self.request.query_params.get("is_pined")) == 1)
-        is_pined = self.request.query_params.get("is_pined", None)
+        user = self.request.user
+        queryset = Comment.objects.filter(is_publish=True)
 
-        if is_student and (is_pined and int(is_pined) == 1):
-            return query.filter(
-                category__course_category__lesson_course=self.kwargs['student_lesson_course_pk'],
-                is_pined=True
-            )
-        elif is_student:
-            return query.filter(
-                category__course_category__lesson_course=self.kwargs['student_lesson_course_pk']
-            )
-        elif is_pined and int(is_pined) == 1:
-            return query.filter(is_pined=True)
+        # Common optimizations
+        queryset = queryset.select_related("user").only(
+            "comment_body", "user__first_name", "user__last_name",
+            "created_at", "numchild", "depth", "path",
+            "user__image", "category_id", "user__is_coach", "is_pined"
+        ).order_by("-id")
+
+        # Role-based filtering
+        if user.is_coach is False:
+            lesson_key = 'student_lesson_course_pk'
         else:
-            return query.filter(
-                category__course_category__lesson_course=self.kwargs['coach_lesson_course_pk']
-            )
+            lesson_key = 'coach_lesson_course_pk'
+
+        queryset = queryset.filter(
+            category__course_category__lesson_course=self.kwargs[lesson_key]
+        )
+
+        # Pin filter
+        if self.request.query_params.get("is_pined") == "1":
+            queryset = queryset.filter(is_pined=True)
+
+        return queryset
 
 
 class CoachLessonCourseViewSet(viewsets.ReadOnlyModelViewSet):
