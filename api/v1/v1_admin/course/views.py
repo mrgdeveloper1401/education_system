@@ -8,6 +8,7 @@ from accounts.models import Student
 from . import serializers
 from course.models import Category, Course, Section, SectionFile, SectionVideo, LessonCourse, Certificate, \
     PresentAbsent, SectionQuestion, AnswerQuestion, Comment, SignupCourse, StudentEnrollment
+from .filters import AdminCommentFilter
 from .paginations import AdminPagination
 from ...course.filters import LessonCourseFilter
 from ...course.paginations import CommonPagination
@@ -76,14 +77,6 @@ class AdminCourseSectionViewSet(viewsets.ModelViewSet):
         context = super().get_serializer_context()
         context["course_pk"] = self.kwargs["course_pk"]
         return context
-    #
-    # def filter_queryset(self, queryset):
-    #     title = self.request.query_params.get("title", None)
-    #     query = queryset
-    #
-    #     if title:
-    #         query = queryset.filter(title__icontains=title)
-    #     return query
 
 
 class AdminSectionFileViewSet(viewsets.ModelViewSet):
@@ -238,34 +231,37 @@ class AdminAnswerQuestionViewSet(viewsets.ReadOnlyModelViewSet):
 
 class AdminCommentViewSet(viewsets.ModelViewSet):
     """
-    filter query --> ?is_pined=1 (1 equal comment is pined)
+    filter query --> ?is_pined=false or ?is_pined=true
     pagination --> 20 item
     permission --> admin user
     """
     serializer_class = serializers.AdminCommentSerializer
     pagination_class = AdminPagination
     permission_classes = (permissions.IsAdminUser,)
+    filterset_class = AdminCommentFilter
+    filter_backends = (DjangoFilterBackend,)
 
     def get_queryset(self):
         return Comment.objects.filter(
             category_id=self.kwargs['category_pk']
         ).only(
-            "is_publish", "comment_body", "category", "path", "numchild", "depth", "user__first_name", "user__last_name",
-            "created_at", "is_pined", "updated_at"
-        ).select_related("user")
+            "is_publish",
+            "comment_body",
+            "category",
+            "path",
+            "numchild",
+            "depth",
+            "user__first_name",
+            "user__last_name",
+            "created_at",
+            "is_pined",
+            "updated_at"
+        ).select_related("user").order_by("-id")
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
         context['category_pk'] = self.kwargs['category_pk']
         return context
-
-    def filter_queryset(self, queryset):
-        is_pined = self.request.query_params.get("is_pined", None)
-
-        if is_pined and is_pined == 1:
-            return queryset.filter(is_pined=True)
-        return queryset
-
 
 class SignUpCourseViewSet(viewsets.ModelViewSet):
     queryset = SignupCourse.objects.only(

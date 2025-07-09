@@ -320,6 +320,8 @@ class Comment(MP_Node, CreateMixin, UpdateMixin, SoftDeleteMixin):
     is_publish = models.BooleanField(default=True)
     is_pined = models.BooleanField(default=False)
 
+    # node_order_by = ['id']
+
     class Meta:
         db_table = 'comment'
         ordering = ("-id",)

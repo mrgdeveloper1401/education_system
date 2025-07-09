@@ -400,6 +400,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     """
     pagination --> 20 item
     permission --> is owner (everybody can delete, update own comment)
+    query filter ?is_pined=1
     """
     serializer_class = serializers.CommentSerializer
     permission_classes = (IsOwnerOrReadOnly,)
@@ -409,12 +410,13 @@ class CommentViewSet(viewsets.ModelViewSet):
         is_student = getattr(self.request.user, "is_student")
         query = Comment.objects.select_related("user").filter(is_publish=True).only(
             "comment_body", "user__first_name", "user__last_name", "created_at", "numchild", 'depth', "path",
-            "numchild", "depth", "path", "user__image", "category_id", "user__is_coach"
-        )
-
+            "numchild", "depth", "path", "user__image", "category_id", "user__is_coach", "is_pined"
+        ).order_by("-id")
+        # print(self.request.query_params.get("is_pined"))
+        # print(int(self.request.query_params.get("is_pined")) == 1)
         is_pined = self.request.query_params.get("is_pined", None)
 
-        if is_student and (is_pined and is_pined == 1):
+        if is_student and (is_pined and int(is_pined) == 1):
             return query.filter(
                 category__course_category__lesson_course=self.kwargs['student_lesson_course_pk'],
                 is_pined=True
@@ -423,7 +425,7 @@ class CommentViewSet(viewsets.ModelViewSet):
             return query.filter(
                 category__course_category__lesson_course=self.kwargs['student_lesson_course_pk']
             )
-        elif is_pined and is_pined == 1:
+        elif is_pined and int(is_pined) == 1:
             return query.filter(is_pined=True)
         else:
             return query.filter(

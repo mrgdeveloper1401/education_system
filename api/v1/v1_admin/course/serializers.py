@@ -71,9 +71,9 @@ class AdminCreateCourseSectionSerializer(serializers.ModelSerializer):
         course_sections_is_last = course.first().sections.filter(is_last_section=True, is_publish=True).only(
             "course_id"
         )
-
+        print(self.instance)
         # check is_last_section dose it exists or not?
-        if course_sections_is_last:
+        if self.instance is None and course_sections_is_last:
             raise exceptions.ValidationError("you have already is_last_section")
 
         return attrs
@@ -208,14 +208,17 @@ class AdminCommentSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         parent = validated_data.pop("parent", None)
-        user = self.context['request'].user
+        user = self.context['request'].user.id
         category_pk = self.context['category_pk']
+        # print(validated_data)
 
-        if parent:
-            comment_node = get_object_or_404(Comment, id=parent)
-            return comment_node.add_child(user=user, category_id=category_pk, **validated_data)
+        if parent is None:
+            self.instance = Comment.add_root(user_id=user, category_id=category_pk, **validated_data)
         else:
-            return Comment.add_root(user=user, category_id=category_pk, **validated_data)
+            comment_node = get_object_or_404(Comment, id=parent)
+            self.instance = comment_node.add_child(user_id=user, category_id=category_pk, **validated_data)
+
+        return self.instance
 
 
 class SignUpCourseSerializer(serializers.ModelSerializer):
