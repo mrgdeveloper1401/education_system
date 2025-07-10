@@ -63,7 +63,7 @@ class AdminCoachApiView(generics.ListAPIView):
             return queryset
 
 
-class AdminUserApiView(generics.ListAPIView):
+# class AdminUserApiView(generics.ListAPIView):
     # """
     # show list user
     # permission --> admin

@@ -30,6 +30,7 @@ api_url = [
     path("api_subscription/", include("api.v1.subscription.urls", namespace="v1_subscriptions")),
     path("api_images/", include("api.v1.images.urls", namespace="v1_images")),
     path("api_coupon/", include("api.v1.coupon.urls", namespace="v1_coupon")),
+    path("api_core/", include("api.v1.core.urls", namespace="v1_api_core")),
 ]
 
 api_admin = [
