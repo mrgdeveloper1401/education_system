@@ -169,7 +169,7 @@ class SectionVideo(CreateMixin, UpdateMixin, SoftDeleteMixin):
     title = models.CharField(max_length=50, help_text=_("عنوان"), null=True)
     section = models.ForeignKey(Section, on_delete=models.CASCADE, related_name='section_videos',
                                 limit_choices_to={"is_publish": True})
-    video = models.FileField(upload_to="section_video/%Y/%m/%d", validators=[FileExtensionValidator(["mp4"])])
+    video = models.FileField(upload_to="section_video/%Y/%m/%d", validators=[FileExtensionValidator(["mp4"])], blank=True)
     video_url = models.CharField(max_length=500, blank=True, null=True)
     is_publish = models.BooleanField(default=True)
 

@@ -308,7 +308,13 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
             is_publish=True,
             section__is_publish=True,
             section__course__lesson_course__exact=pk
-        ).only("video", "title", "section__cover_image")
+        ).select_related("section").only(
+            "section__is_publish",
+            "section__cover_image",
+            "video",
+            "video_url",
+            "title"
+        )
         serializer = serializers.CourseSectionVideoSerializer(section_video, many=True)
         return response.Response(serializer.data)
 
@@ -492,7 +498,7 @@ class CoachLessonCourseViewSet(viewsets.ReadOnlyModelViewSet):
         return super().get_serializer_class()
 
     def get_queryset(self):
-        query = LessonCourse.objects.filter(
+        return LessonCourse.objects.filter(
             coach__user_id=self.request.user.id
         ).select_related(
             "course",
@@ -507,6 +513,7 @@ class CoachLessonCourseViewSet(viewsets.ReadOnlyModelViewSet):
             "class_name",
             "course__category_id"
         )
+        # return query
 
         # if "pk" in self.kwargs:
         #     query = query.prefetch_related(
@@ -626,7 +633,7 @@ class CoachLessonCourseViewSet(viewsets.ReadOnlyModelViewSet):
     def get_coach_video(self, request, pk=None, section_pk=None):
         section_video = SectionVideo.objects.filter(
             section_id=section_pk, section__course__lesson_course__exact=pk
-        ).select_related("section").only("video", "title", "section__cover_image")
+        ).select_related("section").only("video", "video_url", "title", "section__cover_image")
         serializer = serializers.CourseSectionVideoSerializer(section_video, many=True)
         return response.Response(serializer.data)
 
