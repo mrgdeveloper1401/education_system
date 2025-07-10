@@ -581,13 +581,26 @@ class CertificateSerializer(serializers.ModelSerializer):
         # get object student id
         student = student.first()
 
+        # check certificate dose already exists?
+        certificate = Certificate.objects.filter(
+            section_id=section_pk,
+            student_id=student.id,
+        ).only("id")
+
+        if self.instance is None and certificate.exists():
+            raise exceptions.ValidationError(
+                {
+                    "message": _("you have already certificate")
+                }
+            )
+
         # create request certificate
         certificate = Certificate.objects.create(
             student_id=student.id,
             section_id=section_pk,
             **validated_data
         )
-        # call celery task
+        # call celery task celery
         create_qr_code.delay(
             information = {
                 "unique_code_certificate": certificate.unique_code,
@@ -600,6 +613,7 @@ class CertificateSerializer(serializers.ModelSerializer):
                 "id": certificate.id
             }
         )
+        # create notification for admin , task celery
         admin_user_request_certificate.delay(
             # url_id = {
             #     f"/api_course/student_lesson_course/{lesson_course_pk}/sections/{section_pk}/certificate/"
