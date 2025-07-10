@@ -23,6 +23,7 @@ from accounts.tasks import send_sms_otp_code, send_sms_forget_password
 from utils.filters import UserFilter
 from utils.pagination import StudentCoachTicketPagination
 from utils.permissions import NotAuthenticate
+from .filters import TicketRoomFilter
 from .pagination import UserPagination, CityPagination, BestStudentPagination
 from .permissions import TicketRoomPermission
 from education_system.base import SIMPLE_JWT
@@ -213,9 +214,14 @@ class CoachViewSet(ModelViewSet):
 
 
 class TicketRoomViewSet(ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    """
+    filter query --> ?is_close=false or is_close=true
+    """
+    permission_classes = (IsAuthenticated,)
     pagination_class = CommonPagination
     serializer_class = serializers.TickerRoomSerializer
+    filterset_class = TicketRoomFilter
+    filter_backends = (DjangoFilterBackend,)
 
     @extend_schema(
         parameters=[
@@ -235,10 +241,10 @@ class TicketRoomViewSet(ModelViewSet):
         if self.request.user.is_staff is False:
             room = room.filter(user=self.request.user)
 
-        room_close = self.request.query_params.get("close")
-
-        if room_close:
-            room = room.filter(is_close=room_close)
+        # room_close = self.request.query_params.get("close")
+        #
+        # if room_close:
+        #     room = room.filter(is_close=room_close)
 
         return room
 
