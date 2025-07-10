@@ -126,21 +126,21 @@ class AdminSectionVideoViewSet(viewsets.ModelViewSet):
         return context
 
 
-class AdminCourseListApiView(generics.ListAPIView):
-    """
-    filter query --> ?course_name=course_name
-    """
-    queryset = Course.objects.only("course_name",)
-    serializer_class = serializers.AdminCourseListSerializer
-    permission_classes = (permissions.IsAdminUser,)
-
-    def filter_queryset(self, queryset):
-        query = queryset
-        course_name = self.request.query_params.get("course_name", None)
-
-        if course_name:
-            query = query.filter(course_name__icontains=course_name)
-        return query
+# class AdminCourseListApiView(generics.ListAPIView):
+#     """
+#     filter query --> ?course_name=course_name
+#     """
+#     queryset = Course.objects.only("course_name",)
+#     serializer_class = serializers.AdminCourseListSerializer
+#     permission_classes = (permissions.IsAdminUser,)
+#
+#     def filter_queryset(self, queryset):
+#         query = queryset
+#         course_name = self.request.query_params.get("course_name", None)
+#
+#         if course_name:
+#             query = query.filter(course_name__icontains=course_name)
+#         return query
 
 
 class AdminLessonCourseViewSet(viewsets.ModelViewSet):
@@ -299,24 +299,24 @@ class AdminCertificateViewSet(viewsets.ModelViewSet):
         )
 
 
-class AdminCertificateStudentListView(mixins.ListModelMixin, viewsets.GenericViewSet):
-    """
-    filter query --> ?std_phone=student_phone_number
-    """
-    serializer_class = serializers.AdminStudentListCertificateSerializer
-    permission_classes = (permissions.IsAdminUser,)
-    queryset = Student.objects.select_related("user").only(
-        "user__mobile_phone",
-        "user__first_name",
-        "user__last_name"
-    )
-
-    def filter_queryset(self, queryset):
-        std_phone = self.request.query_params.get("std_phone", None)
-
-        if std_phone:
-            queryset = queryset.filter(user__mobile_phone__icontains=std_phone)
-        return queryset
+# class AdminCertificateStudentListView(mixins.ListModelMixin, viewsets.GenericViewSet):
+#     """
+#     filter query --> ?std_phone=student_phone_number
+#     """
+#     serializer_class = serializers.AdminStudentListCertificateSerializer
+#     permission_classes = (permissions.IsAdminUser,)
+#     queryset = Student.objects.select_related("user").only(
+#         "user__mobile_phone",
+#         "user__first_name",
+#         "user__last_name"
+#     )
+#
+#     def filter_queryset(self, queryset):
+#         std_phone = self.request.query_params.get("std_phone", None)
+#
+#         if std_phone:
+#             queryset = queryset.filter(user__mobile_phone__icontains=std_phone)
+#         return queryset
 
 
 class SyncStudentAccessSectionView(views.APIView):

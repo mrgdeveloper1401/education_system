@@ -12,7 +12,7 @@ router = routers.DefaultRouter()
 router.register('category', views.CategoryViewSet, basename='admin_category')
 router.register("present_absent", views.AdminStudentPresentAbsentViewSet, basename='admin_present_absent')
 router.register("course_sign_up", views.SignUpCourseViewSet, basename="course_sign_up")
-router.register("student_list_certificate", views.AdminCertificateStudentListView, basename="std_certificate_list")
+# router.register("student_list_certificate", views.AdminCertificateStudentListView, basename="std_certificate_list")
 
 category_router = routers.NestedSimpleRouter(router, r'category', lookup='category')
 category_router.register("course", views.AdminCourseViewSet, basename='admin_course')
@@ -41,7 +41,7 @@ urlpatterns = [
     path("", include(section_router.urls)),
     path("", include(section_question_router.urls)),
     path("", include(class_room_router.urls)),
-    path('course_list/', views.AdminCourseListApiView.as_view(), name='course_list'),
+    # path('course_list/', views.AdminCourseListApiView.as_view(), name='course_list'),
     path("sync_student_access_section/", views.SyncStudentAccessSectionView.as_view(), name='sync_std_section')
 ]
 urlpatterns += router.urls

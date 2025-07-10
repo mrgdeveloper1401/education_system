@@ -21,7 +21,7 @@ class AdminCouchListSerializer(serializers.ModelSerializer):
         fields = ('id', "get_coach_name", "get_coach_phone", "is_active")
 
 
-class AdminUserListSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('id', "mobile_phone", "get_full_name", "is_coach", "is_active")
+# class AdminUserListSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = User
+#         fields = ('id', "mobile_phone", "get_full_name", "is_coach", "is_active")

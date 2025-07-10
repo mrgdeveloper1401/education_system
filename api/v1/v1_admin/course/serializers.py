@@ -108,10 +108,10 @@ class AdminSectionVideoSerializer(serializers.ModelSerializer):
         return SectionVideo.objects.create(section_id=int(self.context['section_pk']), **validated_data)
 
 
-class AdminCourseListSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Course
-        fields = ('id', "course_name")
+# class AdminCourseListSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Course
+#         fields = ('id', "course_name")
 
 
 class AdminLessonCourseSerializer(serializers.ModelSerializer):
@@ -270,10 +270,10 @@ class AdminCertificateSerializer(serializers.ModelSerializer):
     #     return attrs
 
 
-class AdminStudentListCertificateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Student
-        fields = ("id", "student_name", "get_student_phone")
+# class AdminStudentListCertificateSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Student
+#         fields = ("id", "student_name", "get_student_phone")
 
 
 class SyncAdminCreateStudentSectionSerializer(serializers.Serializer):

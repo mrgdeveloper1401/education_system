@@ -64,19 +64,19 @@ class AdminCoachApiView(generics.ListAPIView):
 
 
 class AdminUserApiView(generics.ListAPIView):
-    """
-    show list user
-    permission --> admin
-    filter query --> ?phone=phone_number
-    """
-    queryset = User.objects.only("mobile_phone", "first_name", "last_name", "is_coach", "is_active")
-    serializer_class = serializers.AdminUserListSerializer
-    permission_classes = (permissions.IsAdminUser,)
-
-    def filter_queryset(self, queryset):
-        phone = self.request.query_params.get("phone", None)
-
-        if phone:
-            return queryset.filter(mobile_phone__icontains=phone)
-        else:
-            return queryset
+    # """
+    # show list user
+    # permission --> admin
+    # filter query --> ?phone=phone_number
+    # """
+    # queryset = User.objects.only("mobile_phone", "first_name", "last_name", "is_coach", "is_active")
+    # serializer_class = serializers.AdminUserListSerializer
+    # permission_classes = (permissions.IsAdminUser,)
+    #
+    # def filter_queryset(self, queryset):
+    #     phone = self.request.query_params.get("phone", None)
+    #
+    #     if phone:
+    #         return queryset.filter(mobile_phone__icontains=phone)
+    #     else:
+    #         return queryset
