@@ -115,6 +115,7 @@ class AdminSectionVideoViewSet(viewsets.ModelViewSet):
             "created_at",
             "updated_at",
             "video",
+            "video_url",
             "section_id",
             "is_publish",
             "title"

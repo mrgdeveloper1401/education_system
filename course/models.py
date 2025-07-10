@@ -127,15 +127,16 @@ class StudentEnrollment(CreateMixin, UpdateMixin, SoftDeleteMixin):
     student_status = models.CharField(choices=StudentStatusEnum.choices, max_length=8, default=StudentStatusEnum.active,
                                       blank=True)
 
-    def __str__(self):
-        return f'{self.student.referral_code} {str(self.student_status)}'
+    # def __str__(self):
+    #     return f'{self.student.referral_code} {str(self.student_status)}'
 
     def save(self, *args, **kwargs):
+        # print(self.pk)
         # check student dont add in same class
         if self.pk is None and StudentEnrollment.objects.filter(
             student=self.student,
             lesson_course=self.lesson_course,
-        ).exists():
+        ).only("id").exists():
             raise exceptions.ValidationError({"student": "obj already exists"})
         return super().save(*args, **kwargs)
 
@@ -169,6 +170,7 @@ class SectionVideo(CreateMixin, UpdateMixin, SoftDeleteMixin):
     section = models.ForeignKey(Section, on_delete=models.CASCADE, related_name='section_videos',
                                 limit_choices_to={"is_publish": True})
     video = models.FileField(upload_to="section_video/%Y/%m/%d", validators=[FileExtensionValidator(["mp4"])])
+    video_url = models.CharField(max_length=500, blank=True, null=True)
     is_publish = models.BooleanField(default=True)
 
     def __str__(self):

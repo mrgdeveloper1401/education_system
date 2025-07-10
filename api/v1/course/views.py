@@ -1,4 +1,4 @@
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter, extend_schema_view
@@ -6,6 +6,7 @@ from rest_framework import mixins, viewsets, permissions, decorators, response, 
     filters
 from rest_framework.permissions import IsAuthenticated
 
+from course.enums import StudentStatusEnum
 # from accounts.models import Student
 from course.models import Comment, SectionVideo, SectionFile, LessonCourse, StudentSectionScore, \
     PresentAbsent, StudentAccessSection, SendSectionFile, OnlineLink, SectionQuestion, Section, \
@@ -83,13 +84,22 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
 
 
     def get_queryset(self):
-        return LessonCourse.objects.filter(
-            students__user=self.request.user,
-            students__user__is_coach=False,
-            is_active=True,
-        ).select_related(
+        # use filter query in through model
+        enrollments = StudentEnrollment.objects.filter(
+            student__user_id=self.request.user.id,
+            student_status=StudentStatusEnum.active
+        ).only(
+            "id"
+        )
+
+        lesson_course_ids = enrollments.values_list("lesson_course_id", flat=True) # example is <SoftDeleteQuerySet [2]>
+
+        query = LessonCourse.objects.select_related(
             "course",
             "coach__user"
+        ).filter(
+            id__in=lesson_course_ids,
+            is_active=True
         ).only(
             "course__course_name",
             "course__course_image",
@@ -99,14 +109,11 @@ class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):
             "progress",
             "class_name",
             "course__category_id"
-        ).distinct()
-        # std_enrollment = StudentEnrollment.objects.filter(student__user=self.request.user).only(
-        #     "student_id"
-        # ).distinct()
+        )
         # if std_enrollment:
         #     return query
-        # return []
-        # return query
+        # return None
+        return query
 
     # def filter_queryset(self, queryset):
     #     class_name = self.request.query_params.get("class_name") # for use search

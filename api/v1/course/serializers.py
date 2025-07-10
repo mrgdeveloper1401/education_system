@@ -65,7 +65,7 @@ class CourseSectionVideoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SectionVideo
-        fields = ["id", "video", "title", "section_cover_image"]
+        fields = ("id", "video", "title", "section_cover_image")
 
     def get_section_cover_image(self, obj):
         return obj.section.cover_image.url

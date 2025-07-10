@@ -63,6 +63,12 @@ class SectionVideoAdmin(admin.ModelAdmin):
     list_per_page = 20
     list_filter = ('is_publish', "created_at")
 
+    def get_queryset(self, request):
+        return super().get_queryset(request).defer(
+            "is_deleted",
+            "deleted_at"
+        )
+
 
 @admin.register(models.SectionFile)
 class SectionFileAdmin(admin.ModelAdmin):

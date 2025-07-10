@@ -7,9 +7,9 @@ class SoftDeleteQuerySet(models.QuerySet):
     def delete(self):
         return super().update(is_deleted=True, deleted_at=timezone.now())
 
+    def active(self):
+        return self.filter(Q(is_deleted=False) | Q(is_deleted=None))
 
 class PublishManager(models.Manager):
     def get_queryset(self):
-        return SoftDeleteQuerySet(self.model, using=self._db).filter(
-            Q(is_deleted=False) | Q(is_deleted__isnull=True)
-        )
+        return SoftDeleteQuerySet(self.model, using=self._db).active()
