@@ -71,7 +71,7 @@ class AdminCreateCourseSectionSerializer(serializers.ModelSerializer):
         course_sections_is_last = course.first().sections.filter(is_last_section=True, is_publish=True).only(
             "course_id"
         )
-        print(self.instance)
+        # print(self.instance)
         # check is_last_section dose it exists or not?
         if self.instance is None and course_sections_is_last:
             raise exceptions.ValidationError("you have already is_last_section")
@@ -258,16 +258,16 @@ class AdminCertificateSerializer(serializers.ModelSerializer):
         model = Certificate
         exclude = ("is_deleted", "deleted_at", "section")
 
-    def validate(self, attrs):
-        student_section = StudentAccessSection.objects.filter(
-            student=attrs["student"],
-            is_access=True,
-            section__is_last_section=True
-        ).select_related("section").only("is_access", "section__is_last_section")
-
-        if not student_section.exists():
-            raise exceptions.ValidationError({"message": _("student not appear last section")})
-        return attrs
+    # def validate(self, attrs):
+    #     student_section = StudentAccessSection.objects.filter(
+    #         student=attrs["student"],
+    #         is_access=True,
+    #         section__is_last_section=True
+    #     ).select_related("section").only("is_access", "section__is_last_section")
+    #
+    #     if not student_section.exists():
+    #         raise exceptions.ValidationError({"message": _("student not appear last section")})
+    #     return attrs
 
 
 class AdminStudentListCertificateSerializer(serializers.ModelSerializer):
