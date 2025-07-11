@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from core.models import SitemapEntry
+from core.models import SitemapEntry, CourseSiteInformation
 
 
 class SiteMapSerializer(serializers.ModelSerializer):
@@ -12,4 +12,15 @@ class SiteMapSerializer(serializers.ModelSerializer):
             "last_modified",
             "changefreq",
             "priority"
+        )
+
+
+class CourseSiteInformationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CourseSiteInformation
+        exclude = (
+            "is_deleted",
+            "deleted_at",
+            "created_at",
+            "updated_at"
         )
