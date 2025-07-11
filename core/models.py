@@ -48,3 +48,13 @@ class SitemapEntry(CreateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = "site_map"
+
+
+class CourseSiteInformation(CreateMixin, UpdateMixin, SoftDeleteMixin):
+    user_counter = models.CharField(max_length=10, blank=True)
+    task_counter = models.CharField(max_length=10, blank=True)
+    class_counter = models.CharField(max_length=10)
+    video_counter = models.CharField(max_length=10, blank=True)
+
+    class Meta:
+        db_table = 'course_site_information'
