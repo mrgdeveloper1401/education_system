@@ -35,7 +35,7 @@ class SoftDeleteMixin(models.Model):
 
 class SitemapEntry(CreateMixin, SoftDeleteMixin):
     slug_text = models.TextField()
-    last_modified = models.DateField(auto_now=True)
+    last_modified = models.CharField(blank=True)
     changefreq = models.CharField(
         max_length=255,
     )
