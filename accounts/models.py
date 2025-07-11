@@ -93,7 +93,7 @@ class Otp(CreateMixin):
 
     @property
     def create_otp_code(self):
-        code = randint(1, 999999)
+        code = randint(100000, 999999)
         return code
 
     def save(self, *args, **kwargs):
