@@ -794,7 +794,16 @@ class CoachLessonCourseViewSet(viewsets.ReadOnlyModelViewSet):
             return response.Response(serializer.data)
 
         elif request.method == 'PUT':
-            serializer = serializers.UpdateCoachStudentSendFilesSerializer(query, data=request.data)
+            serializer = serializers.UpdateCoachStudentSendFilesSerializer(
+                query,
+                data=request.data,
+                context={
+                    "lesson_course_pk": pk,
+                    "section_pk": section_pk,
+                    "student_send_files_pk": student_send_files_pk,
+                    "user_id": query.student.user_id
+                }
+            )
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return response.Response(serializer.data)

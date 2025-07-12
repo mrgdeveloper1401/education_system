@@ -257,6 +257,7 @@ CELERY_TASK_ROUTES = {
     "order_app.tasks.coupon_send": {"queue": "coupon_send"},
     "course.tasks.create_qr_code": {"queue": "create_qrcode"},
     "course.tasks.admin_user_request_certificate": {"queue": "notification"},
+    "course.tasks.send_notification_when_score_is_accepted": {"queue": "notification"},
     "subscription_app.tasks.send_sms_before_expire_subscription": {"queue": "reminder"},
 }
 

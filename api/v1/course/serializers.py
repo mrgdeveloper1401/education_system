@@ -11,7 +11,7 @@ from course.models import Course, Category, Comment, Section, SectionVideo, Sect
     StudentSectionScore, PresentAbsent, StudentAccessSection, OnlineLink, SectionQuestion, AnswerQuestion, \
     CallLessonCourse, Certificate, CourseTypeModel, StudentEnrollment, CertificateTemplate
 from discount_app.models import Discount
-from course.tasks import create_qr_code, admin_user_request_certificate
+from course.tasks import create_qr_code, admin_user_request_certificate, send_notification_when_score_is_accepted
 
 
 class CategoryTreeNodeSerializer(serializers.ModelSerializer):
@@ -461,6 +461,23 @@ class UpdateCoachStudentSendFilesSerializer(serializers.ModelSerializer):
     class Meta:
         model = SendSectionFile
         fields = ('id', "score", "comment_teacher")
+
+    def update(self, instance, validated_data):
+        data = super().update(instance, validated_data)
+
+        lesson_course_pk = self.context['lesson_course_pk']
+        section_pk = self.context['section_pk']
+        user_id = self.context['user_id']
+        student_send_files_pk = self.context['student_send_files_pk']
+
+        send_notification_when_score_is_accepted.delay(
+            lesson_course_id=lesson_course_pk,
+            send_file_id=student_send_files_pk,
+            section_pk=section_pk,
+            score=instance.score,
+            user_id=user_id
+        )
+        return data
 
 
 class ScoreIntoStudentSerializer(serializers.ModelSerializer):
