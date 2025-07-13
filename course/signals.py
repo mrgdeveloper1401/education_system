@@ -38,22 +38,22 @@ def create_student_section_score(sender, instance, **kwargs):
             )
 
 
-@receiver(post_save, sender=SendSectionFile)
-def send_notification_when_score_is_accepted(sender, instance, **kwargs):
+# @receiver(post_save, sender=SendSectionFile)
+# def send_notification_when_score_is_accepted(sender, instance, **kwargs):
     # category_id = instance.section_file.section.course.category_id
     # course_id = instance.section_file.section.course_id
-    send_file_pk = instance.id
-    section_file_pk = instance.section_file_id
-    section_pk = instance.section_file.section_id
+    # send_file_pk = instance.id
+    # section_file_pk = instance.section_file_id
+    # section_pk = instance.section_file.section_id
 
-    if instance.score:
-        PrivateNotification.objects.create(
-            user=instance.student.user,
-            body="دانش اموز محترم نمره شما ثبت و ویرایش شده هست",
-            char_link=f'section_pk:{section_pk}/section_file_pk:{section_file_pk}/send_file_pk:{send_file_pk}',
-            notification_type="accept score",
-            title="accept score",
-        )
+    # if instance.score:
+    #     PrivateNotification.objects.create(
+    #         user=instance.student.user,
+    #         body="دانش اموز محترم نمره شما ثبت و ویرایش شده هست",
+    #         char_link=f'section_pk:{section_pk}/section_file_pk:{section_file_pk}/send_file_pk:{send_file_pk}',
+    #         notification_type="accept score",
+    #         title="accept score",
+    #     )
 
 
 @receiver(post_save, sender=CallLessonCourse)

@@ -472,7 +472,7 @@ class UpdateCoachStudentSendFilesSerializer(serializers.ModelSerializer):
 
         send_notification_when_score_is_accepted.delay(
             lesson_course_id=lesson_course_pk,
-            send_file_id=student_send_files_pk,
+            section_file_pk=student_send_files_pk,
             section_pk=section_pk,
             score=instance.score,
             user_id=user_id

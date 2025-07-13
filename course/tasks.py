@@ -71,9 +71,8 @@ def admin_user_request_certificate(body, link):
 @shared_task(queue='notification')
 def send_notification_when_score_is_accepted(
         lesson_course_id,
-        send_file_id,
-        section_file_pk,
         section_pk,
+        section_file_pk,
         score,
         user_id,
 ):
@@ -81,7 +80,7 @@ def send_notification_when_score_is_accepted(
         PrivateNotification.objects.create(
             user_id=user_id,
             body="دانش اموز محترم نمره شما ثبت و ویرایش شده هست",
-            char_link=f'lesson_course_pk:{lesson_course_id}/section_pk:{section_pk}/section_file_pk:{section_file_pk}/send_file_pk:{send_file_id}',
+            char_link=f'lesson_course_pk:{lesson_course_id}/section_pk:{section_pk}/section_file_pk:{section_file_pk}/section_file_pk:{section_file_pk}',
             notification_type="accept score",
             title="accept score",
         )
