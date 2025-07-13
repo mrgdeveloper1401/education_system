@@ -84,3 +84,13 @@ def send_notification_when_score_is_accepted(
             notification_type="accept score",
             title="accept score",
         )
+
+
+# @shared_task(queue="notification")
+# def send_notification_when_student_send_file(
+#         lesson_course_id,
+#         section_pk,
+#         section_file_pk,
+#         score,
+#         user_id,
+# ):

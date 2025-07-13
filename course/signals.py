@@ -1,10 +1,10 @@
-from django.db.models.signals import post_save, post_delete, m2m_changed
+from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from accounts.models import PrivateNotification, User, Student, Invitation
 from .enums import SendFileChoices
 from .models import StudentAccessSection, SendSectionFile, CallLessonCourse, StudentEnrollment, StudentSectionScore, \
-    SignupCourse, LessonCourse
+    SignupCourse
 
 
 @receiver(post_save, sender=SendSectionFile)
