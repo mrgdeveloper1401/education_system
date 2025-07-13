@@ -145,9 +145,19 @@ class ParticipationSerializer(serializers.ModelSerializer):
     exam = serializers.StringRelatedField(read_only=True)
     exam_time = serializers.SerializerMethodField()
     is_done = serializers.SerializerMethodField()
+    exam_questions_count = serializers.SerializerMethodField()
+    user_answer_count = serializers.SerializerMethodField()
 
     def get_exam_time(self, obj):
         return obj.exam.number_of_time
+
+    @extend_schema_field(serializers.IntegerField())
+    def get_exam_questions_count(self, obj):
+        return obj.exam_questions_count
+
+    @extend_schema_field(serializers.IntegerField())
+    def get_user_answer_count(self, obj):
+        return obj.user_answer_count
 
     @extend_schema_field(serializers.BooleanField())
     def get_is_done(self, obj):
@@ -166,8 +176,20 @@ class ParticipationSerializer(serializers.ModelSerializer):
             "expired_exam",
             "exam_time",
             "is_done",
+            "exam_questions_count",
+            "user_answer_count"
         )
         read_only_fields = ("student", 'is_access', "score")
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        coach_user = self.context['request'].user.is_coach
+        admin_user = self.context['request'].user.is_staff
+
+        if coach_user or admin_user:
+            data.pop("user_answer_count", None)
+            data.pop("exam_questions_count", None)
+        return data
 
     def create(self, validated_data):
         return Participation.objects.create(

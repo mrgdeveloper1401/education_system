@@ -154,6 +154,17 @@ class ParticipationViewSet(mixins.ListModelMixin,
     def get_queryset(self):
         queryset = Participation.objects.filter(
             exam_id=self.kwargs["exam_pk"],
+        ).annotate(
+            exam_questions_count=Count(
+                "exam__questions",
+                distinct=True,
+                filter=(Q(exam__questions__is_deleted=False) | Q(exam__questions__is_deleted=None))
+            ),
+            user_answer_count=Count(
+                "participation_answer",
+                distinct=True,
+                filter=(Q(participation_answer__is_deleted=False) | Q(participation_answer__is_deleted=None))
+            ),
         ).select_related("exam").only(
             "created_at",
             "exam__name",
