@@ -22,7 +22,7 @@ class Category(MP_Node, CreateMixin, UpdateMixin, SoftDeleteMixin):
     category_name = models.CharField(max_length=100, db_index=True)
     node_order_by = ("category_name",)
     image = models.ImageField(upload_to="category_images/%Y/%m/%d", null=True, blank=True)
-    description = models.CharField(max_length=255, blank=True, null=True)
+    description = models.CharField(max_length=500, blank=True, null=True)
     description_slug = models.SlugField(blank=True, null=True, allow_unicode=True)
 
     def __str__(self):
