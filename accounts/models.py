@@ -115,20 +115,21 @@ class State(models.Model):
         return self.state_name
 
     class Meta:
+        ordering = ("state_name",)
         db_table = "state"
         verbose_name = _("استان")
         verbose_name_plural = _("استان ها")
 
 
 class City(models.Model):
-    state = models.ForeignKey(State, on_delete=models.PROTECT, related_name="cites", verbose_name=_("استان"),
-                              related_query_name='city')
+    state = models.ForeignKey(State, on_delete=models.PROTECT, related_name="cites", verbose_name=_("استان"))
     city = models.CharField(_("شهر"), max_length=40, db_index=True)
 
     def __str__(self):
         return self.city
 
     class Meta:
+        ordering = ("-id",)
         db_table = "city"
         verbose_name = _("شهر")
         verbose_name_plural = _("شهر ها")

@@ -1,6 +1,8 @@
 import jwt
 from django.db.models import Prefetch
 from django.utils import timezone
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from django_filters.rest_framework.backends import DjangoFilterBackend
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated, SAFE_METHODS, IsAdminUser
@@ -121,6 +123,10 @@ class BaseApiView(APIView):
 class StateApiView(BaseApiView):
     model = State.objects.all()
     serializer_class = serializers.StateSerializer
+
+    @method_decorator(cache_page(60 * 60 * 24))
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
 
 class CityApiView(BaseApiView):

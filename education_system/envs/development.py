@@ -72,3 +72,5 @@ STORAGES = {
         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
 }
+
+CACHES['default']['LOCATION'] = "redis://localhost:6380/2",

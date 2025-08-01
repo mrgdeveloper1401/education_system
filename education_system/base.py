@@ -272,7 +272,6 @@ CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://localhost:6380/2",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
@@ -291,3 +290,5 @@ BITPAY_CALLBACK_URL='https://api.codeima.ir/api_subscription/verify_payment/?tra
 
 ZIBAL_CALLBACK_URL="https://codeima.ir//p-student/subscription/result-payment/"
 ZIBAL_MERCHENT_ID=config("ZIBAL_MERCHENT_ID", cast=str)
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db' # cache session database
