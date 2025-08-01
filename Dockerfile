@@ -8,7 +8,8 @@ RUN adduser -D -H mohammad && \
     chown -R mohammad:mohammad /home/app && \
 #    apk add libpq && \
     pip install -i https://mirror-pypi.runflare.com/simple httpx && \
-    pip install -i https://mirror-pypi.runflare.com/simple qrcode
+    pip install -i https://mirror-pypi.runflare.com/simple qrcode && \
+    pip install -i https://mirror-pypi.runflare.com/simple drf_spectacular_sidecar
 #    pip install -i https://mirror-pypi.runflare.com/simple psycopg_pool && \
 #    pip install -i https://mirror-pypi.runflare.com/simple psycopg_binary
 
