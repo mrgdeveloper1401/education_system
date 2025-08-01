@@ -8,6 +8,7 @@ ALLOWED_HOSTS = ''.join(config("PRODUCTION_ALLOWED_HOSTS", cast=list)).split(","
 MIDDLEWARE += [
     "whitenoise.middleware.WhiteNoiseMiddleware",
 ]
+# print(MIDDLEWARE)
 
 CORS_ALLOWED_ORIGINS = ''.join(config("CORS_ALLOW_ORIGINS_CORS", cast=list)).split(",")
 
@@ -59,7 +60,7 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 CSRF_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SAMESITE = 'Strict'
-CSRF_USE_SESSIONS = True
+# CSRF_USE_SESSIONS = True
 SECURE_SSL_REDIRECT = True
 SECURE_HSTS_SECONDS = 31536000
 SECURE_HSTS_PRELOAD = True
