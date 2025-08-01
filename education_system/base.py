@@ -23,7 +23,8 @@ THIRD_PARTY_PACKAGE = [
     "treebeard",
     "import_export",
     "django_ckeditor_5",
-    "django_celery_beat"
+    "django_celery_beat",
+    "drf_spectacular_sidecar"
 ]
 
 THIRD_PARTY_APP = [
@@ -132,7 +133,10 @@ SPECTACULAR_SETTINGS = {
     'DESCRIPTION': 'Your project description',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
-    'IGNORE_WARNINGS': ['drf_spectacular.W001'],
+    # 'IGNORE_WARNINGS': ['drf_spectacular.W001'],
+    'SWAGGER_UI_DIST': 'SIDECAR',  # shorthand to use the sidecar instead
+    'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
+    'REDOC_DIST': 'SIDECAR',
 }
 
 SIMPLE_JWT = {

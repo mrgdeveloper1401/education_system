@@ -786,6 +786,14 @@ class CoachLessonCourseViewSet(viewsets.ReadOnlyModelViewSet):
             "score", "created_at", "updated_at", "section_file__file_type", "send_file_status"
         ).select_related("student__user", "section_file").first()
 
+        update_coach_serializer_context = {
+            "lesson_course_pk": pk,
+            "section_pk": section_pk,
+            "student_send_files_pk": student_send_files_pk,
+            "user_id": query.student.user_id
+        }
+        update_coach_serializer = serializers.UpdateCoachStudentSendFilesSerializer
+
         if not query:
             raise exceptions.NotFound()
 
@@ -794,22 +802,22 @@ class CoachLessonCourseViewSet(viewsets.ReadOnlyModelViewSet):
             return response.Response(serializer.data)
 
         elif request.method == 'PUT':
-            serializer = serializers.UpdateCoachStudentSendFilesSerializer(
+            serializer = update_coach_serializer(
                 query,
                 data=request.data,
-                context={
-                    "lesson_course_pk": pk,
-                    "section_pk": section_pk,
-                    "student_send_files_pk": student_send_files_pk,
-                    "user_id": query.student.user_id
-                }
+                context=update_coach_serializer_context
             )
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return response.Response(serializer.data)
 
         elif request.method == 'PATCH':
-            serializer = serializers.UpdateCoachStudentSendFilesSerializer(query, data=request.data, partial=True)
+            serializer = serializers.UpdateCoachStudentSendFilesSerializer(
+                query,
+                data=request.data,
+                partial=True,
+                context=update_coach_serializer_context
+            )
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return response.Response(serializer.data)

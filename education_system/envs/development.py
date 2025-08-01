@@ -63,3 +63,12 @@ EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", cast=str)
 # celery config
 CELERY_BROKER_URL = "redis://localhost:6380/0"
 CELERY_RESULT_BACKEND = "redis://localhost:6380/1"
+
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
