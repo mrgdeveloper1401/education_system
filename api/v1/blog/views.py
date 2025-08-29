@@ -82,6 +82,7 @@ class PostBlogViewSet(viewsets.ModelViewSet):
     search_fields = ('post_title', 'post_introduction', 'post_body')
     ordering_fields = ('created_at', 'read_count', 'likes')
     pagination_class = CommonPagination
+    lookup_field = 'post_slug'
 
     @extend_schema(request=None, responses=None)
     @action(detail=True, methods=['post'], serializer_class=LikePostBlogSerializer)

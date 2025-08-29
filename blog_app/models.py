@@ -24,7 +24,7 @@ class PostBlog(CreateMixin, UpdateMixin, SoftDeleteMixin):
     category = models.ForeignKey(CategoryBlog, on_delete=models.PROTECT, related_name="blog_posts")
     post_introduction = models.CharField(max_length=255, help_text=_("مقدمه ای در مورد پست"))
     post_title = models.CharField(max_length=255, help_text=_("عنوان پست"))
-    post_slug = models.SlugField(max_length=255, allow_unicode=True)
+    post_slug = models.SlugField(max_length=255, allow_unicode=True, unique=True)
     post_body = CKEditor5Field(config_name='extends')
     read_count = models.PositiveIntegerField(default=0, help_text=_("چند نفر این پست را دیده اند"))
     read_time = models.PositiveSmallIntegerField(help_text=_("مدت زمان برای مطالعه این مقاله"))
