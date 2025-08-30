@@ -1,6 +1,6 @@
 from django.db import IntegrityError
 from drf_spectacular.utils import extend_schema
-from rest_framework import viewsets, permissions, filters, generics, exceptions, status
+from rest_framework import viewsets, permissions, filters, generics, exceptions, status, mixins
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.decorators import action
@@ -218,11 +218,12 @@ class AuthorListView(generics.ListAPIView):
     filter_backends = (filters.SearchFilter,)
 
 
-class LatestPostView(generics.ListAPIView):
+class LatestPostViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     serializer_class = LatestPostSerializer
+    lookup_field = "post_slug"
 
     def get_queryset(self):
-        return PostBlog.objects.filter(
+         return PostBlog.objects.filter(
             is_publish=True
         ).only(
             "category_id",
@@ -233,8 +234,13 @@ class LatestPostView(generics.ListAPIView):
             "post_slug",
             "created_at",
             "updated_at"
-        ).order_by("-id")[:10].prefetch_related(
+        ).prefetch_related(
             Prefetch(
                 "author", queryset=User.objects.only("first_name", "last_name", 'mobile_phone'),
             )
         )
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()[:10]
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)

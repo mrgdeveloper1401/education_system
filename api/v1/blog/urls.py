@@ -8,14 +8,15 @@ from .views import (
     FavouritePostViewSet,
     CommentBlogViewSet,
     AuthorListView,
-    LatestPostView
+    LatestPostViewSet
 )
 
-router = routers.DefaultRouter()
+router = routers.SimpleRouter()
 
 app_name= "v1_blog"
 
 router.register(r'categories', CategoryBlogViewSet, basename="blog_category")
+router.register("latest_post", LatestPostViewSet, basename="blog_latest_post")
 
 category_router = routers.NestedDefaultRouter(router, "categories", lookup="category")
 category_router.register(r'posts', PostBlogViewSet, basename="blog_post")
@@ -31,5 +32,4 @@ urlpatterns = [
     path('', include(category_router.urls)),
     path('', include(post_router.urls)),
     path("author_list/", AuthorListView.as_view(), name="author_list"),
-    path("latest_post/", LatestPostView.as_view(), name='latest_post')
 ]
