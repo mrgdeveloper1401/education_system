@@ -8,7 +8,8 @@ from .views import (
     FavouritePostViewSet,
     CommentBlogViewSet,
     AuthorListView,
-    LatestPostViewSet
+    LatestPostViewSet,
+    AllPostBlogViewSet
 )
 
 router = routers.SimpleRouter()
@@ -17,6 +18,7 @@ app_name= "v1_blog"
 
 router.register(r'categories', CategoryBlogViewSet, basename="blog_category")
 router.register("latest_post", LatestPostViewSet, basename="blog_latest_post")
+router.register("all_post_blog", AllPostBlogViewSet, basename="all_post_blog")
 
 category_router = routers.NestedDefaultRouter(router, "categories", lookup="category")
 category_router.register(r'posts', PostBlogViewSet, basename="blog_post")

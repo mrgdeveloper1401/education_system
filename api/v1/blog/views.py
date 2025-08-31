@@ -244,3 +244,27 @@ class LatestPostViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewse
         queryset = self.get_queryset()[:10]
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+
+class AllPostBlogViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.RetrieveModelMixin):
+    serializer_class = LatestPostSerializer
+    lookup_field = "post_slug"
+    pagination_class = CommonPagination
+
+    def get_queryset(self):
+         return PostBlog.objects.filter(
+            is_publish=True
+        ).only(
+            "category_id",
+            "post_title",
+            "post_introduction",
+            "author",
+            "post_cover_image",
+            "post_slug",
+            "created_at",
+            "updated_at"
+        ).prefetch_related(
+            Prefetch(
+                "author", queryset=User.objects.only("first_name", "last_name", 'mobile_phone'),
+            )
+        )
