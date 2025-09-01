@@ -935,8 +935,9 @@ class HomeCategoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, view
         "category_name",
         "image",
         "description",
-        "description_slug"
-    )
+        "description_slug",
+        "is_publish"
+    ).filter(is_publish=True)
     serializer_class = serializers.HomeCategorySerializer
 
 

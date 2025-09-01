@@ -520,7 +520,8 @@ class HomeCategorySerializer(serializers.ModelSerializer):
             "category_name",
             "image",
             "description",
-            "description_slug"
+            "description_slug",
+            "is_publish"
         )
 
 
@@ -560,7 +561,8 @@ class HomeCourseSerializer(serializers.ModelSerializer):
             "time_course",
             "course_age",
             "course_type_model",
-            "description_slug"
+            "description_slug",
+            "is_publish"
         )
 
 

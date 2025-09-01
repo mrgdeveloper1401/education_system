@@ -24,6 +24,7 @@ class Category(MP_Node, CreateMixin, UpdateMixin, SoftDeleteMixin):
     image = models.ImageField(upload_to="category_images/%Y/%m/%d", null=True, blank=True)
     description = models.CharField(max_length=500, blank=True, null=True)
     description_slug = models.SlugField(blank=True, null=True, allow_unicode=True)
+    is_publish = models.BooleanField(default=True)
 
     def __str__(self):
         return self.category_name
