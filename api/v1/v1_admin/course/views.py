@@ -1,6 +1,5 @@
 from django.db.models import Prefetch
-from rest_framework import viewsets, permissions, exceptions, generics, decorators, response, views, status, \
-    mixins, filters
+from rest_framework import viewsets, permissions, exceptions, decorators, response, views, status, filters
 from drf_spectacular.views import extend_schema
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -35,11 +34,14 @@ class CategoryViewSet(viewsets.ModelViewSet):
 class AdminCourseViewSet(viewsets.ModelViewSet):
     """
     pagination --> 20 item
-    filter query --> ?course_name=course_name
+    filter query --> ?course_name=course_name \n
+    ordering --> (id, )
     """
     permission_classes = (permissions.IsAdminUser,)
     pagination_class = CommonPagination
     serializer_class = serializers.AdminCourseSerializer
+    ordering_fields = ('id', "order_number")
+    filter_backends = (filters.OrderingFilter,)
 
     def get_queryset(self):
         return Course.objects.filter(category_id=self.kwargs["category_pk"]).defer("deleted_at", "is_deleted")

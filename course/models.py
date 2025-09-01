@@ -52,6 +52,7 @@ class Course(CreateMixin, UpdateMixin, SoftDeleteMixin):
     course_level = models.CharField(max_length=13, null=True, blank=True)
     time_course = models.CharField(max_length=10, help_text="مدت زمان دوره", blank=True)
     course_age = models.CharField(max_length=30, help_text="بازه سنی دوره", blank=True)
+    order_number = models.PositiveIntegerField(null=True, blank=True)
 
     def __str__(self):
         return self.course_name
@@ -59,6 +60,9 @@ class Course(CreateMixin, UpdateMixin, SoftDeleteMixin):
     class Meta:
         db_table = 'course'
         ordering = ("-id",)
+        constraints = (
+            models.UniqueConstraint(fields=("id", "order_number"), name="unique_order_per_course_id"),
+        )
 
 
 class CourseTypeModel(CreateMixin, UpdateMixin, SoftDeleteMixin):
