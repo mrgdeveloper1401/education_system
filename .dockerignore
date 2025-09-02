@@ -289,3 +289,4 @@ general_log_django
 .env
 base_image_docker
 test.json
+test_code.py

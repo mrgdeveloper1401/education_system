@@ -24,3 +24,4 @@ aiohttp==3.11.18
 flower==2.0.1
 django-celery-beat==2.8.1
 qrcode==8.2
+jdatetime==5.2.0

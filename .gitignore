@@ -301,3 +301,4 @@ nginx/codeima
 base_image_docker
 test.json
 nginx/codeima
+test_code.py
