@@ -1,3 +1,4 @@
+from django.core.serializers import serialize
 from django.db import IntegrityError
 from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets, permissions, filters, generics, exceptions, status, mixins
@@ -22,7 +23,7 @@ from .serializers import (
     LatestPostSerializer,
     LikePostBlogSerializer,
     IncrementPostBlogSerializer,
-    ListPostBlogSerializer
+    ListPostBlogSerializer, DetailLatestPostSerializer
 )
 
 
@@ -251,20 +252,40 @@ class AllPostBlogViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.
     lookup_field = "post_slug"
     pagination_class = CommonPagination
 
+    def get_serializer_class(self):
+        if self.action == "retrieve":
+            return DetailLatestPostSerializer
+        return super().get_serializer_class()
+
     def get_queryset(self):
-         return PostBlog.objects.filter(
-            is_publish=True
-        ).only(
-            "category_id",
-            "post_title",
-            "post_introduction",
-            "author",
-            "post_cover_image",
-            "post_slug",
-            "created_at",
-            "updated_at"
-        ).prefetch_related(
-            Prefetch(
-                "author", queryset=User.objects.only("first_name", "last_name", 'mobile_phone'),
+        base_queryset = PostBlog.objects.filter(is_publish=True)
+
+        if self.action == "retrieve":
+            return base_queryset.select_related(
+                'category'
+            ).prefetch_related(
+                Prefetch(
+                    "author",
+                    queryset=User.objects.only("first_name", "last_name")
+                ),
+                Prefetch(
+                    "tags",
+                    queryset=TagBlog.objects.only("tag_name")
+                )
             )
-        )
+        else:
+            return base_queryset.only(
+                "category_id",
+                "post_title",
+                "post_introduction",
+                "author",
+                "post_cover_image",
+                "post_slug",
+                "created_at",
+                "updated_at"
+            ).prefetch_related(
+                Prefetch(
+                    "author",
+                    queryset=User.objects.only("first_name", "last_name")
+                )
+            )

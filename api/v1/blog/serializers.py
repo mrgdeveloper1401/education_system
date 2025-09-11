@@ -152,6 +152,33 @@ class LatestPostSerializer(serializers.ModelSerializer):
         )
 
 
+class DetailLatestPostSerializer(serializers.ModelSerializer):
+    category_name = serializers.CharField(source="category.category_name")
+    tags = TagPostSerializer(many=True)
+    author = FullNameAuthorPostBlogSerializer(many=True)
+
+    class Meta:
+        model = PostBlog
+        fields = (
+            "id",
+            "tags",
+            "category_name",
+            "author",
+            "created_at",
+            "updated_at",
+            "post_introduction",
+            "post_title",
+            "post_slug",
+            "post_body",
+            "read_count",
+            "read_time",
+            "post_cover_image",
+            "likes",
+            "is_publish",
+            "description_slug"
+        )
+
+
 class LikePostBlogSerializer(serializers.Serializer):
     pass
 
