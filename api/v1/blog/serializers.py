@@ -163,6 +163,7 @@ class DetailLatestPostSerializer(serializers.ModelSerializer):
             "id",
             "tags",
             "category_name",
+            "category_id",
             "author",
             "created_at",
             "updated_at",
