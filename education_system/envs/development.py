@@ -9,7 +9,7 @@ ALLOWED_HOSTS = ['*']
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": 'educationdb',
+        "NAME": 'backup_educationdb',
         'USER': "postgres",
         "PASSWORD": "postgres",
         'HOST': "localhost",
