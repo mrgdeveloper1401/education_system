@@ -8,7 +8,7 @@ services:
     expose:
       - 8000
     volumes:
-      - static_files:/home/app/education_system/staticfiles
+      - static_files:/home/app/staticfiles
     env_file: ".env"
     restart: always
     entrypoint: ["/home/app/start.sh"]
