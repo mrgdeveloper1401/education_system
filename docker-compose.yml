@@ -7,8 +7,8 @@ services:
       - "8000:8000"
     expose:
       - 8000
-    volumes:
-      - static_files:/home/app/staticfiles
+#    volumes:
+#      - static_files:/home/app/staticfiles
     env_file: ".env"
     restart: always
     entrypoint: ["/home/app/start.sh"]
@@ -44,8 +44,8 @@ services:
     build:
       context: nginx
       dockerfile: Dockerfile
-    volumes:
-      - static_files:/vol
+#    volumes:
+#      - static_files:/vol
     command: ["nginx", "-g", "daemon off;"]
     ports:
       - "80:80"
@@ -86,5 +86,5 @@ services:
       - DATABASE_URL=postgres://${COMPOSE_POSTGRES_USER}:${COMPOSE_POSTGRES_PASSWORD}@db:5432/${COMPOSE_POSTGRES_DB}
 
 volumes:
-  static_files:
+#  static_files:
   postgres_data:
