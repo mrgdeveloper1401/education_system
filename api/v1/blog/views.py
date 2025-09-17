@@ -107,9 +107,9 @@ class PostBlogViewSet(viewsets.ModelViewSet):
 
     @extend_schema(responses=None, request=None)
     @action(detail=True, methods=['post'], serializer_class=IncrementPostBlogSerializer)
-    def increment_read_count(self, request, pk=None, category_pk=None):
+    def increment_read_count(self, request, pk=None, category_pk=None, post_slug=None):
         # update query
-        PostBlog.objects.filter(is_publish=True, id=pk).only("post_title").update(read_count=F("read_count") + 1)
+        PostBlog.objects.filter(is_publish=True, post_slug=post_slug).only("post_title").update(read_count=F("read_count") + 1)
         return Response({'status': 'read count incremented'}, status=status.HTTP_201_CREATED)
 
     def get_queryset(self):

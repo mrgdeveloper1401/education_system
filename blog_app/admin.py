@@ -69,6 +69,10 @@ class LikeAdmin(admin.ModelAdmin):
         )
 
 
+@admin.register(models.TagBlog)
+class TagBlogAdmin(admin.ModelAdmin):
+    list_display = ("id", "tag_name", "is_publish")
+
+
 admin.site.register(models.CategoryBlog, CategoryAdmin)
 admin.site.register(models.PostBlog, BlogPostAdmin)
-admin.site.register(models.TagBlog)
