@@ -562,7 +562,8 @@ class HomeCourseSerializer(serializers.ModelSerializer):
             "course_age",
             "course_type_model",
             "description_slug",
-            "is_publish"
+            "is_publish",
+            "is_free"
         )
 
 
