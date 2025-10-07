@@ -22,6 +22,6 @@ def create_category_slug(sender, instance, **kwargs):
     instance.category_slug = slugify(instance.category_name, allow_unicode=True)
 
 
-@receiver(pre_save, sender=PostBlog)
-def create_post_slug(sender, instance, **kwargs):
-    instance.post_slug = slugify(instance.post_title, allow_unicode=True)
+# @receiver(pre_save, sender=PostBlog)
+# def create_post_slug(sender, instance, **kwargs):
+#     instance.post_slug = slugify(instance.post_title, allow_unicode=True)

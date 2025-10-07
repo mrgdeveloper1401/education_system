@@ -5,6 +5,7 @@ SECRET_KEY = config('PRODUCTION_SECRET_KEY', cast=str)
 
 ALLOWED_HOSTS = ''.join(config("PRODUCTION_ALLOWED_HOSTS", cast=list)).split(",")
 
+MIDDLEWARE.insert(0, 'corsheaders.middleware.CorsMiddleware',)
 MIDDLEWARE += [
     "whitenoise.middleware.WhiteNoiseMiddleware",
 ]

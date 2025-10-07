@@ -2,7 +2,7 @@ import datetime
 import os.path
 from datetime import timedelta
 from pathlib import Path
-from decouple import config
+from decouple import config, Csv
 from kombu import Queue
 
 from education_system.dj_ckeditor_config import CKEDITOR_5_CONFIGS, customColorPalette
@@ -18,7 +18,7 @@ THIRD_PARTY_PACKAGE = [
     "drf_spectacular",
     "rest_framework",
     "rest_framework_simplejwt",
-    "storages",
+    # "storages",
     "django_filters",
     "treebeard",
     "import_export",
@@ -55,7 +55,6 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -140,7 +139,7 @@ SPECTACULAR_SETTINGS = {
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(days=7),
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=30),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=30),
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': True,
@@ -223,7 +222,6 @@ AWS_DEFAULT_ACL = 'public-read'
 AWS_QUERYSTRING_AUTH = False
 
 # CKEDITOR_5_CUSTOM_CSS = 'path_to.css'
-CKEDITOR_5_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 CKEDITOR_5_ALLOW_ALL_FILE_TYPES = True
 
 # ckeditor path
@@ -236,7 +234,7 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Asia/Tehran'
 CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_WORKER_PREFETCH_MULTIPLIER = 1  # do the same time task in worker
-CELERY_WORKER_CONCURRENCY = config("CELERY_WORKER_CONCURRENCY", cast=int, default=1)
+CELERY_WORKER_CONCURRENCY = config("CELERY_WORKER_CONCURRENCY", cast=int, default=os.cpu_count())
 CELERY_TASK_ACKS_LATE = True  # if not start, retry again
 
 # define queue

@@ -1,10 +1,8 @@
 from education_system.base import *
 
-SECRET_KEY = config('DEVELOP_SECRET_KEY', cast=str)
+SECRET_KEY = "fnbfbnfgkjbjkfgbfy534664868hmhmhhmh"
 
-CORS_ALLOW_ALL_ORIGINS = True
-
-ALLOWED_HOSTS = ['*']
+# ALLOWED_HOSTS = ['*']
 
 DATABASES = {
     "default": {
@@ -13,7 +11,7 @@ DATABASES = {
         'USER': "postgres",
         "PASSWORD": "postgres",
         'HOST': "localhost",
-        "PORT": 5433,
+        "PORT": 5434,
         "OPTIONS": {
             "pool": True
         }
@@ -61,8 +59,8 @@ EMAIL_HOST_USER = config("EMAIL_HOST_USER", cast=str)
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", cast=str)
 
 # celery config
-CELERY_BROKER_URL = "redis://localhost:6380/0"
-CELERY_RESULT_BACKEND = "redis://localhost:6380/1"
+CELERY_BROKER_URL = "redis://localhost:6381/0"
+CELERY_RESULT_BACKEND = "redis://localhost:6381/1"
 
 STORAGES = {
     "default": {
@@ -73,4 +71,8 @@ STORAGES = {
     },
 }
 
-CACHES['default']['LOCATION'] = "redis://localhost:6380/2",
+CACHES['default']['LOCATION'] = "redis://localhost:6381/2",
+
+
+# ckeditor
+CKEDITOR_5_FILE_STORAGE = STORAGES['default']['BACKEND']
