@@ -11,7 +11,7 @@ services:
       - static_files:/home/app/staticfiles
     env_file: ".env"
     restart: always
-    entrypoint: ["/home/app/start.sh"]
+    # entrypoint: ["/home/app/start.sh"]
     depends_on:
       - db
 
