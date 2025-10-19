@@ -9,33 +9,10 @@ MIDDLEWARE.insert(0, 'corsheaders.middleware.CorsMiddleware',)
 MIDDLEWARE += [
     "whitenoise.middleware.WhiteNoiseMiddleware",
 ]
-# print(MIDDLEWARE)
+
 
 CORS_ALLOWED_ORIGINS = ''.join(config("CORS_ALLOW_ORIGINS_CORS", cast=list)).split(",")
 
-# host postgres
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.postgresql",
-#         "NAME": config("PRODUCTION_DB_NAME", cast=str),
-#         'USER': config("PRODUCTION_DB_USER", cast=str),
-#         "PASSWORD": config("PRODUCTION_DB_PASSWORD", cast=str),
-#         'HOST': config("PRODUCTION_DB_HOST", cast=str),
-#         "PORT": config("PRODUCTION_DB_PORT", cast=int),
-#     }
-# }
-
-# docker system
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.postgresql",
-#         "NAME": config("VPS_PRODUCTION_DB_NAME", cast=str),
-#         'USER': config("VPS_PRODUCTION_DB_USER", cast=str),
-#         "PASSWORD": config("VPS_PRODUCTION_DB_PASSWORD", cast=str),
-#         'HOST': config("VPS_PRODUCTION_DB_HOST", cast=str),
-#         "PORT": config("VPS_PRODUCTION_DB_PORT", cast=int),
-#     }
-# }
 
 # docker compose
 DATABASES = {
@@ -46,9 +23,7 @@ DATABASES = {
         "PASSWORD": config("COMPOSE_POSTGRES_PASSWORD", cast=str),
         'HOST': "education_postgres",
         "PORT": 5432,
-        # "OPTIONS": {
-        #     "pool": True
-        # }
+        "CONN_MAX_AGE": config("CON_MAX_AGE", cast=int, default=600),
     },
 }
 
@@ -61,7 +36,7 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 CSRF_COOKIE_HTTPONLY = True
 CSRF_COOKIE_SAMESITE = 'Strict'
-# CSRF_USE_SESSIONS = True
+CSRF_USE_SESSIONS = True
 SECURE_SSL_REDIRECT = True
 SECURE_HSTS_SECONDS = 31536000
 SECURE_HSTS_PRELOAD = True
@@ -73,6 +48,9 @@ SECURE_REFERRER_POLICY = "strict-origin"
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 CSRF_COOKIE_AGE = 3600
+USE_X_FORWARDED_PORT = True
+SESSION_COOKIE_DOMAIN = ".codeima.ir"
+CSRF_COOKIE_DOMAIN = ".codeima.ir"
 
 # STATIC_URL = config('STATIC_URL', cast=str)
 # STATIC_ROOT = BASE_DIR / config("STATIC_ROOT", cast=str)
@@ -94,10 +72,6 @@ STORAGES = {
 # celery compose config
 CELERY_BROKER_URL = "redis://education_redis:6379/0"
 CELERY_RESULT_BACKEND = "redis://education_redis:6379/1"
-
-# celery docker config
-# CELERY_BROKER_URL = "redis://localhost:6380/0"
-# CELERY_RESULT_BACKEND = "redis://localhost:6380/1"
 
 # jwt
 SIMPLE_JWT["AUTH_COOKIE_DOMAIN"] = "codeima.ir" # A string like "example.com", or None for standard domain cookie.
