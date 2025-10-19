@@ -10,6 +10,6 @@ RUN chmod +x /home/app/start.sh
 
 # USER mohammad
 
-EXPOSE 800
+EXPOSE 8000
 
 ENTRYPOINT /bin/bash
