@@ -61,7 +61,7 @@ pip-tools==7.5.1
 prometheus_client==0.23.1
 prompt_toolkit==3.0.52
 propcache==0.4.0
-psutil==7.1.0
+# psutil==7.1.0
 psycopg==3.2.10
 psycopg-pool==3.2.6
 psycopg2-binary==2.9.10
