@@ -23,7 +23,7 @@ DATABASES = {
         "PASSWORD": config("COMPOSE_POSTGRES_PASSWORD", cast=str),
         'HOST': "education_postgres",
         "PORT": 5432,
-        "CONN_MAX_AGE": config("CON_MAX_AGE", cast=int, default=600),
+        "CONN_MAX_AGE": config("CON_MAX_AGE", cast=int, default=300),
     },
 }
 
