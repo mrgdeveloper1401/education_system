@@ -10,7 +10,7 @@ services:
     volumes:
       - static_files:/home/app/staticfiles
     env_file: ".env"
-    restart: always
+    # restart: always
     # entrypoint: ["/home/app/start.sh"]
     depends_on:
       - db
