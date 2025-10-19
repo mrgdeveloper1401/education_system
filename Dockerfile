@@ -12,4 +12,4 @@ RUN chmod +x /home/app/start.sh
 
 EXPOSE 800
 
-ENTRYPOINT ["bash", "/home/app/start.sh"]
+ENTRYPOINT /bin/bash
