@@ -251,13 +251,13 @@ propcache==0.4.0
     #   -r requirements.in
     #   aiohttp
     #   yarl
-psutil==7.1.0
+# psutil==7.1.0
     # via
     #   -r requirements.in
     #   memory-profiler
-psycopg==3.2.10
+# psycopg==3.2.10
     # via -r requirements.in
-psycopg-pool==3.2.6
+# psycopg-pool==3.2.6
     # via -r requirements.in
 psycopg2-binary==2.9.10
     # via -r requirements.in
