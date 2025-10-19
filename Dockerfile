@@ -6,10 +6,10 @@ COPY . .
 
 # RUN adduser -D -H mohammad && \
 #     chown -R mohammad:mohammad /home/app
-
+RUN chmod +x start.sh
 
 # USER mohammad
 
 EXPOSE 800
 
-#ENTRYPOINT ["sh", "-c", "/home/app/start.sh"]
+ENTRYPOINT ["bash", "/home/app/start.sh"]
