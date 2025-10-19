@@ -8,7 +8,7 @@ COPY . .
 #     chown -R mohammad:mohammad /home/app
 
 
-USER mohammad
+# USER mohammad
 
 EXPOSE 800
 
