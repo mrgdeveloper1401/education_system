@@ -7,7 +7,7 @@ COPY . .
 # RUN adduser -D -H mohammad && \
 #     chown -R mohammad:mohammad /home/app
 RUN chmod +x /home/app/start.sh && \
-    pip install --index-url https://mirror-pypi.runflare.com/simple gunicorn
+    pip install --index-url https://mirror-pypi.runflare.com/simple gunicorn corsheaders
 
 # USER mohammad
 
