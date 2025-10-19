@@ -1,18 +1,11 @@
-FROM education:1.2.0
+FROM education:2.0.0
 
 WORKDIR /home/app
 
 COPY . .
 
 RUN adduser -D -H mohammad && \
-    chown -R mohammad:mohammad /home/app && \
-#    apk add libpq && \
-    pip install -i https://mirror-pypi.runflare.com/simple httpx && \
-    pip install -i https://mirror-pypi.runflare.com/simple qrcode && \
-    pip install -i https://mirror-pypi.runflare.com/simple drf_spectacular_sidecar && \
-    pip install -i https://mirror-pypi.runflare.com/simple jdatetime
-#    pip install -i https://mirror-pypi.runflare.com/simple psycopg_pool && \
-#    pip install -i https://mirror-pypi.runflare.com/simple psycopg_binary
+    chown -R mohammad:mohammad /home/app
 
 
 USER mohammad
