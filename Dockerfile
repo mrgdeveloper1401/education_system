@@ -13,3 +13,4 @@ RUN chmod +x /home/app/start.sh
 EXPOSE 8000
 
 CMD /bin/bash
+# ENTRYPOINT ["/home/app/start.sh"]
