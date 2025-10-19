@@ -1,4 +1,4 @@
-FROM education:2.0.0
+FROM education:3.0.0
 
 WORKDIR /home/app
 

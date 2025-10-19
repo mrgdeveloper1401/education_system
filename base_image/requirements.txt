@@ -92,3 +92,5 @@ wcwidth==0.2.14
 whitenoise==6.11.0
 yarl==1.22.0
 gunicorn
+boto3
+django-storages
