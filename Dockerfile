@@ -4,8 +4,8 @@ WORKDIR /home/app
 
 COPY . .
 
-RUN adduser -D -H mohammad && \
-    chown -R mohammad:mohammad /home/app
+# RUN adduser -D -H mohammad && \
+#     chown -R mohammad:mohammad /home/app
 
 
 USER mohammad
