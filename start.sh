@@ -1,6 +1,6 @@
 #!/bin/bash
 
-python /home/app/manage.py collectstatic --noinput
-python /home/app/manage.py makemigrations
-python /home/app/manage.py migrate
-gunicorn /home/app/education_system.wsgi -w 4 -b 0.0.0.0:8000
+python manage.py collectstatic --noinput
+python manage.py makemigrations
+python manage.py migrate
+gunicorn education_system.wsgi -w 4 -b 0.0.0.0:8000
