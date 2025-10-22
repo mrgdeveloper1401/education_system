@@ -186,3 +186,14 @@ class LikePostBlogSerializer(serializers.Serializer):
 
 class IncrementPostBlogSerializer(serializers.Serializer):
     pass
+
+
+class SeoPostBlogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PostBlog
+        fields = (
+            "post_title",
+            "post_slug",
+            "created_at",
+            "updated_at"
+        )

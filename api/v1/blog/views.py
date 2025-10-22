@@ -1,4 +1,5 @@
 from django.core.serializers import serialize
+from django.core.cache import cache
 from django.db import IntegrityError
 from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets, permissions, filters, generics, exceptions, status, mixins
@@ -23,7 +24,9 @@ from .serializers import (
     LatestPostSerializer,
     LikePostBlogSerializer,
     IncrementPostBlogSerializer,
-    ListPostBlogSerializer, DetailLatestPostSerializer
+    ListPostBlogSerializer, 
+    DetailLatestPostSerializer,
+    SeoPostBlogSerializer
 )
 
 
@@ -289,3 +292,25 @@ class AllPostBlogViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.
                     queryset=User.objects.only("first_name", "last_name")
                 )
             )
+
+
+class SeoPostBlogViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    serializer_class = SeoPostBlogSerializer
+
+    def get_queryset(self):
+        query = PostBlog.objects.filter(
+            is_publish=True
+        ).only(
+            "post_title",
+            "post_slug",
+            "created_at",
+            "updated_at"
+        )
+
+        cache_key = "seo_blog_list_response"
+        cache_response = cache.get(cache_key)
+        if cache_response:
+            return cache_response
+        else:
+            cache.set(cache_key, query, 60 * 60 * 24)
+            return query

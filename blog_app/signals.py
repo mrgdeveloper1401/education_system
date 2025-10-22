@@ -1,6 +1,7 @@
 from django.dispatch import receiver
 from django.db.models.signals import post_save, post_delete, pre_save
 from django.utils.text import slugify
+from django.core.cache import cache
 from django_redis import get_redis_connection
 
 from blog_app.models import CategoryBlog, PostBlog
@@ -22,6 +23,6 @@ def create_category_slug(sender, instance, **kwargs):
     instance.category_slug = slugify(instance.category_name, allow_unicode=True)
 
 
-# @receiver(pre_save, sender=PostBlog)
-# def create_post_slug(sender, instance, **kwargs):
-#     instance.post_slug = slugify(instance.post_title, allow_unicode=True)
+@receiver([post_save, post_delete], sender=PostBlog)
+def clear_cache_after_save(sender, instance, **kwargs):
+    cache.delete("seo_blog_list_response")
