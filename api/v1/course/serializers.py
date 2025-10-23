@@ -774,7 +774,7 @@ class SendNotificationUserSendSectionFile(serializers.Serializer):
             title="notification send section file",
             body=f"کاربر {user_full_name} تمرینی را ارسال کرده هست ",
             notification_type="send_section_file",
-            char_link=f"lesson_course_id{lesson_course}/section_id:{section_id}/course_id:{course.id}/"
+            char_link=f"lesson_course_id{lesson_course.id}/section_id:{section_id}/course_id:{course.id}/"
         )
 
     def to_representation(self, instance):
