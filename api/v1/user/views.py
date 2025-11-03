@@ -37,6 +37,7 @@ from . import serializers
 from .utils import get_token_for_user
 from ..course.paginations import CommonPagination
 from ...utils.custom_permissions import AsyncNotAuthenticated
+from ...utils.send_otp_sms import async_send_otp_sms
 
 
 class UserLoginApiView(APIView):
@@ -395,7 +396,7 @@ class RequestPhoneView(AsyncAPIView):
             otp = await Otp.objects.acreate(mobile_phone=phone)
 
         # اگر send_sms_otp_code هم sync است، از sync_to_async استفاده کنید
-        await sync_to_async(send_sms_otp_code)(phone, otp.code)
+        await async_send_otp_sms(phone, otp.code)
 
         return Response({
             "status": True,

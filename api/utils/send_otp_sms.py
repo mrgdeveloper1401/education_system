@@ -10,7 +10,7 @@ def headers():
         "x-api-key": config("SMS_IR_API_KEY", cast=str),
     }
 
-async def send_otp_sms(phone, otp):
+async def async_send_otp_sms(phone, otp):
     async with httpx.AsyncClient() as client:
         # get url
         base_url = config("SMS_IR_BASE_URL", cast=str)
