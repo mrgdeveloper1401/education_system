@@ -54,8 +54,8 @@ class User(AbstractBaseUser, PermissionsMixin, UpdateMixin, SoftDeleteMixin, Cre
     def is_student(self):
         return not self.is_coach
 
-    def __str__(self):
-        return self.mobile_phone
+    # def __str__(self):
+    #     return self.mobile_phone
 
     @property
     def user_image_url(self):

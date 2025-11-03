@@ -24,7 +24,8 @@ THIRD_PARTY_PACKAGE = [
     "import_export",
     "django_ckeditor_5",
     "django_celery_beat",
-    "drf_spectacular_sidecar"
+    "drf_spectacular_sidecar",
+    "adrf",
 ]
 
 THIRD_PARTY_APP = [
@@ -82,7 +83,9 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "education_system.wsgi.application"
+# WSGI_APPLICATION = "education_system.wsgi.application"
+ASGI_APPLICATION = "education_system.asgi.application"
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

@@ -20,6 +20,13 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
+    async def acreate_user(self, phone, password=None, **extra_fields):
+        extra_fields.setdefault("is_staff", False)
+        extra_fields.setdefault("is_superuser", False)
+        user = self.model(mobile_phone=phone, password=password, **extra_fields)
+        await user.asave()
+        return user
+
     def create_superuser(self, mobile_phone, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)

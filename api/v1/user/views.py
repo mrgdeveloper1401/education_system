@@ -1,6 +1,9 @@
 import jwt
+from asgiref.sync import sync_to_async
+from django.contrib.auth.hashers import make_password
 from django.db.models import Prefetch
 from django.utils import timezone
+from django.utils.crypto import get_random_string
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django_filters.rest_framework.backends import DjangoFilterBackend
@@ -18,6 +21,7 @@ from django.contrib.auth import authenticate
 from django.conf import settings
 from rest_framework.validators import ValidationError
 from drf_spectacular.utils import extend_schema, OpenApiParameter
+from adrf.views import APIView as AsyncAPIView
 
 from accounts.models import User, State, City, Student, Coach, Ticket, TicketRoom, BestStudent, PrivateNotification, \
     Otp, Invitation
@@ -32,6 +36,7 @@ from education_system.base import SIMPLE_JWT
 from . import serializers
 from .utils import get_token_for_user
 from ..course.paginations import CommonPagination
+from ...utils.custom_permissions import AsyncNotAuthenticated
 
 
 class UserLoginApiView(APIView):
@@ -365,21 +370,37 @@ class UserNotificationViewSet(viewsets.ModelViewSet):
             return serializers.CreateUserNotificationSerializer
 
 
-class RequestPhoneView(APIView):
-    serializer_class = serializers.RequestPhoneSerializer
-    permission_classes = (NotAuthenticate,)
-    queryset = None
+class RequestPhoneView(AsyncAPIView):
+    serializer_class = serializers.AsyncRequestPhoneSerializer
+    permission_classes = (AsyncNotAuthenticated,)
 
-    def post(self, request):
+    async def post(self, request):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-        otp = Otp.objects.create(mobile_phone=serializer.validated_data['mobile_phone'])
-        send_sms_otp_code.delay(otp.mobile_phone, otp.code)
-        return Response(
-            {
-                "message": "code send"
-            }
-        )
+
+        # get phone by serializer
+        phone = serializer.validated_data['mobile_phone']
+
+        # check user
+        random_password = get_random_string(16)
+
+        # استفاده از sync_to_async برای make_password
+        hash_password = await sync_to_async(make_password)(random_password)
+
+        user = await User.objects.filter(mobile_phone=phone).only("id").afirst()
+        if user:
+            otp = await Otp.objects.acreate(mobile_phone=phone)
+        else:
+            await User.objects.acreate_user(phone=phone, password=hash_password)
+            otp = await Otp.objects.acreate(mobile_phone=phone)
+
+        # اگر send_sms_otp_code هم sync است، از sync_to_async استفاده کنید
+        await sync_to_async(send_sms_otp_code)(phone, otp.code)
+
+        return Response({
+            "status": True,
+            "message": "code send"
+        })
 
 
 class RequestOtpVerifyView(APIView):

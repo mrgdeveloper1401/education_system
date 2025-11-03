@@ -91,6 +91,8 @@ vine==5.1.0
 wcwidth==0.2.14
 whitenoise==6.11.0
 yarl==1.22.0
-gunicorn
-boto3
-django-storages
+adrf==0.1.11
+gunicorn==23.0.0
+boto3==1.40.64
+django-storages==1.14.6
+django-cors-headers==4.9.0

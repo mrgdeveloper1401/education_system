@@ -5,6 +5,7 @@ from rest_framework import serializers
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.password_validation import validate_password
 from drf_spectacular.utils import extend_schema_field
+from adrf.serializers import Serializer as AsyncSerializer
 
 from rest_framework import generics
 from rest_framework import exceptions
@@ -288,19 +289,19 @@ class PatchUserNotificationSerializer(serializers.ModelSerializer):
         fields = ("is_read",)
 
 
-class RequestPhoneSerializer(serializers.Serializer):
+class AsyncRequestPhoneSerializer(AsyncSerializer):
     mobile_phone = serializers.CharField(
         validators=[MobileRegexValidator]
     )
 
-    def validate(self, attrs):
-        if not User.objects.filter(mobile_phone=attrs["mobile_phone"], is_active=True).exists():
-            raise exceptions.ValidationError({"message": "user dont exists, please signup"})
-        else:
-            otp = Otp.objects.filter(mobile_phone=attrs["mobile_phone"], expired_date__gt=timezone.now()).last()
-            if otp:
-                raise exceptions.ValidationError({"message": "otp already exists, please wait 2 minute"})
-        return attrs
+    # def validate(self, attrs):
+    #     if not User.objects.filter(mobile_phone=attrs["mobile_phone"], is_active=True).exists():
+    #         raise exceptions.ValidationError({"message": "user dont exists, please signup"})
+    #     else:
+    #         otp = Otp.objects.filter(mobile_phone=attrs["mobile_phone"], expired_date__gt=timezone.now()).last()
+    #         if otp:
+    #             raise exceptions.ValidationError({"message": "otp already exists, please wait 2 minute"})
+    #     return attrs
 
 
 class RequestPhoneVerifySerializer(serializers.Serializer):
