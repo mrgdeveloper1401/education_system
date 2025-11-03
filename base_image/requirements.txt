@@ -97,3 +97,4 @@ boto3==1.40.64
 django-storages==1.14.6
 django-cors-headers==4.9.0
 uvicorn==0.38.0
+uvicorn-worker==0.4.0
