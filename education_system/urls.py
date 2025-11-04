@@ -40,12 +40,16 @@ api_admin = [
     path("api_admin_mian_settings/", include("api.v1.v1_admin.main_settings.urls", namespace="admin_settings"))
 ]
 
+v1_api_mobile = [
+    path("v1/api/mobile/", include("api.v1.mobile.urls", namespace="v1_mobile")),
+]
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("ckeditor5/", include('django_ckeditor_5.urls')),
 ]
 
-urlpatterns += swagger_url + api_url + api_admin
+urlpatterns += swagger_url + api_url + api_admin + v1_api_mobile
 
 DEBUG = config("DEBUG", cast=bool)
 MEDIA_URL = config("MEDIA_URL", cast=str)
