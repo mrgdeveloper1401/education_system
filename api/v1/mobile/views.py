@@ -14,4 +14,6 @@ class ListDetailCourseView(mixins.ListModelMixin, mixins.RetrieveModelMixin, vie
         ).defer(
             "is_deleted",
             "deleted_at"
+        ).select_related(
+            "category"
         )
