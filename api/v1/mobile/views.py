@@ -11,4 +11,7 @@ class ListDetailCourseView(mixins.ListModelMixin, mixins.RetrieveModelMixin, vie
     def get_queryset(self):
         return Course.objects.filter(
             is_publish=True
+        ).defer(
+            "is_deleted",
+            "deleted_at"
         )
