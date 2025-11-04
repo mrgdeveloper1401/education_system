@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from course.models import Course
+from course.models import Course, Category
 
 
 class ListDetailCourseSerializer(serializers.ModelSerializer):
@@ -11,4 +11,13 @@ class ListDetailCourseSerializer(serializers.ModelSerializer):
         exclude = (
             "is_deleted",
             "deleted_at"
+        )
+
+
+class ListCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = (
+            "id",
+            "category_name",
         )
