@@ -7,7 +7,7 @@ SECRET_KEY = "fnbfbnfgkjbjkfgbfy534664868hmhmhhmh"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": 'backup_educationdb',
+        "NAME": 'new_postgres',
         'USER': "postgres",
         "PASSWORD": "postgres",
         'HOST': "localhost",
