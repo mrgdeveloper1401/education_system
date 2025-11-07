@@ -95,7 +95,7 @@ services:
     restart: always
     env_file: "mobile_backend/.env"
     volumes:
-      - mobile_static_files:/home/app/static
+      - mobile_static_files:/home/app/mobile_static
     ports:
       - "8001:8000"
     expose:
