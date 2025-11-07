@@ -94,6 +94,9 @@ services:
       dockerfile: dockerfile/prod/Dockerfile
     restart: always
     env_file: "education-mobile/.env"
+    depends_on:
+      - db
+      - redis
     volumes:
       - mobile_static_files:/home/app/mobile_static
     ports:
@@ -101,7 +104,7 @@ services:
     expose:
       - 8001
     healthcheck:
-      test: ['CMD', "curl", "-f", "http://localhost:8000/"]
+      test: ['CMD', "curl", "-f", "http://localhost:8001/"]
       interval: 10s
       timeout: 5s
       retries: 3
