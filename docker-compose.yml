@@ -90,8 +90,8 @@ services:
   mobile_app:
     container_name: django_mobile
     build:
-      context: mobile_backend
-      dockerfile: mobile_backend/Dockerfile
+      context: education-mobile
+      dockerfile: education-mobile/Dockerfile
     restart: always
     env_file: "mobile_backend/.env"
     volumes:
