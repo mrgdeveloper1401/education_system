@@ -91,13 +91,13 @@ services:
     container_name: django_mobile
     build:
       context: education-mobile
-      dockerfile: education-mobile/Dockerfile
+      dockerfile: Dockerfile
     restart: always
     env_file: "education-mobile/.env"
     volumes:
       - mobile_static_files:/home/app/mobile_static
     ports:
-      - "8001:8000"
+      - "8001:8001"
     expose:
       - 8001
     healthcheck:
