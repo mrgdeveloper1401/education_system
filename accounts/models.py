@@ -36,6 +36,7 @@ class User(AbstractBaseUser, PermissionsMixin, UpdateMixin, SoftDeleteMixin, Cre
     address = models.TextField(_("ادرس"), blank=True, null=True)
     is_coach = models.BooleanField(_('به عنوان مربی'), default=False)
     birth_date = models.DateField(_("تاریخ نولد"), blank=True, null=True)
+    bio = models.CharField(max_length=500, blank=True, null=True)
 
     class Gender(models.TextChoices):
         MALE = 'male', _("پسر")

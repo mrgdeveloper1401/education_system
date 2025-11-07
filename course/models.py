@@ -115,6 +115,7 @@ class LessonCourse(CreateMixin, UpdateMixin, SoftDeleteMixin):
     is_active = models.BooleanField(default=True, help_text=_("دیتا در سطح اپلیکیشن نمایش داده شود یا خیر"))
     progress = models.CharField(help_text=_("وضعیت پیشرفت کلاس"), choices=ProgresChoices, max_length=11,
                                 default=ProgresChoices.not_started, null=True)
+    for_mobile = models.BooleanField(default=False)
 
     def __str__(self):
         return self.class_name
