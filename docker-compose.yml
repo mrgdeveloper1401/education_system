@@ -93,7 +93,7 @@ services:
       context: education-mobile
       dockerfile: education-mobile/Dockerfile
     restart: always
-    env_file: "mobile_backend/.env"
+    env_file: "education-mobile/.env"
     volumes:
       - mobile_static_files:/home/app/mobile_static
     ports:
