@@ -91,7 +91,7 @@ services:
     container_name: django_mobile
     build:
       context: education-mobile
-      dockerfile: Dockerfile
+      dockerfile: education-mobile/dockerfile/prod/Dockerfile
     restart: always
     env_file: "education-mobile/.env"
     volumes:
