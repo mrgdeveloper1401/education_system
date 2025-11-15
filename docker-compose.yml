@@ -87,22 +87,22 @@ services:
     environment:
       - DATABASE_URL=postgres://${COMPOSE_POSTGRES_USER}:${COMPOSE_POSTGRES_PASSWORD}@db:5432/${COMPOSE_POSTGRES_DB}
 
-#  mobile_app:
-#    container_name: django_mobile
-#    build:
-#      context: education-mobile
-#      dockerfile: dockerfile/prod/Dockerfile
-#    restart: always
-#    env_file: "education-mobile/.env"
-#    depends_on:
-#      - db
-#      - redis
-#    volumes:
-#      - mobile_static_files:/home/app/mobile_static
-#    ports:
-#      - "8001:8001"
-#    expose:
-#      - 8001
+  mobile_app:
+    container_name: django_mobile
+    build:
+      context: education-mobile
+      dockerfile: dockerfile/prod/Dockerfile
+    restart: always
+    env_file: "education-mobile/.env"
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - mobile_static_files:/home/app/mobile_static
+    ports:
+      - "8001:8001"
+    expose:
+      - 8001
 
 
 volumes:
