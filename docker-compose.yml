@@ -53,7 +53,6 @@ services:
       - "443:443"
     depends_on:
       - app
-      - mobile_app
 
   celery:
     container_name: education_celery
