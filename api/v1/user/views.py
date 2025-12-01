@@ -45,8 +45,12 @@ class UserLoginApiView(APIView):
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
+
+        # get data
         validated_data = serializer.validated_data
-        user = authenticate(mobile_phone=validated_data['mobile_phone'], password=validated_data['password'])
+
+        # authenticate user
+        user = validated_data.get("user")
         response = Response()
         if user:
             if user.is_active:
@@ -58,7 +62,6 @@ class UserLoginApiView(APIView):
                     secure=SIMPLE_JWT['AUTH_COOKIE_SECURE'],
                     httponly=SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
                     samesite=SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
-
                 )
                 csrf.get_token(request)
                 response.data = {
@@ -68,7 +71,7 @@ class UserLoginApiView(APIView):
                     "full_name": user.get_full_name
                 }
             else:
-                return Response({"message": "this account is not active!"}, status=status.HTTP_404_NOT_FOUND)
+                return Response({"message": "this account is not active!"}, status=status.HTTP_403_FORBIDDEN)
         else:
             return Response({"message": "invalid username or password"}, status=status.HTTP_404_NOT_FOUND)
         return response
@@ -370,6 +373,9 @@ class UserNotificationViewSet(viewsets.ModelViewSet):
 
 
 class RequestPhoneView(AsyncAPIView):
+    """
+    درخواست کد اعتبار سنجی اگر کاربر وجود نداشته باشید کابر رو به همراه پسورد رندوم ان را میسازد
+    """
     serializer_class = serializers.AsyncRequestPhoneSerializer
     permission_classes = (AsyncNotAuthenticated,)
 
@@ -405,6 +411,9 @@ class RequestPhoneView(AsyncAPIView):
 
 
 class RequestOtpVerifyView(APIView):
+    """
+    تایید کد اعتبار سنجی برای ورود به حساب
+    """
     serializer_class = serializers.RequestPhoneVerifySerializer
     permission_classes = (NotAuthenticate,)
 

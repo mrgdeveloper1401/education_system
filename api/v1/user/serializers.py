@@ -17,8 +17,39 @@ from accounts.validators import MobileRegexValidator
 
 
 class UserLoginSerializer(serializers.Serializer):
-    mobile_phone = serializers.CharField(validators=[MobileRegexValidator])
+    mobile_phone = serializers.CharField(validators=(MobileRegexValidator(),))
     password = serializers.CharField(write_only=True, help_text=_("رمز عبور"), style={"input_type": "password"})
+
+    def validate(self, attrs):
+        mobile_phone = attrs.get("mobile_phone")
+        password = attrs.get("password")
+
+        # filter user
+        user = User.objects.filter(
+            mobile_phone=mobile_phone
+        ).only("mobile_phone", "first_name", "last_name", "is_coach", "is_staff", "is_active", "password")
+        if user:
+            # get user
+            get_user = user.first()
+            get_user_password = get_user.password
+            # check password
+            if not get_user_password:
+                raise serializers.ValidationError(
+                    {
+                        "message": "mobile phone or password is invalid"
+                    }
+                )
+            else:
+                check_password_user = get_user.check_password(password)
+                if not check_password_user:
+                    raise serializers.ValidationError(
+                        {
+                            "message": "mobile phone or password is invalid"
+                        }
+                    )
+                else:
+                    attrs['user'] = get_user
+        return attrs
 
 
 class UserSerializer(serializers.ModelSerializer):

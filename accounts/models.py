@@ -9,7 +9,7 @@ from django.utils import timezone
 from django.contrib.postgres.fields.array import ArrayField
 from treebeard.mp_tree import MP_Node
 
-from accounts.managers import UserManager, SoftManager
+from accounts.managers import UserManager
 from accounts.validators import MobileRegexValidator, NationCodeRegexValidator, validate_upload_image_user
 from core.models import UpdateMixin, SoftDeleteMixin, CreateMixin
 from utils.model_choices import Grade
@@ -74,13 +74,13 @@ class User(AbstractBaseUser, PermissionsMixin, UpdateMixin, SoftDeleteMixin, Cre
         ordering = ("-created_at",)
 
 
-class RecycleUser(User):
-    objects = SoftManager()
-
-    class Meta:
-        proxy = True
-        verbose_name = _("کاربر پاک شده")
-        verbose_name_plural = _("کاربران پاک شده")
+# class RecycleUser(User):
+#     objects = SoftManager()
+#
+#     class Meta:
+#         proxy = True
+#         verbose_name = _("کاربر پاک شده")
+#         verbose_name_plural = _("کاربران پاک شده")
 
 
 class Otp(CreateMixin):

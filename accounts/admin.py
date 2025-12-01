@@ -96,19 +96,19 @@ class TicketAdmin(TreeAdmin):
     form = movenodeform_factory(models.Ticket)
 
 
-@admin.register(models.RecycleUser)
-class RecycleUserAdmin(admin.ModelAdmin):
-    list_display = ("id", "mobile_phone", "email", "first_name", "last_name", "is_staff", "is_active", "is_superuser",
-                    "is_deleted", "deleted_at")
-    search_fields = ('mobile_phone',)
-    actions = ("restore_user",)
-
-    def get_queryset(self, request):
-        return models.RecycleUser.objects.filter(is_deleted=True)
-
-    @admin.action(description="recovery user")
-    def restore_user(self, request, queryset):
-        return queryset.update(is_deleted=False, deleted_at=None)
+# @admin.register(models.RecycleUser)
+# class RecycleUserAdmin(admin.ModelAdmin):
+#     list_display = ("id", "mobile_phone", "email", "first_name", "last_name", "is_staff", "is_active", "is_superuser",
+#                     "is_deleted", "deleted_at")
+#     search_fields = ('mobile_phone',)
+#     actions = ("restore_user",)
+#
+#     def get_queryset(self, request):
+#         return models.RecycleUser.objects.filter(is_deleted=True)
+#
+#     @admin.action(description="recovery user")
+#     def restore_user(self, request, queryset):
+#         return queryset.update(is_deleted=False, deleted_at=None)
 
 
 @admin.register(models.TicketRoom)
