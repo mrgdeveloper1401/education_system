@@ -159,27 +159,9 @@ class CitySerializer(serializers.ModelSerializer):
 
 
 class ChangePasswordSerializer(serializers.Serializer):
-    old_password = serializers.CharField(min_length=8, style={'input_type': 'password'}, write_only=True)
-    new_password = serializers.CharField(min_length=8, style={'input_type': 'password'}, write_only=True)
-    confirm_password = serializers.CharField(min_length=8, style={'input_type': 'password'}, write_only=True)
-
-    def validate(self, attrs):
-        new_password = attrs.get('new_password')
-        old_password = attrs.get('old_password')
-        confirm_password = attrs.get('confirm_password')
-        user = self.context['user']
-
-        if new_password != confirm_password:
-            raise ValidationError({"message": _("پسورد ها با هم برابر نیستند")})
-        if not user.check_password(old_password):
-            raise ValidationError({"message": _("پسورد فعلی شما صحیح نیست")})
-        return attrs
-
-    def create(self, validated_data):
-        user = self.context['user']
-        user.set_password(validated_data['new_password'])
-        user.save()
-        return user
+    old_password = serializers.CharField()
+    new_password = serializers.CharField()
+    confirm_password = serializers.CharField()
 
     def to_representation(self, instance):
         return {"message": _("پسورد با موفقیت عوض شد")}

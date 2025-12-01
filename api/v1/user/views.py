@@ -148,12 +148,26 @@ class StateCitiesGenericView(ListAPIView):
 
 class ChangePasswordApiView(APIView):
     serializer_class = serializers.ChangePasswordSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = (IsAuthenticated,)
 
     def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data, context={'user': request.user})
+        serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+
+        validated_data = serializer.validated_data
+
+        new_password = validated_data.get('new_password')
+        old_password = validated_data.get('old_password')
+        confirm_password = validated_data.get('confirm_password')
+
+        if new_password != confirm_password:
+            raise ValidationError({"message": "پسورد ها با هم برابر نیستند"})
+        if not request.user.check_password(old_password):
+            raise ValidationError({"message": "پسورد فعلی شما صحیح نیست"})
+
+        request.user.set_password(new_password)
+        request.user.save()
+
         return Response(serializer.data, status=HTTP_200_OK)
 
 

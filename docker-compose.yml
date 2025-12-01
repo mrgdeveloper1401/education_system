@@ -32,7 +32,7 @@ services:
 
   redis:
     container_name: education_redis
-    image: docker.arvancloud.ir/redis:7.4.3-alpine
+    image: docker.arvancloud.ir/redis:8.4-alpine
     restart: always
     depends_on:
       - db
