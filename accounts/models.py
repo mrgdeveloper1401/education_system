@@ -155,6 +155,8 @@ class TicketRoom(CreateMixin, UpdateMixin, SoftDeleteMixin):
     class Meta:
         db_table = "ticker_room"
         ordering = ("-created_at",)
+        verbose_name = _("اتاق تیکت")
+        verbose_name_plural = _("اتاق های تیکت")
 
 
 class Ticket(MP_Node, CreateMixin, UpdateMixin, SoftDeleteMixin):
@@ -198,8 +200,8 @@ class Coach(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     class Meta:
         db_table = 'coach'
-        # verbose_name = _("استاد")
-        # verbose_name_plural = _("اساتید")
+        verbose_name = _("استاد")
+        verbose_name_plural = _("اساتید")
 
 
 class Student(CreateMixin, UpdateMixin, SoftDeleteMixin):
@@ -245,6 +247,8 @@ class RequestLog(CreateMixin):
 
     class Meta:
         db_table = 'request_log'
+        verbose_name = _("لاگ درخواست")
+        verbose_name_plural = _("لاگ های درخواست")
 
 
 class BestStudent(CreateMixin, UpdateMixin, SoftDeleteMixin):
@@ -259,6 +263,8 @@ class BestStudent(CreateMixin, UpdateMixin, SoftDeleteMixin):
     class Meta:
         db_table = 'best_student'
         ordering = ('-created_at',)
+        verbose_name = _("دانش اموز برتر")
+        verbose_name_plural = _("دانش اموزان برتر")
 
 
 # TODO, when clean migration, remove attribute blank in title
@@ -273,6 +279,8 @@ class PrivateNotification(CreateMixin, UpdateMixin, SoftDeleteMixin):
     class Meta:
         db_table = 'private_notification'
         ordering = ("-created_at",)
+        verbose_name = _("نوتیفیکیشن کاربر")
+        verbose_name_plural = _("نوتیفیکیشن های کاربر")
 
 
 class Invitation(CreateMixin, SoftDeleteMixin):
@@ -286,3 +294,5 @@ class Invitation(CreateMixin, SoftDeleteMixin):
     class Meta:
         db_table = 'invitation'
         ordering = ("-id",)
+        verbose_name = _("دعوت")
+        verbose_name_plural = _("دعوت ها")

@@ -1,8 +1,8 @@
-from typing import List
+# from typing import List
 
 from decouple import config
-import asyncio
-from celery import shared_task
+# import asyncio
+# from celery import shared_task
 
 from utils.send_sms import SmsIrPanel
 
@@ -20,26 +20,26 @@ headers = {
 instance = SmsIrPanel(api_key=config("SMS_IR_API_KEY", cast=str), base_url=config("SMS_IR_BASE_URL", cast=str))
 
 
-@shared_task(queue='sms_otp')
-def send_sms_otp_code(phone, code):
-    asyncio.run(instance.send_fast_sms(
-        phone=phone,
-        value=code,
-        template_id=config("SMS_IR_OTP_TEMPLATE_ID", cast=int),
-        template_name="CODE"
-    ))
+# @shared_task(queue='sms_otp')
+# def send_sms_otp_code(phone, code):
+#     asyncio.run(instance.send_fast_sms(
+#         phone=phone,
+#         value=code,
+#         template_id=config("SMS_IR_OTP_TEMPLATE_ID", cast=int),
+#         template_name="CODE"
+#     ))
 
 
-@shared_task(queue="sms_otp")
-def send_sms_forget_password(phone, code):
-    asyncio.run(
-        instance.send_fast_sms(
-            phone=phone,
-            value=code,
-            template_id=config("SMS_IR_FORGET_PASSWORD_TEMPLATE_ID", cast=int),
-            template_name="CODE"
-        )
-    )
+# @shared_task(queue="sms_otp")
+# def send_sms_forget_password(phone, code):
+#     asyncio.run(
+#         instance.send_fast_sms(
+#             phone=phone,
+#             value=code,
+#             template_id=config("SMS_IR_FORGET_PASSWORD_TEMPLATE_ID", cast=int),
+#             template_name="CODE"
+#         )
+#     )
 
 
 # @shared_task

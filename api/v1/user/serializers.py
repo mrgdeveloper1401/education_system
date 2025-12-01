@@ -291,17 +291,8 @@ class PatchUserNotificationSerializer(serializers.ModelSerializer):
 
 class AsyncRequestPhoneSerializer(AsyncSerializer):
     mobile_phone = serializers.CharField(
-        validators=[MobileRegexValidator]
+        validators=(MobileRegexValidator(),)
     )
-
-    # def validate(self, attrs):
-    #     if not User.objects.filter(mobile_phone=attrs["mobile_phone"], is_active=True).exists():
-    #         raise exceptions.ValidationError({"message": "user dont exists, please signup"})
-    #     else:
-    #         otp = Otp.objects.filter(mobile_phone=attrs["mobile_phone"], expired_date__gt=timezone.now()).last()
-    #         if otp:
-    #             raise exceptions.ValidationError({"message": "otp already exists, please wait 2 minute"})
-    #     return attrs
 
 
 class RequestPhoneVerifySerializer(serializers.Serializer):

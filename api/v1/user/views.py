@@ -1,5 +1,4 @@
 import jwt
-from asgiref.sync import sync_to_async
 from django.contrib.auth.hashers import make_password
 from django.db.models import Prefetch
 from django.utils import timezone
@@ -25,7 +24,6 @@ from adrf.views import APIView as AsyncAPIView
 
 from accounts.models import User, State, City, Student, Coach, Ticket, TicketRoom, BestStudent, PrivateNotification, \
     Otp, Invitation
-from accounts.tasks import send_sms_otp_code, send_sms_forget_password
 from utils.filters import UserFilter
 from utils.pagination import StudentCoachTicketPagination
 from utils.permissions import NotAuthenticate
@@ -382,20 +380,22 @@ class RequestPhoneView(AsyncAPIView):
         # get phone by serializer
         phone = serializer.validated_data['mobile_phone']
 
-        # check user
-        random_password = get_random_string(16)
+        # generate random password
+        random_string = get_random_string(16)
 
         # استفاده از sync_to_async برای make_password
-        hash_password = await sync_to_async(make_password)(random_password)
+        hash_password = make_password(password=random_string)
 
+        # get user
         user = await User.objects.filter(mobile_phone=phone).only("id").afirst()
         if user:
+            # create otp
             otp = await Otp.objects.acreate(mobile_phone=phone)
         else:
             await User.objects.acreate_user(phone=phone, password=hash_password)
             otp = await Otp.objects.acreate(mobile_phone=phone)
 
-        # اگر send_sms_otp_code هم sync است، از sync_to_async استفاده کنید
+        # send otp sms
         await async_send_otp_sms(phone, otp.code)
 
         return Response({

@@ -1,16 +1,10 @@
-import datetime
-import random
-import string
-
-from django.utils import timezone
 from rest_framework import serializers, exceptions
 
-from accounts.models import User, Otp, Student, Invitation, PrivateNotification
+from accounts.models import User, Otp
 from course.models import Course
-from discount_app.models import Coupon
 from order_app.models import Order, CourseSignUp
 from order_app.tasks import send_successfully_signup, process_referral
-from accounts.tasks import send_sms_otp_code
+# from accounts.tasks import send_sms_otp_code
 
 
 class OrderSerializer(serializers.ModelSerializer):
