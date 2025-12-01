@@ -297,28 +297,34 @@ class AsyncRequestPhoneSerializer(AsyncSerializer):
 
 class RequestPhoneVerifySerializer(serializers.Serializer):
     mobile_phone = serializers.CharField(
-        validators=[MobileRegexValidator]
+        validators=(MobileRegexValidator(),)
     )
     code = serializers.CharField()
 
     def validate(self, attrs):
-        if not Otp.objects.filter(
-                mobile_phone=attrs['mobile_phone'],
-                code=attrs['code'],
-                expired_date__gt=timezone.now()
-        ).exists():
+        # check otp
+        otp = Otp.objects.filter(
+            mobile_phone=attrs['mobile_phone'],
+            code=attrs['code'],
+            expired_date__gt=timezone.now()
+        )
+        if not otp.exists():
             raise exceptions.ValidationError({"message": "otp is invalid or expired"})
 
         else:
+            # get user
             user = User.objects.filter(mobile_phone=attrs['mobile_phone']).only(
-                "mobile_phone", "is_staff", "is_coach", "first_name", "last_name"
+                "mobile_phone", "is_staff", "is_coach", "first_name", "last_name", "is_active"
             ).last()
 
+            # check active user
             if user.is_active is False:
                 raise exceptions.ValidationError({"message": "user is banned"})
             else:
+                # generate token
                 token = RefreshToken.for_user(user)
-                Otp.objects.filter(mobile_phone=attrs['mobile_phone']).delete()
+                # otp delete
+                otp.delete()
                 attrs["data"] = {
                     "access": str(token.access_token),
                     "refresh": str(token)

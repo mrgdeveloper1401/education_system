@@ -419,7 +419,8 @@ class RequestOtpVerifyView(APIView):
                 "is_coach": bool(data['is_coach']),
                 "full_name": data['full_name']
             },
-            status=HTTP_201_CREATED)
+            status=HTTP_201_CREATED
+        )
 
 
 class InvitationView(generics.ListAPIView):
