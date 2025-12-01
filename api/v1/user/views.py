@@ -3,8 +3,6 @@ from django.contrib.auth.hashers import make_password
 from django.db.models import Prefetch
 from django.utils import timezone
 from django.utils.crypto import get_random_string
-from django.utils.decorators import method_decorator
-from django.views.decorators.cache import cache_page
 from django_filters.rest_framework.backends import DjangoFilterBackend
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated, SAFE_METHODS, IsAdminUser
@@ -16,7 +14,6 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.filters import SearchFilter
 from rest_framework import viewsets, status, generics
 from django.middleware import csrf
-from django.contrib.auth import authenticate
 from django.conf import settings
 from rest_framework.validators import ValidationError
 from drf_spectacular.utils import extend_schema, OpenApiParameter
@@ -35,6 +32,7 @@ from . import serializers
 from .utils import get_token_for_user
 from ..course.paginations import CommonPagination
 from ...utils.custom_permissions import AsyncNotAuthenticated
+from ...utils.paginations import FiftyPageNumberPagination
 from ...utils.send_otp_sms import async_send_otp_sms
 
 
@@ -127,13 +125,13 @@ class BaseApiView(APIView):
         return paginator.get_paginated_response(serializer.data)
 
 
-class StateApiView(BaseApiView):
-    model = State.objects.all()
+class StateApiView(APIView):
     serializer_class = serializers.StateSerializer
+    queryset = State.objects.all
 
-    @method_decorator(cache_page(60 * 60 * 24))
     def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
+        serializer = self.serializer_class(self.queryset(), many=True)
+        return Response(serializer.data, status=HTTP_200_OK)
 
 
 class CityApiView(BaseApiView):

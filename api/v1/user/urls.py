@@ -1,6 +1,7 @@
 from rest_framework_nested import routers
 from rest_framework.urls import path
 from django.urls import include
+from rest_framework_simplejwt.views import TokenVerifyView
 
 from . import views
 
@@ -24,7 +25,7 @@ urlpatterns = [
     path("otp_phone/", views.RequestPhoneView.as_view(), name='otp_phone'),
     path("otp_phone_verify/", views.RequestOtpVerifyView.as_view(), name='otp_phone_verify'),
     path("login/", views.UserLoginApiView.as_view(), name='user_login'),
-    path("validate_token/", views.ValidateTokenApiView.as_view(), name='validate_token'),
+    path("validate_token/", TokenVerifyView.as_view(), name='validate_token'),
     path('state-list/', views.StateApiView.as_view(), name='state-list'),
     path('state-list/<int:pk>/', views.StateApiView.as_view(), name='detail-state-list'),
     path('state/<int:pk>/city/', views.StateCitiesGenericView.as_view(), name='detail-state-city'),
