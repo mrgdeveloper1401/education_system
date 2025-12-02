@@ -68,4 +68,4 @@ def sync_send_otp_sms(phone, otp):
 #     "12345"
 # ))
 
-print(sync_send_otp_sms("09391640664", "1234"))
+# print(sync_send_otp_sms("09391640664", "1234"))
