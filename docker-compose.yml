@@ -11,9 +11,9 @@ services:
     restart: always
     env_file: "postdb.env"
     environment:
-      POSTGRES_USER: ${COMPOSE_POSTGRES_USER}
-      POSTGRES_DB: ${COMPOSE_POSTGRES_DB}
-      POSTGRES_PASSWORD: ${COMPOSE_POSTGRES_PASSWORD}
+      - POSTGRES_USER=$COMPOSE_POSTGRES_USER}
+      - POSTGRES_DB=${COMPOSE_POSTGRES_DB}
+      - POSTGRES_PASSWORD=${COMPOSE_POSTGRES_PASSWORD}
 
   redis:
     container_name: education_redis
