@@ -30,6 +30,7 @@ services:
     container_name: education_nginx
     volumes:
       - static_files:/var/www/static
+      - /etc/letsencrypt:/etc/letsencrypt:ro
     restart: always
     build:
       context: dockerfile/prod/nginx

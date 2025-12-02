@@ -1,9 +1,5 @@
-FROM docker.arvancloud.ir/nginx:1.29-alpine
+FROM education_nginx:1.0.0
 
 COPY ./nginx.conf /etc/nginx/nginx.conf
-
-RUN mkdir -p /var/www/static && \
-    mkdir -p /etc/letsencrypt/live/codeima
-
 
 ENTRYPOINT ["nginx", "-g", "daemon off;"]
