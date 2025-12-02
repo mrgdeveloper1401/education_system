@@ -6,7 +6,7 @@ COPY . .
 
 # RUN adduser -D -H mohammad && \
 #     chown -R mohammad:mohammad /home/app
-RUN chmod +x /home/app/start.sh
+RUN chmod +x /home/app/dockerfile/prod/django/start.sh
 
 # USER mohammad
 
