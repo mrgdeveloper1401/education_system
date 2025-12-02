@@ -1,10 +1,10 @@
 from rest_framework import serializers, exceptions
 
 from accounts.models import User, Otp
+from api.utils.send_otp_sms import sync_send_otp_sms
 from course.models import Course
 from order_app.models import Order, CourseSignUp
 from order_app.tasks import send_successfully_signup, process_referral
-# from accounts.tasks import send_sms_otp_code
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -67,7 +67,7 @@ class CourseSignUpSerializer(serializers.ModelSerializer):
             )
 
             # send sms otp
-            send_sms_otp_code.delay(otp.mobile_phone, otp.code)
+            sync_send_otp_sms(otp.mobile_phone, otp.code)
 
         # if referral_code is exiting, do task
         if referral_code:

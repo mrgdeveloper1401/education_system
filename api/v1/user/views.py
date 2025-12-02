@@ -1,5 +1,4 @@
 import jwt
-from asgiref.sync import sync_to_async
 from django.contrib.auth.hashers import make_password
 from django.db.models import Prefetch
 from django.utils import timezone

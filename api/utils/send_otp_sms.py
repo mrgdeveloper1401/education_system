@@ -2,7 +2,6 @@ import asyncio
 import httpx
 from decouple import config
 
-from utils.send_sms import SmsIrPanel
 
 def headers():
     return {
@@ -38,7 +37,35 @@ async def async_send_otp_sms(phone, otp):
         return response.json()
 
 
+def sync_send_otp_sms(phone, otp):
+    # get url
+    base_url = config("SMS_IR_BASE_URL", cast=str)
+    verify_url = base_url + "send/verify"
+
+    # data
+    json_data = {
+        "Mobile": phone,
+        "TemplateId": config("SMS_IR_OTP_TEMPLATE_ID", cast=int),
+        "parameters": [
+            {
+                "name": "CODE",
+                "value": otp,
+            }
+        ]
+    }
+
+    # send request
+    response = httpx.post(
+        url=verify_url,
+        json=json_data,
+        headers=headers(),
+        timeout=15,
+    )
+    return response.json()
+
 # asyncio.run(
 #     send_otp_sms("09391640664",
 #     "12345"
 # ))
+
+print(sync_send_otp_sms("09391640664", "1234"))
