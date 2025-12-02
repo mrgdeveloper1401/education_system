@@ -171,7 +171,7 @@ class ChangePasswordApiView(APIView):
         return Response(serializer.data, status=HTTP_200_OK)
 
 
-class ForgetPasswordApiView(APIView):
+class ForgetPasswordApiView(AsyncAPIView):
     serializer_class = serializers.ForgetPasswordSerializer
     permission_classes = (AsyncNotAuthenticated,)
 
@@ -186,12 +186,12 @@ class ForgetPasswordApiView(APIView):
         if not await User.objects.filter(mobile_phone=mobile_phone, is_active=True).aexists():
             raise ValidationError({"message": "phone number dose not exits"})
         else:
-            have_otp = await sync_to_async(lambda: Otp.objects.filter(
+            have_otp = await Otp.objects.filter(
                 mobile_phone=mobile_phone,
                 expired_date__gt=timezone.now()
             ).only(
                 "mobile_phone", "expired_date"
-            ))()
+            ).aexists()
 
             if have_otp:
                 raise ValidationError({"message": "you have already otp code, please 2 minute wait"})
