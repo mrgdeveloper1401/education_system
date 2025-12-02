@@ -58,8 +58,6 @@ services:
     container_name: education_celery
     restart: always
     build: .
-    depends_on:
-      - redis
     environment:
       - CELERY_BROKER_URL=redis://education_redis:6379/0
       - CELERY_RESULT_BACKEND=redis://education_redis:6379/1
