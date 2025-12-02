@@ -18,9 +18,9 @@ CORS_ALLOWED_ORIGINS = ''.join(config("CORS_ALLOW_ORIGINS_CORS", cast=list)).spl
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": config("COMPOSE_POSTGRES_DB", cast=str),
-        'USER': config("COMPOSE_POSTGRES_USER", cast=str),
-        "PASSWORD": config("COMPOSE_POSTGRES_PASSWORD", cast=str),
+        "NAME": config("POSTDB_NAME", cast=str),
+        'USER': config("POSTDB_USER", cast=str),
+        "PASSWORD": config("POSTDB_PASSWORD", cast=str),
         'HOST': "education_postgres",
         "PORT": 5432,
     },
