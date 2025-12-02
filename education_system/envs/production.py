@@ -21,8 +21,8 @@ DATABASES = {
         "NAME": config("POSTDB_NAME", cast=str),
         'USER': config("POSTDB_USER", cast=str),
         "PASSWORD": config("POSTDB_PASSWORD", cast=str),
-        'HOST': "education_postgres",
-        "PORT": 5432,
+        'HOST': config("POSTDB_HOST", cast=str),
+        "PORT": config("POSTDB_PORT", cast=str, default="5432"),
     },
     "OPTIONS": {
         "pool": True
