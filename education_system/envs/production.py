@@ -51,8 +51,8 @@ USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 CSRF_COOKIE_AGE = 3600
 USE_X_FORWARDED_PORT = True
-SESSION_COOKIE_DOMAIN = ".codeima.ir"
-CSRF_COOKIE_DOMAIN = ".codeima.ir"
+SESSION_COOKIE_DOMAIN = "api.codeima.ir"
+CSRF_COOKIE_DOMAIN = "api.codeima.ir"
 
 # STATIC_URL = config('STATIC_URL', cast=str)
 # STATIC_ROOT = BASE_DIR / config("STATIC_ROOT", cast=str)
