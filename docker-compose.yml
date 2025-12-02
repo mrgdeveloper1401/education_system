@@ -9,7 +9,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: always
-    env_file: "postdb.env"
+    env_file: "dockerfile/envs/db/postdb.env"
     environment:
       - POSTGRES_PASSWORD=${POSTDB_PASSWORD}
       - POSTDB_NAME=${POSTDB_NAME}

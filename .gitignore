@@ -305,3 +305,4 @@ test_code.py
 mobile_backend
 education-mobile/
 postdb.env
+dockerfile/envs/db/postdb.env
