@@ -14,7 +14,7 @@ services:
       - POSTDB_NAME=${POSTDB_NAME}
       - POSTDB_USER=${POSTDB_USER}
     healthcheck:
-      test: ['CMD', "pg_isready -U postgres"]
+      test: ['CMD', "pg_isready -U postgres -d ${POSTDB_NAME}"]
       interval: 10s
       timeout: 5s
       retries: 5
