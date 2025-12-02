@@ -53,8 +53,6 @@ services:
       - static_files:/home/app/staticfiles
     env_file: ".env"
     restart: always
-    depends_on:
-      - db
 
   celery:
     container_name: education_celery
