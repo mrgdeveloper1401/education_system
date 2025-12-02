@@ -9,6 +9,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     restart: always
+    env_file: "postdb.env"
     environment:
       POSTGRES_USER: ${COMPOSE_POSTGRES_USER}
       POSTGRES_DB: ${COMPOSE_POSTGRES_DB}
