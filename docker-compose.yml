@@ -11,8 +11,8 @@ services:
     restart: always
     environment:
       - POSTGRES_PASSWORD=${POSTDB_PASSWORD}
-      - POSTDB_NAME=${POSTDB_NAME}
-      - POSTDB_USER=${POSTDB_USER}
+      - POSTGRES_USER=${POSTDB_USER}
+      - POSTGRES_DB=${POSTDB_NAME}
     healthcheck:
       test: ['CMD', "pg_isready -U postgres -d ${POSTDB_NAME}"]
       interval: 10s
