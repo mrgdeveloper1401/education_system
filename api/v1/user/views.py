@@ -203,9 +203,10 @@ class ForgetPasswordApiView(AsyncAPIView):
 
 class ConfirmForgetPasswordApiView(APIView):
     serializer_class = serializers.ConfirmForgetPasswordSerializer
-    permission_classes = [NotAuthenticate]
+    permission_classes = (NotAuthenticate,)
 
     def post(self, request, *args, **kwargs):
+        # TODO better query otp
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -216,7 +217,7 @@ class ConfirmForgetPasswordApiView(APIView):
         if not otp:
             raise ValidationError({"message": "otp is invalid or expired"})
         else:
-            user = User.objects.filter(mobile_phone=otp.mobile_phone).only("mobile_phone", "password").last()
+            user = User.objects.filter(mobile_phone=otp.mobile_phone).only("mobile_phone", "password").first()
 
             if not user:
                 raise ValidationError({"message": "user dose not exits"})

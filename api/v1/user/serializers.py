@@ -173,8 +173,8 @@ class ForgetPasswordSerializer(AsyncSerializer):
 
 class ConfirmForgetPasswordSerializer(serializers.Serializer):
     code = serializers.CharField()
-    password = serializers.CharField(min_length=8, style={'input_type': 'password'}, write_only=True)
-    confirm_password = serializers.CharField(min_length=8, style={'input_type': 'password'}, write_only=True)
+    password = serializers.CharField()
+    confirm_password = serializers.CharField()
 
 
 class StudentSerializer(serializers.ModelSerializer):
