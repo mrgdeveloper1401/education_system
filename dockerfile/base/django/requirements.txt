@@ -20,7 +20,7 @@ click-repl==0.3.0
 colorlog==6.9.0
 cron_descriptor==2.0.6
 diff-match-patch==20241021
-Django==5.2.7
+Django==5.2.8
 django-celery-beat==2.8.1
 django-ckeditor-5==0.2.18
 django-debug-toolbar==6.0.0
@@ -62,9 +62,7 @@ prometheus_client==0.23.1
 prompt_toolkit==3.0.52
 propcache==0.4.0
 # psutil==7.1.0
-psycopg==3.2.10
-psycopg-pool==3.2.6
-psycopg2-binary==2.9.10
+psycopg[binary,pool]
 PyJWT==2.10.1
 pyproject_hooks==1.2.0
 python-crontab==3.3.0

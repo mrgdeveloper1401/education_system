@@ -1,4 +1,5 @@
 import jwt
+from asgiref.sync import sync_to_async
 from django.contrib.auth.hashers import make_password
 from django.db.models import Prefetch
 from django.utils import timezone
@@ -32,7 +33,6 @@ from . import serializers
 from .utils import get_token_for_user
 from ..course.paginations import CommonPagination
 from ...utils.custom_permissions import AsyncNotAuthenticated
-from ...utils.paginations import FiftyPageNumberPagination
 from ...utils.send_otp_sms import async_send_otp_sms
 
 
@@ -173,9 +173,9 @@ class ChangePasswordApiView(APIView):
 
 class ForgetPasswordApiView(APIView):
     serializer_class = serializers.ForgetPasswordSerializer
-    permission_classes = (NotAuthenticate,)
+    permission_classes = (AsyncNotAuthenticated,)
 
-    def post(self, request, *args, **kwargs):
+    async def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -183,21 +183,21 @@ class ForgetPasswordApiView(APIView):
         mobile_phone = serializer.validated_data['mobile_phone']
 
         # check user exists
-        if not User.objects.filter(mobile_phone=mobile_phone, is_active=True).exists():
+        if not await User.objects.filter(mobile_phone=mobile_phone, is_active=True).aexists():
             raise ValidationError({"message": "phone number dose not exits"})
         else:
-            have_otp = Otp.objects.filter(
+            have_otp = await sync_to_async(lambda: Otp.objects.filter(
                 mobile_phone=mobile_phone,
                 expired_date__gt=timezone.now()
             ).only(
                 "mobile_phone", "expired_date"
-            )
+            ))()
 
             if have_otp:
                 raise ValidationError({"message": "you have already otp code, please 2 minute wait"})
             else:
-                otp = Otp.objects.create(mobile_phone=mobile_phone)
-                send_sms_forget_password.delay(otp.mobile_phone, otp.code)
+                otp = await Otp.objects.acreate(mobile_phone=mobile_phone)
+                await async_send_otp_sms(otp.mobile_phone, otp.code)
                 return Response({'message': "code sent"}, status=HTTP_200_OK)
 
 

@@ -1,20 +1,4 @@
 services:
-  app:
-    container_name: django
-    build:
-      context: .
-    ports:
-      - "8000:8000"
-    expose:
-      - 8000
-    volumes:
-      - static_files:/home/app/staticfiles
-    env_file: ".env"
-    restart: always
-    # entrypoint: ["/home/app/start.sh"]
-    depends_on:
-      - db
-
   db:
     container_name: education_postgres
     image: docker.arvancloud.ir/postgres:16.9-alpine
@@ -34,25 +18,38 @@ services:
     container_name: education_redis
     image: docker.arvancloud.ir/redis:8.4-alpine
     restart: always
-    depends_on:
-      - db
     expose:
       - 6379
 
   nginx:
     container_name: education_nginx
+    volumes:
+      - static_files:/var/www/static
     restart: always
     build:
-      context: nginx
+      context: dockerfile/prod/nginx
       dockerfile: Dockerfile
-    volumes:
-      - mobile_static_files:/var/www/static
-    command: ["nginx", "-g", "daemon off;"]
     ports:
       - "80:80"
       - "443:443"
     depends_on:
       - app
+
+  app:
+    container_name: django
+    build:
+      context: .
+      dockerfile: dockerfile/prod/django/Dockerfile
+    ports:
+      - "8000:8000"
+    expose:
+      - 8000
+    volumes:
+      - static_files:/home/app/staticfiles
+    env_file: ".env"
+    restart: always
+    depends_on:
+      - db
 
   celery:
     container_name: education_celery
@@ -86,25 +83,6 @@ services:
     environment:
       - DATABASE_URL=postgres://${COMPOSE_POSTGRES_USER}:${COMPOSE_POSTGRES_PASSWORD}@db:5432/${COMPOSE_POSTGRES_DB}
 
-#  mobile_app:
-#    container_name: django_mobile
-#    build:
-#      context: education-mobile
-#      dockerfile: dockerfile/prod/Dockerfile
-#    restart: always
-#    env_file: "education-mobile/.env"
-#    depends_on:
-#      - db
-#      - redis
-#    volumes:
-#      - mobile_static_files:/home/app/mobile_static
-#    ports:
-#      - "8001:8001"
-#    expose:
-#      - 8001
-
-
 volumes:
   static_files:
   postgres_data:
-  mobile_static_files:

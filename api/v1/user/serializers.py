@@ -167,8 +167,8 @@ class ChangePasswordSerializer(serializers.Serializer):
         return {"message": _("پسورد با موفقیت عوض شد")}
 
 
-class ForgetPasswordSerializer(serializers.Serializer):
-    mobile_phone = serializers.CharField(validators=[MobileRegexValidator()])
+class ForgetPasswordSerializer(AsyncSerializer):
+    mobile_phone = serializers.CharField(validators=(MobileRegexValidator(),))
 
 
 class ConfirmForgetPasswordSerializer(serializers.Serializer):
