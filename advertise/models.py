@@ -12,8 +12,8 @@ from core.models import UpdateMixin, SoftDeleteMixin, CreateMixin
 class ConsultationTopic(CreateMixin, UpdateMixin, SoftDeleteMixin):
     name = models.CharField(max_length=255, unique=True)
 
-    def __str__(self):
-        return self.name
+    # def __str__(self):
+    #     return self.name
 
     class Meta:
         db_table = 'consultation_topic'
@@ -23,8 +23,8 @@ class ConsultationSchedule(CreateMixin, UpdateMixin, SoftDeleteMixin):
     start_date = models.DateField()
     end_date = models.DateField()
 
-    def __str__(self):
-        return f"({self.start_date} {self.end_date})"
+    # def __str__(self):
+    #     return f"({self.start_date} {self.end_date})"
 
     def clean(self):
         if self.start_date < now().date():
@@ -65,8 +65,8 @@ class ConsultationRequest(CreateMixin, UpdateMixin, SoftDeleteMixin):
     is_answer = models.BooleanField(default=False)
     topic = models.CharField(max_length=100, blank=True, null=True)
 
-    def __str__(self):
-        return f'{self.mobile_phone} {self.first_name} {self.last_name}'
+    # def __str__(self):
+    #     return f'{self.mobile_phone} {self.first_name} {self.last_name}'
 
     class Meta:
         db_table = 'consultation_request'
