@@ -40,7 +40,7 @@ class ConsultationSlotViewSet(ModelViewSet):
     def get_queryset(self):
         fields = ("schedule_id", "is_available", "date", "updated_at", "created_at")
 
-        query =  ConsultationSlot.objects.only(*fields).order_by("-date")
+        query =  ConsultationSlot.objects.only(*fields).order_by("date")
         if not self.request.user.is_staff:
             query = query.filter(is_available=True)
         return query
