@@ -58,7 +58,7 @@ class ConsultationSchedule(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 
 class ConsultationRequest(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    slot = models.ForeignKey("ConsultationSlot", on_delete=models.DO_NOTHING, related_name="consultation_slot_slot")
+    slot = models.ForeignKey("ConsultationSlot", on_delete=models.PROTECT, related_name="consultation_slot_slot")
     mobile_phone = models.CharField(_("شماره موبایل"), max_length=11, validators=[MobileRegexValidator()])
     first_name = models.CharField(_("نام کد اموز"), max_length=30)
     last_name = models.CharField(_("نام خانوادگی کد اموز"), max_length=30)
@@ -74,7 +74,7 @@ class ConsultationRequest(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 
 class ConsultationSlot(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    schedule = models.ForeignKey(ConsultationSchedule, on_delete=models.DO_NOTHING, related_name="consultation_slot")
+    schedule = models.ForeignKey(ConsultationSchedule, on_delete=models.PROTECT, related_name="consultation_slot")
     date = models.DateField()
     is_available = models.BooleanField(default=True)
 
