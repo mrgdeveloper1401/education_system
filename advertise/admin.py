@@ -13,6 +13,15 @@ class SlotAdmin(admin.ModelAdmin):
     list_editable = ("is_available",)
     raw_id_fields = ("schedule",)
     list_per_page = 20
+    actions = ("disable_is_available", "enable_is_available")
+
+    @admin.action(description="disable is_available")
+    def disable_is_available(self, request, queryset):
+        return queryset.update(is_available=False)
+
+    @admin.action(description="enable is_available")
+    def enable_is_available(self, request, queryset):
+        return queryset.update(is_available=True)
 
 
 @admin.register(ConsultationSchedule)
