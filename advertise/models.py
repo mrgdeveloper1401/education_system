@@ -80,8 +80,8 @@ class ConsultationSlot(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     objects = PublishSlotManager()
 
-    def __str__(self):
-        return f'{self.date} {self.is_available}'
+    # def __str__(self):
+    #     return f'{self.date} {self.is_available}'
 
     class Meta:
         db_table = 'consultation_slot'

@@ -24,8 +24,9 @@ class ConsultationScheduleSerializer(serializers.ModelSerializer):
 
 class ConsultationSlotSerializer(serializers.ModelSerializer):
     schedule = serializers.PrimaryKeyRelatedField(
-        queryset=ConsultationSlot.objects.only("date", "is_available").filter(is_available=True)
+        queryset=ConsultationSlot.objects.only("id").filter(is_available=True)
     )
+
     class Meta:
         model = ConsultationSlot
         exclude = ('deleted_at', "is_deleted")

@@ -41,7 +41,6 @@ class CourseSignUpSerializer(serializers.ModelSerializer):
 
         # get user
         get_user = User.objects.filter(mobile_phone=mobile_phone).only("mobile_phone")
-
         # check user exits
         if not get_user.exists():
 
@@ -53,7 +52,7 @@ class CourseSignUpSerializer(serializers.ModelSerializer):
                 last_name=validated_data["last_name"],
             )
 
-            # send sms (phone and password) for seccussfly signup
+            # send sms (phone and password) for cussedly signup
             send_successfully_signup.delay(
                 phone=user.mobile_phone,
                 password=user.mobile_phone,

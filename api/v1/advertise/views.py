@@ -5,6 +5,7 @@ from rest_framework import mixins
 
 from advertise.models import ConsultationTopic, ConsultationSchedule, ConsultationSlot, ConsultationRequest
 from utils.pagination import AnswerPagination, SlotPagination
+from .filter_class import AdvertiseFilter
 # from utils.base_api import CrudApi
 from .serializers import ConsultationTopicSerializer, ConsultationScheduleSerializer, ConsultationSlotSerializer, \
     UserConsultationRequestSerializer, ConsultationRequestAnswerSerializer, AdminConsultationRequestSerializer
@@ -27,13 +28,21 @@ class ConsultationScheduleViewSet(ModelViewSet):
 
 
 class ConsultationSlotViewSet(ModelViewSet):
-    queryset = ConsultationSlot.objects.select_related('schedule',).defer('deleted_at', "is_deleted")
     serializer_class = ConsultationSlotSerializer
+    filterset_class = AdvertiseFilter
 
     def get_permissions(self):
         if self.request.method in ('POST', "PUT", "PATCH", "DELETE"):
             return (IsAdminUser(),)
         return super().get_permissions()
+
+    def get_queryset(self):
+        fields = ("schedule_id", "is_available", "date", "updated_at", "created_at")
+
+        query =  ConsultationSlot.objects.only(*fields)
+        if not self.request.user.is_staff:
+            query = query.filter(is_available=True)
+        return query
 
 
 class ConsultationRequestViewSet(ModelViewSet):

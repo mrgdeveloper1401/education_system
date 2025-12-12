@@ -5,10 +5,11 @@ from .views import ConsultationTopicViewSet, ConsultationScheduleViewSet, Consul
 
 app_name = 'advertise'
 router = DefaultRouter()
-router.register('topic', ConsultationTopicViewSet)
-router.register('schedule', ConsultationScheduleViewSet)
-router.register('slot', ConsultationSlotViewSet)
-router.register('request', ConsultationRequestViewSet)
+
+router.register('topic', ConsultationTopicViewSet, basename='topic')
+router.register('schedule', ConsultationScheduleViewSet, basename='schedule')
+router.register('slot', ConsultationSlotViewSet, basename='slot')
+router.register('request', ConsultationRequestViewSet, basename='request')
 router.register('answered', AnswerViewSet, basename='ConsultationAnswer')
 
-urlpatterns = router.urls
+urlpatterns =  router.urls
