@@ -11,9 +11,9 @@ from rest_framework import generics
 from rest_framework import exceptions
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from accounts.models import User, Otp, State, City, Student, Coach, Ticket, TicketRoom, BestStudent, \
+from account_app.models import User, Otp, State, City, Student, Coach, Ticket, TicketRoom, BestStudent, \
     PrivateNotification, Invitation
-from accounts.validators import MobileRegexValidator
+from account_app.validators import MobileRegexValidator
 
 
 class UserLoginSerializer(serializers.Serializer):

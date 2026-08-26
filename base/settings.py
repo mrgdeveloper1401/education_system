@@ -1,0 +1,337 @@
+import datetime
+import os.path
+from datetime import timedelta
+from pathlib import Path
+from decouple import config, Csv
+from kombu import Queue
+
+from base.dj_ckeditor_config import CKEDITOR_5_CONFIGS, customColorPalette
+
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = config("DEBUG", default=True, cast=bool)
+
+# allowed host
+ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv(), default=None)
+
+# secret key
+SECRET_KEY = config(
+    "SECRET_KEY",
+    cast=str,
+    default="secret_olfati_2f026_salam_donna_why_ali_reza_hossein",
+)
+
+# secret key fall back
+USE_FALL_BACK_SECRET_KEY = config("USE_FALL_BACK_SECRET_KEY", cast=bool, default=False)
+if USE_FALL_BACK_SECRET_KEY:
+    DJANGO_SECRET_KEY_FALLBACKS = config("DJANGO_SECRET_KEY_FALLBACKS", cast=str)
+
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Application definition
+THIRD_PARTY_PACKAGE = [
+    "drf_spectacular",
+    "rest_framework",
+    "rest_framework_simplejwt",
+    "django_filters",
+    "treebeard",
+    "import_export",
+    "django_ckeditor_5",
+    "django_celery_beat",
+    "drf_spectacular_sidecar",
+    "adrf",
+]
+
+THIRD_PARTY_APP = [
+    'apps.account_app',
+    'apps.core_app',
+    "apps.advertise_app",
+    "apps.course_app",
+    "apps.subscription_app",
+    "apps.blog_app",
+    "apps.exam_app",
+    "apps.discount_app",
+    "apps.order_app"
+]
+
+INSTALLED_APPS = [
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "django.contrib.postgres",
+    *THIRD_PARTY_PACKAGE,
+    *THIRD_PARTY_APP,
+]
+
+MIDDLEWARE = [
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+]
+
+ROOT_URLCONF = "base.urls"
+
+TEMPLATES = [
+    {
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+            ],
+        },
+    },
+]
+
+USE_ASGI = config("USE_ASGI", default=True, cast=bool)
+if USE_ASGI:
+    ASGI_APPLICATION = "base.asgi.application"
+else:
+    WSGI_APPLICATION = "base.wsgi.application"
+
+# Database
+# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+DATABASES = {
+    "default": {
+        "ENGINE": config(
+            "PGDB_ENGINE", default="django.db.backends.postgresql", cast=str
+        ),
+        "NAME": config("POSTDB_NAME", cast=str, default="education"),
+        "USER": config("POSTDB_USER", cast=str, default="postgres"),
+        "PASSWORD": config("POSTDB_PASSWORD", cast=str, default="postgres"),
+        "HOST": config("POSTDB_HOST", cast=str, default="127.0.0.1"),
+        "PORT": config("POSTDB_PORT", cast=int, default=5433),
+        "OPTIONS": {
+            "pool": True
+        },
+    }
+}
+
+# Password validation
+# https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+    }
+]
+
+# Internationalization
+# https://docs.djangoproject.com/en/5.1/topics/i18n/
+LANGUAGE_CODE = "en-us"
+
+TIME_ZONE = "Asia/Tehran"
+
+USE_I18N = True
+
+USE_TZ = True
+
+
+# Default primary key field type
+# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+AUTH_USER_MODEL = 'account_app.User'
+
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',)
+
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'education system',
+    'DESCRIPTION': 'Your project description',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    # 'IGNORE_WARNINGS': ['drf_spectacular.W001'],
+    'SWAGGER_UI_DIST': 'SIDECAR',  # shorthand to use the sidecar instead
+    'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
+    'REDOC_DIST': 'SIDECAR',
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=7),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=365),
+}
+
+# default storages
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+}
+
+
+# config django storage
+USE_DJANGO_STORAGES = config("USE_DJANGO_STORAGES", cast=bool, default=True)
+if USE_DJANGO_STORAGES:
+    STORAGES["default"]["BACKEND"] = "storages.backends.s3.S3Storage"
+    AWS_S3_REGION_NAME = "eu-west-1"
+    AWS_DEFAULT_ACL = "public-read"
+    AWS_QUERYSTRING_AUTH = config("AWS_QUERYSTRING_AUTH", default=False, cast=bool)
+    AWS_ACCESS_KEY_ID = config("S3_ACCESS_KEY", cast=str, default="")
+    AWS_SECRET_ACCESS_KEY = config("S3_SECRET_KEY", cast=str, default="")
+    AWS_STORAGE_BUCKET_NAME = config("S3_BUCKET_NAME", cast=str, default="")
+    AWS_S3_ENDPOINT_URL = config("S3_BUCKET_URL", cast=str, default="")
+    AWS_S3_FILE_OVERWRITE = config("S3_FILE_OVERWRITE", cast=bool, default=False)
+    AWS_S3_MAX_MEMORY_SIZE = config(
+        "S3_MAX_MEMORY_SIZE", cast=int, default=2097152
+    )  # byte --> 2MB
+else:
+    MEDIA_ROOT = BASE_DIR / "media"  # upload file into dir
+    MEDIA_URL = "/media/"  # address in url
+
+# CKEDITOR_5_CUSTOM_CSS = 'path_to.css'
+CKEDITOR_5_ALLOW_ALL_FILE_TYPES = True
+
+# ckeditor path
+CKEDITOR_BASEPATH = BASE_DIR / "staticfiles/ckeditor/ckeditor/"
+
+# Celery settings
+# celery config
+USE_CELERY = config("USE_CELERY", cast=bool, default=True)
+if USE_CELERY:
+    CELERY_BROKER_URL = config(
+        "CELERY_BROKER_URL", cast=str, default="redis://localhost:6381/5"
+    )
+    CELERY_RESULT_BACKEND = config(
+        "CELERY_RESULT_BACKEND", cast=str, default="redis://localhost:6381/6"
+    )  # نتیجه تسک در کجا ریخته شود
+    CELERY_TIMEZONE = config(
+        "CELERY_TIMEZONE", cast=str, default=TIME_ZONE
+    )  # منطقه زمانی Celery برای زمان‌بندی تسک‌ها
+    CELERY_ACCEPT_CONTENT = config(
+        "CELERY_ACCEPT_CONTENT", cast=Csv(), default="json"
+    )  # فرمت‌های مجاز برای دریافت پیام‌های تسک
+    CELERY_TASK_SERIALIZER = config(
+        "CELERY_TASK_SERIALIZER", cast=str, default="json"
+    )  # فرمت serialize کردن خودِ تسک هنگام ارسال به صف
+    CELERY_RESULT_SERIALIZER = config(
+        "CELERY_RESULT_SERIALIZER", cast=str, default="json"
+    )  # فرمت serialize کردن نتیجه‌ی تسک
+    CELERY_TASK_ACKS_LATE = config(
+        "CELERY_TASK_ACKS_LATE", cast=bool, default=True
+    )  # تسک در صورت عدم انجام دوباره انجام میشود
+    CELERY_WORKER_PREFETCH_MULTIPLIER = config(
+        "WORKER_PREFETCH_MULTIPLIER", cast=int, default=1
+    )  # هر Worker قبل از اتمام تسک فعلی چند تسک از صف بردارد
+    CELERY_TASK_ALWAYS_EAGER = config(
+        "CELERY_TASK_ALWAYS_EAGER", cast=bool, default=False
+    )  # اگر True باشد، تسک‌ها واقعاً async اجرا نمی‌شوند و همان لحظه محلی اجرا می‌شوند
+    CELERY_TASK_TIME_LIMIT = config(
+        "CELERY_TASK_TIME_LIMIT", cast=int, default=30
+    )  # حداکثر زمان مجاز اجرای هر تسک (ثانیه)
+    CELERY_ENABLE_UTC = config(
+        "CELERY_ENABLE_UTC", cast=bool, default=True
+    )  # اگر True باشد، Celery زمان‌ها را بر اساس UTC مدیریت می‌کند
+    CELERY_WORKER_CONCURRENCY = config(
+        "WORKER_CONCURRENCY", cast=int, default=8
+    )  # تعداد پردازش/ورکر همزمان برای اجرای تسک‌ها
+    CELERY_WORKER_MAX_TASKS_PER_CHILD = config(
+        "WORKER_MAX_TASKS_PER_CHILD", cast=int, default=1000
+    )  # بعد از چند تسک، Worker child ری‌استارت شود تا از memory leak جلوگیری شود
+    CELERY_WORKER_MAX_MEMORY_PER_CHILD = config(
+        "WORKER_MAX_MEMORY_PER_CHILD", cast=int, default=200000
+    )  # اگر مصرف حافظه Worker child از این مقدار (کیلوبایت) بیشتر شد، ری‌استارت شود
+
+# define queue
+CELERY_QUEUES = (
+    # Queue("sms_otp"),
+    Queue("coupon_send"),
+    Queue("advertise"),
+    Queue("reminder"),
+    Queue("course_signup"),
+    Queue("referral_process"),
+    Queue("create_qrcode"),
+    Queue("notification")
+)
+
+# celery beat config
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+
+# cache config
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": config(
+            "PROD_REDIS_LOCATION", cast=str, default="redis://localhost:6381/1"
+        ),
+        "OPTIONS": {
+            "SERIALIZER": config(
+                "REDIS_DEFAULT_SERIALIZER",
+                cast=str,
+                default="django_redis.serializers.msgpack.MSGPackSerializer",
+            ),
+            "SOCKET_CONNECT_TIMEOUT": config(
+                "SOCKET_DEFAULT_CONNECT_TIMEOUT", default=5, cast=int
+            ),
+            "SOCKET_TIMEOUT": config("SOCKET_DEFAULT_TIMEOUT", default=5, cast=int),
+            # "COMPRESSOR": config("REDIS_DEFAULT_COMPRESSOR", default="django_redis.compressors.zlib.ZlibCompressor"),
+            "TIMEOUT": config("CACHE_DEFAULT_TIMEOUT", cast=int, default=1209600),
+            # "COMPRESSOR_KWARGS": {
+            #     "level": config("COMPRESSOR_DEFAULT_LEVEL_ARGS", default=5, cast=int)
+            # },
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "CONNECTION_POOL_KWARGS": {
+                "max_connections": config("REDIS_MAX_CONNECTION", cast=int, default=20),
+                "retry_on_timeout": config(
+                    "REDIS_DEFAULT_POOL_RETRY_TIMEOUT", default=True, cast=bool
+                ),
+                "health_check_interval": config(
+                    "REDIS_DEFAULT_HEALTH_CHECK_INTERVAL", default=True, cast=bool
+                ),
+                "socket_keepalive": config(
+                    "REDIS_DEFAULT_SOCKET_KEEPALIVE", default=True, cast=bool
+                ),
+            },
+        },
+    }
+}
+
+# Static files (CSS, JavaScript, Images)
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+BITPAY_MERCHANT_ID=config("GATEWAY_ID", cast=str)
+BITPAY_CALLBACK_URL='https://api.codeima.ir/api_subscription/verify_payment/?trans_id={trans_id}&id_get={id_get}'
+
+ZIBAL_CALLBACK_URL="https://codeima.ir//p-student/subscription/result-payment/"
+ZIBAL_MERCHENT_ID=config("ZIBAL_MERCHENT_ID", cast=str)
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db' # cache session database
+
+# debug toolbar
+USE_DEBUG_TOOLBAR = config("USE_DEBUG_TOOLBAR", default=True, cast=bool)
+if USE_DEBUG_TOOLBAR and DEBUG:
+    INSTALLED_APPS.append(
+        "debug_toolbar",
+    )
+    MIDDLEWARE.append(
+        "debug_toolbar.middleware.DebugToolbarMiddleware",
+    )
+    INTERNAL_IPS = [
+        "127.0.0.1",
+    ]

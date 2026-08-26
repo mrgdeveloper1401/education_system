@@ -3,9 +3,9 @@ from rest_framework import viewsets, permissions, exceptions, decorators, respon
 from drf_spectacular.views import extend_schema
 from django_filters.rest_framework import DjangoFilterBackend
 
-from accounts.models import Student
+from account_app.models import Student
 from . import serializers
-from course.models import Category, Course, Section, SectionFile, SectionVideo, LessonCourse, Certificate, \
+from course_app.models import Category, Course, Section, SectionFile, SectionVideo, LessonCourse, Certificate, \
     PresentAbsent, SectionQuestion, AnswerQuestion, Comment, SignupCourse, StudentEnrollment
 from .filters import AdminCommentFilter
 from .paginations import AdminPagination

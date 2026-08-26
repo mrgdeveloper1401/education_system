@@ -3,9 +3,9 @@ from django.shortcuts import get_object_or_404
 from rest_framework import serializers, exceptions
 from django.utils.translation import gettext_lazy as _
 
-from accounts.models import Student, Otp, Coach
-from course.enums import StudentStatusEnum
-from course.models import Category, Course, Section, SectionFile, SectionVideo, LessonCourse, Certificate, \
+from account_app.models import Student, Otp, Coach
+from course_app.enums import StudentStatusEnum
+from course_app.models import Category, Course, Section, SectionFile, SectionVideo, LessonCourse, Certificate, \
     PresentAbsent, SectionQuestion, AnswerQuestion, Comment, SignupCourse, StudentEnrollment, StudentAccessSection
 
 

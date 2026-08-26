@@ -1,8 +1,8 @@
 from rest_framework import serializers, exceptions
 
-from accounts.models import User, Otp
+from account_app.models import User, Otp
 from api.utils.send_otp_sms import sync_send_otp_sms
-from course.models import Course
+from course_app.models import Course
 from order_app.models import Order, CourseSignUp
 from order_app.tasks import send_successfully_signup, process_referral
 

@@ -1,6 +1,6 @@
 from django_filters.rest_framework import FilterSet
 
-from accounts.models import TicketRoom
+from account_app.models import TicketRoom
 
 class TicketRoomFilter(FilterSet):
     class Meta:

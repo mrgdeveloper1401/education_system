@@ -1,7 +1,7 @@
 from rest_framework import viewsets, permissions
 
 from . import serializers
-from core.models import SitemapEntry, CourseSiteInformation
+from core_app.models import SitemapEntry, CourseSiteInformation
 
 class SitemapViewSet(viewsets.ModelViewSet):
     queryset = SitemapEntry.objects.only(

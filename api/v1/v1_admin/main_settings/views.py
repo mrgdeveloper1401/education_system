@@ -1,7 +1,7 @@
 from django.db.models import Q
 from rest_framework import viewsets, permissions
 
-from main_settings.models import Banner, HeaderSite
+from main_setting_app.models import Banner, HeaderSite
 from . import serializers
 from ...course.paginations import CommonPagination
 

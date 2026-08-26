@@ -3,8 +3,8 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers, exceptions
 from django.utils.translation import gettext_lazy as _
 
-from accounts.models import Student, User
-from course.models import Course
+from account_app.models import Student, User
+from course_app.models import Course
 from exam_app.models import Exam, Question, Participation, Choice, Answer
 
 

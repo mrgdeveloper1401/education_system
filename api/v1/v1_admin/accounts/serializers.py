@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from accounts.models import BestStudent, Student, Coach, User
+from account_app.models import BestStudent, Student, Coach, User
 
 
 class AdminBestStudentSerializer(serializers.ModelSerializer):

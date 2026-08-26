@@ -1,0 +1,38 @@
+[project]
+name = "education-system"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "adrf>=0.1.14",
+    "celery[redis]>=5.6.3",
+    "django>=6.1",
+    "django-celery-beat>=2.1.0",
+    "django-ckeditor-5>=0.2.20",
+    "django-cors-headers>=4.9.0",
+    "django-filter>=26.1",
+    "django-import-export>=4.4.1",
+    "django-redis>=7.0.0",
+    "django-storages[boto3]>=1.14.6",
+    "django-treebeard>=7.0.1",
+    "djangorestframework>=3.18.0",
+    "djangorestframework-simplejwt>=5.5.1",
+    "drf-extra-fields>=3.7.0",
+    "drf-nested-routers>=0.95.3",
+    "drf-spectacular>=0.30.0",
+    "drf-spectacular-sidecar>=2026.8.1",
+    "gunicorn>=26.2.0",
+    "httpx>=0.28.1",
+    "pillow>=12.3.0",
+    "psycopg[c,pool]>=3.3.4",
+    "python-decouple>=3.8",
+    "qrcode>=8.2",
+]
+
+[dependency-groups]
+dev = [
+    "django-debug-toolbar>=7.1.1",
+    "ipdb>=0.13.13",
+    "ipython>=9.16.1",
+]

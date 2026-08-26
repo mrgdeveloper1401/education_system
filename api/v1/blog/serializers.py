@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
 
-from accounts.models import User
+from account_app.models import User
 from blog_app.models import CategoryBlog, PostBlog, TagBlog, FavouritePost, CommentBlog
 from api.v1.user.serializers import UserSerializer
 

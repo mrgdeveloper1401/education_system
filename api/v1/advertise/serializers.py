@@ -4,9 +4,9 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework.exceptions import ValidationError
 from django.utils import timezone
 
-from advertise.tasks import send_sms_accept_advertise
+from advertise_app.tasks import send_sms_accept_advertise
 
-from advertise.models import ConsultationTopic, ConsultationSchedule, ConsultationSlot, ConsultationRequest
+from advertise_app.models import ConsultationTopic, ConsultationSchedule, ConsultationSlot, ConsultationRequest
 
 
 class ConsultationTopicSerializer(serializers.ModelSerializer):

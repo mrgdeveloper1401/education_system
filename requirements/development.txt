@@ -1,7 +1,0 @@
--r base.txt
-django-debug-toolbar
-colorlog
-memory_profiler
-pandas
-django-redis
-requests

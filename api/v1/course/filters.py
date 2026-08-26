@@ -1,7 +1,7 @@
 import django_filters
 
-from course.enums import ProgresChoices
-from course.models import LessonCourse
+from course_app.enums import ProgresChoices
+from course_app.models import LessonCourse
 
 
 class LessonCourseFilter(django_filters.FilterSet):

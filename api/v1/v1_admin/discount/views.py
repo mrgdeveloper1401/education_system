@@ -1,6 +1,6 @@
 from rest_framework import viewsets, permissions, generics
 
-from course.models import Course
+from course_app.models import Course
 from discount_app import models
 from discount_app.models import Discount
 from . import serializers

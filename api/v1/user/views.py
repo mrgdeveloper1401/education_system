@@ -19,7 +19,7 @@ from rest_framework.validators import ValidationError
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from adrf.views import APIView as AsyncAPIView
 
-from accounts.models import User, State, City, Student, Coach, Ticket, TicketRoom, BestStudent, PrivateNotification, \
+from account_app.models import User, State, City, Student, Coach, Ticket, TicketRoom, BestStudent, PrivateNotification, \
     Otp, Invitation
 from utils.filters import UserFilter
 from utils.pagination import StudentCoachTicketPagination
@@ -27,7 +27,7 @@ from utils.permissions import NotAuthenticate
 from .filters import TicketRoomFilter
 from .pagination import UserPagination, CityPagination, BestStudentPagination
 from .permissions import TicketRoomPermission
-from education_system.base import SIMPLE_JWT
+from base.base import SIMPLE_JWT
 from . import serializers
 from .utils import get_token_for_user
 from ..course.paginations import CommonPagination

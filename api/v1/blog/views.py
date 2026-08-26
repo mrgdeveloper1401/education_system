@@ -10,7 +10,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Prefetch, F
 from django.utils.translation import gettext_lazy as _
 
-from accounts.models import User
+from account_app.models import User
 from blog_app.models import CategoryBlog, PostBlog, TagBlog, FavouritePost, CommentBlog, Like
 from utils.pagination import CommonPagination
 from .serializers import (

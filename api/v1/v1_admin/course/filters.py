@@ -1,6 +1,6 @@
 from django_filters.rest_framework import FilterSet
 
-from course.models import Comment
+from course_app.models import Comment
 
 
 class AdminCommentFilter(FilterSet):

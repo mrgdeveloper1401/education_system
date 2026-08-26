@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from course.models import Course
+from course_app.models import Course
 from discount_app.models import Coupon, Discount
 
 

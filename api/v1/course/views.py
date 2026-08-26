@@ -6,9 +6,9 @@ from rest_framework import mixins, viewsets, permissions, decorators, response, 
     filters
 from rest_framework.permissions import IsAuthenticated
 
-from course.enums import StudentStatusEnum
+from course_app.enums import StudentStatusEnum
 # from accounts.models import Student
-from course.models import Comment, SectionVideo, SectionFile, LessonCourse, StudentSectionScore, \
+from course_app.models import Comment, SectionVideo, SectionFile, LessonCourse, StudentSectionScore, \
     PresentAbsent, StudentAccessSection, SendSectionFile, OnlineLink, SectionQuestion, Section, \
     Category, CallLessonCourse, Course, Certificate, CourseTypeModel, StudentEnrollment
 from .filters import LessonCourseFilter

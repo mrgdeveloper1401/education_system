@@ -3,7 +3,7 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework import mixins
 
 
-from advertise.models import ConsultationTopic, ConsultationSchedule, ConsultationSlot, ConsultationRequest
+from advertise_app.models import ConsultationTopic, ConsultationSchedule, ConsultationSlot, ConsultationRequest
 from utils.pagination import AnswerPagination
 from .filter_class import AdvertiseFilter
 

@@ -2,8 +2,8 @@ from rest_framework import viewsets, permissions, mixins, exceptions, generics, 
 from django.utils.translation import gettext_lazy as _
 from django.db.models import Prefetch, Count, Q
 
-from accounts.models import User
-from accounts.permissions import IsCoachUser
+from account_app.models import User
+from account_app.permissions import IsCoachUser
 from exam_app.models import Exam, Question, Participation, Choice, Answer
 from . import serializers
 from .pagination import ExamPagination

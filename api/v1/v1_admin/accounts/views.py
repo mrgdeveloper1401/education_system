@@ -1,6 +1,6 @@
 from rest_framework import viewsets, generics, permissions
 
-from accounts.models import BestStudent, Student, Coach, User
+from account_app.models import BestStudent, Student, Coach, User
 from utils.pagination import CommonPagination
 from . import serializers
 from ...utils.permissions import CoachAndAdminPermission

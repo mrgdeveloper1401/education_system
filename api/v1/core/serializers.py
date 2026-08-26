@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from core.models import SitemapEntry, CourseSiteInformation
+from core_app.models import SitemapEntry, CourseSiteInformation
 
 
 class SiteMapSerializer(serializers.ModelSerializer):

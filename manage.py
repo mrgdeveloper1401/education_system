@@ -2,16 +2,10 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
-from decouple import config
-
 
 def main():
-    debug_mode = config("DEBUG", default=False, cast=bool)
     """Run administrative tasks."""
-    if debug_mode:
-        os.environ.setdefault("DJANGO_SETTINGS_MODULE", "education_system.envs.development")
-    else:
-        os.environ.setdefault("DJANGO_SETTINGS_MODULE", "education_system.envs.production")
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "base.settings")
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
