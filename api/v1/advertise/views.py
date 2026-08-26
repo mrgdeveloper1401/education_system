@@ -1,15 +1,14 @@
-from django.utils import timezone
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.permissions import IsAdminUser
 from rest_framework import mixins
 
 
 from advertise.models import ConsultationTopic, ConsultationSchedule, ConsultationSlot, ConsultationRequest
-from utils.pagination import AnswerPagination, SlotPagination
+from utils.pagination import AnswerPagination
 from .filter_class import AdvertiseFilter
-# from utils.base_api import CrudApi
+
 from .serializers import ConsultationTopicSerializer, ConsultationScheduleSerializer, ConsultationSlotSerializer, \
-    UserConsultationRequestSerializer, ConsultationRequestAnswerSerializer, AdminConsultationRequestSerializer
+    UserConsultationRequestSerializer, ConsultationRequestAnswerSerializer
 
 
 class ConsultationTopicViewSet(ModelViewSet):

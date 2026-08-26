@@ -1,7 +1,7 @@
 services:
   db:
     container_name: education_postgres
-    image: docker.arvancloud.ir/postgres:16.9-alpine
+    image: docker.arvancloud.ir/postgres:17-alpine
     ports:
       - "5432:5432"
     expose:
@@ -21,7 +21,7 @@ services:
 
   redis:
     container_name: education_redis
-    image: docker.arvancloud.ir/redis:8.4-alpine
+    image: docker.arvancloud.ir/redis:8-alpine
     restart: always
     expose:
       - 6379
