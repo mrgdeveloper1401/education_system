@@ -1,13 +1,20 @@
+import io
 from hashlib import sha1
+from pathlib import Path
 
+from PIL.ImageOps import exif_transpose
+from django.core.files.base import ContentFile
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from rest_framework.exceptions import ValidationError
+from PIL import Image as PILImage
 
 from base.utils.validators import file_upload_validator
 from apps.core_app.managers import PublishManager
 
+
+WEBP_QUALITY = 100
 
 def validate_image_size(value):
     max_size = 1
@@ -84,30 +91,52 @@ class Image(CreateMixin, UpdateMixin, SoftDeleteMixin):
     image_address = models.URLField(null=True, blank=True)
 
     @property
-    def generate_hash(self):
+    def hash_image(self):
         hasher = sha1()
-        for c in self.image.chunks():
-            hasher.update(c)
+        for i in self.image.chunks():
+            hasher.update(i)
         return hasher.hexdigest()
 
-    def __str__(self):
-        return f"{self.file_hash} && {self.title}"
-
     @property
-    def image_url(self):
-        return self.image.url if self.image else None
+    def _is_webp(self) -> bool:
+        return Path(self.image.name).suffix.lower() == ".webp"
+
+    def conv_img_into_webp(self, quality: int = WEBP_QUALITY):
+        if not self.image or self._is_webp:
+            return
+
+        buffer = io.BytesIO()
+        with PILImage.open(self.image) as img:
+            if getattr(img, "is_animated", False):
+                # گیف متحرک: باید همه فریم‌ها ذخیره بشن
+                img.save(buffer, format="WEBP", quality=quality, save_all=True)
+            else:
+                img = exif_transpose(img)
+                # حفظ کانال آلفا برای png و مشابهش
+                mode = "RGBA" if img.mode in ("RGBA", "LA", "P") else "RGB"
+                img.convert(mode).save(buffer, format="WEBP", quality=quality)
+        new_name = f"{Path(self.image.name).stem}.webp"
+        self.image.save(new_name, ContentFile(buffer.getvalue()), save=False)
 
     def save(self, *args, **kwargs):
-        self.file_hash = self.generate_hash
-        self.file_size = self.image.size
-        self.image_address = self.image.url
+        image_changed = True
+        if self.pk:
+            old = Image.objects.filter(pk=self.pk).only("image").first()
+            image_changed = old is None or old.image.name != self.image.name
+
+        if image_changed:
+            self.conv_img_into_webp()
+            self.size = self.image.size
+            self.width = self.image.width
+            self.height = self.image.height
+            self.image_address = self.image.url
+
         return super().save(*args, **kwargs)
 
     class Meta:
         db_table = "image"
         verbose_name = _("Image")
         verbose_name_plural = _("Images")
-        ordering = ('-created_at',)
 
 
 class State(models.Model):

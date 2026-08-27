@@ -2,13 +2,14 @@ import uuid
 from datetime import timedelta
 from random import randint
 
-from django.contrib.auth.models import PermissionsMixin, AbstractBaseUser, UserManager
+from django.contrib.auth.models import PermissionsMixin, AbstractBaseUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from django.contrib.postgres.fields.array import ArrayField
 from treebeard.mp_tree import MP_Node
 
+from apps.account_app.managers import UserManager
 from apps.account_app.validators import MobileRegexValidator, NationCodeRegexValidator, validate_upload_image_user
 from apps.core_app.models import UpdateMixin, SoftDeleteMixin, CreateMixin, State, City
 
@@ -70,7 +71,7 @@ class User(AbstractBaseUser, PermissionsMixin, UpdateMixin, SoftDeleteMixin, Cre
         return not self.is_coach
 
     def __str__(self):
-        return self.pk
+        return self.mobile_phone
 
     @property
     def user_image_url(self):
