@@ -1,7 +1,7 @@
 from rest_framework import viewsets, permissions
 
+from apps.core_app.models import Image
 from . import serializers
-from images.models import Image
 
 
 class ImageViewSet(viewsets.ModelViewSet):

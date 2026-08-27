@@ -1,7 +1,7 @@
 from rest_framework import viewsets, generics, permissions
 
-from account_app.models import BestStudent, Student, Coach, User
-from utils.pagination import CommonPagination
+from apps.account_app.models import BestStudent, Student, Coach, User
+from base.utils.pagination import CommonPagination
 from . import serializers
 from ...utils.permissions import CoachAndAdminPermission
 
@@ -62,22 +62,3 @@ class AdminCoachApiView(generics.ListAPIView):
             return queryset.filter(user__mobile_phone__contains=phone)
         else:
             return queryset
-
-
-# class AdminUserApiView(generics.ListAPIView):
-    # """
-    # show list user
-    # permission --> admin
-    # filter query --> ?phone=phone_number
-    # """
-    # queryset = User.objects.only("mobile_phone", "first_name", "last_name", "is_coach", "is_active")
-    # serializer_class = serializers.AdminUserListSerializer
-    # permission_classes = (permissions.IsAdminUser,)
-    #
-    # def filter_queryset(self, queryset):
-    #     phone = self.request.query_params.get("phone", None)
-    #
-    #     if phone:
-    #         return queryset.filter(mobile_phone__icontains=phone)
-    #     else:
-    #         return queryset

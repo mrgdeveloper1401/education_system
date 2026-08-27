@@ -1,7 +1,7 @@
 from rest_framework import mixins, viewsets, permissions, generics
 
 from . import serializers
-from course_app.models import Course, Category
+from apps.course_app.models import Course, Category
 
 
 class ListDetailCourseView(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):

@@ -3,12 +3,17 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework import mixins
 
 
-from advertise_app.models import ConsultationTopic, ConsultationSchedule, ConsultationSlot, ConsultationRequest
-from utils.pagination import AnswerPagination
+from apps.advertise_app.models import ConsultationTopic, ConsultationSchedule, ConsultationSlot, ConsultationRequest
+from base.utils.pagination import AnswerPagination
 from .filter_class import AdvertiseFilter
 
-from .serializers import ConsultationTopicSerializer, ConsultationScheduleSerializer, ConsultationSlotSerializer, \
-    UserConsultationRequestSerializer, ConsultationRequestAnswerSerializer
+from .serializers import (
+    ConsultationTopicSerializer,
+    ConsultationScheduleSerializer,
+    ConsultationSlotSerializer,
+    UserConsultationRequestSerializer,
+    ConsultationRequestAnswerSerializer
+)
 
 
 class ConsultationTopicViewSet(ModelViewSet):

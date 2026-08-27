@@ -2,8 +2,6 @@ services:
   db:
     container_name: education_postgres
     image: docker.arvancloud.ir/postgres:17-alpine
-    ports:
-      - "5432:5432"
     expose:
       - 5432
     volumes:
@@ -14,17 +12,30 @@ services:
       - POSTGRES_USER=${POSTDB_USER}
       - POSTGRES_DB=${POSTDB_NAME}
     healthcheck:
-      test: ['CMD', "pg_isready -U postgres -d ${POSTDB_NAME}"]
+      test: ["CMD", "pg_isready", "-U", "${POSTDB_USER}", "-d", "${POSTDB_NAME}"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 2
+      start_period: 5s
 
   redis:
     container_name: education_redis
     image: docker.arvancloud.ir/redis:8-alpine
-    restart: always
+    command: >
+      redis-server
+      --loglevel warning
+      --appendonly no
+      --save ""
+      --maxmemory 1000mb
+      --maxmemory-policy allkeys-lru
     expose:
       - 6379
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 2
+      start_period: 5s
 
   nginx:
     container_name: education_nginx
@@ -39,21 +50,25 @@ services:
       - "80:80"
       - "443:443"
     depends_on:
-      - app
+      app:
+        condition: service_started
 
   app:
     container_name: django
     build:
       context: .
       dockerfile: dockerfile/prod/django/Dockerfile
-    ports:
-      - "8000:8000"
     expose:
       - 8000
     volumes:
       - static_files:/home/app/staticfiles
     env_file: ".env"
     restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   celery:
     container_name: education_celery
@@ -61,31 +76,37 @@ services:
     build:
       context: .
       dockerfile: dockerfile/prod/celery/Dockerfile
-    environment:
-      - CELERY_BROKER_URL=redis://education_redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://education_redis:6379/1
-    entrypoint: "celery -A education_system.dj_celery worker -l INFO -Q advertise,reminder,course_signup,referral_process,coupon_send,create_qrcode,notification"
+    entrypoint: "celery -A base worker -l INFO"
     env_file: ".env"
+    depends_on:
+      redis:
+        condition: service_healthy
+      app:
+        condition: service_started
 
   celery_beat:
     container_name: education_celery_beat
     restart: always
-    build: .
+    build:
+      context: .
+      dockerfile: dockerfile/prod/celery/Dockerfile
     depends_on:
-      - celery
-    environment:
-      - CELERY_BROKER_URL=redis://education_redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://education_redis:6379/1
-    entrypoint: "celery -A education_system.dj_celery beat"
+      celery:
+        condition: service_started
+    entrypoint: "celery -A base beat"
     env_file: ".env"
 
-#  pg_hero:
-#    container_name: pg_hero
-#    image: docker.arvancloud.ir/ankane/pghero
-#    ports:
-#      - "8080:8080"
-#    environment:
-#      - DATABASE_URL=postgres://${COMPOSE_POSTGRES_USER}:${COMPOSE_POSTGRES_PASSWORD}@db:5432/${COMPOSE_POSTGRES_DB}
+  flower:
+    container_name: education_flower
+    restart: always
+    build:
+      context: .
+      dockerfile: dockerfile/prod/celery/Dockerfile
+    depends_on:
+      celery:
+        condition: service_started
+    entrypoint: "celery -A base flower"
+    env_file: "env_folder/flower.env"
 
 volumes:
   static_files:

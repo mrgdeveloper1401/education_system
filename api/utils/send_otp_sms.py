@@ -1,4 +1,4 @@
-import asyncio
+# TODO, change async into sync
 import httpx
 from decouple import config
 

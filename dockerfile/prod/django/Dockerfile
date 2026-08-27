@@ -4,13 +4,9 @@ WORKDIR /home/app
 
 COPY . .
 
-# RUN adduser -D -H mohammad && \
-#     chown -R mohammad:mohammad /home/app
-RUN chmod +x /home/app/dockerfile/prod/django/start.sh
-
-# USER mohammad
+RUN chmod +x /home/app/scripts/start.sh
 
 EXPOSE 8000
 
 # CMD /bin/bash
-ENTRYPOINT ["/home/app/dockerfile/prod/django/start.sh"]
+ENTRYPOINT ["/home/app/scripts/start.sh"]

@@ -1,10 +1,11 @@
+# TODO, edit otp
 from rest_framework import serializers, exceptions
 
-from account_app.models import User, Otp
+from apps.account_app.models import User
 from api.utils.send_otp_sms import sync_send_otp_sms
-from course_app.models import Course
-from order_app.models import Order, CourseSignUp
-from order_app.tasks import send_successfully_signup, process_referral
+from apps.course_app.models import Course
+from apps.order_app.models import Order, CourseSignUp
+from apps.order_app.tasks import send_successfully_signup, process_referral
 
 
 class OrderSerializer(serializers.ModelSerializer):

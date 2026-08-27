@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from main_setting_app.models import Banner, HeaderSite
+from apps.core_app.models import Banner, HeaderSite
 
 
 class BannerSerializer(serializers.ModelSerializer):

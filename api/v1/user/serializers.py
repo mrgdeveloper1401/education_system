@@ -1,3 +1,4 @@
+# TODO, remove adrf project, and edit otp
 from django.utils import timezone
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework.exceptions import ValidationError
@@ -11,9 +12,19 @@ from rest_framework import generics
 from rest_framework import exceptions
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from account_app.models import User, Otp, State, City, Student, Coach, Ticket, TicketRoom, BestStudent, \
-    PrivateNotification, Invitation
-from account_app.validators import MobileRegexValidator
+from apps.account_app.models import (
+    User,
+    State,
+    City,
+    Student,
+    Coach,
+    Ticket,
+    TicketRoom,
+    BestStudent,
+    PrivateNotification,
+    Invitation
+)
+from apps.account_app.validators import MobileRegexValidator
 
 
 class UserLoginSerializer(serializers.Serializer):

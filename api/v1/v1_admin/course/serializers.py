@@ -1,12 +1,25 @@
+# TODO, edit otp
 from django.db.models.signals import post_save
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers, exceptions
-from django.utils.translation import gettext_lazy as _
 
-from account_app.models import Student, Otp, Coach
-from course_app.enums import StudentStatusEnum
-from course_app.models import Category, Course, Section, SectionFile, SectionVideo, LessonCourse, Certificate, \
-    PresentAbsent, SectionQuestion, AnswerQuestion, Comment, SignupCourse, StudentEnrollment, StudentAccessSection
+from apps.account_app.models import Student, Coach
+from apps.course_app.models import (
+    Category,
+    Course,
+    Section,
+    SectionFile,
+    SectionVideo,
+    LessonCourse,
+    Certificate,
+    PresentAbsent,
+    SectionQuestion,
+    AnswerQuestion,
+    Comment,
+    SignupCourse,
+    StudentEnrollment,
+    StudentAccessSection
+)
 
 
 class CreateCategorySerializer(serializers.ModelSerializer):
@@ -241,7 +254,7 @@ class SignUpCourseSerializer(serializers.ModelSerializer):
         # get referral_code is exits yes or no
         referral_student = Student.objects.filter(referral_code=referral_code).only("student_number")
 
-        Otp.objects.create(mobile_phone=validated_data['phone_number'])
+        # Otp.objects.create(mobile_phone=validated_data['phone_number'])
         return data
 
 

@@ -10,9 +10,8 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Prefetch, F
 from django.utils.translation import gettext_lazy as _
 
-from account_app.models import User
-from blog_app.models import CategoryBlog, PostBlog, TagBlog, FavouritePost, CommentBlog, Like
-from utils.pagination import CommonPagination
+from apps.account_app.models import User
+from apps.blog_app.models import CategoryBlog, PostBlog, TagBlog, FavouritePost, CommentBlog, Like
 from .serializers import (
     CategoryBlogSerializer,
     PostBlogSerializer,
@@ -28,6 +27,7 @@ from .serializers import (
     DetailLatestPostSerializer,
     SeoPostBlogSerializer
 )
+from ..course.paginations import CommonPagination
 
 
 class CategoryBlogViewSet(viewsets.ModelViewSet):

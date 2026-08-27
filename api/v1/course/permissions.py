@@ -1,6 +1,6 @@
 from rest_framework import permissions
 
-from course_app.models import StudentAccessSection
+from apps.course_app.models import StudentAccessSection
 
 
 class IsCoachPermission(permissions.BasePermission):

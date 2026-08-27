@@ -1,11 +1,8 @@
-from celery import Celery
+# base/dj_celery.py
 import os
-from base.base import DEBUG
+from celery import Celery
 
-os.environ.setdefault(
-    'DJANGO_SETTINGS_MODULE',
-    "education_system.envs.development" if DEBUG else "education_system.envs.production"
-)
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "base.settings")
 
 app = Celery()
 app.config_from_object("django.conf:settings", namespace="CELERY")

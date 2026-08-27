@@ -2,7 +2,7 @@ from django.utils import timezone
 from rest_framework import views, exceptions, response
 
 from . import serializers
-from discount_app.models import Coupon
+from apps.discount_app.models import Coupon
 
 
 class ValidateCouponCodeView(views.APIView):

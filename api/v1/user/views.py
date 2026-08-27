@@ -1,3 +1,4 @@
+# TODO, remove adrf and edit otp
 import jwt
 from django.contrib.auth.hashers import make_password
 from django.db.models import Prefetch
@@ -19,19 +20,29 @@ from rest_framework.validators import ValidationError
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from adrf.views import APIView as AsyncAPIView
 
-from account_app.models import User, State, City, Student, Coach, Ticket, TicketRoom, BestStudent, PrivateNotification, \
-    Otp, Invitation
-from utils.filters import UserFilter
-from utils.pagination import StudentCoachTicketPagination
-from utils.permissions import NotAuthenticate
+from apps.account_app.models import (
+    User,
+    State,
+    City,
+    Student,
+    Coach,
+    Ticket,
+    TicketRoom,
+    BestStudent,
+    PrivateNotification,
+    Invitation
+)
+from base.settings import SIMPLE_JWT
+from base.utils.filters import UserFilter
+from base.utils.pagination import StudentCoachTicketPagination
+from base.utils.permissions import NotAuthenticate
 from .filters import TicketRoomFilter
 from .pagination import UserPagination, CityPagination, BestStudentPagination
 from .permissions import TicketRoomPermission
-from base.base import SIMPLE_JWT
 from . import serializers
 from .utils import get_token_for_user
 from ..course.paginations import CommonPagination
-from ...utils.custom_permissions import AsyncNotAuthenticated
+from ...utils.permissions import AsyncNotAuthenticated
 from ...utils.send_otp_sms import async_send_otp_sms
 
 

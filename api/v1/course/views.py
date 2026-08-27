@@ -2,15 +2,40 @@ from django.db.models import Prefetch, Q
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter, extend_schema_view
-from rest_framework import mixins, viewsets, permissions, decorators, response, status, exceptions, views, generics, \
+from rest_framework import (
+    mixins,
+    viewsets,
+    permissions,
+    decorators,
+    response,
+    status,
+    exceptions,
+    views,
+    generics,
     filters
+)
 from rest_framework.permissions import IsAuthenticated
 
-from course_app.enums import StudentStatusEnum
-# from accounts.models import Student
-from course_app.models import Comment, SectionVideo, SectionFile, LessonCourse, StudentSectionScore, \
-    PresentAbsent, StudentAccessSection, SendSectionFile, OnlineLink, SectionQuestion, Section, \
-    Category, CallLessonCourse, Course, Certificate, CourseTypeModel, StudentEnrollment
+from apps.course_app.enums import StudentStatusEnum
+from apps.course_app.models import (
+    Comment,
+    SectionVideo,
+    SectionFile,
+    LessonCourse,
+    StudentSectionScore,
+    PresentAbsent,
+    StudentAccessSection,
+    SendSectionFile,
+    OnlineLink,
+    SectionQuestion,
+    Section,
+    Category,
+    CallLessonCourse,
+    Course,
+    Certificate,
+    CourseTypeModel,
+    StudentEnrollment
+)
 from .filters import LessonCourseFilter
 
 from .pagination import CommentPagination
@@ -18,27 +43,6 @@ from .paginations import CommonPagination
 
 from . import serializers
 from .permissions import IsCoachPermission, IsAccessPermission, IsOwnerOrReadOnly
-
-
-# class CertificateTemplateViewSet(viewsets.ModelViewSet):
-#     serializer_class = serializers.CertificateTemplateSerializer
-#
-#     def get_permissions(self):
-#         if self.action in ("create", "update", "partial_update", "destroy"):
-#             self.permission_classes = (permissions.IsAdminUser,)
-#         else:
-#             self.permission_classes = (permissions.IsAuthenticated,)
-#         return super().get_permissions()
-#
-#     def get_queryset(self):
-#         queryset = CertificateTemplate.objects.only(
-#             "template_image",
-#             "is_active"
-#         )
-#
-#         if self.request.user.is_staff is False:
-#             queryset = queryset.filter(is_active=True)
-#         return queryset
 
 
 class PurchasesViewSet(viewsets.ReadOnlyModelViewSet):

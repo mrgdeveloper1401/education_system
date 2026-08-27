@@ -94,16 +94,6 @@ fabric.properties
 ### VirtualEnv template
 # Virtualenv
 # http://iamzed.com/2009/05/07/a-primer-on-virtualenv/
-.Python
-[Bb]in
-[Ii]nclude
-[Ll]ib
-[Ll]ib64
-[Ll]ocal
-[Ss]cripts
-pyvenv.cfg
-.venv
-pip-selfcheck.json
 
 ### Django template
 *.log
@@ -121,7 +111,6 @@ media
 
 ### Python template
 # Byte-compiled / optimized / DLL files
-__pycache__/
 *.py[cod]
 *$py.class
 
@@ -129,7 +118,6 @@ __pycache__/
 *.so
 
 # Distribution / packaging
-.Python
 build/
 develop-eggs/
 dist/
@@ -175,14 +163,8 @@ cover/
 
 # Translations
 *.mo
-*.pot
 
 # Django stuff:
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
-
 # Flask stuff:
 instance/
 .webassets-cache
@@ -243,7 +225,6 @@ celerybeat.pid
 
 # Environments
 .env
-.venv
 env/
 venv/
 ENV/
@@ -300,9 +281,9 @@ nginx/README
 nginx/codeima
 base_image_docker
 test.json
-nginx/codeima
 test_code.py
 mobile_backend
 education-mobile/
 postdb.env
 dockerfile/envs/db/postdb.env
+env_folder

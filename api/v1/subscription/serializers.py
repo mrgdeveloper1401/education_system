@@ -1,16 +1,16 @@
-import json
+# TODO, edit zibal
 from datetime import timedelta
+
 from django.conf import settings
 from django.utils import timezone
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers, exceptions
 from django.utils.translation import gettext_lazy as _
 
-from course_app.enums import PlanTypeEnum
-from course_app.models import Course, CourseTypeModel
-from discount_app.models import Coupon, UserCoupon
-from subscription_app.models import Subscription, PaymentSubscription, PaymentVerify
-from utils.gateway import Zibal
+from apps.course_app.enums import PlanTypeEnum
+from apps.course_app.models import Course, CourseTypeModel
+from apps.discount_app.models import Coupon, UserCoupon
+from apps.subscription_app.models import Subscription, PaymentSubscription, PaymentVerify
 
 
 class SubscriptionSerializer(serializers.ModelSerializer):

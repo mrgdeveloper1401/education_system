@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from discount_app.models import Coupon
+from apps.discount_app.models import Coupon
 
 
 class ValidateCouponCodeSerializer(serializers.ModelSerializer):

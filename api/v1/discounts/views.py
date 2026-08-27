@@ -1,7 +1,7 @@
 from rest_framework import viewsets, permissions, mixins
 from django.utils import timezone
 
-from discount_app.models import Discount, Coupon
+from apps.discount_app.models import Discount, Coupon
 from . import serializers
 
 

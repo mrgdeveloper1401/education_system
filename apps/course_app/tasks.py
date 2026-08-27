@@ -3,8 +3,8 @@ import qrcode
 from io import BytesIO
 from django.core.files.base import ContentFile
 
-from account_app.models import User, PrivateNotification
-from course_app.models import Certificate
+from apps.account_app.models import User, PrivateNotification
+from apps.course_app.models import Certificate
 
 
 @shared_task(queue="create_qrcode")

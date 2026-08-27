@@ -1,4 +1,4 @@
-FROM docker.arvancloud.ir/nginx:1.29-alpine
+FROM docker.arvancloud.ir/nginx:1.30-alpine
 
 RUN cp /dev/null /etc/apk/repositories && \
     echo "https://mirror.mobinhost.com/alpine/v3.22/main" >> /etc/apk/repositories && \
@@ -7,4 +7,5 @@ RUN cp /dev/null /etc/apk/repositories && \
     apk upgrade && \
     apk add bash curl && \
     mkdir -p /var/www/static && \
-    mkdir -p /etc/letsencrypt/live/codeima
+    mkdir -p /etc/letsencrypt/
+

@@ -1,8 +1,8 @@
 from rest_framework import viewsets, permissions, generics
 
-from course_app.models import Course
-from discount_app import models
-from discount_app.models import Discount
+from apps.course_app.models import Course
+from apps.discount_app import models
+from apps.discount_app.models import Discount
 from . import serializers
 from ...course.paginations import CommonPagination
 

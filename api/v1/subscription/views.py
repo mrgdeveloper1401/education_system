@@ -1,10 +1,9 @@
+# TODO, edit zibal
 from django.conf import settings
 from rest_framework import viewsets, permissions, mixins, views, response, status, generics, exceptions
 
-from subscription_app.models import Subscription, PaymentSubscription, PaymentVerify
-from utils.gateway import BitPay, Zibal
+from apps.subscription_app.models import Subscription, PaymentSubscription, PaymentVerify
 from . import serializers
-# from .serializers import VerifyPaymentSerializer
 from ..course.paginations import CommonPagination
 
 

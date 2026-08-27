@@ -1,6 +1,6 @@
 from django_filters.rest_framework import filterset
 
-from advertise_app.models import ConsultationSlot
+from apps.advertise_app.models import ConsultationSlot
 
 
 class AdvertiseFilter(filterset.FilterSet):

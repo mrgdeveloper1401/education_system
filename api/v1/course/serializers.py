@@ -5,13 +5,30 @@ from rest_framework.generics import get_object_or_404
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from account_app.models import Student, PrivateNotification
-from course_app.enums import RateChoices, StudentStatusChoices
-from course_app.models import Course, Category, Comment, Section, SectionVideo, SectionFile, SendSectionFile, LessonCourse, \
-    StudentSectionScore, PresentAbsent, StudentAccessSection, OnlineLink, SectionQuestion, AnswerQuestion, \
-    CallLessonCourse, Certificate, CourseTypeModel, StudentEnrollment, CertificateTemplate
-from discount_app.models import Discount
-from course_app.tasks import create_qr_code, admin_user_request_certificate, send_notification_when_score_is_accepted
+from apps.account_app.models import Student, PrivateNotification
+from apps.course_app.models import (
+    Course,
+    Category,
+    Comment,
+    Section,
+    SectionVideo,
+    SectionFile,
+    SendSectionFile,
+    LessonCourse,
+    StudentSectionScore,
+    PresentAbsent,
+    StudentAccessSection,
+    OnlineLink,
+    SectionQuestion,
+    AnswerQuestion,
+    CallLessonCourse,
+    Certificate,
+    CourseTypeModel,
+    StudentEnrollment, StudentStatusChoices
+)
+from apps.discount_app.models import Discount
+from apps.course_app.tasks import create_qr_code, admin_user_request_certificate, send_notification_when_score_is_accepted
+from apps.course_app.enums import RateChoices
 
 
 class CategoryTreeNodeSerializer(serializers.ModelSerializer):

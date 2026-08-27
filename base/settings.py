@@ -1,11 +1,9 @@
-import datetime
-import os.path
 from datetime import timedelta
 from pathlib import Path
 from decouple import config, Csv
 from kombu import Queue
 
-from base.dj_ckeditor_config import CKEDITOR_5_CONFIGS, customColorPalette
+from base.dj_ckeditor_config import *
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -140,7 +138,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 LANGUAGE_CODE = "en-us"
 
-TIME_ZONE = "Asia/Tehran"
+TIME_ZONE = config("TIME_ZONE", cast=str, default="Asia/Tehran")
 
 USE_I18N = True
 
@@ -173,9 +171,11 @@ SPECTACULAR_SETTINGS = {
     'REDOC_DIST': 'SIDECAR',
 }
 
+ACCESS_TOKEN_LIFETIME = config("ACCESS_TOKEN_LIFETIME", cast=int, default=7)
+REFRESH_TOKEN_LIFETIME = config("REFRESH_TOKEN_LIFETIME", cast=int, default=365)
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(days=7),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=365),
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=ACCESS_TOKEN_LIFETIME),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=REFRESH_TOKEN_LIFETIME),
 }
 
 # default storages
@@ -183,7 +183,6 @@ STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
     "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
 }
-
 
 # config django storage
 USE_DJANGO_STORAGES = config("USE_DJANGO_STORAGES", cast=bool, default=True)
@@ -195,7 +194,7 @@ if USE_DJANGO_STORAGES:
     AWS_ACCESS_KEY_ID = config("S3_ACCESS_KEY", cast=str, default="")
     AWS_SECRET_ACCESS_KEY = config("S3_SECRET_KEY", cast=str, default="")
     AWS_STORAGE_BUCKET_NAME = config("S3_BUCKET_NAME", cast=str, default="")
-    AWS_S3_ENDPOINT_URL = config("S3_BUCKET_URL", cast=str, default="")
+    AWS_S3_ENDPOINT_URL = config("S3_BUCKET_NAME", cast=str, default="")
     AWS_S3_FILE_OVERWRITE = config("S3_FILE_OVERWRITE", cast=bool, default=False)
     AWS_S3_MAX_MEMORY_SIZE = config(
         "S3_MAX_MEMORY_SIZE", cast=int, default=2097152
@@ -259,7 +258,7 @@ if USE_CELERY:
 
 # define queue
 CELERY_QUEUES = (
-    # Queue("sms_otp"),
+    Queue("sms_otp"),
     Queue("coupon_send"),
     Queue("advertise"),
     Queue("reminder"),
@@ -289,11 +288,7 @@ CACHES = {
                 "SOCKET_DEFAULT_CONNECT_TIMEOUT", default=5, cast=int
             ),
             "SOCKET_TIMEOUT": config("SOCKET_DEFAULT_TIMEOUT", default=5, cast=int),
-            # "COMPRESSOR": config("REDIS_DEFAULT_COMPRESSOR", default="django_redis.compressors.zlib.ZlibCompressor"),
             "TIMEOUT": config("CACHE_DEFAULT_TIMEOUT", cast=int, default=1209600),
-            # "COMPRESSOR_KWARGS": {
-            #     "level": config("COMPRESSOR_DEFAULT_LEVEL_ARGS", default=5, cast=int)
-            # },
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
             "CONNECTION_POOL_KWARGS": {
                 "max_connections": config("REDIS_MAX_CONNECTION", cast=int, default=20),
@@ -315,9 +310,6 @@ CACHES = {
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-BITPAY_MERCHANT_ID=config("GATEWAY_ID", cast=str)
-BITPAY_CALLBACK_URL='https://api.codeima.ir/api_subscription/verify_payment/?trans_id={trans_id}&id_get={id_get}'
-
 ZIBAL_CALLBACK_URL="https://codeima.ir//p-student/subscription/result-payment/"
 ZIBAL_MERCHENT_ID=config("ZIBAL_MERCHENT_ID", cast=str)
 
@@ -335,3 +327,8 @@ if USE_DEBUG_TOOLBAR and DEBUG:
     INTERNAL_IPS = [
         "127.0.0.1",
     ]
+
+# django-extensions
+USE_DJ_EXTENSIONS = config("USE_DJ_EXTENSIONS", default=True, cast=bool)
+if USE_DJ_EXTENSIONS:
+    INSTALLED_APPS.append("django_extensions")

@@ -1,3 +1,4 @@
+# TODO, edit sms
 # import aiohttp
 import string
 import datetime
@@ -8,10 +9,10 @@ import asyncio
 from celery import shared_task
 from django.utils import timezone
 
-from account_app.models import Student, Invitation, PrivateNotification
-from discount_app.models import Coupon
-# from education_system.dj_celery import app
-from utils.send_sms import SmsIrPanel
+from apps.account_app.models import Student, Invitation, PrivateNotification
+from apps.discount_app.models import Coupon
+
+# from utils.send_sms import SmsIrPanel
 
 # url = "https://rest.payamak-panel.com/api/SendSMS/SendSMS"
 
@@ -22,10 +23,10 @@ from utils.send_sms import SmsIrPanel
 # TEXT = "کاربر گرامی ثبت شما با موفقیت انجام شد نام کاربری و رمز عبور شما به ترتیب برابر است با "
 
 # create instance of sms panel .ir
-instance = SmsIrPanel(
-        api_key=config("SMS_IR_API_KEY", cast=str),
-        base_url=config("SMS_IR_BASE_URL", cast=str),
-    )
+# instance = SmsIrPanel(
+#         api_key=config("SMS_IR_API_KEY", cast=str),
+#         base_url=config("SMS_IR_BASE_URL", cast=str),
+#     )
 
 
 # @app.task(bind=True)
