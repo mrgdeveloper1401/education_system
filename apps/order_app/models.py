@@ -22,7 +22,7 @@ class CourseSignUp(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 
 class Order(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    course = models.ForeignKey("course.Course", on_delete=models.CASCADE, related_name="orders")
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="orders")
     price = models.FloatField()
     mobile_phone = models.CharField(max_length=15)
 
