@@ -4,8 +4,6 @@ WORKDIR /home/app
 
 COPY . .
 
-RUN chmod +x /home/app/scripts/*
-
 EXPOSE 8000
 
 # CMD /bin/bash
