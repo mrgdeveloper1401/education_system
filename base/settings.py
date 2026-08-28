@@ -332,3 +332,54 @@ if USE_DEBUG_TOOLBAR and DEBUG:
 USE_DJ_EXTENSIONS = config("USE_DJ_EXTENSIONS", default=True, cast=bool)
 if USE_DJ_EXTENSIONS:
     INSTALLED_APPS.append("django_extensions")
+
+USE_SSL_CONFIG = config("USE_SSL_CONFIG", cast=bool, default=False)
+if USE_SSL_CONFIG:
+    # Https/ssl settings
+    SECURE_SSL_REDIRECT = True  # redirect http request into https request
+    USE_X_FORWARDED_HOST = True  # use header x-forwarded-host
+    USE_X_FORWARDED_PORT = True  # use header x-forwarded-port
+
+    # HSTS settings
+    SECURE_HSTS_SECONDS = 31536000  # 1 year, hsts validity period
+    SECURE_HSTS_PRELOAD = True  #
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True  # active hsts into subdomain
+
+    # cookie
+    SESSION_COOKIE_SECURE = True  # session cookie only https
+    SESSION_COOKIE_DOMAIN = config(
+        "SESSION_COOKIE_DOMAIN", cast=str
+    )  # for example --> .example.com, domain cookie
+    SESSION_COOKIE_HTTPONLY = True  # prevent access with by javascript
+
+    # csrf
+    CSRF_COOKIE_SECURE = True  # send cookie csrf only https
+    CSRF_COOKIE_HTTPONLY = True  # csrf prevent access javascript
+    CSRF_COOKIE_SAMESITE = "Strict"  # Prevent cookie requests on cross-site requests
+    CSRF_COOKIE_DOMAIN = config(
+        "CSRF_COOKIE_DOMAIN", cast=str
+    )  # for example --> .example.com, domain csrf cookie
+    CSRF_COOKIE_AGE = 3600  # csrf cookie validity period
+
+    # Content Security Settings
+    SECURE_CONTENT_TYPE_NOSNIFF = True  # prevent mime sniffing
+    SECURE_BROWSER_XSS_FILTER = True  # active filter xss in browser
+    SECURE_REFERRER_POLICY = (
+        "strict-origin-when-cross-origin"  # control information  on source request
+    )
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+    # Frame & Clickjacking Protection
+    X_FRAME_OPTIONS = "DENY"  # prevent show iframe
+
+
+# use cors
+USE_CORS = config("USE_CORS", default=False, cast=bool)
+if USE_CORS and not DEBUG:
+    MIDDLEWARE.insert(0, "corsheaders.middleware.CorsMiddleware")
+    CORS_ALLOWED_ORIGINS = config("CORS_ALLOWED_ORIGINS", cast=Csv())
+    INSTALLED_APPS.append("corsheaders")
+
+    USE_DEV_CORS = config("USE_DEV_CORS", default=False, cast=bool)
+    if USE_DEV_CORS:
+        CORS_ALLOWED_ORIGINS.append("http://localhost:3000")

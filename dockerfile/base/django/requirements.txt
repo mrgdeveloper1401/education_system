@@ -18,9 +18,10 @@ drf-spectacular-sidecar==2026.8.1
 gunicorn==26.2.0
 httpx==0.28.1
 pillow==12.3.0
-psycopg[cpool]==3.3.4
+psycopg[c,pool]==3.3.4
 python-decouple==3.8
 qrcode==8.2
 msgpack==1.2.2
 jdatetime==6.1.0
 flower==2.1.0
+django-extensions==4.1

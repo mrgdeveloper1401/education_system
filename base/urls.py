@@ -52,12 +52,12 @@ urlpatterns = [
 urlpatterns += swagger_url + api_url + api_admin + v1_api_mobile
 
 DEBUG = config("DEBUG", cast=bool)
-MEDIA_URL = config("MEDIA_URL", cast=str)
-MEDIA_ROOT = config("MEDIA_ROOT", cast=str)
 
 
 if DEBUG:
     from debug_toolbar.toolbar import debug_toolbar_urls
+    MEDIA_URL = config("MEDIA_URL", cast=str)
+    MEDIA_ROOT = config("MEDIA_ROOT", cast=str)
 
     urlpatterns += debug_toolbar_urls()
     urlpatterns += static(MEDIA_URL, document_root=MEDIA_ROOT)
