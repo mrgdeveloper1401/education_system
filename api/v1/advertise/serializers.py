@@ -4,9 +4,9 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework.exceptions import ValidationError
 from django.utils import timezone
 
-# from advertise_app.tasks import send_sms_accept_advertise
 
 from apps.advertise_app.models import ConsultationTopic, ConsultationSchedule, ConsultationSlot, ConsultationRequest
+from apps.advertise_app.tasks import send_sms_accept_advertise_task
 
 
 class ConsultationTopicSerializer(serializers.ModelSerializer):
@@ -61,7 +61,7 @@ class UserConsultationRequestSerializer(serializers.ModelSerializer):
         data = super().create(validated_data)
         slot_date = data.slot.date
         convert_to_shamsi = jdatetime.date.fromgregorian(date=slot_date)
-        send_sms_accept_advertise.delay(data.mobile_phone, str(convert_to_shamsi))
+        send_sms_accept_advertise_task.delay(data.mobile_phone, str(convert_to_shamsi))
         return data
 
     def to_representation(self, instance):
@@ -82,7 +82,6 @@ class UserConsultationRequestSerializer(serializers.ModelSerializer):
 
 
 class AdminConsultationRequestSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = ConsultationRequest
         exclude = ('deleted_at', "is_deleted")

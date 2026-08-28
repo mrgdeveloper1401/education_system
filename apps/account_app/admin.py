@@ -11,6 +11,7 @@ from . import models
 
 @admin.register(models.User)
 class UserAdmin(ImportExportModelAdmin, BaseUserAdmin):
+    show_full_result_count = False
     add_form_template = "admin/auth/user/add_form.html"
     change_user_password_template = None
     fieldsets = (
@@ -67,12 +68,14 @@ class UserAdmin(ImportExportModelAdmin, BaseUserAdmin):
 
 @admin.register(models.State)
 class StateAdmin(ImportExportModelAdmin):
+    show_full_result_count = False
     list_display = ('id', "state_name")
     search_fields = ('=state_name',)
 
 
 @admin.register(models.City)
 class CityAdmin(ImportExportModelAdmin):
+    show_full_result_count = False
     raw_id_fields = ('state',)
     list_display = ('id', 'state', "city")
     search_fields = ('=city',)
@@ -81,6 +84,7 @@ class CityAdmin(ImportExportModelAdmin):
 
 @admin.register(models.Ticket)
 class TicketAdmin(TreeAdmin):
+    show_full_result_count = False
     raw_id_fields = ('sender', "room")
     list_display = ("id", 'sender', "is_publish", "created_at")
     list_select_related = ('sender',)
@@ -90,6 +94,7 @@ class TicketAdmin(TreeAdmin):
 
 @admin.register(models.TicketRoom)
 class TicketRoomAdmin(admin.ModelAdmin):
+    show_full_result_count = False
     raw_id_fields = ('user',)
     list_display = ("id", 'user', "title_room", "is_active", "is_close", "created_at")
     list_filter = ('is_active', "is_close")
@@ -106,9 +111,11 @@ class TicketRoomAdmin(admin.ModelAdmin):
 
 @admin.register(models.BestStudent)
 class BestStudentAdmin(ImportExportModelAdmin):
+    show_full_result_count = False
     list_display = ('id', "student", "is_publish", "created_at")
     list_per_page = 20
     list_filter = ('is_publish',)
+    list_display_links = ("id", "student")
 
     def get_queryset(self, request):
         return super().get_queryset(request).only(
@@ -118,6 +125,7 @@ class BestStudentAdmin(ImportExportModelAdmin):
 
 @admin.register(models.Student)
 class StudentAdmin(admin.ModelAdmin):
+    show_full_result_count = False
     list_display = ('user', "id", "student_number", "created_at", "get_student_name")
     raw_id_fields = ('user',)
     list_filter = ('created_at',)
@@ -135,6 +143,7 @@ class StudentAdmin(admin.ModelAdmin):
 
 @admin.register(models.Coach)
 class CoachAdmin(admin.ModelAdmin):
+    show_full_result_count = False
     list_display = ('user', "coach_number", "created_at", "get_coach_name")
     raw_id_fields = ('user',)
     list_per_page = 20
@@ -151,6 +160,7 @@ class CoachAdmin(admin.ModelAdmin):
 
 @admin.register(models.PrivateNotification)
 class PrivateNotificationAdmin(admin.ModelAdmin):
+    show_full_result_count = False
     list_display = ('user', "notification_type", "is_read", "created_at")
     raw_id_fields = ('user',)
     list_per_page = 20
@@ -168,9 +178,11 @@ class PrivateNotificationAdmin(admin.ModelAdmin):
 
 @admin.register(models.Invitation)
 class InvitationAdmin(admin.ModelAdmin):
-    list_display = ("from_student", "get_phone_from_student", "get_phone_to_student", "to_student", "created_at")
+    show_full_result_count = False
+    list_display = ("from_student_id", "get_phone_from_student", "get_phone_to_student", "to_student", "created_at")
     list_per_page = 20
     raw_id_fields = ("from_student", "to_student")
+    list_display_links = ("from_student_id", "get_phone_from_student", "get_phone_to_student")
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related(

@@ -1,4 +1,5 @@
-# TODO, edit otp
+from decouple import config
+from django.core.cache import cache
 from django.db.models.signals import post_save
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers, exceptions
@@ -20,6 +21,11 @@ from apps.course_app.models import (
     StudentEnrollment,
     StudentAccessSection
 )
+from base.utils.config import generate_otp_code, get_client_ip
+from apps.account_app.tasks import send_otp_sms_task
+
+
+OTP_TEMPLATE_ID = config("SMS_IR_OTP_TEMPLATE_ID", cast=int)  # TODO, move into config file
 
 
 class CreateCategorySerializer(serializers.ModelSerializer):
@@ -141,18 +147,6 @@ class AdminLessonCourseSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return LessonCourse.objects.create(**validated_data)
-        # class_room = LessonCourse.objects.create(**validated_data)
-
-        # if students:
-        #     lst = [
-        #         StudentEnrollment(
-        #             student=i,
-        #             lesson_course=class_room
-        #         )
-        #         for i in students
-        #     ]
-        #     StudentEnrollment.objects.bulk_create(lst)
-        # return class_room
 
 
 class AdminStudentPresentAbsentSerializer(serializers.ModelSerializer):
@@ -254,7 +248,15 @@ class SignUpCourseSerializer(serializers.ModelSerializer):
         # get referral_code is exits yes or no
         referral_student = Student.objects.filter(referral_code=referral_code).only("student_number")
 
-        # Otp.objects.create(mobile_phone=validated_data['phone_number'])
+        # generate code
+        code = generate_otp_code()
+
+        user_ip = get_client_ip(self.context['request'])
+
+        cache_key = f'otp_{phone}_{code}_{user_ip}'
+        cache.set(cache_key, code, timeout=120)
+        send_otp_sms_task.delay(phone, code, 'otp', OTP_TEMPLATE_ID)
+
         return data
 
 
@@ -271,31 +273,8 @@ class AdminCertificateSerializer(serializers.ModelSerializer):
         model = Certificate
         exclude = ("is_deleted", "deleted_at", "section")
 
-    # def validate(self, attrs):
-    #     student_section = StudentAccessSection.objects.filter(
-    #         student=attrs["student"],
-    #         is_access=True,
-    #         section__is_last_section=True
-    #     ).select_related("section").only("is_access", "section__is_last_section")
-    #
-    #     if not student_section.exists():
-    #         raise exceptions.ValidationError({"message": _("student not appear last section")})
-    #     return attrs
-
-
-# class AdminStudentListCertificateSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Student
-#         fields = ("id", "student_name", "get_student_phone")
-
 
 class SyncAdminCreateStudentSectionSerializer(serializers.Serializer):
-    # section = serializers.PrimaryKeyRelatedField(
-    #     queryset=Section.objects.only("title", "is_publish").filter(is_publish=True)
-    # )
-    # course = serializers.PrimaryKeyRelatedField(
-    #     queryset=Course.objects.only("course_name", "is_publish").filter(is_publish=True)
-    # )
     section = serializers.IntegerField()
     course = serializers.IntegerField()
 

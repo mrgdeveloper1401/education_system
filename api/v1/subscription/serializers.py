@@ -1,4 +1,3 @@
-# TODO, edit zibal
 from datetime import timedelta
 
 from django.conf import settings
@@ -11,6 +10,7 @@ from apps.course_app.enums import PlanTypeEnum
 from apps.course_app.models import Course, CourseTypeModel
 from apps.discount_app.models import Coupon, UserCoupon
 from apps.subscription_app.models import Subscription, PaymentSubscription, PaymentVerify
+from base.utils.gateway import Zibal
 
 
 class SubscriptionSerializer(serializers.ModelSerializer):

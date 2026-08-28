@@ -1,12 +1,18 @@
-# TODO, edit otp
+from decouple import config
+from django.core.cache import cache
 from rest_framework import serializers, exceptions
 
+from apps.account_app.tasks import send_otp_sms_task
 from apps.account_app.models import User
-from api.utils.send_otp_sms import sync_send_otp_sms
 from apps.course_app.models import Course
 from apps.order_app.models import Order, CourseSignUp
-from apps.order_app.tasks import send_successfully_signup, process_referral
+from apps.order_app.tasks import send_successfully_signup_task, process_referral
+from base.utils.config import generate_otp_code, get_client_ip
 
+
+# TODO, move into config file
+OTP_TEMPLATE_ID = config("SMS_IR_OTP_TEMPLATE_ID", cast=int)
+COURSE_SIGNUP_TEMPLATE_ID = config("SMS_IR_COURSE_SIGNUP_TEMPLATE_ID", cast=int)
 
 class OrderSerializer(serializers.ModelSerializer):
     class Meta:
@@ -41,7 +47,7 @@ class CourseSignUpSerializer(serializers.ModelSerializer):
         mobile_phone = validated_data['mobile_phone']
 
         # get user
-        get_user = User.objects.filter(mobile_phone=mobile_phone).only("mobile_phone")
+        get_user = User.objects.filter(mobile_phone=mobile_phone).only("mobile_phone", "first_name", "last_name")
         # check user exits
         if not get_user.exists():
 
@@ -54,20 +60,23 @@ class CourseSignUpSerializer(serializers.ModelSerializer):
             )
 
             # send sms (phone and password) for cussedly signup
-            send_successfully_signup.delay(
+            send_successfully_signup_task.delay(
                 phone=user.mobile_phone,
+                template_id=COURSE_SIGNUP_TEMPLATE_ID,
+                template_name='course_signup',
                 password=user.mobile_phone,
-                full_name=user.get_full_name,
+                full_name=user.get_full_name
             )
 
         else:
-            # create otp
-            otp = Otp.objects.create(
-                mobile_phone=mobile_phone
-            )
+            # generate code
+            code = generate_otp_code()
+            user_ip = get_client_ip(self.context['request'])
+            cache_key = f'otp_{get_user.mobile_phone}_{code}_{user_ip}'
+            cache.set(cache_key, code, timeout=120)
 
             # send sms otp
-            sync_send_otp_sms(otp.mobile_phone, otp.code)
+            send_otp_sms_task.delay(get_user.mobile_phone, code, 'otp', OTP_TEMPLATE_ID)
 
         # if referral_code is exiting, do task
         if referral_code:

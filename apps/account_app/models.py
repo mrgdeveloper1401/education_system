@@ -1,13 +1,15 @@
+import io
 import uuid
-from datetime import timedelta
-from random import randint
+from pathlib import Path
 
+from PIL.ImageOps import exif_transpose
 from django.contrib.auth.models import PermissionsMixin, AbstractBaseUser
+from django.core.files.base import ContentFile
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-
 from django.contrib.postgres.fields.array import ArrayField
 from treebeard.mp_tree import MP_Node
+from PIL import Image as PILImage
 
 from apps.account_app.managers import UserManager
 from apps.account_app.validators import MobileRegexValidator, NationCodeRegexValidator, validate_upload_image_user
@@ -92,8 +94,7 @@ class TicketRoom(CreateMixin, UpdateMixin, SoftDeleteMixin):
     """
     create ticket room
     """
-    user = models.ForeignKey('User', on_delete=models.DO_NOTHING, related_name="ticker_room",
-                             limit_choices_to={'is_active': True})
+    user = models.ForeignKey('User', on_delete=models.DO_NOTHING, related_name="ticker_room")
     title_room = models.CharField(max_length=50, help_text=_("عنوان چت روم تیکت"))
     subject_room = models.CharField(max_length=50, help_text=_("موضوع تیکت"))
     is_active = models.BooleanField(default=True)
@@ -109,12 +110,9 @@ class Ticket(MP_Node, CreateMixin, UpdateMixin, SoftDeleteMixin):
     """
     send ticket to admin
     """
-    room = models.ForeignKey(TicketRoom, on_delete=models.DO_NOTHING, related_name="room",
-                             limit_choices_to={"is_active": True})
-    sender = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='sender',
-                               limit_choices_to={"is_active": True})
-    reply = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="ticket_reply", blank=True, null=True,
-                              limit_choices_to={"is_staff": True, "is_active": True})
+    room = models.ForeignKey(TicketRoom, on_delete=models.DO_NOTHING, related_name="room")
+    sender = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='sender')
+    reply = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="ticket_reply", blank=True, null=True)
     ticket_body = models.TextField(_("متن تیکت"))
     ticket_file = models.FileField(upload_to="ticket/%Y/%m/%d", blank=True, null=True)
     is_publish = models.BooleanField(default=True)
@@ -145,8 +143,7 @@ class Coach(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 
 class Student(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    user = models.OneToOneField(User, on_delete=models.DO_NOTHING, related_name='student',
-                                limit_choices_to={"is_coach": False})
+    user = models.OneToOneField(User, on_delete=models.DO_NOTHING, related_name='student')
     student_number = models.CharField(max_length=11)
     referral_code = models.CharField(max_length=30, blank=True, db_index=True)
     is_active = models.BooleanField(default=True)
@@ -174,16 +171,43 @@ class Student(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 class BestStudent(CreateMixin, UpdateMixin, SoftDeleteMixin):
     student = models.CharField(max_length=50, help_text=_("نام دانش اموز"))
-    student_image = models.ImageField(upload_to="best_student_image/%Y/%m/%d", null=True,
-                                      validators=[validate_upload_image_user], help_text=_("حجم عکس اپلودی نباید بیش تر"
-                                                                                           " از یک مگابایت باشد"))
+    student_image = models.ImageField(
+        upload_to="best_student_image/%Y/%m/%d",
+        null=True,
+        validators=[validate_upload_image_user],
+        help_text=_("حجم عکس اپلودی نباید بیش تر" " از یک مگابایت باشد")
+    )
     is_publish = models.BooleanField(default=True)
     description = models.CharField(max_length=500, null=True)
     attributes = ArrayField(models.CharField(max_length=100), null=True)
 
+    @property
+    def _is_webp(self) -> bool:
+        return Path(self.student_image.name).suffix.lower() == ".webp"
+
+    def conv_img_into_webp(self, quality = 100):
+        if not self.student_image or self._is_webp:
+            return
+
+        buffer = io.BytesIO()
+        with PILImage.open(self.student_image) as img:
+            if getattr(img, "is_animated", False):
+                # گیف متحرک: باید همه فریم‌ها ذخیره بشن
+                img.save(buffer, format="WEBP", quality=quality, save_all=True)
+            else:
+                img = exif_transpose(img)
+                # حفظ کانال آلفا برای png و مشابهش
+                mode = "RGBA" if img.mode in ("RGBA", "LA", "P") else "RGB"
+                img.convert(mode).save(buffer, format="WEBP", quality=quality)
+        new_name = f"{Path(self.student_image.name).stem}.webp"
+        self.student_image.save(new_name, ContentFile(buffer.getvalue()), save=False)
+
+    def save(self, *args, **kwargs):
+        self.conv_img_into_webp()
+        return super().save(*args, **kwargs)
+
     class Meta:
         db_table = 'best_student'
-        ordering = ('-created_at',)
         verbose_name = _("دانش اموز برتر")
         verbose_name_plural = _("دانش اموزان برتر")
 

@@ -1,8 +1,9 @@
 # TODO, remove adrf and edit otp
 import jwt
+from decouple import config
 from django.contrib.auth.hashers import make_password
+from django.core.cache import cache
 from django.db.models import Prefetch
-from django.utils import timezone
 from django.utils.crypto import get_random_string
 from django_filters.rest_framework.backends import DjangoFilterBackend
 from rest_framework.viewsets import ModelViewSet
@@ -14,12 +15,12 @@ from rest_framework.generics import ListAPIView
 from rest_framework.generics import get_object_or_404
 from rest_framework.filters import SearchFilter
 from rest_framework import viewsets, status, generics
-from django.middleware import csrf
 from django.conf import settings
 from rest_framework.validators import ValidationError
 from drf_spectacular.utils import extend_schema, OpenApiParameter
-from adrf.views import APIView as AsyncAPIView
 
+
+from apps.account_app.tasks import send_otp_sms_task
 from apps.account_app.models import (
     User,
     State,
@@ -33,6 +34,7 @@ from apps.account_app.models import (
     Invitation
 )
 from base.settings import SIMPLE_JWT
+from base.utils.config import generate_otp_code, get_client_ip
 from base.utils.filters import UserFilter
 from base.utils.pagination import StudentCoachTicketPagination
 from base.utils.permissions import NotAuthenticate
@@ -42,11 +44,13 @@ from .permissions import TicketRoomPermission
 from . import serializers
 from .utils import get_token_for_user
 from ..course.paginations import CommonPagination
-from ...utils.permissions import AsyncNotAuthenticated
-from ...utils.send_otp_sms import async_send_otp_sms
 
+
+OTP_TEMPLATE_ID = config("SMS_IR_OTP_TEMPLATE_ID", cast=int)  # TODO, move into config file
+FORGET_TEMPLATE_ID = config("SMS_IR_FORGET_TEMPLATE_ID", cast=int)  # TODO, move into config file
 
 class UserLoginApiView(APIView):
+     # TODO, better query api
     serializer_class = serializers.UserLoginSerializer
     permission_classes = (NotAuthenticate,)
 
@@ -59,20 +63,10 @@ class UserLoginApiView(APIView):
 
         # authenticate user
         user = validated_data.get("user")
-        response = Response()
         if user:
             if user.is_active:
                 data = get_token_for_user(user)
-                response.set_cookie(
-                    key=SIMPLE_JWT['AUTH_COOKIE'],
-                    value=data['access'],
-                    expires=SIMPLE_JWT['ACCESS_TOKEN_LIFETIME'],
-                    secure=SIMPLE_JWT['AUTH_COOKIE_SECURE'],
-                    httponly=SIMPLE_JWT['AUTH_COOKIE_HTTP_ONLY'],
-                    samesite=SIMPLE_JWT['AUTH_COOKIE_SAMESITE'],
-                )
-                csrf.get_token(request)
-                response.data = {
+                data = {
                     "data": data,
                     "is_staff": user.is_staff,
                     "is_coach": user.is_coach,
@@ -82,7 +76,7 @@ class UserLoginApiView(APIView):
                 return Response({"message": "this account is not active!"}, status=status.HTTP_403_FORBIDDEN)
         else:
             return Response({"message": "invalid username or password"}, status=status.HTTP_404_NOT_FOUND)
-        return response
+        return Response(data)
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -136,6 +130,7 @@ class BaseApiView(APIView):
 
 
 class StateApiView(APIView):
+    # TODO, cache api
     serializer_class = serializers.StateSerializer
     queryset = State.objects.all
 
@@ -145,6 +140,7 @@ class StateApiView(APIView):
 
 
 class CityApiView(BaseApiView):
+    # TODO, edit api and cache api
     model = City.objects.select_related("state").only("state", "city")
     serializer_class = serializers.CitySerializer
 
@@ -176,64 +172,70 @@ class ChangePasswordApiView(APIView):
             raise ValidationError({"message": "پسورد فعلی شما صحیح نیست"})
 
         request.user.set_password(new_password)
-        request.user.save()
+        request.user.save(update_fields=["password", "updated_at"])
 
         return Response(serializer.data, status=HTTP_200_OK)
 
 
-class ForgetPasswordApiView(AsyncAPIView):
+class ForgetPasswordApiView(APIView):
     serializer_class = serializers.ForgetPasswordSerializer
-    permission_classes = (AsyncNotAuthenticated,)
+    permission_classes = (NotAuthenticate,)
 
-    async def post(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        # get mobile phone in data
+        # get mobile phone and otp_code in data
         mobile_phone = serializer.validated_data['mobile_phone']
 
+        # generate code
+        code = generate_otp_code()
+
+        # get ip address
+        user_ip = get_client_ip(request)
+
         # check user exists
-        if not await User.objects.filter(mobile_phone=mobile_phone, is_active=True).aexists():
-            raise ValidationError({"message": "phone number dose not exits"})
+        user = User.objects.filter(mobile_phone=mobile_phone).only("mobile_phone", "is_active")
+        get_user = user.first() # get user object
+
+        if not user.exists():
+            raise ValidationError({"detail": "phone number dose not exits please signup"}, code="user_not_exist")
+        if not get_user.is_active:
+            raise ValidationError({"detail": "you account is ban!"}, code="account_not_active")
         else:
-            have_otp = await Otp.objects.filter(
-                mobile_phone=mobile_phone,
-                expired_date__gt=timezone.now()
-            ).only(
-                "mobile_phone", "expired_date"
-            ).aexists()
-
-            if have_otp:
-                raise ValidationError({"message": "you have already otp code, please 2 minute wait"})
-            else:
-                otp = await Otp.objects.acreate(mobile_phone=mobile_phone)
-                await async_send_otp_sms(otp.mobile_phone, otp.code)
-                return Response({'message': "code sent"}, status=HTTP_200_OK)
-
+            cache_key = f'forget_{get_user.mobile_phone}_{code}_{user_ip}'
+            cache.set(cache_key, code, timeout=120)
+            send_otp_sms_task.delay(get_user.mobile_phone, code, 'forget_password', FORGET_TEMPLATE_ID)
+            return Response({'message': "code sent"}, status=HTTP_200_OK)
 
 class ConfirmForgetPasswordApiView(APIView):
     serializer_class = serializers.ConfirmForgetPasswordSerializer
     permission_classes = (NotAuthenticate,)
 
     def post(self, request, *args, **kwargs):
-        # TODO better query otp
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         code = serializer.validated_data['code']
         password = serializer.validated_data['confirm_password']
-        otp = Otp.objects.filter(code=code, expired_date__gt=timezone.now()).only("code").last()
+        user_ip = get_client_ip(request)
+        mobile_phone = serializer.validated_data['mobile_phone']
 
-        if not otp:
+        cache_key = f'forget_{mobile_phone}_{code}_{user_ip}'
+        get_cache_key = cache.get(cache_key)
+        if not get_cache_key:
             raise ValidationError({"message": "otp is invalid or expired"})
         else:
-            user = User.objects.filter(mobile_phone=otp.mobile_phone).only("mobile_phone", "password").first()
+            user = User.objects.filter(mobile_phone=mobile_phone).only("mobile_phone", "password", "is_active").first()
 
             if not user:
                 raise ValidationError({"message": "user dose not exits"})
+            if not user.is_active:
+                raise ValidationError({"detail": "you account is ban!"}, code="account_not_active")
             else:
                 user.set_password(password)
-                otp.delete()
+                user.save(update_fields=["password", "updated_at"])
+                cache.delete(cache_key)
                 return Response({"message": "password successfully change"}, status=HTTP_200_OK)
 
 
@@ -289,6 +291,7 @@ class TicketChatViewSet(ModelViewSet):
     """
     send ticket user to admin
     """""
+    # TODO, better query for create ticket
     permission_classes = (TicketRoomPermission,)
     serializer_class = serializers.TicketSerializer
 
@@ -395,14 +398,14 @@ class UserNotificationViewSet(viewsets.ModelViewSet):
             return serializers.CreateUserNotificationSerializer
 
 
-class RequestPhoneView(AsyncAPIView):
+class RequestPhoneView(APIView):
     """
     درخواست کد اعتبار سنجی اگر کاربر وجود نداشته باشید کابر رو به همراه پسورد رندوم ان را میسازد
     """
-    serializer_class = serializers.AsyncRequestPhoneSerializer
-    permission_classes = (AsyncNotAuthenticated,)
+    serializer_class = serializers.RequestPhoneSerializer
+    permission_classes = (NotAuthenticate,)
 
-    async def post(self, request):
+    def post(self, request):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -412,20 +415,30 @@ class RequestPhoneView(AsyncAPIView):
         # generate random password
         random_string = get_random_string(16)
 
-        # استفاده از sync_to_async برای make_password
-        hash_password = make_password(password=random_string)
+        # generate code
+        code = generate_otp_code()
+
+        # get ip address
+        user_ip = get_client_ip(request)
 
         # get user
-        user = await User.objects.filter(mobile_phone=phone).only("id").afirst()
+        user = User.objects.filter(mobile_phone=phone).only("mobile_phone").first()
         if user:
-            # create otp
-            otp = await Otp.objects.acreate(mobile_phone=phone)
+            # set cache
+            cache_key = f'otp_{phone}_{code}_{user_ip}'
+            cache.set(cache_key, code, timeout=120)
+            # send otp sms
+            send_otp_sms_task.delay(phone, code, 'otp', OTP_TEMPLATE_ID)
         else:
-            await User.objects.acreate_user(phone=phone, password=hash_password)
-            otp = await Otp.objects.acreate(mobile_phone=phone)
-
-        # send otp sms
-        await async_send_otp_sms(phone, otp.code)
+            # hash password
+            hash_password = make_password(password=random_string)
+            # create user
+            User.objects.create_user(mobile_phone=phone, password=hash_password)
+            # set cache
+            cache_key = f'{phone}:{code}_{user_ip}'
+            cache.set(cache_key, code, timeout=120)
+            # send otp sms
+            send_otp_sms_task.delay(phone, code, 'otp', OTP_TEMPLATE_ID)
 
         return Response({
             "status": True,
@@ -441,7 +454,7 @@ class RequestOtpVerifyView(APIView):
     permission_classes = (NotAuthenticate,)
 
     def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
+        serializer = self.serializer_class(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
         return Response(
@@ -466,12 +479,11 @@ class InvitationView(generics.ListAPIView):
 
     def get_queryset(self):
         return Invitation.objects.filter(
-            from_student__user=self.request.user
+            from_student__user_id=self.request.user.id
         ).select_related(
             "to_student__user"
         ).only(
             "to_student__user__first_name",
             "to_student__user__last_name",
-            # "to_student__referral_code",
             "created_at"
-        )
+        ).order_by("-id")

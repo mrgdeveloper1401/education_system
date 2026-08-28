@@ -1,12 +1,11 @@
-# TODO, remove adrf project, and edit otp
-from django.utils import timezone
+# TODO, remove adrf project
+from django.core.cache import cache
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework.exceptions import ValidationError
 from rest_framework import serializers
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.password_validation import validate_password
 from drf_spectacular.utils import extend_schema_field
-from adrf.serializers import Serializer as AsyncSerializer
 
 from rest_framework import generics
 from rest_framework import exceptions
@@ -25,6 +24,7 @@ from apps.account_app.models import (
     Invitation
 )
 from apps.account_app.validators import MobileRegexValidator
+from base.utils.config import get_client_ip
 
 
 class UserLoginSerializer(serializers.Serializer):
@@ -42,24 +42,16 @@ class UserLoginSerializer(serializers.Serializer):
         if user:
             # get user
             get_user = user.first()
-            get_user_password = get_user.password
-            # check password
-            if not get_user_password:
-                raise serializers.ValidationError(
-                    {
-                        "message": "mobile phone or password is invalid"
-                    }
-                )
-            else:
-                check_password_user = get_user.check_password(password)
-                if not check_password_user:
+            check_user_password = get_user.check_password(password)
+            if not check_user_password:
                     raise serializers.ValidationError(
                         {
-                            "message": "mobile phone or password is invalid"
+                            "detail": "mobile phone or password is invalid"
                         }
                     )
-                else:
-                    attrs['user'] = get_user
+            else:
+                attrs['user'] = get_user
+
         return attrs
 
 
@@ -178,7 +170,7 @@ class ChangePasswordSerializer(serializers.Serializer):
         return {"message": _("پسورد با موفقیت عوض شد")}
 
 
-class ForgetPasswordSerializer(AsyncSerializer):
+class ForgetPasswordSerializer(serializers.Serializer):
     mobile_phone = serializers.CharField(validators=(MobileRegexValidator(),))
 
 
@@ -186,6 +178,16 @@ class ConfirmForgetPasswordSerializer(serializers.Serializer):
     code = serializers.CharField()
     password = serializers.CharField()
     confirm_password = serializers.CharField()
+    mobile_phone = serializers.CharField(validators=[MobileRegexValidator(),])
+
+    def validate(self, attrs):
+        password = attrs.get("password")
+        confirm_password = attrs.get("confirm_password")
+
+        if password != confirm_password:
+            raise ValidationError({"detail": "password must be same"}, code='password_not_same')
+
+        return attrs
 
 
 class StudentSerializer(serializers.ModelSerializer):
@@ -313,7 +315,7 @@ class PatchUserNotificationSerializer(serializers.ModelSerializer):
         fields = ("is_read",)
 
 
-class AsyncRequestPhoneSerializer(AsyncSerializer):
+class RequestPhoneSerializer(serializers.Serializer):
     mobile_phone = serializers.CharField(
         validators=(MobileRegexValidator(),)
     )
@@ -326,14 +328,17 @@ class RequestPhoneVerifySerializer(serializers.Serializer):
     code = serializers.CharField()
 
     def validate(self, attrs):
-        # check otp
-        otp = Otp.objects.filter(
-            mobile_phone=attrs['mobile_phone'],
-            code=attrs['code'],
-            expired_date__gt=timezone.now()
-        )
-        if not otp.exists():
-            raise exceptions.ValidationError({"message": "otp is invalid or expired"})
+        request = self.context['request']
+
+        user_ip = get_client_ip(request)
+
+        phone = attrs.get("mobile_phone")
+        code = attrs.get("code")
+
+        cache_key = f'otp_{phone}_{code}_{user_ip}'
+        get_cache_key = cache.get(cache_key)
+        if not get_cache_key:
+            raise ValidationError({'detail': "code is invalid or expired"}, code='wrong_code')
 
         else:
             # get user
@@ -343,12 +348,14 @@ class RequestPhoneVerifySerializer(serializers.Serializer):
 
             # check active user
             if user.is_active is False:
-                raise exceptions.ValidationError({"message": "user is banned"})
+                raise exceptions.ValidationError({"message": "user is banned"}, code="user_ban")
             else:
                 # generate token
                 token = RefreshToken.for_user(user)
+
                 # otp delete
-                otp.delete()
+                cache.delete(cache_key)
+
                 attrs["data"] = {
                     "access": str(token.access_token),
                     "refresh": str(token)
@@ -356,23 +363,20 @@ class RequestPhoneVerifySerializer(serializers.Serializer):
                 attrs['is_coach'] = str(user.is_coach)
                 attrs['is_staff'] = str(user.is_staff)
                 attrs['full_name'] = user.get_full_name
+
         return attrs
 
 
 class InvitationSerializer(serializers.ModelSerializer):
     to_student_full_name = serializers.SerializerMethodField()
-    # to_student_referral_code = serializers.SerializerMethodField()
 
     def get_to_student_full_name(self, obj):
         return obj.to_student.user.get_full_name
 
-    # def get_to_student_referral_code(self, obj):
-    #     return obj.to_student.referral_code
-
     class Meta:
         model = Invitation
         fields = (
+            "id",
             "to_student_full_name",
-            # "to_student_referral_code",
             'created_at'
         )

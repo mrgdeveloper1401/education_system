@@ -1,6 +1,4 @@
-import requests
-from decouple import config
-import json
+import httpx
 
 
 class Gateway:
@@ -20,57 +18,6 @@ class Gateway:
     def redirect_url(self, token: str):
         """ساخت آدرس نهایی هدایت کاربر به صفحه پرداخت"""
         raise NotImplementedError
-
-
-class BitPay(Gateway):
-    request_endpoint = "https://bitpay.ir/payment/gateway-send"
-    verify_endpoint = "https://bitpay.ir/payment/gateway-result-second"
-    # TODO, bug fix verify payment argument, auto get api key and redirect url
-    def __init__(self, api_key, call_back_url=None, amount=None, order_id=None, name=None, email=None, description=None):
-        super().__init__(api_key, call_back_url)
-        self.amount = amount
-        self.order_id = order_id
-        self.name = name
-        self.email = email
-        self.description = description
-
-    @property
-    def headers(self):
-        return {
-            "Content-Type": "application/x-www-form-urlencoded",
-        }
-
-    def request_url(self):
-        data = {
-            'api': self.api_key,
-            'redirect': self.call_back_url,
-            'amount': self.amount,
-            'factorId': self.order_id,
-            'name': self.name,
-            'email': self.email,
-            'description': self.description,
-        }
-
-        response = requests.post(url=self.request_endpoint, data=data, headers=self.headers)
-        response_data = response.json()
-        return {
-            "payment_url": self.redirect_url(response_data),
-            "token": response_data,
-        }
-
-    def redirect_url(self, token: str):
-        return f"https://bitpay.ir/payment/gateway-{token}"
-
-    def verify(self, trans_id, id_get):
-        data = {
-            "api": self.api_key,
-            "trans_id": trans_id,
-            "id_get": id_get,
-            "json": 1
-        }
-
-        response = requests.post(url=self.verify_endpoint, data=data, headers=self.headers)
-        return response.json()
 
 
 class Zibal(Gateway):
@@ -93,7 +40,7 @@ class Zibal(Gateway):
             "callbackUrl": self.call_back_url,
             "amount": self.amount
         }
-        response = requests.post(url=self.ZIBAL_REQUEST_URL, headers=self.headers, json=data)
+        response = httpx.post(url=self.ZIBAL_REQUEST_URL, headers=self.headers, json=data)
         return response.json()
 
     def verify(self, *args, **kwargs):
@@ -101,7 +48,7 @@ class Zibal(Gateway):
             "merchant": self.api_key,
             "trackId": kwargs.get("track_id")
         }
-        response = requests.post(url=self.ZIBAL_VERIFY_PAYMENT, headers=self.headers, json=data)
+        response = httpx.post(url=self.ZIBAL_VERIFY_PAYMENT, headers=self.headers, json=data)
         return response.json()
 
 

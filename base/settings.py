@@ -257,8 +257,8 @@ if USE_CELERY:
     )  # اگر مصرف حافظه Worker child از این مقدار (کیلوبایت) بیشتر شد، ری‌استارت شود
 
 # define queue
-CELERY_QUEUES = (
-    Queue("sms_otp"),
+CELERY_TASK_QUEUES = (
+    Queue("otp"),
     Queue("coupon_send"),
     Queue("advertise"),
     Queue("reminder"),
@@ -310,8 +310,8 @@ CACHES = {
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-ZIBAL_CALLBACK_URL="https://codeima.ir//p-student/subscription/result-payment/"
-ZIBAL_MERCHENT_ID=config("ZIBAL_MERCHENT_ID", cast=str)
+ZIBAL_CALLBACK_URL = config("ZIBAL_CALLBACK_URL", cast=str)
+ZIBAL_MERCHENT_ID = config("ZIBAL_MERCHENT_ID", cast=str)
 
 SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db' # cache session database
 

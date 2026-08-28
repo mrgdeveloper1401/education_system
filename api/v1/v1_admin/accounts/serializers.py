@@ -19,9 +19,3 @@ class AdminCouchListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Coach
         fields = ('id', "get_coach_name", "get_coach_phone")
-
-
-# class AdminUserListSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = User
-#         fields = ('id', "mobile_phone", "get_full_name", "is_coach", "is_active")

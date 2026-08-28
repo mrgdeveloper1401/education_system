@@ -2,7 +2,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.authentication import CSRFCheck
 from rest_framework import exceptions
 
-from base import base
+from base.settings import SIMPLE_JWT
 
 
 def enforce_csrf(request):
@@ -21,7 +21,7 @@ class CustomAuthentication(JWTAuthentication):
         header = self.get_header(request)
 
         if not header:
-            raw_token = request.COOKIES.get(base.SIMPLE_JWT['AUTH_COOKIE']) or None
+            raw_token = request.COOKIES.get(SIMPLE_JWT['AUTH_COOKIE']) or None
         else:
             raw_token = self.get_raw_token(header)
         if raw_token is None:

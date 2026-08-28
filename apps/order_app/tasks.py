@@ -1,73 +1,34 @@
-# TODO, edit sms
-# import aiohttp
 import string
 import datetime
 import random
 
-from decouple import config
-import asyncio
 from celery import shared_task
+from decouple import config
 from django.utils import timezone
 
 from apps.account_app.models import Student, Invitation, PrivateNotification
 from apps.discount_app.models import Coupon
+from base.utils.send_sms import send_sms_signup_course, send_sms
 
-# from utils.send_sms import SmsIrPanel
-
-# url = "https://rest.payamak-panel.com/api/SendSMS/SendSMS"
-
-# headers = {
-#     "Content-Type": "application/json",
-# }
-
-# TEXT = "کاربر گرامی ثبت شما با موفقیت انجام شد نام کاربری و رمز عبور شما به ترتیب برابر است با "
-
-# create instance of sms panel .ir
-# instance = SmsIrPanel(
-#         api_key=config("SMS_IR_API_KEY", cast=str),
-#         base_url=config("SMS_IR_BASE_URL", cast=str),
-#     )
+COUPON_SEND_TEMPLATE_ID = config("SMS_IR_COUPON_SEND_TEMPLATE_ID", cast=int) # todo, move into config file
 
 
-# @app.task(bind=True)
-# def send_successfully_signup_async(self, phone_number, password):
-#     async def _send_successfully_signup():
-#         data = {
-#             "username": config("SMS_USERNAME"),
-#             "password": config("SMS_PASSWORD"),
-#             "text": f"{TEXT} {phone_number} {password}",
-#             "to": phone_number,
-#             "from": config("SMS_PHONE_NUMBER"),
-#         }
-#         async with aiohttp.ClientSession(headers=headers) as session:
-#             async with session.post(url, json=data) as response:
-#                 res = await response.json()
-#                 return res
-#
-#     return asyncio.run(_send_successfully_signup())
+@shared_task(bind=True, queue="course_signup", max_retries=2)
+def send_successfully_signup_task(self, phone, template_id, template_name, password, full_name):
+    try:
+        values = {'full_name': full_name, 'password': password}
+        return send_sms_signup_course(template_id=template_id, mobile=phone, template_name=template_name, values=values)
+    except Exception as e:
+        self.retry(exc=e, countdown=10)
 
-@shared_task(queue="course_signup")
-def send_successfully_signup(phone, password, full_name):
-    asyncio.run(
-        instance.send_fast_multiple(
-            phone=phone,
-            value=[full_name, password],
-            template_id=config("SMS_IR_COURSE_SIGNUP_TEMPLATE_ID", cast=int),
-            template_name=["FULL_NAME","LOGIN"]
-        )
-    )
 
-@shared_task(queue="coupon_send")
-def coupon_send(phone, coupon_code):
-    print("task done!")
-    # asyncio.run(
-    #     instance.send_fast_sms(
-    #         phone=phone,
-    #         value=coupon_code,
-    #         template_id=config("SMS_IR_COUPON_SEND_TEMPLATE_ID", cast=int),
-    #         template_name="coupon_send"
-    #     )
-    # )
+@shared_task(bind=True, queue="coupon_send", max_retries=2)
+def coupon_send_task(self, phone, coupon_code):
+    try:
+        return send_sms(template_id=COUPON_SEND_TEMPLATE_ID, template_name='coupon_send', mobile=phone, value=coupon_code)
+    except Exception as e:
+        self.retry(exc=e, countdown=10)
+
 
 @shared_task(queue="celery")
 def process_referral(referral_code, mobile_phone):
@@ -113,7 +74,7 @@ def process_referral(referral_code, mobile_phone):
             )
         )
         # send coupon_code into mobile_phone
-        coupon_send.delay(
+        coupon_send_task.delay(
             phone=notification.user.mobile_phone,
             coupon_code=new_coupon.code
         )
