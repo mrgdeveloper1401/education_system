@@ -4,7 +4,7 @@ WORKDIR /home/app
 
 COPY . .
 
-RUN chmod +x /home/app/scripts/start.sh
+RUN chmod +x /home/app/scripts/*
 
 EXPOSE 8000
 
