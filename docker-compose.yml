@@ -83,18 +83,18 @@ services:
         condition: service_healthy
       app:
         condition: service_started
-
-  celery_beat:
-    container_name: education_celery_beat
-    restart: always
-    build:
-      context: .
-      dockerfile: dockerfile/prod/celery/Dockerfile
-    depends_on:
-      celery:
-        condition: service_started
-    entrypoint: "celery -A base beat"
-    env_file: ".env"
+#
+#  celery_beat:
+#    container_name: education_celery_beat
+#    restart: always
+#    build:
+#      context: .
+#      dockerfile: dockerfile/prod/celery/Dockerfile
+#    depends_on:
+#      celery:
+#        condition: service_started
+#    entrypoint: "celery -A base beat"
+#    env_file: ".env"
 
   flower:
     container_name: education_flower
