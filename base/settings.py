@@ -1,7 +1,8 @@
 import os
-from datetime import timedelta, timezone
+from datetime import timedelta
 from pathlib import Path
 from decouple import config, Csv
+from django.utils import timezone
 from kombu import Queue
 
 from base.dj_ckeditor_config import *
