@@ -1,4 +1,5 @@
-from datetime import timedelta
+import os
+from datetime import timedelta, timezone
 from pathlib import Path
 from decouple import config, Csv
 from kombu import Queue
@@ -383,3 +384,37 @@ if USE_CORS and not DEBUG:
     USE_DEV_CORS = config("USE_DEV_CORS", default=False, cast=bool)
     if USE_DEV_CORS:
         CORS_ALLOWED_ORIGINS.append("http://localhost:3000")
+
+# config log
+USE_LOG = config("USE_LOG", cast=bool, default=True)
+if USE_LOG:  # TODO, cron job for clean log every 2 days and show log in panel admin for superuser
+    log_dir = os.path.join("general_log_django", timezone.now().strftime("%Y-%m-%d"))
+    os.makedirs(log_dir, exist_ok=True)
+    LOGGING = {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "handlers": {
+            "error_file": {
+                "level": "ERROR",
+                "class": "logging.FileHandler",
+                "filename": os.path.join(log_dir, "error_file.log"),
+            },
+            "critical_file": {
+                "level": "CRITICAL",
+                "class": "logging.FileHandler",
+                "filename": os.path.join(log_dir, "critical_file.log"),
+            },
+        },
+        "loggers": {
+            "django": {
+                "handlers": ["critical_file", "error_file"],
+                "propagate": True,
+            }
+        },
+    }
+if DEBUG and USE_LOG:
+    LOGGING["handlers"]["console"] = {
+        "class": "logging.StreamHandler",
+        "level": "INFO",
+    }
+    LOGGING["loggers"]["django"]["handlers"].append("console")
