@@ -1,4 +1,4 @@
-# gunicorn.conf.py version 25
+# gunicorn.conf.py version 26
 import multiprocessing
 
 bind = "0.0.0.0:8000"  # host
