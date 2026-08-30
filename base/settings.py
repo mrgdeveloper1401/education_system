@@ -319,7 +319,7 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db' # cache session da
 
 # debug toolbar
 USE_DEBUG_TOOLBAR = config("USE_DEBUG_TOOLBAR", default=True, cast=bool)
-if USE_DEBUG_TOOLBAR and DEBUG:
+if USE_DEBUG_TOOLBAR:
     INSTALLED_APPS.append(
         "debug_toolbar",
     )
@@ -378,7 +378,7 @@ if USE_SSL_CONFIG:
 
 # use cors
 USE_CORS = config("USE_CORS", default=False, cast=bool)
-if USE_CORS and not DEBUG:
+if USE_CORS:
     MIDDLEWARE.insert(0, "corsheaders.middleware.CorsMiddleware")
     CORS_ALLOWED_ORIGINS = config("CORS_ALLOWED_ORIGINS", cast=Csv())
     INSTALLED_APPS.append("corsheaders")
