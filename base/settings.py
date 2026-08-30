@@ -401,6 +401,11 @@ if USE_LOG:  # TODO, cron job for clean log every 2 days and show log in panel a
                 "class": "logging.FileHandler",
                 "filename": os.path.join(log_dir, "error_file.log"),
             },
+            "warning_file": {
+                    "level": "WARNING",
+                "class": "logging.FileHandler",
+                "filename": os.path.join(log_dir, "warning_file.log"),
+            },
             "critical_file": {
                 "level": "CRITICAL",
                 "class": "logging.FileHandler",
@@ -409,7 +414,7 @@ if USE_LOG:  # TODO, cron job for clean log every 2 days and show log in panel a
         },
         "loggers": {
             "django": {
-                "handlers": ["critical_file", "error_file"],
+                "handlers": ["critical_file", "error_file", 'warning_file'],
                 "propagate": True,
             }
         },
