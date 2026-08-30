@@ -12,7 +12,8 @@ from base.dj_ckeditor_config import *
 DEBUG = config("DEBUG", default=True, cast=bool)
 
 # allowed host
-ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv(), default="*")
+# ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv(), default="*")
+ALLOWED_HOSTS = ['*']  # برای تست حتما ستاره بگذارید تا مطمئن شویم
 
 # secret key
 SECRET_KEY = config(
@@ -27,7 +28,7 @@ if USE_FALL_BACK_SECRET_KEY:
     DJANGO_SECRET_KEY_FALLBACKS = config("DJANGO_SECRET_KEY_FALLBACKS", cast=str)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent
 
 # Application definition
 THIRD_PARTY_PACKAGE = [
