@@ -51,13 +51,15 @@ urlpatterns = [
 
 urlpatterns += swagger_url + api_url + api_admin + v1_api_mobile
 
-DEBUG = config("DEBUG", cast=bool)
+USE_DEBUG_TOOLBAR = config("USE_DEBUG_TOOLBAR", default=True, cast=bool)
+USE_DJANGO_STORAGES = config("USE_DJANGO_STORAGES", cast=bool, default=True)
 
-
-if DEBUG:
+if USE_DEBUG_TOOLBAR:
     from debug_toolbar.toolbar import debug_toolbar_urls
+    urlpatterns += debug_toolbar_urls()
+
+if USE_DJANGO_STORAGES:
     MEDIA_URL = config("MEDIA_URL", cast=str)
     MEDIA_ROOT = config("MEDIA_ROOT", cast=str)
 
-    urlpatterns += debug_toolbar_urls()
     urlpatterns += static(MEDIA_URL, document_root=MEDIA_ROOT)
