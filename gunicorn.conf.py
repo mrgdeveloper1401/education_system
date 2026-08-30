@@ -17,7 +17,7 @@ reuse_port = True
 preload_app = True
 
 # Logging
-loglevel = "debug"
+loglevel = "info"
 errorlog = "-"
 accesslog = "-"  # چاپ لاگ درخواست‌های ورودی در کنسول داکر
 access_log_format = '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s" %(D)s µs'
