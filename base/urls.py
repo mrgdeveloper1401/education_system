@@ -58,7 +58,7 @@ if USE_DEBUG_TOOLBAR:
     from debug_toolbar.toolbar import debug_toolbar_urls
     urlpatterns += debug_toolbar_urls()
 
-if USE_DJANGO_STORAGES:
+if not USE_DJANGO_STORAGES:
     MEDIA_URL = config("MEDIA_URL", cast=str)
     MEDIA_ROOT = config("MEDIA_ROOT", cast=str)
 
