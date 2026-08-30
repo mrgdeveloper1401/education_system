@@ -359,18 +359,18 @@ if USE_SSL_CONFIG:
 
     # cookie
     SESSION_COOKIE_SECURE = True  # session cookie only https
-    SESSION_COOKIE_DOMAIN = config(
-        "SESSION_COOKIE_DOMAIN", cast=str
-    )  # for example --> .example.com, domain cookie
+    # SESSION_COOKIE_DOMAIN = config(
+    #     "SESSION_COOKIE_DOMAIN", cast=str
+    # )  # for example --> .example.com, domain cookie
     SESSION_COOKIE_HTTPONLY = True  # prevent access with by javascript
 
     # csrf
     CSRF_COOKIE_SECURE = True  # send cookie csrf only https
     CSRF_COOKIE_HTTPONLY = True  # csrf prevent access javascript
     CSRF_COOKIE_SAMESITE = "Strict"  # Prevent cookie requests on cross-site requests
-    CSRF_COOKIE_DOMAIN = config(
-        "CSRF_COOKIE_DOMAIN", cast=str
-    )  # for example --> .example.com, domain csrf cookie
+    # CSRF_COOKIE_DOMAIN = config(
+    #     "CSRF_COOKIE_DOMAIN", cast=str
+    # )  # for example --> .example.com, domain csrf cookie
     CSRF_COOKIE_AGE = 3600  # csrf cookie validity period
 
     # Content Security Settings
