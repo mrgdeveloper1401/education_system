@@ -15,6 +15,14 @@ DEBUG = config("DEBUG", default=True, cast=bool)
 # ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv(), default="*")
 ALLOWED_HOSTS = ['*']  # برای تست حتما ستاره بگذارید تا مطمئن شویم
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://api.codeima.ir',
+    'http://api.codeima.ir',
+    'https://codeima.ir',
+    'http://codeima.ir',
+]
+
+
 # secret key
 SECRET_KEY = config(
     "SECRET_KEY",
