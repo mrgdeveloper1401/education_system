@@ -12,7 +12,7 @@ from base.dj_ckeditor_config import *
 DEBUG = config("DEBUG", default=True, cast=bool)
 
 # allowed host
-ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv(), default=None)
+ALLOWED_HOSTS = config("ALLOWED_HOSTS", cast=Csv(), default="*")
 
 # secret key
 SECRET_KEY = config(
