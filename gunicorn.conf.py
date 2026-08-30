@@ -17,7 +17,7 @@ reuse_port = True
 preload_app = True
 
 # Logging
-loglevel = "error"
+loglevel = "info"
 errorlog = "-"
 
 

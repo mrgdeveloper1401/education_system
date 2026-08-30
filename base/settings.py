@@ -28,7 +28,7 @@ if USE_FALL_BACK_SECRET_KEY:
     DJANGO_SECRET_KEY_FALLBACKS = config("DJANGO_SECRET_KEY_FALLBACKS", cast=str)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Application definition
 THIRD_PARTY_PACKAGE = [
