@@ -389,6 +389,8 @@ if USE_CORS:
 
 # config log
 USE_LOG = config("USE_LOG", cast=bool, default=True)
+USE_CONSOLE_LOG = config("USE_CONSOLE_LOG", cast=bool, default=True)
+
 if USE_LOG:  # TODO, cron job for clean log every 2 days and show log in panel admin for superuser
     log_dir = os.path.join("general_log_django", timezone.now().strftime("%Y-%m-%d"))
     os.makedirs(log_dir, exist_ok=True)
@@ -419,7 +421,7 @@ if USE_LOG:  # TODO, cron job for clean log every 2 days and show log in panel a
             }
         },
     }
-if DEBUG and USE_LOG:
+if USE_CONSOLE_LOG and USE_LOG:
     LOGGING["handlers"]["console"] = {
         "class": "logging.StreamHandler",
         "level": "INFO",
