@@ -63,6 +63,8 @@ services:
       dockerfile: dockerfile/prod/django/Dockerfile
     expose:
       - 8000
+    ports:
+      - "8000:8000"
     volumes:
       - static_files:/home/app/staticfiles
     env_file: ".env"
