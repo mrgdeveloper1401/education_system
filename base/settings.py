@@ -397,41 +397,17 @@ if USE_CORS:
 
 # config log
 USE_LOG = config("USE_LOG", cast=bool, default=True)
-USE_CONSOLE_LOG = config("USE_CONSOLE_LOG", cast=bool, default=True)
-
-if USE_LOG:  # TODO, cron job for clean log every 2 days and show log in panel admin for superuser
-    log_dir = os.path.join("general_log_django", timezone.now().strftime("%Y-%m-%d"))
-    os.makedirs(log_dir, exist_ok=True)
+if USE_LOG:
     LOGGING = {
         "version": 1,
         "disable_existing_loggers": False,
         "handlers": {
-            "error_file": {
-                "level": "ERROR",
-                "class": "logging.FileHandler",
-                "filename": os.path.join(log_dir, "error_file.log"),
-            },
-            "warning_file": {
-                    "level": "WARNING",
-                "class": "logging.FileHandler",
-                "filename": os.path.join(log_dir, "warning_file.log"),
-            },
-            "critical_file": {
-                "level": "CRITICAL",
-                "class": "logging.FileHandler",
-                "filename": os.path.join(log_dir, "critical_file.log"),
+            "console": {
+                "class": "logging.StreamHandler",
             },
         },
-        "loggers": {
-            "django": {
-                "handlers": ["critical_file", "error_file", 'warning_file'],
-                "propagate": True,
-            }
+        "root": {
+            "handlers": ["console"],
+            "level": "WARNING",
         },
     }
-if USE_CONSOLE_LOG and USE_LOG:
-    LOGGING["handlers"]["console"] = {
-        "class": "logging.StreamHandler",
-        "level": "INFO",
-    }
-    LOGGING["loggers"]["django"]["handlers"].append("console")
