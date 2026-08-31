@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from rest_framework import viewsets, permissions
 
 from . import serializers
@@ -31,3 +32,7 @@ class CourseSiteInformationViewSet(viewsets.ModelViewSet):
         if self.action in ("create", "update", "partial_update", "destroy"):
             self.permission_classes = (permissions.IsAdminUser,)
         return super().get_permissions()
+
+
+def test_headers(request):
+    return JsonResponse(dict(request.headers))

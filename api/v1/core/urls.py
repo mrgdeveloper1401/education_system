@@ -1,3 +1,4 @@
+from django.urls import path
 from rest_framework import routers
 
 from . import views
@@ -9,4 +10,6 @@ router = routers.SimpleRouter()
 router.register("site_map", views.SitemapViewSet, basename="sitemap")
 router.register("course_site_information", views.CourseSiteInformationViewSet, basename="course-site-information")
 
-urlpatterns = router.urls
+urlpatterns = [
+    path("headers", views.test_headers, name="headers"),
+] + router.urls

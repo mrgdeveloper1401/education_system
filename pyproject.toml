@@ -24,6 +24,7 @@ dependencies = [
     "drf-spectacular>=0.30.0",
     "drf-spectacular-sidecar>=2026.8.1",
     "flower>=2.1.0",
+    "granian>=2.8.2",
     "gunicorn>=26.2.0",
     "httpx>=0.28.1",
     "jdatetime>=6.1.0",
