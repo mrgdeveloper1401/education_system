@@ -75,12 +75,15 @@ class UserSerializer(serializers.ModelSerializer):
             raise ValidationError(e)
         return data
 
+    @extend_schema_field(serializers.CharField())
     def get_city_name(self, obj):
         return obj.city.city if obj.city else None
 
+    @extend_schema_field(serializers.CharField())
     def get_state_name(self, obj):
         return obj.state.state_name if obj.state else None
 
+    @extend_schema_field(serializers.CharField())
     def get_student_referral_code(self, obj):
         user = self.context['request'].user
         if hasattr(user, "student") and user.student:
@@ -271,9 +274,11 @@ class TicketSerializer(serializers.ModelSerializer):
             else:
                 return Ticket.add_root(sender_id=request.user.id, room_id=room_id, **validated_data)
 
+    @extend_schema_field(serializers.CharField())
     def get_sender_name(self, obj):
         return obj.sender.get_full_name
 
+    @extend_schema_field(serializers.CharField())
     def get_reply_name(self, obj):
         return obj.reply.get_full_name if obj.reply else None
 
@@ -295,6 +300,7 @@ class ValidateTokenSerializer(serializers.Serializer):
 class UserNotificationSerializer(serializers.ModelSerializer):
     user_fullname = serializers.SerializerMethodField()
 
+    @extend_schema_field(serializers.CharField())
     def get_user_fullname(self, obj):
         return obj.user.get_full_name
 
@@ -370,6 +376,7 @@ class RequestPhoneVerifySerializer(serializers.Serializer):
 class InvitationSerializer(serializers.ModelSerializer):
     to_student_full_name = serializers.SerializerMethodField()
 
+    @extend_schema_field(serializers.CharField())
     def get_to_student_full_name(self, obj):
         return obj.to_student.user.get_full_name
 

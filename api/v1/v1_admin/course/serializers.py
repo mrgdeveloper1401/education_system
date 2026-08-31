@@ -2,6 +2,7 @@ from decouple import config
 from django.core.cache import cache
 from django.db.models.signals import post_save
 from django.shortcuts import get_object_or_404
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers, exceptions
 
 from apps.account_app.models import Student, Coach
@@ -157,9 +158,11 @@ class AdminStudentPresentAbsentSerializer(serializers.ModelSerializer):
         model = PresentAbsent
         fields = ('id', "student_status", "student_name", "section_name", "created_at")
 
+    @extend_schema_field(serializers.CharField())
     def get_student_name(self, obj):
         return obj.student.student_name
 
+    @extend_schema_field(serializers.CharField())
     def get_section_name(self, obj):
         return obj.section.title
 
@@ -191,12 +194,15 @@ class AdminCoachRankingSerializer(serializers.ModelSerializer):
         model = AnswerQuestion
         fields = ['rate', "question_title", "student_name", "section_name", 'section_question']
 
+    @extend_schema_field(serializers.CharField())
     def get_question_title(self, obj):
         return obj.section_question.question_title
 
+    @extend_schema_field(serializers.CharField())
     def get_student_name(self, obj):
         return obj.student.student_name
 
+    @extend_schema_field(serializers.CharField())
     def get_section_name(self, obj):
         return obj.section_question.section.title
 
@@ -210,6 +216,7 @@ class AdminCommentSerializer(serializers.ModelSerializer):
         exclude = ("is_deleted", "deleted_at", "category", "user")
         read_only_fields = ("path", "numchild", "depth")
 
+    @extend_schema_field(serializers.CharField())
     def get_user_name(self, obj):
         return obj.user.get_full_name
 
@@ -266,6 +273,7 @@ class AdminCertificateSerializer(serializers.ModelSerializer):
     )
     student_name = serializers.SerializerMethodField()
 
+    @extend_schema_field(serializers.CharField())
     def get_student_name(self, obj):
         return obj.student.student_name
 

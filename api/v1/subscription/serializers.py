@@ -24,6 +24,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         model = Subscription
         exclude = ("is_deleted", "deleted_at", "user", "course")
 
+    @extend_schema_field(serializers.CharField())
     def get_course_name(self, obj):
         return obj.course.course_name
 
@@ -31,12 +32,15 @@ class SubscriptionSerializer(serializers.ModelSerializer):
     def get_course_category_name(self, obj):
         return obj.course.category.category_name
 
+    @extend_schema_field(serializers.CharField())
     def get_user_full_name(self, obj):
         return obj.user.get_full_name
 
+    @extend_schema_field(serializers.CharField())
     def get_user_mobile_phone(self, obj):
         return obj.user.mobile_phone
 
+    @extend_schema_field(serializers.CharField())
     def get_coupon_code(self, obj):
         return obj.coupon.code if obj.coupon else None
 

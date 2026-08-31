@@ -84,6 +84,7 @@ class CourseSectionVideoSerializer(serializers.ModelSerializer):
         model = SectionVideo
         fields = ("id", "video", "video_url", "title", "section_cover_image")
 
+    @extend_schema_field(serializers.URLField())
     def get_section_cover_image(self, obj):
         return obj.section.cover_image.url
 
@@ -184,9 +185,11 @@ class LessonCourseSerializer(serializers.ModelSerializer):
         model = LessonCourse
         fields = ("id", "course", "course_category", "progress", "coach_name", "class_name", "progress_bar")
 
+    @extend_schema_field(serializers.CharField())
     def get_coach_name(self, obj):
         return obj.coach.get_coach_name
 
+    @extend_schema_field(serializers.IntegerField())
     def get_progress_bar(self, obj):
         # تعداد سکشن‌هایی که دانشجو نمره بالای 60 گرفته
         passed_sections = StudentSectionScore.objects.filter(
@@ -219,9 +222,11 @@ class ListCoachLessonCourseSerializer(serializers.ModelSerializer):
         model = LessonCourse
         fields = ('id', "course", "course_category", "progress", "class_name", "course_image")
 
+    @extend_schema_field(serializers.IntegerField())
     def get_course_category(self, obj):
         return obj.course.category_id
 
+    @extend_schema_field(serializers.URLField())
     def get_course_image(self, obj):
         return obj.course.course_image.url if obj.course.course_image else None
 
@@ -241,12 +246,15 @@ class StudentLessonCourseSerializer(serializers.ModelSerializer):
         model = StudentEnrollment
         fields = ("id", "student_status", "student_name", "student_phone", "student_second_number")
 
+    @extend_schema_field(serializers.CharField())
     def get_student_phone(self, obj):
         return obj.student.user.mobile_phone
 
+    @extend_schema_field(serializers.CharField())
     def get_student_second_number(self, obj):
         return obj.student.user.second_mobile_phone
 
+    @extend_schema_field(serializers.CharField())
     def get_student_name(self, obj):
         return obj.student.student_name
 
@@ -300,6 +308,7 @@ class CoachSendFileSerializer(serializers.ModelSerializer):
         model = SendSectionFile
         fields = ['score', "student", "student_name", "comment_teacher", "send_file_status"]
 
+    @extend_schema_field(serializers.CharField())
     def get_student_name(self, obj):
         return obj.student.student_name if obj.student else None
 
@@ -369,9 +378,11 @@ class CoachPresentAbsentSerializer(serializers.ModelSerializer):
         fields = ['id', "student", "student_status", "section", "created_at", "student_name", "section_title"]
         read_only_fields = ['section']
 
+    @extend_schema_field(serializers.CharField())
     def get_student_name(self, obj):
         return obj.student.student_name
 
+    @extend_schema_field(serializers.CharField())
     def get_section_title(self, obj):
         return obj.section.title
 
@@ -467,9 +478,11 @@ class CoachStudentSendFilesSerializer(serializers.ModelSerializer):
         fields = ("student", "id", 'std_name', "zip_file", "comment_student", "file_type", "send_file_status",
                   'score', "created_at", "updated_at", "comment_teacher")
 
+    @extend_schema_field(serializers.CharField())
     def get_file_type(self, obj):
         return obj.section_file.file_type
 
+    @extend_schema_field(serializers.CharField())
     def get_std_name(self, obj):
         return obj.student.student_name
 
@@ -734,6 +747,7 @@ class CrudCourseTypeSerializer(serializers.ModelSerializer):
         course_id = self.context['course_pk']
         return CourseTypeModel.objects.create(course_id=course_id, **validated_data)
 
+    @extend_schema_field(serializers.ListField(child=serializers.DictField()))
     def get_discounts(self, obj):
         discounts = Discount.objects.filter(
             content_type=ContentType.objects.get_for_model(obj),

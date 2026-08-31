@@ -148,6 +148,7 @@ class ParticipationSerializer(serializers.ModelSerializer):
     exam_questions_count = serializers.SerializerMethodField()
     user_answer_count = serializers.SerializerMethodField()
 
+    @extend_schema_field(serializers.FloatField())
     def get_exam_time(self, obj):
         return obj.exam.number_of_time
 
@@ -376,15 +377,19 @@ class ParticipationListRetrieveSerializer(serializers.ModelSerializer):
     user_answer_count = serializers.SerializerMethodField()
     percentage_answered = serializers.SerializerMethodField()
 
+    @extend_schema_field(serializers.CharField())
     def get_student_get_full_name(self, obj):
         return obj.student.user.get_full_name
 
+    @extend_schema_field(serializers.IntegerField())
     def get_exam_questions_count(self, obj):
         return obj.exam_questions_count
 
+    @extend_schema_field(serializers.IntegerField())
     def get_user_answer_count(self, obj):
         return obj.user_answer_count
 
+    @extend_schema_field(serializers.IntegerField())
     def get_percentage_answered(self, obj):
         if obj.exam_questions_count == 0:
             return 0
@@ -419,9 +424,11 @@ class CoachUserAnswerSerializer(serializers.ModelSerializer):
     question_max_score = serializers.SerializerMethodField()
     selected_choices = CoachUserAnswerSelectedChoiceSerializer(many=True, read_only=True)
 
+    @extend_schema_field(serializers.CharField())
     def get_question_name(self, obj):
         return obj.question.name
 
+    @extend_schema_field(serializers.IntegerField())
     def get_question_max_score(self, obj):
         return obj.question.max_score
 

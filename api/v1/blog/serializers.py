@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
 
@@ -65,6 +66,7 @@ class PostBlogSerializer(serializers.ModelSerializer):
         exclude = ("is_deleted", "deleted_at", "category")
         read_only_fields = ('read_count', 'likes')
 
+    @extend_schema_field(serializers.CharField())
     def get_category_name(self, obj):
         return obj.category.category_name
 
