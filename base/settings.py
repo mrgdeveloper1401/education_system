@@ -347,8 +347,7 @@ if USE_DJ_EXTENSIONS:
 USE_SSL_CONFIG = config("USE_SSL_CONFIG", cast=bool, default=False)
 if USE_SSL_CONFIG:
     # Https/ssl settings
-    # SECURE_SSL_REDIRECT = True  # redirect http request into https request
-    SECURE_SSL_REDIRECT = False  # ریدایرکت در سطح Nginx انجام می‌شود
+    SECURE_SSL_REDIRECT = True  # redirect http request into https request
     USE_X_FORWARDED_HOST = True  # use header x-forwarded-host
     USE_X_FORWARDED_PORT = True  # use header x-forwarded-port
 
