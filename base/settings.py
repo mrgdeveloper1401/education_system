@@ -394,20 +394,3 @@ if USE_CORS:
     USE_DEV_CORS = config("USE_DEV_CORS", default=False, cast=bool)
     if USE_DEV_CORS:
         CORS_ALLOWED_ORIGINS.append("http://localhost:3000")
-
-# config log
-USE_LOG = config("USE_LOG", cast=bool, default=True)
-if USE_LOG:
-    LOGGING = {
-        "version": 1,
-        "disable_existing_loggers": False,
-        "handlers": {
-            "console": {
-                "class": "logging.StreamHandler",
-            },
-        },
-        "root": {
-            "handlers": ["console"],
-            "level": "WARNING",
-        },
-    }
