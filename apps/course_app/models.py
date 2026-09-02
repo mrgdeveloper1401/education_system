@@ -1,13 +1,18 @@
+import io
+from pathlib import Path
 from uuid import uuid4
 
+from PIL.ImageOps import exif_transpose
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
+from django.core.files.base import ContentFile
 from django.db import models
 from django.utils import timezone
 from rest_framework import exceptions
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import FileExtensionValidator, MinValueValidator, MaxValueValidator
 from treebeard.mp_tree import MP_Node
+from PIL import Image as PILImage
 
 from apps.account_app.models import Student, Coach, User
 from apps.core_app.models import UpdateMixin, CreateMixin, SoftDeleteMixin
@@ -53,6 +58,38 @@ class Category(MP_Node, CreateMixin, UpdateMixin, SoftDeleteMixin):
     @property
     def sub_category_name(self):
         return self.get_children().values("id", "category_name")
+
+    @property
+    def _is_webp(self) -> bool:
+        return Path(self.image.name).suffix.lower() == ".webp"
+
+    def conv_img_into_webp(self, quality: int = 100):
+        if not self.image or self._is_webp:
+            return
+
+        buffer = io.BytesIO()
+        with PILImage.open(self.image) as img:
+            if getattr(img, "is_animated", False):
+                # گیف متحرک: باید همه فریم‌ها ذخیره بشن
+                img.save(buffer, format="WEBP", quality=quality, save_all=True)
+            else:
+                img = exif_transpose(img)
+                # حفظ کانال آلفا برای png و مشابهش
+                mode = "RGBA" if img.mode in ("RGBA", "LA", "P") else "RGB"
+                img.convert(mode).save(buffer, format="WEBP", quality=quality)
+        new_name = f"{Path(self.image.name).stem}.webp"
+        self.image.save(new_name, ContentFile(buffer.getvalue()), save=False)
+
+    def save(self, *args, **kwargs):
+        image_changed = True
+        if self.pk:
+            old = Category.objects.filter(pk=self.pk).only("image").first()
+            image_changed = old is None or old.image.name != self.image.name
+
+        if image_changed:
+            self.conv_img_into_webp()
+
+        return super().save(*args, **kwargs)
 
     class Meta:
         db_table = 'category'
@@ -132,6 +169,7 @@ class LessonCourse(CreateMixin, UpdateMixin, SoftDeleteMixin):
     for_mobile = models.BooleanField(default=False)
 
     class Meta:
+        ordering = ("id",)
         db_table = 'lesson_course'
 
 

@@ -85,6 +85,7 @@ class User(AbstractBaseUser, PermissionsMixin, UpdateMixin, SoftDeleteMixin, Cre
     objects = UserManager()
 
     class Meta:
+        ordering = ("id",)
         db_table = 'users'
         verbose_name = _('کاربر')
         verbose_name_plural = _('کاربران')
@@ -221,6 +222,7 @@ class PrivateNotification(CreateMixin, UpdateMixin, SoftDeleteMixin):
     is_read = models.BooleanField(default=False)
 
     class Meta:
+        ordering = ("id",)
         db_table = 'private_notification'
         verbose_name = _("نوتیفیکیشن کاربر")
         verbose_name_plural = _("نوتیفیکیشن های کاربر")

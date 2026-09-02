@@ -25,3 +25,4 @@ msgpack==1.2.2
 jdatetime==6.1.0
 flower==2.1.0
 django-extensions==4.1
+ipython
