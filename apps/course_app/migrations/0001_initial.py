@@ -10,408 +10,1063 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('account_app', '0001_initial'),
+        ("account_app", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Category',
+            name="Category",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('path', models.CharField(max_length=255, unique=True)),
-                ('depth', models.PositiveIntegerField()),
-                ('numchild', models.PositiveIntegerField(default=0)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('category_name', models.CharField(db_index=True, max_length=100)),
-                ('image', models.ImageField(blank=True, null=True, upload_to='category_images/%Y/%m/%d')),
-                ('description', models.CharField(blank=True, max_length=500, null=True)),
-                ('description_slug', models.SlugField(allow_unicode=True, blank=True, null=True)),
-                ('is_publish', models.BooleanField(default=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("path", models.CharField(max_length=255, unique=True)),
+                ("depth", models.PositiveIntegerField()),
+                ("numchild", models.PositiveIntegerField(default=0)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                ("category_name", models.CharField(db_index=True, max_length=100)),
+                (
+                    "image",
+                    models.ImageField(
+                        blank=True, null=True, upload_to="category_images/%Y/%m/%d"
+                    ),
+                ),
+                (
+                    "description",
+                    models.CharField(blank=True, max_length=500, null=True),
+                ),
+                (
+                    "description_slug",
+                    models.SlugField(allow_unicode=True, blank=True, null=True),
+                ),
+                ("is_publish", models.BooleanField(default=True)),
             ],
             options={
-                'db_table': 'category',
+                "db_table": "category",
             },
         ),
         migrations.CreateModel(
-            name='CertificateTemplate',
+            name="CertificateTemplate",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('template_image', models.ImageField(help_text='حداکثر اندازه سایز تمپلیت ۲ مگابایت باشد', upload_to='certificate_template/%Y/%m/%d', validators=[apps.course_app.validators.max_upload_image_validator])),
-                ('is_active', models.BooleanField(default=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                (
+                    "template_image",
+                    models.ImageField(
+                        help_text="حداکثر اندازه سایز تمپلیت ۲ مگابایت باشد",
+                        upload_to="certificate_template/%Y/%m/%d",
+                        validators=[
+                            apps.course_app.validators.max_upload_image_validator
+                        ],
+                    ),
+                ),
+                ("is_active", models.BooleanField(default=True)),
             ],
             options={
-                'db_table': 'certificate_template',
+                "db_table": "certificate_template",
             },
         ),
         migrations.CreateModel(
-            name='Question',
+            name="Question",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('title', models.CharField(max_length=255)),
-                ('is_publish', models.BooleanField(default=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                ("title", models.CharField(max_length=255)),
+                ("is_publish", models.BooleanField(default=True)),
             ],
             options={
-                'db_table': 'poll_question',
+                "db_table": "poll_question",
             },
         ),
         migrations.CreateModel(
-            name='Comment',
+            name="Comment",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('path', models.CharField(max_length=255, unique=True)),
-                ('depth', models.PositiveIntegerField()),
-                ('numchild', models.PositiveIntegerField(default=0)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('comment_body', models.TextField(verbose_name='متن کامنت')),
-                ('is_publish', models.BooleanField(default=True)),
-                ('is_pined', models.BooleanField(default=False)),
-                ('category', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='category_comments', to='course_app.category')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='user_comment', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("path", models.CharField(max_length=255, unique=True)),
+                ("depth", models.PositiveIntegerField()),
+                ("numchild", models.PositiveIntegerField(default=0)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                ("comment_body", models.TextField(verbose_name="متن کامنت")),
+                ("is_publish", models.BooleanField(default=True)),
+                ("is_pined", models.BooleanField(default=False)),
+                (
+                    "category",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="category_comments",
+                        to="course_app.category",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="user_comment",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'db_table': 'comment',
+                "db_table": "comment",
             },
         ),
         migrations.CreateModel(
-            name='Course',
+            name="Course",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('course_name', models.CharField(max_length=100)),
-                ('course_description', models.TextField()),
-                ('description_slug', models.SlugField(allow_unicode=True, blank=True, null=True)),
-                ('course_image', models.ImageField(blank=True, help_text='حداکثر اندازه عکس 1 مگابایت هست', upload_to='course_image/%Y/%m/%d', validators=[apps.course_app.validators.max_upload_image_validator])),
-                ('is_publish', models.BooleanField(default=True)),
-                ('project_counter', models.PositiveSmallIntegerField(null=True)),
-                ('is_free', models.BooleanField(default=False)),
-                ('facilities', django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=30), blank=True, null=True)),
-                ('course_level', models.CharField(blank=True, max_length=13, null=True)),
-                ('time_course', models.CharField(blank=True, help_text='مدت زمان دوره', max_length=10)),
-                ('course_age', models.CharField(blank=True, help_text='بازه سنی دوره', max_length=30)),
-                ('order_number', models.PositiveIntegerField(blank=True, null=True)),
-                ('category', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='course_category', to='course_app.category')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                ("course_name", models.CharField(max_length=100)),
+                ("course_description", models.TextField()),
+                (
+                    "description_slug",
+                    models.SlugField(allow_unicode=True, blank=True, null=True),
+                ),
+                (
+                    "course_image",
+                    models.ImageField(
+                        blank=True,
+                        help_text="حداکثر اندازه عکس 1 مگابایت هست",
+                        upload_to="course_image/%Y/%m/%d",
+                        validators=[
+                            apps.course_app.validators.max_upload_image_validator
+                        ],
+                    ),
+                ),
+                ("is_publish", models.BooleanField(default=True)),
+                ("project_counter", models.PositiveSmallIntegerField(null=True)),
+                ("is_free", models.BooleanField(default=False)),
+                (
+                    "facilities",
+                    django.contrib.postgres.fields.ArrayField(
+                        base_field=models.CharField(max_length=30),
+                        blank=True,
+                        null=True,
+                    ),
+                ),
+                (
+                    "course_level",
+                    models.CharField(blank=True, max_length=13, null=True),
+                ),
+                (
+                    "time_course",
+                    models.CharField(
+                        blank=True, help_text="مدت زمان دوره", max_length=10
+                    ),
+                ),
+                (
+                    "course_age",
+                    models.CharField(
+                        blank=True, help_text="بازه سنی دوره", max_length=30
+                    ),
+                ),
+                ("order_number", models.PositiveIntegerField(blank=True, null=True)),
+                (
+                    "category",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="course_category",
+                        to="course_app.category",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'course',
+                "db_table": "course",
             },
         ),
         migrations.CreateModel(
-            name='CourseTypeModel',
+            name="CourseTypeModel",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('price', models.FloatField()),
-                ('description', models.CharField(blank=True, max_length=300)),
-                ('is_active', models.BooleanField(default=True)),
-                ('course_type', models.CharField(choices=[('private', 'خصوصی'), ('economy', 'اکونومی')], default='private', max_length=8)),
-                ('amount', models.PositiveSmallIntegerField(blank=True)),
-                ('plan_type', models.CharField(blank=True, choices=[('month', 'ماه'), ('year', 'سال'), ('day', 'روز')], max_length=5)),
-                ('course', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='course_type_model', to='course_app.course')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                ("price", models.FloatField()),
+                ("description", models.CharField(blank=True, max_length=300)),
+                ("is_active", models.BooleanField(default=True)),
+                (
+                    "course_type",
+                    models.CharField(
+                        choices=[("private", "خصوصی"), ("economy", "اکونومی")],
+                        default="private",
+                        max_length=8,
+                    ),
+                ),
+                ("amount", models.PositiveSmallIntegerField(blank=True)),
+                (
+                    "plan_type",
+                    models.CharField(
+                        blank=True,
+                        choices=[("month", "ماه"), ("year", "سال"), ("day", "روز")],
+                        max_length=5,
+                    ),
+                ),
+                (
+                    "course",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="course_type_model",
+                        to="course_app.course",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'course_type',
+                "db_table": "course_type",
             },
         ),
         migrations.CreateModel(
-            name='LessonCourse',
+            name="LessonCourse",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('class_name', models.CharField(help_text='نام کلاس')),
-                ('is_active', models.BooleanField(default=True, help_text='دیتا در سطح اپلیکیشن نمایش داده شود یا خیر')),
-                ('progress', models.CharField(choices=[('not_started', 'Not Started'), ('finished', 'Finished'), ('in_progress', 'In Progress')], default='not_started', help_text='وضعیت پیشرفت کلاس', max_length=11, null=True)),
-                ('for_mobile', models.BooleanField(default=False)),
-                ('coach', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='coach_less_course', to='account_app.coach')),
-                ('course', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='lesson_course', to='course_app.course')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                ("class_name", models.CharField(help_text="نام کلاس")),
+                (
+                    "is_active",
+                    models.BooleanField(
+                        default=True,
+                        help_text="دیتا در سطح اپلیکیشن نمایش داده شود یا خیر",
+                    ),
+                ),
+                (
+                    "progress",
+                    models.CharField(
+                        choices=[
+                            ("not_started", "Not Started"),
+                            ("finished", "Finished"),
+                            ("in_progress", "In Progress"),
+                        ],
+                        default="not_started",
+                        help_text="وضعیت پیشرفت کلاس",
+                        max_length=11,
+                        null=True,
+                    ),
+                ),
+                ("for_mobile", models.BooleanField(default=False)),
+                (
+                    "coach",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="coach_less_course",
+                        to="account_app.coach",
+                    ),
+                ),
+                (
+                    "course",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="lesson_course",
+                        to="course_app.course",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'lesson_course',
+                "db_table": "lesson_course",
             },
         ),
         migrations.CreateModel(
-            name='CallLessonCourse',
+            name="CallLessonCourse",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('call', models.CharField(help_text='تماس', max_length=50)),
-                ('status', models.CharField(choices=[('successful', 'موفق'), ('un_successful', 'ناموفق'), ('nothing', 'چیزی ثبت نشده هست')], help_text='وضعیت تماس', max_length=13)),
-                ('call_answering', models.CharField(help_text='پاسخگوی تماس', max_length=20)),
-                ('project', models.CharField(help_text='بابت پروژه', max_length=30)),
-                ('call_date', models.DateField(help_text='تاریخ مکالمه')),
-                ('result_call', models.TextField(help_text='نتیجه مکالمه')),
-                ('cancellation_alert', models.BooleanField(default=False, help_text='هشدار انصراف')),
-                ('student', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='student_call', to='account_app.student')),
-                ('lesson_course', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='call', to='course_app.lessoncourse')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                ("call", models.CharField(help_text="تماس", max_length=50)),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("successful", "موفق"),
+                            ("un_successful", "ناموفق"),
+                            ("nothing", "چیزی ثبت نشده هست"),
+                        ],
+                        help_text="وضعیت تماس",
+                        max_length=13,
+                    ),
+                ),
+                (
+                    "call_answering",
+                    models.CharField(help_text="پاسخگوی تماس", max_length=20),
+                ),
+                ("project", models.CharField(help_text="بابت پروژه", max_length=30)),
+                ("call_date", models.DateField(help_text="تاریخ مکالمه")),
+                ("result_call", models.TextField(help_text="نتیجه مکالمه")),
+                (
+                    "cancellation_alert",
+                    models.BooleanField(default=False, help_text="هشدار انصراف"),
+                ),
+                (
+                    "student",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="student_call",
+                        to="account_app.student",
+                    ),
+                ),
+                (
+                    "lesson_course",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="call",
+                        to="course_app.lessoncourse",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'call_lesson_course',
+                "db_table": "call_lesson_course",
             },
         ),
         migrations.CreateModel(
-            name='OnlineLink',
+            name="OnlineLink",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('link', models.URLField()),
-                ('is_publish', models.BooleanField(default=True)),
-                ('class_room', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='online_link', to='course_app.lessoncourse')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                ("link", models.URLField()),
+                ("is_publish", models.BooleanField(default=True)),
+                (
+                    "class_room",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="online_link",
+                        to="course_app.lessoncourse",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'online_link',
+                "db_table": "online_link",
             },
         ),
         migrations.CreateModel(
-            name='Section',
+            name="Section",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('title', models.CharField(max_length=255)),
-                ('description', models.TextField(blank=True, null=True)),
-                ('cover_image', models.ImageField(null=True, upload_to='section_cover_image/%Y/%m/%d', validators=[apps.course_app.validators.max_upload_image_validator])),
-                ('is_publish', models.BooleanField(default=True)),
-                ('is_last_section', models.BooleanField(default=False, help_text='اگر تیک این مورد خورده باشد یعنی اخرین سکشن برای درس خواهد بود')),
-                ('course', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='sections', to='course_app.course')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                ("title", models.CharField(max_length=255)),
+                ("description", models.TextField(blank=True, null=True)),
+                (
+                    "cover_image",
+                    models.ImageField(
+                        null=True,
+                        upload_to="section_cover_image/%Y/%m/%d",
+                        validators=[
+                            apps.course_app.validators.max_upload_image_validator
+                        ],
+                    ),
+                ),
+                ("is_publish", models.BooleanField(default=True)),
+                (
+                    "is_last_section",
+                    models.BooleanField(
+                        default=False,
+                        help_text="اگر تیک این مورد خورده باشد یعنی اخرین سکشن برای درس خواهد بود",
+                    ),
+                ),
+                (
+                    "course",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="sections",
+                        to="course_app.course",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'course_section',
-                'permissions': [('can_access_section', 'can access section')],
+                "db_table": "course_section",
+                "permissions": [("can_access_section", "can access section")],
             },
         ),
         migrations.CreateModel(
-            name='PresentAbsent',
+            name="PresentAbsent",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('student_status', models.CharField(choices=[('present', 'حاضر'), ('activity', 'حضور فعال'), ('absent', 'غایب'), ('late_attendance', 'حضور با تاخیر'), ('inactivity', 'عدم فعالیت'), ('nothing', 'خالی')], default='nothing')),
-                ('student', models.ForeignKey(limit_choices_to={'is_active': True}, on_delete=django.db.models.deletion.CASCADE, related_name='student_present_absent', to='account_app.student')),
-                ('section', models.ForeignKey(limit_choices_to={'is_publish': True}, on_delete=django.db.models.deletion.CASCADE, related_name='section_present_absent', to='course_app.section')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "student_status",
+                    models.CharField(
+                        choices=[
+                            ("present", "حاضر"),
+                            ("activity", "حضور فعال"),
+                            ("absent", "غایب"),
+                            ("late_attendance", "حضور با تاخیر"),
+                            ("inactivity", "عدم فعالیت"),
+                            ("nothing", "خالی"),
+                        ],
+                        default="nothing",
+                    ),
+                ),
+                (
+                    "student",
+                    models.ForeignKey(
+                        limit_choices_to={"is_active": True},
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="student_present_absent",
+                        to="account_app.student",
+                    ),
+                ),
+                (
+                    "section",
+                    models.ForeignKey(
+                        limit_choices_to={"is_publish": True},
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="section_present_absent",
+                        to="course_app.section",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'course_section_present_absent',
+                "db_table": "course_section_present_absent",
             },
         ),
         migrations.CreateModel(
-            name='Certificate',
+            name="Certificate",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('unique_code', models.CharField(blank=True, max_length=36, null=True, unique=True)),
-                ('qr_code', models.ImageField(blank=True, upload_to='certificates/qr_codes/%Y/%m/%d/')),
-                ('final_pdf', models.FileField(blank=True, null=True, upload_to='certificates/pdf/%Y/%m/%d/')),
-                ('is_active', models.BooleanField(default=True)),
-                ('student', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='student_certificates', to='account_app.student')),
-                ('section', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='section_certificates', to='course_app.section')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                (
+                    "unique_code",
+                    models.CharField(blank=True, max_length=36, null=True, unique=True),
+                ),
+                (
+                    "qr_code",
+                    models.ImageField(
+                        blank=True, upload_to="certificates/qr_codes/%Y/%m/%d/"
+                    ),
+                ),
+                (
+                    "final_pdf",
+                    models.FileField(
+                        blank=True, null=True, upload_to="certificates/pdf/%Y/%m/%d/"
+                    ),
+                ),
+                ("is_active", models.BooleanField(default=True)),
+                (
+                    "student",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="student_certificates",
+                        to="account_app.student",
+                    ),
+                ),
+                (
+                    "section",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="section_certificates",
+                        to="course_app.section",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'certificate',
+                "db_table": "certificate",
             },
         ),
         migrations.CreateModel(
-            name='SectionFile',
+            name="SectionFile",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('title', models.CharField(help_text='عنوان', max_length=100, null=True)),
-                ('zip_file', models.FileField(blank=True, upload_to='section_file/%Y/%m/%d', validators=[django.core.validators.FileExtensionValidator(['zip', 'rar'])])),
-                ('file_type', models.CharField(choices=[('main', 'تمرین اصلی'), ('more', 'تمرین اضافی')], max_length=9, null=True)),
-                ('answer', models.FileField(blank=True, null=True, upload_to='answer/section_file/%Y/%m/%d', validators=[django.core.validators.FileExtensionValidator(['zip', 'rar'])])),
-                ('is_publish', models.BooleanField(default=True)),
-                ('section', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='section_files', to='course_app.section')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                (
+                    "title",
+                    models.CharField(help_text="عنوان", max_length=100, null=True),
+                ),
+                (
+                    "zip_file",
+                    models.FileField(
+                        blank=True,
+                        upload_to="section_file/%Y/%m/%d",
+                        validators=[
+                            django.core.validators.FileExtensionValidator(
+                                ["zip", "rar"]
+                            )
+                        ],
+                    ),
+                ),
+                (
+                    "file_type",
+                    models.CharField(
+                        choices=[("main", "تمرین اصلی"), ("more", "تمرین اضافی")],
+                        max_length=9,
+                        null=True,
+                    ),
+                ),
+                (
+                    "answer",
+                    models.FileField(
+                        blank=True,
+                        null=True,
+                        upload_to="answer/section_file/%Y/%m/%d",
+                        validators=[
+                            django.core.validators.FileExtensionValidator(
+                                ["zip", "rar"]
+                            )
+                        ],
+                    ),
+                ),
+                ("is_publish", models.BooleanField(default=True)),
+                (
+                    "section",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="section_files",
+                        to="course_app.section",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'course_section_file',
+                "db_table": "course_section_file",
             },
         ),
         migrations.CreateModel(
-            name='SectionQuestion',
+            name="SectionQuestion",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('question_title', models.CharField(max_length=255, null=True)),
-                ('is_publish', models.BooleanField(default=True)),
-                ('section', models.ForeignKey(limit_choices_to={'is_publish': True}, on_delete=django.db.models.deletion.CASCADE, related_name='section_question', to='course_app.section')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                ("question_title", models.CharField(max_length=255, null=True)),
+                ("is_publish", models.BooleanField(default=True)),
+                (
+                    "section",
+                    models.ForeignKey(
+                        limit_choices_to={"is_publish": True},
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="section_question",
+                        to="course_app.section",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'section_question',
+                "db_table": "section_question",
             },
         ),
         migrations.CreateModel(
-            name='AnswerQuestion',
+            name="AnswerQuestion",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('rate', models.CharField(choices=[('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5'), ('6', '6'), ('7', '7'), ('8', '8'), ('9', '9'), ('10', '10')])),
-                ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='student_poll_answer', to='account_app.student')),
-                ('section_question', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='section_question', to='course_app.sectionquestion')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                (
+                    "rate",
+                    models.CharField(
+                        choices=[
+                            ("1", "1"),
+                            ("2", "2"),
+                            ("3", "3"),
+                            ("4", "4"),
+                            ("5", "5"),
+                            ("6", "6"),
+                            ("7", "7"),
+                            ("8", "8"),
+                            ("9", "9"),
+                            ("10", "10"),
+                        ]
+                    ),
+                ),
+                (
+                    "student",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="student_poll_answer",
+                        to="account_app.student",
+                    ),
+                ),
+                (
+                    "section_question",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="section_question",
+                        to="course_app.sectionquestion",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'poll_answer',
+                "db_table": "poll_answer",
             },
         ),
         migrations.CreateModel(
-            name='SectionVideo',
+            name="SectionVideo",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('title', models.CharField(help_text='عنوان', max_length=50, null=True)),
-                ('video', models.FileField(blank=True, upload_to='section_video/%Y/%m/%d', validators=[django.core.validators.FileExtensionValidator(['mp4'])])),
-                ('video_url', models.CharField(blank=True, max_length=500, null=True)),
-                ('is_publish', models.BooleanField(default=True)),
-                ('section', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='section_videos', to='course_app.section')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                (
+                    "title",
+                    models.CharField(help_text="عنوان", max_length=50, null=True),
+                ),
+                (
+                    "video",
+                    models.FileField(
+                        blank=True,
+                        upload_to="section_video/%Y/%m/%d",
+                        validators=[
+                            django.core.validators.FileExtensionValidator(["mp4"])
+                        ],
+                    ),
+                ),
+                ("video_url", models.CharField(blank=True, max_length=500, null=True)),
+                ("is_publish", models.BooleanField(default=True)),
+                (
+                    "section",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="section_videos",
+                        to="course_app.section",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'course_section_video',
+                "db_table": "course_section_video",
             },
         ),
         migrations.CreateModel(
-            name='SendSectionFile',
+            name="SendSectionFile",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('send_file_status', models.CharField(blank=True, choices=[('rejected', 'رد شده'), ('accept_to_wait', 'در انتظا تایید'), ('accepted', 'تایید شده')], default='accept_to_wait', help_text='وضعیت فایل ارسالی', max_length=14, null=True)),
-                ('zip_file', models.FileField(help_text='فایل ارسالی', upload_to=apps.course_app.models.student_send_section_file)),
-                ('comment_student', models.TextField(help_text='توضیحی در مورد تمرین ارسالی', null=True)),
-                ('comment_teacher', models.CharField(blank=True, help_text='توضیح مربی در مورد فایل ارسال شده دانشجو', max_length=255, null=True)),
-                ('score', models.FloatField(blank=True, help_text='نمره تکلیف ارسالی', null=True, validators=[django.core.validators.MinValueValidator(0), django.core.validators.MaxValueValidator(100)])),
-                ('section_file', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='section_files', to='course_app.sectionfile')),
-                ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='send_section_files', to='account_app.student')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                (
+                    "send_file_status",
+                    models.CharField(
+                        blank=True,
+                        choices=[
+                            ("rejected", "رد شده"),
+                            ("accept_to_wait", "در انتظا تایید"),
+                            ("accepted", "تایید شده"),
+                        ],
+                        default="accept_to_wait",
+                        help_text="وضعیت فایل ارسالی",
+                        max_length=14,
+                        null=True,
+                    ),
+                ),
+                (
+                    "zip_file",
+                    models.FileField(
+                        help_text="فایل ارسالی",
+                        upload_to=apps.course_app.models.student_send_section_file,
+                    ),
+                ),
+                (
+                    "comment_student",
+                    models.TextField(
+                        help_text="توضیحی در مورد تمرین ارسالی", null=True
+                    ),
+                ),
+                (
+                    "comment_teacher",
+                    models.CharField(
+                        blank=True,
+                        help_text="توضیح مربی در مورد فایل ارسال شده دانشجو",
+                        max_length=255,
+                        null=True,
+                    ),
+                ),
+                (
+                    "score",
+                    models.FloatField(
+                        blank=True,
+                        help_text="نمره تکلیف ارسالی",
+                        null=True,
+                        validators=[
+                            django.core.validators.MinValueValidator(0),
+                            django.core.validators.MaxValueValidator(100),
+                        ],
+                    ),
+                ),
+                (
+                    "section_file",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="section_files",
+                        to="course_app.sectionfile",
+                    ),
+                ),
+                (
+                    "student",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="send_section_files",
+                        to="account_app.student",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'send_file',
+                "db_table": "send_file",
             },
         ),
         migrations.CreateModel(
-            name='SignupCourse',
+            name="SignupCourse",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('student_name', models.CharField(help_text='نام و نام خوادگی داشن اموز', max_length=120)),
-                ('phone_number', models.CharField(help_text='شماره تلفن ', max_length=15)),
-                ('referral_code', models.CharField(blank=True, max_length=30)),
-                ('course', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='course_signup', to='course_app.course')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                (
+                    "student_name",
+                    models.CharField(
+                        help_text="نام و نام خوادگی داشن اموز", max_length=120
+                    ),
+                ),
+                (
+                    "phone_number",
+                    models.CharField(help_text="شماره تلفن ", max_length=15),
+                ),
+                ("referral_code", models.CharField(blank=True, max_length=30)),
+                (
+                    "course",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="course_signup",
+                        to="course_app.course",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'course_signup',
+                "db_table": "course_signup",
             },
         ),
         migrations.CreateModel(
-            name='StudentAccessSection',
+            name="StudentAccessSection",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('is_access', models.BooleanField(default=False)),
-                ('section', models.ForeignKey(limit_choices_to={'is_publish': True}, on_delete=django.db.models.deletion.CASCADE, related_name='student_section', to='course_app.section')),
-                ('student', models.ForeignKey(limit_choices_to={'is_active': True}, on_delete=django.db.models.deletion.CASCADE, related_name='student_access_section', to='account_app.student')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                ("is_access", models.BooleanField(default=False)),
+                (
+                    "section",
+                    models.ForeignKey(
+                        limit_choices_to={"is_publish": True},
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="student_section",
+                        to="course_app.section",
+                    ),
+                ),
+                (
+                    "student",
+                    models.ForeignKey(
+                        limit_choices_to={"is_active": True},
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="student_access_section",
+                        to="account_app.student",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'student_access_section',
+                "db_table": "student_access_section",
             },
         ),
         migrations.CreateModel(
-            name='StudentEnrollment',
+            name="StudentEnrollment",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('student_status', models.CharField(blank=True, choices=[('active', 'فعال'), ('cancel', 'انصراف'), ('not_paid', 'پرداخت نکرده')], default='active', max_length=8)),
-                ('lesson_course', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='lesson_course_enrollment', to='course_app.lessoncourse')),
-                ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='student_enrollment', to='account_app.student')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                (
+                    "student_status",
+                    models.CharField(
+                        blank=True,
+                        choices=[
+                            ("active", "فعال"),
+                            ("cancel", "انصراف"),
+                            ("not_paid", "پرداخت نکرده"),
+                        ],
+                        default="active",
+                        max_length=8,
+                    ),
+                ),
+                (
+                    "lesson_course",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="lesson_course_enrollment",
+                        to="course_app.lessoncourse",
+                    ),
+                ),
+                (
+                    "student",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="student_enrollment",
+                        to="account_app.student",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'lesson_course_students',
+                "db_table": "lesson_course_students",
             },
         ),
         migrations.AddField(
-            model_name='lessoncourse',
-            name='students',
-            field=models.ManyToManyField(related_name='student_lesson_course', through='course_app.StudentEnrollment', to='account_app.student'),
+            model_name="lessoncourse",
+            name="students",
+            field=models.ManyToManyField(
+                related_name="student_lesson_course",
+                through="course_app.StudentEnrollment",
+                to="account_app.student",
+            ),
         ),
         migrations.CreateModel(
-            name='StudentSectionScore',
+            name="StudentSectionScore",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('score', models.FloatField(validators=[django.core.validators.MinValueValidator(0), django.core.validators.MaxValueValidator(100)])),
-                ('section', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='section_score', to='course_app.section')),
-                ('student', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='student_section_score', to='account_app.student')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                (
+                    "score",
+                    models.FloatField(
+                        validators=[
+                            django.core.validators.MinValueValidator(0),
+                            django.core.validators.MaxValueValidator(100),
+                        ]
+                    ),
+                ),
+                (
+                    "section",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="section_score",
+                        to="course_app.section",
+                    ),
+                ),
+                (
+                    "student",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="student_section_score",
+                        to="account_app.student",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'course_section_score',
+                "db_table": "course_section_score",
             },
         ),
         migrations.AddConstraint(
-            model_name='course',
-            constraint=models.UniqueConstraint(fields=('id', 'order_number'), name='unique_order_per_course_id'),
+            model_name="course",
+            constraint=models.UniqueConstraint(
+                fields=("id", "order_number"), name="unique_order_per_course_id"
+            ),
         ),
         migrations.AddConstraint(
-            model_name='presentabsent',
-            constraint=models.UniqueConstraint(fields=('section', 'student'), name='unique_section_student'),
+            model_name="presentabsent",
+            constraint=models.UniqueConstraint(
+                fields=("section", "student"), name="unique_section_student"
+            ),
         ),
     ]

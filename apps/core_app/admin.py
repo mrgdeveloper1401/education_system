@@ -9,9 +9,13 @@ class SitemapEntryAdmin(admin.ModelAdmin):
     list_per_page = 20
 
     def get_queryset(self, request):
-        return super().get_queryset(request).defer(
-            "is_deleted",
-            "deleted_at",
+        return (
+            super()
+            .get_queryset(request)
+            .defer(
+                "is_deleted",
+                "deleted_at",
+            )
         )
 
 
@@ -24,25 +28,31 @@ class CourseSiteInformationAdmin(admin.ModelAdmin):
         "video_counter",
         "created_at",
         "updated_at",
-        "id"
+        "id",
     )
     list_per_page = 20
 
     def get_queryset(self, request):
-        return super().get_queryset(request).defer(
-            "is_deleted",
-            "deleted_at",
+        return (
+            super()
+            .get_queryset(request)
+            .defer(
+                "is_deleted",
+                "deleted_at",
+            )
         )
 
 
 @admin.register(Image)
 class ImageAdmin(admin.ModelAdmin):
-    list_display = ("title", 'file_size', "created_at", "updated_at",)
+    list_display = (
+        "title",
+        "file_size",
+        "created_at",
+        "updated_at",
+    )
     list_display_links = ("title",)
     list_per_page = 20
 
     def get_queryset(self, request):
-        return super().get_queryset(request).defer(
-            "is_deleted",
-            "deleted_at"
-        )
+        return super().get_queryset(request).defer("is_deleted", "deleted_at")

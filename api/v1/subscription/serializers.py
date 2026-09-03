@@ -9,7 +9,11 @@ from django.utils.translation import gettext_lazy as _
 from apps.course_app.enums import PlanTypeEnum
 from apps.course_app.models import Course, CourseTypeModel
 from apps.discount_app.models import Coupon, UserCoupon
-from apps.subscription_app.models import Subscription, PaymentSubscription, PaymentVerify
+from apps.subscription_app.models import (
+    Subscription,
+    PaymentSubscription,
+    PaymentVerify,
+)
 from base.utils.gateway import Zibal
 
 
@@ -50,7 +54,9 @@ class CreateSubscriptionSerializer(serializers.ModelSerializer):
         queryset=Course.objects.only("course_name"),
     )
     crud_course_type = serializers.PrimaryKeyRelatedField(
-        queryset=CourseTypeModel.objects.only("course_type", "amount", "plan_type", "course_type")
+        queryset=CourseTypeModel.objects.only(
+            "course_type", "amount", "plan_type", "course_type"
+        )
     )
 
     class Meta:
@@ -59,10 +65,10 @@ class CreateSubscriptionSerializer(serializers.ModelSerializer):
         read_only_fields = ("user",)
 
     def create(self, validated_data):
-        user = self.context['request'].user
-        plan_type = validated_data['crud_course_type'].plan_type
-        day = validated_data['crud_course_type'].amount
-        course_type = validated_data['crud_course_type']
+        user = self.context["request"].user
+        plan_type = validated_data["crud_course_type"].plan_type
+        day = validated_data["crud_course_type"].amount
+        course_type = validated_data["crud_course_type"]
 
         end_date = timezone.now()
 
@@ -74,9 +80,7 @@ class CreateSubscriptionSerializer(serializers.ModelSerializer):
             end_date += timedelta(days=day)
 
         data = Subscription.objects.create(
-            user=user,
-            end_date=end_date,
-            **validated_data
+            user=user, end_date=end_date, **validated_data
         )
         data.price = course_type.final_price
         data.save()
@@ -108,32 +112,34 @@ class PaySubscriptionSerializer(serializers.ModelSerializer):
         fields = ("subscription", "coupon_code")
 
     def validate(self, attrs):
-        request = self.context['request']
-        subscription = attrs['subscription']
+        request = self.context["request"]
+        subscription = attrs["subscription"]
 
         # بررسی وجود اشتراک با شرایط مورد نظر
-        get_sub = Subscription.objects.filter(
-            id=subscription.id,
-            status="pending",
-            user_id=request.user.id
-        ).only(
-            "user__mobile_phone",
-            "user__email",
-            "user__first_name",
-            "user__last_name",
-            "status"
-        ).first()  # استفاده از first() به جای فیلتر کامل
+        get_sub = (
+            Subscription.objects.filter(
+                id=subscription.id, status="pending", user_id=request.user.id
+            )
+            .only(
+                "user__mobile_phone",
+                "user__email",
+                "user__first_name",
+                "user__last_name",
+                "status",
+            )
+            .first()
+        )  # استفاده از first() به جای فیلتر کامل
 
         if not get_sub:
             raise exceptions.NotFound()
 
-        attrs['get_sub'] = get_sub
+        attrs["get_sub"] = get_sub
         return attrs
 
     def create(self, validated_data):
-        request = self.context['request']
-        get_sub = validated_data['get_sub']
-        coupon_code = validated_data.get('coupon_code')
+        request = self.context["request"]
+        get_sub = validated_data["get_sub"]
+        coupon_code = validated_data.get("coupon_code")
         user = request.user
 
         # اگر کد تخفیف وجود دارد
@@ -153,10 +159,7 @@ class PaySubscriptionSerializer(serializers.ModelSerializer):
         """اعتبارسنجی کوپن و بررسی استفاده کاربر"""
         now = timezone.now()
         coupon = Coupon.objects.filter(
-            code=coupon_code,
-            is_active=True,
-            valid_from__lte=now,
-            valid_to__gte=now
+            code=coupon_code, is_active=True, valid_from__lte=now, valid_to__gte=now
         ).first()
 
         if not coupon:
@@ -164,8 +167,7 @@ class PaySubscriptionSerializer(serializers.ModelSerializer):
 
         # بررسی تعداد استفاده کاربر از این کوپن
         usage_count = UserCoupon.objects.filter(
-            user_id=user.id,
-            coupon_id=coupon.id
+            user_id=user.id, coupon_id=coupon.id
         ).count()
 
         if usage_count >= coupon.max_usage:
@@ -179,15 +181,11 @@ class PaySubscriptionSerializer(serializers.ModelSerializer):
 
     def _handle_full_discount(self, subscription, coupon):
         """پردازش تخفیف 100%"""
-        data = {
-            "status": "success",
-            "message": "اشتراک شما با موفقیت فعال شد"
-        }
+        data = {"status": "success", "message": "اشتراک شما با موفقیت فعال شد"}
 
         # ایجاد پرداخت و به‌روزرسانی وضعیت اشتراک
         pay_sub = PaymentSubscription.objects.create(
-            subscription=subscription,
-            response_payment=data
+            subscription=subscription, response_payment=data
         )
 
         subscription.status = "ACTIVE"
@@ -197,7 +195,11 @@ class PaySubscriptionSerializer(serializers.ModelSerializer):
 
     def _process_payment(self, subscription, coupon_code=None):
         """پردازش پرداخت از طریق درگاه"""
-        amount = subscription.final_price_by_tax_coupon(coupon_code) if coupon_code else subscription.price
+        amount = (
+            subscription.final_price_by_tax_coupon(coupon_code)
+            if coupon_code
+            else subscription.price
+        )
 
         instance = Zibal(
             api_key=settings.ZIBAL_MERCHENT_ID,
@@ -206,14 +208,14 @@ class PaySubscriptionSerializer(serializers.ModelSerializer):
         )
 
         pay_sub = PaymentSubscription.objects.create(
-            subscription=subscription,
-            response_payment=instance.request_url()
+            subscription=subscription, response_payment=instance.request_url()
         )
 
         return pay_sub
 
     def to_representation(self, instance):
         return instance.response_payment
+
 
 class PaymentVerifySerializer(serializers.ModelSerializer):
     class Meta:

@@ -13,13 +13,14 @@ class ExamViewSet(viewsets.ModelViewSet):
     """
     pagination --> 20 item
     """
+
     serializer_class = serializers.ExamSerializer
     pagination_class = ExamPagination
 
     def get_serializer_class(self):
         user = self.request.user
 
-        if self.action == 'create':
+        if self.action == "create":
             return serializers.CreateExamSerializer
 
         if self.action == "retrieve" and (user.is_coach or user.is_staff):
@@ -30,38 +31,38 @@ class ExamViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
 
-        queryset =  Exam.objects.select_related(
-            "course"
-        ).prefetch_related(
-            Prefetch("questions", queryset=Question.objects.only("id", "exam_id"))
-        ).only(
-            "name",
-            "description",
-            "course__course_name",
-            "is_active",
-            "start_datetime",
-            "number_of_time",
-            "start_datetime"
+        queryset = (
+            Exam.objects.select_related("course")
+            .prefetch_related(
+                Prefetch("questions", queryset=Question.objects.only("id", "exam_id"))
+            )
+            .only(
+                "name",
+                "description",
+                "course__course_name",
+                "is_active",
+                "start_datetime",
+                "number_of_time",
+                "start_datetime",
+            )
         )
         if self.request.user.is_coach is False and user.is_staff is False:
             queryset = queryset.filter(
-                user_access__id=self.request.user.id,
-                is_active=True
+                user_access__id=self.request.user.id, is_active=True
             )
         if self.action == "retrieve" and (user.is_staff or user.is_coach):
             queryset = queryset.prefetch_related(
                 Prefetch(
-                    "user_access", queryset=User.objects.filter(is_active=True).only(
-                        "first_name",
-                        "last_name",
-                        "mobile_phone"
-                    )
+                    "user_access",
+                    queryset=User.objects.filter(is_active=True).only(
+                        "first_name", "last_name", "mobile_phone"
+                    ),
                 )
             )
         return queryset
 
     def get_permissions(self):
-        if self.request.method in ['POST', "PUT", "PATCH", "DELETE"]:
+        if self.request.method in ["POST", "PUT", "PATCH", "DELETE"]:
             self.permission_classes = (IsCoachUser,)
         else:
             self.permission_classes = (permissions.IsAuthenticated,)
@@ -74,43 +75,41 @@ class QuestionViewSet(viewsets.ModelViewSet):
     'DE', --> 'تشریحی' \n
     filter query --> ?search=MC or ?search=DE
     """
+
     serializer_class = serializers.QuestionSerializer
     filter_backends = (filters.SearchFilter,)
     search_fields = ("question_type__iexact",)
 
     def get_serializer_context(self):
         content = super().get_serializer_context()
-        content['exam_pk'] = self.kwargs['exam_pk']
+        content["exam_pk"] = self.kwargs["exam_pk"]
         return content
 
     def get_permissions(self):
-        if self.request.method in ['POST', "PUT", "PATCH", "DELETE"]:
+        if self.request.method in ["POST", "PUT", "PATCH", "DELETE"]:
             self.permission_classes = (IsCoachUser,)
         else:
             self.permission_classes = (permissions.IsAuthenticated,)
         return super().get_permissions()
 
     def get_queryset(self):
-        return Question.objects.filter(
-            is_active=True,
-            exam_id=self.kwargs["exam_pk"],
-        ).prefetch_related(
-            Prefetch(
-                "choices", queryset=Choice.objects.only("id", "text", "question_id")
+        return (
+            Question.objects.filter(
+                is_active=True,
+                exam_id=self.kwargs["exam_pk"],
             )
-        ).only(
-            "name",
-            "question_file",
-            "max_score",
-            "question_type"
+            .prefetch_related(
+                Prefetch(
+                    "choices", queryset=Choice.objects.only("id", "text", "question_id")
+                )
+            )
+            .only("name", "question_file", "max_score", "question_type")
         )
 
     # check permission user taken the exam
     def check_permission_view_question(self, request):
         get_participation = Participation.objects.filter(
-            student__user=request.user,
-            exam_id=self.kwargs["exam_pk"],
-            is_access=True
+            student__user=request.user, exam_id=self.kwargs["exam_pk"], is_access=True
         )
 
         if not get_participation.exists():
@@ -133,47 +132,59 @@ class QuestionChoiceViewSet(viewsets.ModelViewSet):
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        context['question_pk'] = self.kwargs['question_pk']
+        context["question_pk"] = self.kwargs["question_pk"]
         return context
 
     def get_queryset(self):
-        return Choice.objects.filter(question_id=self.kwargs['question_pk']).only(
-            "text",
-            "is_correct"
+        return Choice.objects.filter(question_id=self.kwargs["question_pk"]).only(
+            "text", "is_correct"
         )
 
 
-class ParticipationViewSet(mixins.ListModelMixin,
-                           mixins.RetrieveModelMixin,
-                           mixins.CreateModelMixin,
-                           mixins.UpdateModelMixin,
-                           viewsets.GenericViewSet):
+class ParticipationViewSet(
+    mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.CreateModelMixin,
+    mixins.UpdateModelMixin,
+    viewsets.GenericViewSet,
+):
     serializer_class = serializers.ParticipationSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
-        queryset = Participation.objects.filter(
-            exam_id=self.kwargs["exam_pk"],
-        ).annotate(
-            exam_questions_count=Count(
-                "exam__questions",
-                distinct=True,
-                filter=(Q(exam__questions__is_deleted=False) | Q(exam__questions__is_deleted=None))
-            ),
-            user_answer_count=Count(
-                "participation_answer",
-                distinct=True,
-                filter=(Q(participation_answer__is_deleted=False) | Q(participation_answer__is_deleted=None))
-            ),
-        ).select_related("exam").only(
-            "created_at",
-            "exam__name",
-            "exam__start_datetime",
-            "student_id",
-            "is_access",
-            "score",
-            "created_at",
-            "exam__number_of_time"
+        queryset = (
+            Participation.objects.filter(
+                exam_id=self.kwargs["exam_pk"],
+            )
+            .annotate(
+                exam_questions_count=Count(
+                    "exam__questions",
+                    distinct=True,
+                    filter=(
+                        Q(exam__questions__is_deleted=False)
+                        | Q(exam__questions__is_deleted=None)
+                    ),
+                ),
+                user_answer_count=Count(
+                    "participation_answer",
+                    distinct=True,
+                    filter=(
+                        Q(participation_answer__is_deleted=False)
+                        | Q(participation_answer__is_deleted=None)
+                    ),
+                ),
+            )
+            .select_related("exam")
+            .only(
+                "created_at",
+                "exam__name",
+                "exam__start_datetime",
+                "student_id",
+                "is_access",
+                "score",
+                "created_at",
+                "exam__number_of_time",
+            )
         )
 
         #  check request has coach or student
@@ -187,12 +198,12 @@ class ParticipationViewSet(mixins.ListModelMixin,
         return context
 
     def get_serializer_class(self):
-        if self.action in ['update', "partial_update"]:
+        if self.action in ["update", "partial_update"]:
             return serializers.ParticipationCoachSerializer
         return super().get_serializer_class()
 
     def get_permissions(self):
-        if self.request.method in ['PUT', 'PATCH']:
+        if self.request.method in ["PUT", "PATCH"]:
             self.permission_classes = (permissions.IsAuthenticated, IsCoachUser)
         return super().get_permissions()
 
@@ -202,31 +213,32 @@ class AnswerViewSet(
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
-    mixins.UpdateModelMixin
+    mixins.UpdateModelMixin,
 ):
     serializer_class = serializers.AnswerSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
-        return Answer.objects.filter(
-            participation_id=self.kwargs["participation_pk"],
-        ).select_related(
-            "participation",
-            "question"
-        ).only(
-            "participation__is_access",
-            "question__name",
-            "selected_choices",
-            "text_answer",
-            "given_score",
-            "choice_file",
-            "created_at"
+        return (
+            Answer.objects.filter(
+                participation_id=self.kwargs["participation_pk"],
+            )
+            .select_related("participation", "question")
+            .only(
+                "participation__is_access",
+                "question__name",
+                "selected_choices",
+                "text_answer",
+                "given_score",
+                "choice_file",
+                "created_at",
+            )
         )
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        context['participation_pk'] = self.kwargs['participation_pk']
-        context['exam_pk'] = self.kwargs['exam_pk']
+        context["participation_pk"] = self.kwargs["participation_pk"]
+        context["exam_pk"] = self.kwargs["exam_pk"]
         return context
 
 
@@ -244,40 +256,52 @@ class ParticipationListRetrieveViewSet(
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     mixins.UpdateModelMixin,
-    viewsets.GenericViewSet
+    viewsets.GenericViewSet,
 ):
     """
     filter query --> score=1 (return score null)
     """
+
     serializer_class = serializers.ParticipationListRetrieveSerializer
     permission_classes = (IsCoachUser,)
 
     def get_queryset(self):
-        return Participation.objects.filter(
-        exam_id=self.kwargs['exam_pk'],
-        exam__coach_access__id=self.request.user.id
-    ).select_related(
-        # "exam__coach_access",
-        "student__user",
-        "exam"
-    ).annotate(
-            exam_questions_count=Count(
-                "exam__questions",
-                distinct=True,
-                filter=(Q(exam__questions__is_deleted=False) | Q(exam__questions__is_deleted=None))
-            ),
-            user_answer_count=Count(
-                "participation_answer",
-                distinct=True,
-                filter=(Q(participation_answer__is_deleted=False) | Q(participation_answer__is_deleted=None))
-            ),
-        ).only(
-        "exam__name",
-        # "student__user__mobile_phone",
-        "student__user__first_name",
-        "student__user__last_name",
-        "score"
-    )
+        return (
+            Participation.objects.filter(
+                exam_id=self.kwargs["exam_pk"],
+                exam__coach_access__id=self.request.user.id,
+            )
+            .select_related(
+                # "exam__coach_access",
+                "student__user",
+                "exam",
+            )
+            .annotate(
+                exam_questions_count=Count(
+                    "exam__questions",
+                    distinct=True,
+                    filter=(
+                        Q(exam__questions__is_deleted=False)
+                        | Q(exam__questions__is_deleted=None)
+                    ),
+                ),
+                user_answer_count=Count(
+                    "participation_answer",
+                    distinct=True,
+                    filter=(
+                        Q(participation_answer__is_deleted=False)
+                        | Q(participation_answer__is_deleted=None)
+                    ),
+                ),
+            )
+            .only(
+                "exam__name",
+                # "student__user__mobile_phone",
+                "student__user__first_name",
+                "student__user__last_name",
+                "score",
+            )
+        )
 
     def filter_queryset(self, queryset):
         score = self.request.query_params.get("score", None)
@@ -291,7 +315,7 @@ class CoachUserAnswerViewSet(
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     mixins.UpdateModelMixin,
-    viewsets.GenericViewSet
+    viewsets.GenericViewSet,
 ):
     serializer_class = serializers.CoachUserAnswerSerializer
     permission_classes = (IsCoachUser,)
@@ -303,19 +327,23 @@ class CoachUserAnswerViewSet(
     #         return super().get_serializer_class()
 
     def get_queryset(self):
-        return Answer.objects.filter(
-            participation_id=self.kwargs['coach_participation_pk']
-        ).select_related(
-            "question"
-        ).prefetch_related(
-            Prefetch(
-                "selected_choices", queryset=Choice.objects.only("text", "is_correct")
+        return (
+            Answer.objects.filter(
+                participation_id=self.kwargs["coach_participation_pk"]
             )
-        ).only(
-            "question__name",
-            "text_answer",
-            "given_score",
-            "choice_file",
-            "selected_choices",
-            "question__max_score"
+            .select_related("question")
+            .prefetch_related(
+                Prefetch(
+                    "selected_choices",
+                    queryset=Choice.objects.only("text", "is_correct"),
+                )
+            )
+            .only(
+                "question__name",
+                "text_answer",
+                "given_score",
+                "choice_file",
+                "selected_choices",
+                "question__max_score",
+            )
         )

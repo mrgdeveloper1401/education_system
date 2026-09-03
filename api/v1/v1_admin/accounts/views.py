@@ -12,6 +12,7 @@ class AdminBestStudentViewSet(viewsets.ModelViewSet):
     pagination --> 20 item
     permission --? only amdin user
     """
+
     permission_classes = (permissions.IsAdminUser,)
     pagination_class = CommonPagination
     serializer_class = serializers.AdminBestStudentSerializer
@@ -26,13 +27,12 @@ class AdminStudentApiView(generics.ListAPIView):
     permission --? only admin user
     filter query --> ?phone=phone_number
     """
+
     serializer_class = serializers.AdminStudentListSerializer
     permission_classes = (permissions.IsAdminUser,)
     queryset = Student.objects.only(
-        "user__first_name", "user__last_name",  "user__mobile_phone", "is_active"
-    ).select_related(
-        "user"
-    )
+        "user__first_name", "user__last_name", "user__mobile_phone", "is_active"
+    ).select_related("user")
 
     def filter_queryset(self, queryset):
         phone = self.request.query_params.get("phone", None)
@@ -49,8 +49,11 @@ class AdminCoachApiView(generics.ListAPIView):
     permission --> only admin user \n
     search field --> use mobile phon (?mobile_phone=phone_number)
     """
-    queryset = Coach.objects.filter(is_active=True).select_related("user").only(
-        "user__first_name", "user__last_name", "user__mobile_phone"
+
+    queryset = (
+        Coach.objects.filter(is_active=True)
+        .select_related("user")
+        .only("user__first_name", "user__last_name", "user__mobile_phone")
     )
     serializer_class = serializers.AdminCouchListSerializer
     permission_classes = (CoachAndAdminPermission,)

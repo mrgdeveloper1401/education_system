@@ -13,7 +13,7 @@ class ConsultationTopic(CreateMixin, UpdateMixin, SoftDeleteMixin):
     name = models.CharField(max_length=255, unique=True)
 
     class Meta:
-        db_table = 'consultation_topic'
+        db_table = "consultation_topic"
 
 
 class ConsultationSchedule(CreateMixin, UpdateMixin, SoftDeleteMixin):
@@ -29,6 +29,7 @@ class ConsultationSchedule(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
     def generate_slots(self):
         from datetime import timedelta
+
         slot_object = []
         current_date = self.start_date
         while current_date <= self.end_date:
@@ -48,23 +49,31 @@ class ConsultationSchedule(CreateMixin, UpdateMixin, SoftDeleteMixin):
         self.generate_slots()
 
     class Meta:
-        db_table = 'consultation_schedule'
+        db_table = "consultation_schedule"
 
 
 class ConsultationRequest(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    slot = models.ForeignKey("ConsultationSlot", on_delete=models.PROTECT, related_name="consultation_slot_slot")
-    mobile_phone = models.CharField(_("شماره موبایل"), max_length=11, validators=[MobileRegexValidator()])
+    slot = models.ForeignKey(
+        "ConsultationSlot",
+        on_delete=models.PROTECT,
+        related_name="consultation_slot_slot",
+    )
+    mobile_phone = models.CharField(
+        _("شماره موبایل"), max_length=11, validators=[MobileRegexValidator()]
+    )
     first_name = models.CharField(_("نام کد اموز"), max_length=30)
     last_name = models.CharField(_("نام خانوادگی کد اموز"), max_length=30)
     is_answer = models.BooleanField(default=False)
     topic = models.CharField(max_length=100, blank=True, null=True)
 
     class Meta:
-        db_table = 'consultation_request'
+        db_table = "consultation_request"
 
 
 class ConsultationSlot(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    schedule = models.ForeignKey(ConsultationSchedule, on_delete=models.PROTECT, related_name="consultation_slot")
+    schedule = models.ForeignKey(
+        ConsultationSchedule, on_delete=models.PROTECT, related_name="consultation_slot"
+    )
     date = models.DateField()
     is_available = models.BooleanField(default=True)
 
@@ -74,4 +83,4 @@ class ConsultationSlot(CreateMixin, UpdateMixin, SoftDeleteMixin):
     #     return f'{self.date} {self.is_available}'
 
     class Meta:
-        db_table = 'consultation_slot'
+        db_table = "consultation_slot"

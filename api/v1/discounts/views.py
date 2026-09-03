@@ -13,13 +13,12 @@ class DiscountViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = super().get_queryset()
 
-        content_type = self.request.query_params.get('content_type')
-        object_id = self.request.query_params.get('object_id')
+        content_type = self.request.query_params.get("content_type")
+        object_id = self.request.query_params.get("object_id")
 
         if content_type and object_id:
             queryset = queryset.filter(
-                content_type__model=content_type,
-                object_id=object_id
+                content_type__model=content_type, object_id=object_id
             )
 
         return queryset
@@ -31,8 +30,6 @@ class FirstOneCouponViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         valid_from__lte=timezone.now(),
         valid_to__gt=timezone.now(),
         # for_first=True,
-        max_usage=1
-    ).only(
-        "code", "valid_to", "valid_from"
-    )
+        max_usage=1,
+    ).only("code", "valid_to", "valid_from")
     serializer_class = serializers.FirstOneCouponSerializer

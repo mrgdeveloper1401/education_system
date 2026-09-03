@@ -17,14 +17,14 @@ class Coupon(CreateMixin, UpdateMixin, SoftDeleteMixin):
         _("حداکثر استفاده"),
         blank=True,
         null=True,
-        help_text=_("توسط کاربر چند بار استفاده شود")
+        help_text=_("توسط کاربر چند بار استفاده شود"),
     )
-    discount = models.IntegerField(help_text=_("درصد کد تخفیف"),
-        validators=[MinValueValidator(0), MaxValueValidator(100)]
+    discount = models.IntegerField(
+        help_text=_("درصد کد تخفیف"),
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
     )
     is_active = models.BooleanField(default=True)
     # for_first = models.BooleanField(default=False)
-
 
     def is_valid(self):
         now = timezone.now()
@@ -37,11 +37,11 @@ class Coupon(CreateMixin, UpdateMixin, SoftDeleteMixin):
 class Discount(CreateMixin, UpdateMixin, SoftDeleteMixin):
     content_type = models.ForeignKey(ContentType, on_delete=models.PROTECT, null=True)
     object_id = models.PositiveIntegerField(null=True)
-    content_object = GenericForeignKey('content_type', 'object_id')
+    content_object = GenericForeignKey("content_type", "object_id")
 
     percent = models.PositiveSmallIntegerField(
         verbose_name="درصد تخفیف",
-        validators=[MaxValueValidator(100), MinValueValidator(0)]
+        validators=[MaxValueValidator(100), MinValueValidator(0)],
     )
     start_date = models.DateTimeField(verbose_name="تاریخ شروع تخفیف")
     end_date = models.DateTimeField(verbose_name="تاریخ پایان تخفیف")
@@ -58,15 +58,10 @@ class UserCoupon(CreateMixin, SoftDeleteMixin):
     """
     In this model, it displays the discount codes used by the user.
     """
-    user = models.ForeignKey(
-        User,
-        on_delete=models.PROTECT,
-        related_name="user_coupon"
-    )
+
+    user = models.ForeignKey(User, on_delete=models.PROTECT, related_name="user_coupon")
     coupon = models.ForeignKey(
-        Coupon,
-        related_name="coupon_user_coupon",
-        on_delete=models.PROTECT
+        Coupon, related_name="coupon_user_coupon", on_delete=models.PROTECT
     )
 
     class Meta:

@@ -5,16 +5,16 @@ from .views import (
     ConsultationScheduleViewSet,
     ConsultationSlotViewSet,
     ConsultationRequestViewSet,
-    AnswerViewSet
+    AnswerViewSet,
 )
 
-app_name = 'advertise'
+app_name = "advertise"
 router = DefaultRouter()
 
-router.register('topic', ConsultationTopicViewSet, basename='topic')
-router.register('schedule', ConsultationScheduleViewSet, basename='schedule')
-router.register('slot', ConsultationSlotViewSet, basename='slot')
-router.register('request', ConsultationRequestViewSet, basename='request')
-router.register('answered', AnswerViewSet, basename='ConsultationAnswer')
+router.register("topic", ConsultationTopicViewSet, basename="topic")
+router.register("schedule", ConsultationScheduleViewSet, basename="schedule")
+router.register("slot", ConsultationSlotViewSet, basename="slot")
+router.register("request", ConsultationRequestViewSet, basename="request")
+router.register("answered", AnswerViewSet, basename="ConsultationAnswer")
 
-urlpatterns =  router.urls
+urlpatterns = router.urls

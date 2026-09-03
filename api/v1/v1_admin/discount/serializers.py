@@ -29,12 +29,14 @@ class CreateDiscountSerializer(serializers.Serializer):
     def create(self, validated_data):
         lst = []
         for i in validated_data.get("discount"):
-            lst.append(Discount(
-                percent=i["percent"],
-                course_id=i["course"],
-                start_date=i["start_date"],
-                end_date=i["end_date"],
-            ))
+            lst.append(
+                Discount(
+                    percent=i["percent"],
+                    course_id=i["course"],
+                    start_date=i["start_date"],
+                    end_date=i["end_date"],
+                )
+            )
 
         if lst:
             discounts = Discount.objects.bulk_create(lst)

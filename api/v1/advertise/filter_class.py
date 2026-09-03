@@ -7,5 +7,5 @@ class AdvertiseFilter(filterset.FilterSet):
     class Meta:
         model = ConsultationSlot
         fields = {
-            "is_available": ('exact',),
+            "is_available": ("exact",),
         }

@@ -11,7 +11,15 @@ class QuestionChoiceInline(admin.TabularInline):
 
 @admin.register(models.Exam)
 class ExamAdmin(admin.ModelAdmin):
-    list_display = ("name", "course", "start_datetime", "exam_end_date", "is_done_exam", "is_active", "created_at")
+    list_display = (
+        "name",
+        "course",
+        "start_datetime",
+        "exam_end_date",
+        "is_done_exam",
+        "is_active",
+        "created_at",
+    )
     list_filter = ("is_active",)
     search_fields = ("^name", "=course__course_name")
     list_per_page = 20
@@ -21,26 +29,36 @@ class ExamAdmin(admin.ModelAdmin):
     list_editable = ("is_active",)
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related(
-            'course',
-            "coach_access"
-        ).only(
-            "course__course_name",
-            "name",
-            "start_datetime",
-            "coach_access__mobile_phone",
-            "is_active",
-            "created_at",
-            "description",
-            "number_of_time",
-            "created_at"
+        return (
+            super()
+            .get_queryset(request)
+            .select_related("course", "coach_access")
+            .only(
+                "course__course_name",
+                "name",
+                "start_datetime",
+                "coach_access__mobile_phone",
+                "is_active",
+                "created_at",
+                "description",
+                "number_of_time",
+                "created_at",
+            )
         )
 
 
 @admin.register(models.Question)
 class QuestionAdmin(admin.ModelAdmin):
     raw_id_fields = ("exam",)
-    list_display = ('exam', "exam_id", "id", 'is_active', "question_type", "max_score", "created_at")
+    list_display = (
+        "exam",
+        "exam_id",
+        "id",
+        "is_active",
+        "question_type",
+        "max_score",
+        "created_at",
+    )
     list_per_page = 30
     list_filter = ("is_active",)
     search_fields = ("=exam__name",)
@@ -49,38 +67,54 @@ class QuestionAdmin(admin.ModelAdmin):
     inlines = (QuestionChoiceInline,)
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related("exam").only(
-            "is_active",
-            "created_at",
-            "exam__name",
-            "name",
-            "question_file",
-            "question_type",
-            "max_score"
+        return (
+            super()
+            .get_queryset(request)
+            .select_related("exam")
+            .only(
+                "is_active",
+                "created_at",
+                "exam__name",
+                "name",
+                "question_file",
+                "question_type",
+                "max_score",
+            )
         )
 
 
 @admin.register(models.Participation)
 class ParticipationAdmin(admin.ModelAdmin):
-    list_display = ("student", "get_student_phone", "exam", "score", "created_at", "is_access")
+    list_display = (
+        "student",
+        "get_student_phone",
+        "exam",
+        "score",
+        "created_at",
+        "is_access",
+    )
     raw_id_fields = ("student", "exam")
     list_per_page = 20
     search_fields = ("=exam__name", "=student__student_number")
-    search_help_text = _("برای جست و جو میتوانید از نام ازمون یا شماره دانشجویی استفاده کنید")
+    search_help_text = _(
+        "برای جست و جو میتوانید از نام ازمون یا شماره دانشجویی استفاده کنید"
+    )
     list_editable = ("is_access",)
     list_filter = ("is_access",)
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related(
-            "student__user",
-            "exam"
-        ).only(
-            "student__student_number",
-            "exam__name",
-            "created_at",
-            "student__user__mobile_phone",
-            "is_access",
-            "score"
+        return (
+            super()
+            .get_queryset(request)
+            .select_related("student__user", "exam")
+            .only(
+                "student__student_number",
+                "exam__name",
+                "created_at",
+                "student__user__mobile_phone",
+                "is_access",
+                "score",
+            )
         )
 
     def get_student_phone(self, obj):
@@ -97,21 +131,26 @@ class ChoiceAdmin(admin.ModelAdmin):
     search_help_text = _("برای جست و جو میتوانید فیلد سوال استفاده کنید")
     list_select_related = ("question",)
 
+
 @admin.register(models.Answer)
 class AnswerAdmin(admin.ModelAdmin):
-    raw_id_fields = ("participation", 'question', "user")
+    raw_id_fields = ("participation", "question", "user")
     filter_horizontal = ("selected_choices",)
     list_display = ("participation", "user", "given_score", "created_at")
     list_select_related = ("participation", "question", "user")
 
     def get_queryset(self, request):
-        return super().get_queryset(request).only(
-            "participation__is_access",
-            "question__name",
-            "user__mobile_phone",
-            "selected_choices",
-            "text_answer",
-            "given_score",
-            "choice_file",
-            "created_at"
+        return (
+            super()
+            .get_queryset(request)
+            .only(
+                "participation__is_access",
+                "question__name",
+                "user__mobile_phone",
+                "selected_choices",
+                "text_answer",
+                "given_score",
+                "choice_file",
+                "created_at",
+            )
         )

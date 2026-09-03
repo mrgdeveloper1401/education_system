@@ -8,7 +8,11 @@ app_name = "v1_api_core"
 router = routers.SimpleRouter()
 
 router.register("site_map", views.SitemapViewSet, basename="sitemap")
-router.register("course_site_information", views.CourseSiteInformationViewSet, basename="course-site-information")
+router.register(
+    "course_site_information",
+    views.CourseSiteInformationViewSet,
+    basename="course-site-information",
+)
 
 urlpatterns = [
     path("headers", views.test_headers, name="headers"),

@@ -7,67 +7,137 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('contenttypes', '0002_remove_content_type_name'),
+        ("contenttypes", "0002_remove_content_type_name"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Coupon',
+            name="Coupon",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('code', models.CharField(max_length=50, unique=True)),
-                ('valid_from', models.DateTimeField(verbose_name='از تاریخ')),
-                ('valid_to', models.DateTimeField(verbose_name='تا تاریخ')),
-                ('max_usage', models.PositiveIntegerField(blank=True, help_text='توسط کاربر چند بار استفاده شود', null=True, verbose_name='حداکثر استفاده')),
-                ('discount', models.IntegerField(help_text='درصد کد تخفیف', validators=[django.core.validators.MinValueValidator(0), django.core.validators.MaxValueValidator(100)])),
-                ('is_active', models.BooleanField(default=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                ("code", models.CharField(max_length=50, unique=True)),
+                ("valid_from", models.DateTimeField(verbose_name="از تاریخ")),
+                ("valid_to", models.DateTimeField(verbose_name="تا تاریخ")),
+                (
+                    "max_usage",
+                    models.PositiveIntegerField(
+                        blank=True,
+                        help_text="توسط کاربر چند بار استفاده شود",
+                        null=True,
+                        verbose_name="حداکثر استفاده",
+                    ),
+                ),
+                (
+                    "discount",
+                    models.IntegerField(
+                        help_text="درصد کد تخفیف",
+                        validators=[
+                            django.core.validators.MinValueValidator(0),
+                            django.core.validators.MaxValueValidator(100),
+                        ],
+                    ),
+                ),
+                ("is_active", models.BooleanField(default=True)),
             ],
             options={
-                'db_table': 'discount_coupon',
+                "db_table": "discount_coupon",
             },
         ),
         migrations.CreateModel(
-            name='Discount',
+            name="Discount",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('object_id', models.PositiveIntegerField(null=True)),
-                ('percent', models.PositiveSmallIntegerField(validators=[django.core.validators.MaxValueValidator(100), django.core.validators.MinValueValidator(0)], verbose_name='درصد تخفیف')),
-                ('start_date', models.DateTimeField(verbose_name='تاریخ شروع تخفیف')),
-                ('end_date', models.DateTimeField(verbose_name='تاریخ پایان تخفیف')),
-                ('is_active', models.BooleanField(default=True, verbose_name='فعال')),
-                ('content_type', models.ForeignKey(null=True, on_delete=django.db.models.deletion.PROTECT, to='contenttypes.contenttype')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                ("object_id", models.PositiveIntegerField(null=True)),
+                (
+                    "percent",
+                    models.PositiveSmallIntegerField(
+                        validators=[
+                            django.core.validators.MaxValueValidator(100),
+                            django.core.validators.MinValueValidator(0),
+                        ],
+                        verbose_name="درصد تخفیف",
+                    ),
+                ),
+                ("start_date", models.DateTimeField(verbose_name="تاریخ شروع تخفیف")),
+                ("end_date", models.DateTimeField(verbose_name="تاریخ پایان تخفیف")),
+                ("is_active", models.BooleanField(default=True, verbose_name="فعال")),
+                (
+                    "content_type",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        to="contenttypes.contenttype",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'تخفیف',
-                'verbose_name_plural': 'تخفیف\u200cها',
-                'db_table': 'discount_app',
+                "verbose_name": "تخفیف",
+                "verbose_name_plural": "تخفیف\u200cها",
+                "db_table": "discount_app",
             },
         ),
         migrations.CreateModel(
-            name='UserCoupon',
+            name="UserCoupon",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('coupon', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='coupon_user_coupon', to='discount_app.coupon')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='user_coupon', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                (
+                    "coupon",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="coupon_user_coupon",
+                        to="discount_app.coupon",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="user_coupon",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'db_table': 'user_coupon',
+                "db_table": "user_coupon",
             },
         ),
     ]

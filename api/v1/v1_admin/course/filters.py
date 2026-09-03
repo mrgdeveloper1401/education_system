@@ -6,6 +6,4 @@ from apps.course_app.models import Comment
 class AdminCommentFilter(FilterSet):
     class Meta:
         model = Comment
-        fields = (
-            "is_pined",
-        )
+        fields = ("is_pined",)

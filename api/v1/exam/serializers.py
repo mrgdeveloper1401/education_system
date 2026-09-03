@@ -21,7 +21,7 @@ class ExamSerializer(serializers.ModelSerializer):
             "is_exam_start",
             "start_datetime",
             "get_exam_question_count",
-            "is_active"
+            "is_active",
         )
 
     def to_representation(self, instance):
@@ -38,23 +38,14 @@ class ExamSerializer(serializers.ModelSerializer):
 class UserAccessAdminCoachSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = (
-            "id",
-            "mobile_phone",
-            "get_full_name"
-        )
+        fields = ("id", "mobile_phone", "get_full_name")
 
 
 class CoachAdminExamSerializer(serializers.ModelSerializer):
     user_access = UserAccessAdminCoachSerializer(many=True)
     coach_access = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.filter(
-            is_coach=True,
-            is_active=True
-        ).only(
-            "mobile_phone",
-            "first_name",
-            "last_name"
+        queryset=User.objects.filter(is_coach=True, is_active=True).only(
+            "mobile_phone", "first_name", "last_name"
         )
     )
 
@@ -71,25 +62,21 @@ class CoachAdminExamSerializer(serializers.ModelSerializer):
             "get_exam_question_count",
             "user_access",
             "is_active",
-            "coach_access"
+            "coach_access",
         )
 
 
 class CreateExamSerializer(serializers.ModelSerializer):
     course = serializers.PrimaryKeyRelatedField(
-        queryset=Course.objects.filter(is_publish=True).only(
-            "course_name"
-        ),
-        required=False
+        queryset=Course.objects.filter(is_publish=True).only("course_name"),
+        required=False,
     )
     user_access = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.filter(is_active=True).only(
-                "mobile_phone",
-                "first_name",
-                "last_name"
+            "mobile_phone", "first_name", "last_name"
         ),
         many=True,
-        required=False
+        required=False,
     )
     coach_access = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.filter(is_coach=True).only("mobile_phone")
@@ -103,20 +90,13 @@ class CreateExamSerializer(serializers.ModelSerializer):
 class QuestionChoiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Choice
-        fields = (
-            "id",
-            "text"
-        )
+        fields = ("id", "text")
 
 
 class CreateChoiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Choice
-        fields = (
-            "id",
-            "text",
-            "is_correct"
-        )
+        fields = ("id", "text", "is_correct")
 
     def create(self, validated_data):
         question_pk = self.context.get("question_pk")
@@ -128,10 +108,17 @@ class QuestionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Question
-        fields = ('id', "name", "question_file", "max_score", "question_type", "choices")
+        fields = (
+            "id",
+            "name",
+            "question_file",
+            "max_score",
+            "question_type",
+            "choices",
+        )
 
     def create(self, validated_data):
-        exam_id = self.context['exam_pk']
+        exam_id = self.context["exam_pk"]
         return Question.objects.create(exam_id=exam_id, **validated_data)
 
 
@@ -178,14 +165,14 @@ class ParticipationSerializer(serializers.ModelSerializer):
             "exam_time",
             "is_done",
             "exam_questions_count",
-            "user_answer_count"
+            "user_answer_count",
         )
-        read_only_fields = ("student", 'is_access', "score")
+        read_only_fields = ("student", "is_access", "score")
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        coach_user = self.context['request'].user.is_coach
-        admin_user = self.context['request'].user.is_staff
+        coach_user = self.context["request"].user.is_coach
+        admin_user = self.context["request"].user.is_staff
 
         if coach_user or admin_user:
             data.pop("user_answer_count", None)
@@ -196,31 +183,36 @@ class ParticipationSerializer(serializers.ModelSerializer):
         return Participation.objects.create(
             student_id=self.context["request"].user.student.id,
             exam_id=self.context["exam_pk"],
-            **validated_data
+            **validated_data,
         )
 
     def validate(self, attrs):
         user_id = self.context["request"].user.id
         exam_id = self.context["exam_pk"]
 
-        exam = Exam.objects.filter(
-            id=exam_id,
-            user_access__id=user_id
-        ).only("name", "start_datetime", "number_of_time")
+        exam = Exam.objects.filter(id=exam_id, user_access__id=user_id).only(
+            "name", "start_datetime", "number_of_time"
+        )
 
         # get object exam
         get_exam = exam.first()
 
         # check user already taken this exam
-        if Participation.objects.filter(exam_id=exam_id, student__user_id=user_id).exists():
-            raise exceptions.ValidationError({"message": _("You have already taken the test.")})
+        if Participation.objects.filter(
+            exam_id=exam_id, student__user_id=user_id
+        ).exists():
+            raise exceptions.ValidationError(
+                {"message": _("You have already taken the test.")}
+            )
 
         # exam not exists
         if not exam.exists():
             raise exceptions.ValidationError({"message": _("you not access this exam")})
 
         # exam not start
-        if (get_exam and get_exam.start_datetime) and (get_exam.start_datetime > timezone.now()):
+        if (get_exam and get_exam.start_datetime) and (
+            get_exam.start_datetime > timezone.now()
+        ):
             raise exceptions.ValidationError({"message": _("exam not started")})
 
         # exam is done
@@ -239,32 +231,18 @@ class ParticipationCoachSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Participation
-        fields = (
-            "id",
-            "student",
-            "exam",
-            "created_at",
-            "is_access",
-            "score"
-        )
-        read_only_fields = ("student", 'is_access')
+        fields = ("id", "student", "exam", "created_at", "is_access", "score")
+        read_only_fields = ("student", "is_access")
 
 
 class AnswerSerializer(serializers.ModelSerializer):
     question = serializers.PrimaryKeyRelatedField(
-        queryset=Question.objects.only(
-            "name"
-        ).filter(
-            is_active=True
-        ),
+        queryset=Question.objects.only("name").filter(is_active=True),
     )
     selected_choices = serializers.PrimaryKeyRelatedField(
-        queryset=Choice.objects.only(
-            "is_correct"
-        ),
-        many=True,
-        required=False
+        queryset=Choice.objects.only("is_correct"), many=True, required=False
     )
+
     class Meta:
         model = Answer
         fields = (
@@ -274,26 +252,24 @@ class AnswerSerializer(serializers.ModelSerializer):
             "text_answer",
             "given_score",
             "choice_file",
-            "created_at"
+            "created_at",
         )
         read_only_fields = ("given_score", "participation")
 
     def validate(self, attrs):
-        participation_pk = int(self.context['participation_pk'])
-        user_id = int(self.context['request'].user.id)
-        exam_pk = int(self.context['exam_pk'])
+        participation_pk = int(self.context["participation_pk"])
+        user_id = int(self.context["request"].user.id)
+        exam_pk = int(self.context["exam_pk"])
 
         # get participation
-        participation = Participation.objects.filter(
-            id=participation_pk,
-            student__user_id=user_id,
-            exam_id=exam_pk,
-        ).select_related(
-            "exam"
-        ).only(
-            "id",
-            "exam__start_datetime",
-            "exam__number_of_time"
+        participation = (
+            Participation.objects.filter(
+                id=participation_pk,
+                student__user_id=user_id,
+                exam_id=exam_pk,
+            )
+            .select_related("exam")
+            .only("id", "exam__start_datetime", "exam__number_of_time")
         )
         p_first = participation.first()  # get object
 
@@ -305,9 +281,7 @@ class AnswerSerializer(serializers.ModelSerializer):
                 question=attrs.get("question"),
             ).exists():
                 raise serializers.ValidationError(
-                    {
-                        "message": _("you already have question please edit")
-                    }
+                    {"message": _("you already have question please edit")}
                 )
 
         # check user exists in exam
@@ -317,35 +291,23 @@ class AnswerSerializer(serializers.ModelSerializer):
         # check participation dose exiting
         if not participation.exists():
             raise exceptions.ValidationError(
-                {
-                    "message": _("participation is not exits")
-                }
+                {"message": _("participation is not exits")}
             )
         else:
             # check dose exam is done or not
-            if p_first.exam.is_done_exam: # exam is done
-                raise exceptions.ValidationError(
-                    {
-                        "message": _("exam is done!")
-                    }
-                )
-            if p_first.exam.is_exam_start is False: # exam not start
-                raise exceptions.ValidationError(
-                    {
-                        "message": _("exam not started!")
-                    }
-                )
+            if p_first.exam.is_done_exam:  # exam is done
+                raise exceptions.ValidationError({"message": _("exam is done!")})
+            if p_first.exam.is_exam_start is False:  # exam not start
+                raise exceptions.ValidationError({"message": _("exam not started!")})
 
         return attrs
 
     def create(self, validated_data):
-        participation_pk = int(self.context['participation_pk'])
+        participation_pk = int(self.context["participation_pk"])
         selected_choices = validated_data.pop("selected_choices", [])
-        user_id = int(self.context['request'].user.id)
+        user_id = int(self.context["request"].user.id)
         answer = Answer.objects.create(
-            participation_id=participation_pk,
-            user_id=user_id,
-            **validated_data
+            participation_id=participation_pk, user_id=user_id, **validated_data
         )
 
         if selected_choices:
@@ -357,16 +319,14 @@ class AnswerSerializer(serializers.ModelSerializer):
 class AnswerScoreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answer
-        fields = ('id', 'given_score', 'question', 'participation')
-        read_only_fields = ('question', 'participation')
+        fields = ("id", "given_score", "question", "participation")
+        read_only_fields = ("question", "participation")
 
     def validate_given_score(self, value):
         question = self.instance.question
         if value > question.max_score:
             raise serializers.ValidationError(
-                {
-                    "message": _("نمره وارد شده بیشتر از نمره مجاز برای این سوال است.")
-                }
+                {"message": _("نمره وارد شده بیشتر از نمره مجاز برای این سوال است.")}
             )
         return value
 
@@ -393,9 +353,7 @@ class ParticipationListRetrieveSerializer(serializers.ModelSerializer):
     def get_percentage_answered(self, obj):
         if obj.exam_questions_count == 0:
             return 0
-        return round(
-            (obj.user_answer_count / obj.exam_questions_count) * 100, 2
-        )
+        return round((obj.user_answer_count / obj.exam_questions_count) * 100, 2)
 
     class Meta:
         model = Participation
@@ -405,24 +363,22 @@ class ParticipationListRetrieveSerializer(serializers.ModelSerializer):
             "student_get_full_name",
             "exam_questions_count",
             "user_answer_count",
-            "percentage_answered"
+            "percentage_answered",
         )
 
 
 class CoachUserAnswerSelectedChoiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Choice
-        fields = (
-            "id",
-            "text",
-            "is_correct"
-        )
+        fields = ("id", "text", "is_correct")
 
 
 class CoachUserAnswerSerializer(serializers.ModelSerializer):
     question_name = serializers.SerializerMethodField()
     question_max_score = serializers.SerializerMethodField()
-    selected_choices = CoachUserAnswerSelectedChoiceSerializer(many=True, read_only=True)
+    selected_choices = CoachUserAnswerSelectedChoiceSerializer(
+        many=True, read_only=True
+    )
 
     @extend_schema_field(serializers.CharField())
     def get_question_name(self, obj):
@@ -442,7 +398,7 @@ class CoachUserAnswerSerializer(serializers.ModelSerializer):
             "question_name",
             "question_id",
             "question_max_score",
-            "selected_choices"
+            "selected_choices",
         )
         read_only_fields = (
             "text_answer",

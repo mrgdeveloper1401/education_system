@@ -7,107 +7,292 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('account_app', '0001_initial'),
-        ('course_app', '0001_initial'),
+        ("account_app", "0001_initial"),
+        ("course_app", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Exam',
+            name="Exam",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('name', models.CharField(help_text='نام ازمون', max_length=255)),
-                ('description', models.TextField(help_text='توضیح در مورد ازمون')),
-                ('is_active', models.BooleanField(default=True)),
-                ('start_datetime', models.DateTimeField(blank=True, help_text='تاریخ شروع ازمون میتوانید از یک زمان خاصی بگید ازمون شروع شود یا میتوان ان را خالی گذاشت', null=True)),
-                ('number_of_time', models.PositiveSmallIntegerField(help_text='مدت زمان ازمون بر اساس دقیقه')),
-                ('coach_access', models.ForeignKey(blank=True, limit_choices_to={'is_coach': True}, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='user_coach_exam_access', to=settings.AUTH_USER_MODEL)),
-                ('course', models.ForeignKey(blank=True, help_text='میتوان دوه ای را انتخاب کرد یا ازمون به دوره خاصی مربوط نباشد', null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='exam', to='course_app.course')),
-                ('user_access', models.ManyToManyField(blank=True, related_name='user_access', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                ("name", models.CharField(help_text="نام ازمون", max_length=255)),
+                ("description", models.TextField(help_text="توضیح در مورد ازمون")),
+                ("is_active", models.BooleanField(default=True)),
+                (
+                    "start_datetime",
+                    models.DateTimeField(
+                        blank=True,
+                        help_text="تاریخ شروع ازمون میتوانید از یک زمان خاصی بگید ازمون شروع شود یا میتوان ان را خالی گذاشت",
+                        null=True,
+                    ),
+                ),
+                (
+                    "number_of_time",
+                    models.PositiveSmallIntegerField(
+                        help_text="مدت زمان ازمون بر اساس دقیقه"
+                    ),
+                ),
+                (
+                    "coach_access",
+                    models.ForeignKey(
+                        blank=True,
+                        limit_choices_to={"is_coach": True},
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="user_coach_exam_access",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "course",
+                    models.ForeignKey(
+                        blank=True,
+                        help_text="میتوان دوه ای را انتخاب کرد یا ازمون به دوره خاصی مربوط نباشد",
+                        null=True,
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="exam",
+                        to="course_app.course",
+                    ),
+                ),
+                (
+                    "user_access",
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name="user_access",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'db_table': 'exam',
+                "db_table": "exam",
             },
         ),
         migrations.CreateModel(
-            name='Participation',
+            name="Participation",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('is_access', models.BooleanField(default=True)),
-                ('score', models.FloatField(blank=True, null=True, verbose_name='نمره')),
-                ('exam', models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, related_name='participation_exam', to='exam_app.exam')),
-                ('student', models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, related_name='participation_student', to='account_app.student')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                ("is_access", models.BooleanField(default=True)),
+                (
+                    "score",
+                    models.FloatField(blank=True, null=True, verbose_name="نمره"),
+                ),
+                (
+                    "exam",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="participation_exam",
+                        to="exam_app.exam",
+                    ),
+                ),
+                (
+                    "student",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="participation_student",
+                        to="account_app.student",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'participation',
+                "db_table": "participation",
             },
         ),
         migrations.CreateModel(
-            name='Question',
+            name="Question",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('name', models.TextField(help_text='سوال')),
-                ('is_active', models.BooleanField(default=True)),
-                ('question_file', models.FileField(blank=True, help_text='پیوست یک فایل برای سوالفورمت های مجازzip - pdf - png - jpeg', null=True, upload_to='question_exam/file/%Y/%m/%d', validators=[django.core.validators.FileExtensionValidator(allowed_extensions=('zip', 'pdf', 'png', 'jpeg'))])),
-                ('question_type', models.CharField(choices=[('MC', 'چند گزینه\u200cای'), ('DE', 'تشریحی')], default='MC', help_text='نوع سوال', max_length=2)),
-                ('max_score', models.PositiveSmallIntegerField(default=1, help_text='حداکثر نمره قابل کسب برای این سوال', validators=[django.core.validators.MinValueValidator(1)])),
-                ('exam', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='questions', to='exam_app.exam')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                ("name", models.TextField(help_text="سوال")),
+                ("is_active", models.BooleanField(default=True)),
+                (
+                    "question_file",
+                    models.FileField(
+                        blank=True,
+                        help_text="پیوست یک فایل برای سوالفورمت های مجازzip - pdf - png - jpeg",
+                        null=True,
+                        upload_to="question_exam/file/%Y/%m/%d",
+                        validators=[
+                            django.core.validators.FileExtensionValidator(
+                                allowed_extensions=("zip", "pdf", "png", "jpeg")
+                            )
+                        ],
+                    ),
+                ),
+                (
+                    "question_type",
+                    models.CharField(
+                        choices=[("MC", "چند گزینه\u200cای"), ("DE", "تشریحی")],
+                        default="MC",
+                        help_text="نوع سوال",
+                        max_length=2,
+                    ),
+                ),
+                (
+                    "max_score",
+                    models.PositiveSmallIntegerField(
+                        default=1,
+                        help_text="حداکثر نمره قابل کسب برای این سوال",
+                        validators=[django.core.validators.MinValueValidator(1)],
+                    ),
+                ),
+                (
+                    "exam",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="questions",
+                        to="exam_app.exam",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'question',
+                "db_table": "question",
             },
         ),
         migrations.CreateModel(
-            name='Choice',
+            name="Choice",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('text', models.CharField(help_text='متن گزینه', max_length=255)),
-                ('is_correct', models.BooleanField(default=False, help_text='آیا این گزینه صحیح است؟')),
-                ('question', models.ForeignKey(limit_choices_to={'question_type': 'MC'}, on_delete=django.db.models.deletion.DO_NOTHING, related_name='choices', to='exam_app.question')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                ("text", models.CharField(help_text="متن گزینه", max_length=255)),
+                (
+                    "is_correct",
+                    models.BooleanField(
+                        default=False, help_text="آیا این گزینه صحیح است؟"
+                    ),
+                ),
+                (
+                    "question",
+                    models.ForeignKey(
+                        limit_choices_to={"question_type": "MC"},
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="choices",
+                        to="exam_app.question",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'choice',
+                "db_table": "choice",
             },
         ),
         migrations.CreateModel(
-            name='Answer',
+            name="Answer",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('text_answer', models.TextField(blank=True, null=True)),
-                ('given_score', models.PositiveSmallIntegerField(blank=True, help_text='نمره اختصاص داده شده توسط تصحیح کننده', null=True, validators=[django.core.validators.MinValueValidator(0)])),
-                ('choice_file', models.FileField(blank=True, help_text='در صورتی که نیاز به ارسال فایل هست میتوانید فایل رو ارسال کیند', null=True, upload_to='choice_exam/file/%Y/%m/%d')),
-                ('user', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='user_answer', to=settings.AUTH_USER_MODEL)),
-                ('selected_choices', models.ManyToManyField(blank=True, to='exam_app.choice')),
-                ('participation', models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, related_name='participation_answer', to='exam_app.participation')),
-                ('question', models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, related_name='question_answer', to='exam_app.question')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                ("text_answer", models.TextField(blank=True, null=True)),
+                (
+                    "given_score",
+                    models.PositiveSmallIntegerField(
+                        blank=True,
+                        help_text="نمره اختصاص داده شده توسط تصحیح کننده",
+                        null=True,
+                        validators=[django.core.validators.MinValueValidator(0)],
+                    ),
+                ),
+                (
+                    "choice_file",
+                    models.FileField(
+                        blank=True,
+                        help_text="در صورتی که نیاز به ارسال فایل هست میتوانید فایل رو ارسال کیند",
+                        null=True,
+                        upload_to="choice_exam/file/%Y/%m/%d",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="user_answer",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "selected_choices",
+                    models.ManyToManyField(blank=True, to="exam_app.choice"),
+                ),
+                (
+                    "participation",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="participation_answer",
+                        to="exam_app.participation",
+                    ),
+                ),
+                (
+                    "question",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="question_answer",
+                        to="exam_app.question",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'answer',
+                "db_table": "answer",
             },
         ),
     ]

@@ -2,5 +2,5 @@ from django.apps import AppConfig
 
 
 class DiscountAppConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'apps.discount_app'
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "apps.discount_app"

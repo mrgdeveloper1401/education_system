@@ -16,9 +16,26 @@ class UserAdmin(ImportExportModelAdmin, BaseUserAdmin):
     change_user_password_template = None
     fieldsets = (
         (None, {"fields": ("mobile_phone", "password")}),
-        (_("Personal info"), {"fields": ("first_name", "last_name", "email", "gender", "state", "city", "school",
-                                         "second_mobile_phone", "image", "nation_code", "address", "grade",
-                                         "birth_date")}),
+        (
+            _("Personal info"),
+            {
+                "fields": (
+                    "first_name",
+                    "last_name",
+                    "email",
+                    "gender",
+                    "state",
+                    "city",
+                    "school",
+                    "second_mobile_phone",
+                    "image",
+                    "nation_code",
+                    "address",
+                    "grade",
+                    "birth_date",
+                )
+            },
+        ),
         (
             _("Permissions"),
             {
@@ -33,31 +50,67 @@ class UserAdmin(ImportExportModelAdmin, BaseUserAdmin):
                 ),
             },
         ),
-        (_("Important dates"), {"fields": ("last_login", "created_at", "updated_at", "deleted_at")}),
+        (
+            _("Important dates"),
+            {"fields": ("last_login", "created_at", "updated_at", "deleted_at")},
+        ),
     )
     add_fieldsets = (
         (
             None,
             {
                 "classes": ("wide",),
-                "fields": ("mobile_phone", "usable_password", "password1", "password2", "is_active", "is_staff",
-                           "is_coach", "first_name", "last_name"),
+                "fields": (
+                    "mobile_phone",
+                    "usable_password",
+                    "password1",
+                    "password2",
+                    "is_active",
+                    "is_staff",
+                    "is_coach",
+                    "first_name",
+                    "last_name",
+                ),
             },
         ),
     )
-    list_display = ("id", "mobile_phone", "email", "first_name", "last_name", "is_staff", "is_active", "is_superuser",
-                    "is_deleted", "deleted_at", "is_student", "is_coach")
+    list_display = (
+        "id",
+        "mobile_phone",
+        "email",
+        "first_name",
+        "last_name",
+        "is_staff",
+        "is_active",
+        "is_superuser",
+        "is_deleted",
+        "deleted_at",
+        "is_student",
+        "is_coach",
+    )
     list_filter = ("is_staff", "is_superuser", "is_active", "is_coach")
-    search_fields = ("=mobile_phone", "^first_name", "^last_name", "=email", "=nation_code")
+    search_fields = (
+        "=mobile_phone",
+        "^first_name",
+        "^last_name",
+        "=email",
+        "=nation_code",
+    )
     ordering = ("-created_at",)
     filter_horizontal = (
         "groups",
         "user_permissions",
     )
-    readonly_fields = ('updated_at', "deleted_at", "last_login", "created_at", "is_deleted")
-    list_editable = ('is_active', "is_staff", "is_superuser")
+    readonly_fields = (
+        "updated_at",
+        "deleted_at",
+        "last_login",
+        "created_at",
+        "is_deleted",
+    )
+    list_editable = ("is_active", "is_staff", "is_superuser")
     raw_id_fields = ("city", "state")
-    list_display_links = ('id', "mobile_phone")
+    list_display_links = ("id", "mobile_phone")
     list_per_page = 20
 
     def get_queryset(self, request):
@@ -69,25 +122,25 @@ class UserAdmin(ImportExportModelAdmin, BaseUserAdmin):
 @admin.register(models.State)
 class StateAdmin(ImportExportModelAdmin):
     show_full_result_count = False
-    list_display = ('id', "state_name")
-    search_fields = ('=state_name',)
+    list_display = ("id", "state_name")
+    search_fields = ("=state_name",)
 
 
 @admin.register(models.City)
 class CityAdmin(ImportExportModelAdmin):
     show_full_result_count = False
-    raw_id_fields = ('state',)
-    list_display = ('id', 'state', "city")
-    search_fields = ('=city',)
-    list_display_links = ('id', "state", "city")
+    raw_id_fields = ("state",)
+    list_display = ("id", "state", "city")
+    search_fields = ("=city",)
+    list_display_links = ("id", "state", "city")
 
 
 @admin.register(models.Ticket)
 class TicketAdmin(TreeAdmin):
     show_full_result_count = False
-    raw_id_fields = ('sender', "room")
-    list_display = ("id", 'sender', "is_publish", "created_at")
-    list_select_related = ('sender',)
+    raw_id_fields = ("sender", "room")
+    list_display = ("id", "sender", "is_publish", "created_at")
+    list_select_related = ("sender",)
     list_per_page = 30
     form = movenodeform_factory(models.Ticket)
 
@@ -95,74 +148,103 @@ class TicketAdmin(TreeAdmin):
 @admin.register(models.TicketRoom)
 class TicketRoomAdmin(admin.ModelAdmin):
     show_full_result_count = False
-    raw_id_fields = ('user',)
-    list_display = ("id", 'user', "title_room", "is_active", "is_close", "created_at")
-    list_filter = ('is_active', "is_close")
+    raw_id_fields = ("user",)
+    list_display = ("id", "user", "title_room", "is_active", "is_close", "created_at")
+    list_filter = ("is_active", "is_close")
     list_per_page = 20
-    list_select_related = ('user',)
-    list_editable = ('is_active', "is_close")
-    search_fields = ('^title_room',)
-    list_display_links = ('id', "user")
+    list_select_related = ("user",)
+    list_editable = ("is_active", "is_close")
+    search_fields = ("^title_room",)
+    list_display_links = ("id", "user")
 
     def get_queryset(self, request):
-        return super().get_queryset(request).only(
-            "user__mobile_phone", "title_room", "is_active", "is_close", "created_at"
+        return (
+            super()
+            .get_queryset(request)
+            .only(
+                "user__mobile_phone",
+                "title_room",
+                "is_active",
+                "is_close",
+                "created_at",
+            )
         )
+
 
 @admin.register(models.BestStudent)
 class BestStudentAdmin(ImportExportModelAdmin):
     show_full_result_count = False
-    list_display = ('id', "student", "is_publish", "created_at")
+    list_display = ("id", "student", "is_publish", "created_at")
     list_per_page = 20
-    list_filter = ('is_publish',)
+    list_filter = ("is_publish",)
     list_display_links = ("id", "student")
 
     def get_queryset(self, request):
-        return super().get_queryset(request).only(
-            "id", "is_publish", "created_at", "student"
+        return (
+            super()
+            .get_queryset(request)
+            .only("id", "is_publish", "created_at", "student")
         )
 
 
 @admin.register(models.Student)
 class StudentAdmin(admin.ModelAdmin):
     show_full_result_count = False
-    list_display = ('user', "id", "student_number", "created_at", "get_student_name")
-    raw_id_fields = ('user',)
-    list_filter = ('created_at',)
+    list_display = ("user", "id", "student_number", "created_at", "get_student_name")
+    raw_id_fields = ("user",)
+    list_filter = ("created_at",)
     list_per_page = 20
-    search_fields = ('=user__mobile_phone', "=student_number")
+    search_fields = ("=user__mobile_phone", "=student_number")
 
     def get_student_name(self, obj):
         return obj.user.get_full_name
 
     def get_queryset(self, request):
-        return super().get_queryset(request).only(
-            "user", "student_number", "created_at", "user__first_name", "user__last_name", "user__mobile_phone"
+        return (
+            super()
+            .get_queryset(request)
+            .only(
+                "user",
+                "student_number",
+                "created_at",
+                "user__first_name",
+                "user__last_name",
+                "user__mobile_phone",
+            )
         )
 
 
 @admin.register(models.Coach)
 class CoachAdmin(admin.ModelAdmin):
     show_full_result_count = False
-    list_display = ('user', "coach_number", "created_at", "get_coach_name")
-    raw_id_fields = ('user',)
+    list_display = ("user", "coach_number", "created_at", "get_coach_name")
+    raw_id_fields = ("user",)
     list_per_page = 20
-    search_fields = ('=user__mobile_phone', "=coach_number")
+    search_fields = ("=user__mobile_phone", "=coach_number")
 
     def get_coach_name(self, obj):
         return obj.user.get_full_name
 
     def get_queryset(self, request):
-        return super().get_queryset(request).only(
-            "user", "coach_number", "created_at", "user__first_name", "user__last_name", "user__mobile_phone"
+        return (
+            super()
+            .get_queryset(request)
+            .only(
+                "user",
+                "coach_number",
+                "created_at",
+                "user__first_name",
+                "user__last_name",
+                "user__mobile_phone",
+            )
         )
 
 
 @admin.register(models.PrivateNotification)
 class PrivateNotificationAdmin(admin.ModelAdmin):
     show_full_result_count = False
-    list_display = ('user', "notification_type", "is_read", "created_at")
-    raw_id_fields = ('user',)
+    list_display = ("user", "notification_type", "is_read", "created_at")
+    raw_id_fields = ("user",)
     list_per_page = 20
     list_editable = ("is_read",)
     search_fields = ("=user__mobile_phone",)
@@ -171,29 +253,54 @@ class PrivateNotificationAdmin(admin.ModelAdmin):
     list_select_related = ("user",)
 
     def get_queryset(self, request):
-        return super().get_queryset(request).only(
-            "user__mobile_phone", "is_read", "created_at", "body", "title", "char_link", "notification_type"
+        return (
+            super()
+            .get_queryset(request)
+            .only(
+                "user__mobile_phone",
+                "is_read",
+                "created_at",
+                "body",
+                "title",
+                "char_link",
+                "notification_type",
+            )
         )
 
 
 @admin.register(models.Invitation)
 class InvitationAdmin(admin.ModelAdmin):
     show_full_result_count = False
-    list_display = ("from_student_id", "get_phone_from_student", "get_phone_to_student", "to_student", "created_at")
+    list_display = (
+        "from_student_id",
+        "get_phone_from_student",
+        "get_phone_to_student",
+        "to_student",
+        "created_at",
+    )
     list_per_page = 20
     raw_id_fields = ("from_student", "to_student")
-    list_display_links = ("from_student_id", "get_phone_from_student", "get_phone_to_student")
+    list_display_links = (
+        "from_student_id",
+        "get_phone_from_student",
+        "get_phone_to_student",
+    )
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related(
-          "from_student__user",
-            "to_student__user",
-        ).only(
-            "from_student__student_number",
-            "to_student__student_number",
-            "from_student__user__mobile_phone",
-            "to_student__user__mobile_phone",
-            "created_at"
+        return (
+            super()
+            .get_queryset(request)
+            .select_related(
+                "from_student__user",
+                "to_student__user",
+            )
+            .only(
+                "from_student__student_number",
+                "to_student__student_number",
+                "from_student__user__mobile_phone",
+                "to_student__user__mobile_phone",
+                "created_at",
+            )
         )
 
     def get_phone_from_student(self, obj):

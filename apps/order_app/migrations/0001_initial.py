@@ -5,46 +5,75 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('course_app', '0001_initial'),
+        ("course_app", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='CourseSignUp',
+            name="CourseSignUp",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('mobile_phone', models.CharField(max_length=15)),
-                ('first_name', models.CharField(max_length=100)),
-                ('last_name', models.CharField(max_length=100)),
-                ('have_account', models.BooleanField(default=False)),
-                ('course', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='course_signup_one', to='course_app.course')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                ("mobile_phone", models.CharField(max_length=15)),
+                ("first_name", models.CharField(max_length=100)),
+                ("last_name", models.CharField(max_length=100)),
+                ("have_account", models.BooleanField(default=False)),
+                (
+                    "course",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="course_signup_one",
+                        to="course_app.course",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'signup_course',
+                "db_table": "signup_course",
             },
         ),
         migrations.CreateModel(
-            name='Order',
+            name="Order",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('price', models.FloatField()),
-                ('mobile_phone', models.CharField(max_length=15)),
-                ('course', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='orders', to='course_app.course')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                ("price", models.FloatField()),
+                ("mobile_phone", models.CharField(max_length=15)),
+                (
+                    "course",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="orders",
+                        to="course_app.course",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'order',
+                "db_table": "order",
             },
         ),
     ]

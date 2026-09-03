@@ -7,131 +7,245 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Banner',
+            name="Banner",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('title', models.CharField(max_length=255)),
-                ('file', models.FileField(upload_to='banners/%Y/%m/%d')),
-                ('is_publish', models.BooleanField(default=True)),
-                ('banner_type', models.CharField(choices=[('coach', 'coach'), ('student', 'student'), ('public', 'public')], help_text='Banner type', max_length=7)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                ("title", models.CharField(max_length=255)),
+                ("file", models.FileField(upload_to="banners/%Y/%m/%d")),
+                ("is_publish", models.BooleanField(default=True)),
+                (
+                    "banner_type",
+                    models.CharField(
+                        choices=[
+                            ("coach", "coach"),
+                            ("student", "student"),
+                            ("public", "public"),
+                        ],
+                        help_text="Banner type",
+                        max_length=7,
+                    ),
+                ),
             ],
             options={
-                'db_table': 'banner',
-                'ordering': ('-created_at',),
+                "db_table": "banner",
+                "ordering": ("-created_at",),
             },
         ),
         migrations.CreateModel(
-            name='CourseSiteInformation',
+            name="CourseSiteInformation",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('user_counter', models.CharField(blank=True, max_length=10)),
-                ('task_counter', models.CharField(blank=True, max_length=10)),
-                ('class_counter', models.CharField(max_length=10)),
-                ('video_counter', models.CharField(blank=True, max_length=10)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                ("user_counter", models.CharField(blank=True, max_length=10)),
+                ("task_counter", models.CharField(blank=True, max_length=10)),
+                ("class_counter", models.CharField(max_length=10)),
+                ("video_counter", models.CharField(blank=True, max_length=10)),
             ],
             options={
-                'db_table': 'course_site_information',
+                "db_table": "course_site_information",
             },
         ),
         migrations.CreateModel(
-            name='HeaderSite',
+            name="HeaderSite",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('header_title', models.CharField(blank=True, help_text='عنوان هدر', max_length=50, null=True)),
-                ('image', models.ImageField(blank=True, null=True, upload_to='header_title/%Y/%m/%d', validators=[base.utils.validators.file_upload_validator])),
-                ('is_publish', models.BooleanField(default=True)),
-                ('text_color', models.CharField(blank=True, max_length=15)),
-                ('background_color', models.CharField(blank=True, max_length=15)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                (
+                    "header_title",
+                    models.CharField(
+                        blank=True, help_text="عنوان هدر", max_length=50, null=True
+                    ),
+                ),
+                (
+                    "image",
+                    models.ImageField(
+                        blank=True,
+                        null=True,
+                        upload_to="header_title/%Y/%m/%d",
+                        validators=[base.utils.validators.file_upload_validator],
+                    ),
+                ),
+                ("is_publish", models.BooleanField(default=True)),
+                ("text_color", models.CharField(blank=True, max_length=15)),
+                ("background_color", models.CharField(blank=True, max_length=15)),
             ],
             options={
-                'db_table': 'header_site',
+                "db_table": "header_site",
             },
         ),
         migrations.CreateModel(
-            name='Image',
+            name="Image",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('title', models.CharField(blank=True, max_length=128, null=True)),
-                ('image', models.ImageField(height_field='height', help_text='max size is 1 MG', upload_to='images/%Y/%m/%d', validators=[apps.core_app.models.validate_image_size], width_field='width')),
-                ('width', models.IntegerField(blank=True, null=True)),
-                ('height', models.IntegerField(blank=True, null=True)),
-                ('file_hash', models.CharField(blank=True, max_length=40, null=True)),
-                ('file_size', models.PositiveIntegerField(blank=True, help_text='file size as xx.b', null=True)),
-                ('image_address', models.URLField(blank=True, null=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                ("title", models.CharField(blank=True, max_length=128, null=True)),
+                (
+                    "image",
+                    models.ImageField(
+                        height_field="height",
+                        help_text="max size is 1 MG",
+                        upload_to="images/%Y/%m/%d",
+                        validators=[apps.core_app.models.validate_image_size],
+                        width_field="width",
+                    ),
+                ),
+                ("width", models.IntegerField(blank=True, null=True)),
+                ("height", models.IntegerField(blank=True, null=True)),
+                ("file_hash", models.CharField(blank=True, max_length=40, null=True)),
+                (
+                    "file_size",
+                    models.PositiveIntegerField(
+                        blank=True, help_text="file size as xx.b", null=True
+                    ),
+                ),
+                ("image_address", models.URLField(blank=True, null=True)),
             ],
             options={
-                'verbose_name': 'Image',
-                'verbose_name_plural': 'Images',
-                'db_table': 'image',
-                'ordering': ('-created_at',),
+                "verbose_name": "Image",
+                "verbose_name_plural": "Images",
+                "db_table": "image",
+                "ordering": ("-created_at",),
             },
         ),
         migrations.CreateModel(
-            name='SitemapEntry',
+            name="SitemapEntry",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('slug_text', models.TextField()),
-                ('last_modified', models.CharField(blank=True)),
-                ('changefreq', models.CharField(max_length=255)),
-                ('priority', models.DecimalField(decimal_places=2, default=0.5, help_text='A value between 0.00 and 1.00', max_digits=3)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                ("slug_text", models.TextField()),
+                ("last_modified", models.CharField(blank=True)),
+                ("changefreq", models.CharField(max_length=255)),
+                (
+                    "priority",
+                    models.DecimalField(
+                        decimal_places=2,
+                        default=0.5,
+                        help_text="A value between 0.00 and 1.00",
+                        max_digits=3,
+                    ),
+                ),
             ],
             options={
-                'db_table': 'site_map',
+                "db_table": "site_map",
             },
         ),
         migrations.CreateModel(
-            name='State',
+            name="State",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('state_name', models.CharField(max_length=30, unique=True, verbose_name='استان')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "state_name",
+                    models.CharField(max_length=30, unique=True, verbose_name="استان"),
+                ),
             ],
             options={
-                'verbose_name': 'استان',
-                'verbose_name_plural': 'استان ها',
-                'db_table': 'state',
-                'ordering': ('state_name',),
+                "verbose_name": "استان",
+                "verbose_name_plural": "استان ها",
+                "db_table": "state",
+                "ordering": ("state_name",),
             },
         ),
         migrations.CreateModel(
-            name='City',
+            name="City",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('city', models.CharField(db_index=True, max_length=40, verbose_name='شهر')),
-                ('state', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='cites', to='core_app.state', verbose_name='استان')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "city",
+                    models.CharField(db_index=True, max_length=40, verbose_name="شهر"),
+                ),
+                (
+                    "state",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="cites",
+                        to="core_app.state",
+                        verbose_name="استان",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'شهر',
-                'verbose_name_plural': 'شهر ها',
-                'db_table': 'city',
-                'ordering': ('-id',),
-                'unique_together': {('state', 'city')},
+                "verbose_name": "شهر",
+                "verbose_name_plural": "شهر ها",
+                "db_table": "city",
+                "ordering": ("-id",),
+                "unique_together": {("state", "city")},
             },
         ),
     ]

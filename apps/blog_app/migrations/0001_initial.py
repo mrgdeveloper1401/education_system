@@ -7,7 +7,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -16,112 +15,244 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='CategoryBlog',
+            name="CategoryBlog",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('path', models.CharField(max_length=255, unique=True)),
-                ('depth', models.PositiveIntegerField()),
-                ('numchild', models.PositiveIntegerField(default=0)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('category_name', models.CharField(max_length=255)),
-                ('category_slug', models.SlugField(allow_unicode=True, max_length=255)),
-                ('is_publish', models.BooleanField(default=True)),
-                ('description_slug', models.TextField(blank=True, null=True)),
-                ('description', models.TextField(blank=True, null=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("path", models.CharField(max_length=255, unique=True)),
+                ("depth", models.PositiveIntegerField()),
+                ("numchild", models.PositiveIntegerField(default=0)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                ("category_name", models.CharField(max_length=255)),
+                ("category_slug", models.SlugField(allow_unicode=True, max_length=255)),
+                ("is_publish", models.BooleanField(default=True)),
+                ("description_slug", models.TextField(blank=True, null=True)),
+                ("description", models.TextField(blank=True, null=True)),
             ],
             options={
-                'db_table': 'category_blog',
+                "db_table": "category_blog",
             },
         ),
         migrations.CreateModel(
-            name='TagBlog',
+            name="TagBlog",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('tag_name', models.CharField(max_length=255)),
-                ('is_publish', models.BooleanField(default=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                ("tag_name", models.CharField(max_length=255)),
+                ("is_publish", models.BooleanField(default=True)),
             ],
             options={
-                'db_table': 'blog_tag',
+                "db_table": "blog_tag",
             },
         ),
         migrations.CreateModel(
-            name='PostBlog',
+            name="PostBlog",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('post_introduction', models.CharField(help_text='مقدمه ای در مورد پست', max_length=255)),
-                ('post_title', models.CharField(help_text='عنوان پست', max_length=255)),
-                ('post_slug', models.SlugField(allow_unicode=True, max_length=255, unique=True)),
-                ('post_body', django_ckeditor_5.fields.CKEditor5Field()),
-                ('read_count', models.PositiveIntegerField(default=0, help_text='چند نفر این پست را دیده اند')),
-                ('read_time', models.PositiveSmallIntegerField(help_text='مدت زمان برای مطالعه این مقاله')),
-                ('post_cover_image', models.ImageField(upload_to='blog/%Y/%m/%d')),
-                ('likes', models.PositiveIntegerField(default=0)),
-                ('is_publish', models.BooleanField(default=True)),
-                ('description_slug', models.TextField(blank=True, null=True)),
-                ('author', models.ManyToManyField(related_name='post_authors', to=settings.AUTH_USER_MODEL)),
-                ('category', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='blog_posts', to='blog_app.categoryblog')),
-                ('tags', models.ManyToManyField(blank=True, related_name='post_tags', to='blog_app.tagblog')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                (
+                    "post_introduction",
+                    models.CharField(help_text="مقدمه ای در مورد پست", max_length=255),
+                ),
+                ("post_title", models.CharField(help_text="عنوان پست", max_length=255)),
+                (
+                    "post_slug",
+                    models.SlugField(allow_unicode=True, max_length=255, unique=True),
+                ),
+                ("post_body", django_ckeditor_5.fields.CKEditor5Field()),
+                (
+                    "read_count",
+                    models.PositiveIntegerField(
+                        default=0, help_text="چند نفر این پست را دیده اند"
+                    ),
+                ),
+                (
+                    "read_time",
+                    models.PositiveSmallIntegerField(
+                        help_text="مدت زمان برای مطالعه این مقاله"
+                    ),
+                ),
+                ("post_cover_image", models.ImageField(upload_to="blog/%Y/%m/%d")),
+                ("likes", models.PositiveIntegerField(default=0)),
+                ("is_publish", models.BooleanField(default=True)),
+                ("description_slug", models.TextField(blank=True, null=True)),
+                (
+                    "author",
+                    models.ManyToManyField(
+                        related_name="post_authors", to=settings.AUTH_USER_MODEL
+                    ),
+                ),
+                (
+                    "category",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="blog_posts",
+                        to="blog_app.categoryblog",
+                    ),
+                ),
+                (
+                    "tags",
+                    models.ManyToManyField(
+                        blank=True, related_name="post_tags", to="blog_app.tagblog"
+                    ),
+                ),
             ],
             options={
-                'db_table': 'post_blog',
+                "db_table": "post_blog",
             },
         ),
         migrations.CreateModel(
-            name='FavouritePost',
+            name="FavouritePost",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, related_name='favourite_user_posts', to=settings.AUTH_USER_MODEL)),
-                ('post', models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, related_name='favourite_posts', to='blog_app.postblog')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="favourite_user_posts",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "post",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="favourite_posts",
+                        to="blog_app.postblog",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'blog_favourite_post',
+                "db_table": "blog_favourite_post",
             },
         ),
         migrations.CreateModel(
-            name='CommentBlog',
+            name="CommentBlog",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('comment_body', models.TextField()),
-                ('is_pined', models.BooleanField(default=False)),
-                ('is_publish', models.BooleanField(default=True)),
-                ('reply', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='replies', to='blog_app.commentblog')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, related_name='comment_user_posts', to=settings.AUTH_USER_MODEL)),
-                ('post', models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, related_name='comment_posts', to='blog_app.postblog')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                ("comment_body", models.TextField()),
+                ("is_pined", models.BooleanField(default=False)),
+                ("is_publish", models.BooleanField(default=True)),
+                (
+                    "reply",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="replies",
+                        to="blog_app.commentblog",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="comment_user_posts",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "post",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="comment_posts",
+                        to="blog_app.postblog",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'blog_comment',
+                "db_table": "blog_comment",
             },
         ),
         migrations.CreateModel(
-            name='Like',
+            name="Like",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, related_name='user_likes', to=settings.AUTH_USER_MODEL)),
-                ('post', models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, related_name='post_likes', to='blog_app.postblog')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="user_likes",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "post",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="post_likes",
+                        to="blog_app.postblog",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'blog_post_like',
-                'unique_together': {('user', 'post')},
+                "db_table": "blog_post_like",
+                "unique_together": {("user", "post")},
             },
         ),
     ]

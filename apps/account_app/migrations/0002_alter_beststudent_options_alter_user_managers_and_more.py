@@ -7,45 +7,69 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('account_app', '0001_initial'),
+        ("account_app", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='beststudent',
-            options={'verbose_name': 'دانش اموز برتر', 'verbose_name_plural': 'دانش اموزان برتر'},
+            name="beststudent",
+            options={
+                "verbose_name": "دانش اموز برتر",
+                "verbose_name_plural": "دانش اموزان برتر",
+            },
         ),
         migrations.AlterModelManagers(
-            name='user',
+            name="user",
             managers=[
-                ('objects', apps.account_app.managers.UserManager()),
+                ("objects", apps.account_app.managers.UserManager()),
             ],
         ),
         migrations.AlterField(
-            model_name='student',
-            name='user',
-            field=models.OneToOneField(on_delete=django.db.models.deletion.DO_NOTHING, related_name='student', to=settings.AUTH_USER_MODEL),
+            model_name="student",
+            name="user",
+            field=models.OneToOneField(
+                on_delete=django.db.models.deletion.DO_NOTHING,
+                related_name="student",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterField(
-            model_name='ticket',
-            name='reply',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='ticket_reply', to=settings.AUTH_USER_MODEL),
+            model_name="ticket",
+            name="reply",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.DO_NOTHING,
+                related_name="ticket_reply",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterField(
-            model_name='ticket',
-            name='room',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, related_name='room', to='account_app.ticketroom'),
+            model_name="ticket",
+            name="room",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.DO_NOTHING,
+                related_name="room",
+                to="account_app.ticketroom",
+            ),
         ),
         migrations.AlterField(
-            model_name='ticket',
-            name='sender',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, related_name='sender', to=settings.AUTH_USER_MODEL),
+            model_name="ticket",
+            name="sender",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.DO_NOTHING,
+                related_name="sender",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterField(
-            model_name='ticketroom',
-            name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, related_name='ticker_room', to=settings.AUTH_USER_MODEL),
+            model_name="ticketroom",
+            name="user",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.DO_NOTHING,
+                related_name="ticker_room",
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
     ]

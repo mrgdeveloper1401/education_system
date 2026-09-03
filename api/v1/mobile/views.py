@@ -4,18 +4,17 @@ from . import serializers
 from apps.course_app.models import Course, Category
 
 
-class ListDetailCourseView(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+class ListDetailCourseView(
+    mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet
+):
     serializer_class = serializers.ListDetailCourseSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
-        return Course.objects.filter(
-            is_publish=True
-        ).defer(
-            "is_deleted",
-            "deleted_at"
-        ).select_related(
-            "category"
+        return (
+            Course.objects.filter(is_publish=True)
+            .defer("is_deleted", "deleted_at")
+            .select_related("category")
         )
 
     def filter_queryset(self, queryset):
@@ -28,8 +27,6 @@ class ListDetailCourseView(mixins.ListModelMixin, mixins.RetrieveModelMixin, vie
 class ListCategoryView(generics.ListAPIView):
     serializer_class = serializers.ListCategorySerializer
     permission_classes = (permissions.IsAuthenticated,)
-    queryset = Category.objects.filter(
-        is_publish=True
-    ).only(
+    queryset = Category.objects.filter(is_publish=True).only(
         "category_name",
     )

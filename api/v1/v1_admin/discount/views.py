@@ -12,6 +12,7 @@ class CouponViewSet(viewsets.ModelViewSet):
     you can use search field
     ?code=xxxx
     """
+
     serializer_class = serializers.CouponSerializer
     permission_classes = (permissions.IsAdminUser,)
     pagination_class = CommonPagination
@@ -45,12 +46,13 @@ class DiscountCourseApiView(generics.ListAPIView):
     you can use search field \n
     ?name=course_name
     """
+
     permission_classes = (permissions.IsAdminUser,)
     serializer_class = serializers.DiscountCourseSerializer
 
     def get_queryset(self):
         query = Course.objects.filter(is_publish=True).only("course_name")
-        name = self.request.query_params.get('name', None)
+        name = self.request.query_params.get("name", None)
 
         if name:
             query = query.filter(course_name__contains=name)

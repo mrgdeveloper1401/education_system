@@ -7,11 +7,11 @@ class UserFilter(FilterSet):
     class Meta:
         model = User
         fields = {
-            "email": ['iexact'],
+            "email": ["iexact"],
             "first_name": ["icontains"],
             "last_name": ["icontains"],
-            "state__state_name": ['icontains'],
+            "state__state_name": ["icontains"],
             "city__city": ["icontains"],
-            "mobile_phone": ['iexact'],
+            "mobile_phone": ["iexact"],
             "is_active": ["exact"],
         }

@@ -4,12 +4,12 @@ from django.utils.translation import gettext_lazy as _
 
 
 class MobileRegexValidator(RegexValidator):
-    regex = r'^09\d{9}'
+    regex = r"^09\d{9}"
     message = _("با 09 شروع شود و یازده رقمی باشد")
 
 
 class NationCodeRegexValidator(RegexValidator):
-    regex = r'\d{10}'
+    regex = r"\d{10}"
     message = _("شماره ملی باید به صورت عدد باشد یا 10 رقم باشد")
 
 
@@ -23,6 +23,7 @@ def validate_upload_image_user(value):
 
 def validate_unique_nation_code(value):
     from account_app.models import User
+
     if User.objects.filter(nation_code=value).exists():
         raise ValidationError("کد ملی قبلا ثبت شده هست")
     return value
@@ -30,6 +31,7 @@ def validate_unique_nation_code(value):
 
 def validate_unique_email(value):
     from account_app.models import User
+
     if User.objects.filter(email=value).exists():
         raise ValidationError("این ایمیل قبلا ثبت شده هست")
     return value

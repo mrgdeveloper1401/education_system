@@ -53,15 +53,15 @@ THIRD_PARTY_PACKAGE = [
 ]
 
 THIRD_PARTY_APP = [
-    'apps.account_app',
-    'apps.core_app',
+    "apps.account_app",
+    "apps.core_app",
     "apps.advertise_app",
     "apps.course_app",
     "apps.subscription_app",
     "apps.blog_app",
     "apps.exam_app",
     "apps.discount_app",
-    "apps.order_app"
+    "apps.order_app",
 ]
 
 INSTALLED_APPS = [
@@ -122,9 +122,7 @@ DATABASES = {
         "PASSWORD": config("POSTDB_PASSWORD", cast=str, default="postgres"),
         "HOST": config("POSTDB_HOST", cast=str, default="127.0.0.1"),
         "PORT": config("POSTDB_PORT", cast=int, default=5433),
-        "OPTIONS": {
-            "pool": True
-        },
+        "OPTIONS": {"pool": True},
     }
 }
 
@@ -142,7 +140,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
-    }
+    },
 ]
 
 # Internationalization
@@ -160,26 +158,25 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-AUTH_USER_MODEL = 'account_app.User'
+AUTH_USER_MODEL = "account_app.User"
 
 REST_FRAMEWORK = {
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
-    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',)
-
+    "DEFAULT_FILTER_BACKENDS": ("django_filters.rest_framework.DjangoFilterBackend",),
 }
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'education system',
-    'DESCRIPTION': 'Your project description',
-    'VERSION': '1.0.0',
-    'SERVE_INCLUDE_SCHEMA': False,
+    "TITLE": "education system",
+    "DESCRIPTION": "Your project description",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
     # 'IGNORE_WARNINGS': ['drf_spectacular.W001'],
-    'SWAGGER_UI_DIST': 'SIDECAR',  # shorthand to use the sidecar instead
-    'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
-    'REDOC_DIST': 'SIDECAR',
+    "SWAGGER_UI_DIST": "SIDECAR",  # shorthand to use the sidecar instead
+    "SWAGGER_UI_FAVICON_HREF": "SIDECAR",
+    "REDOC_DIST": "SIDECAR",
 }
 
 ACCESS_TOKEN_LIFETIME = config("ACCESS_TOKEN_LIFETIME", cast=int, default=7)
@@ -276,7 +273,7 @@ CELERY_TASK_QUEUES = (
     Queue("course_signup"),
     Queue("referral_process"),
     Queue("create_qrcode"),
-    Queue("notification")
+    Queue("notification"),
 )
 
 # celery beat config
@@ -318,13 +315,13 @@ CACHES = {
 }
 
 # Static files (CSS, JavaScript, Images)
-STATIC_URL = '/static/'
+STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 ZIBAL_CALLBACK_URL = config("ZIBAL_CALLBACK_URL", cast=str)
 ZIBAL_MERCHENT_ID = config("ZIBAL_MERCHENT_ID", cast=str)
 
-SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db' # cache session database
+SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"  # cache session database
 
 # debug toolbar
 USE_DEBUG_TOOLBAR = config("USE_DEBUG_TOOLBAR", default=True, cast=bool)

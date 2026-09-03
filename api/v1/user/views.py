@@ -3,7 +3,7 @@ import jwt
 from decouple import config
 from django.contrib.auth.hashers import make_password
 from django.core.cache import cache
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q
 from django.utils.crypto import get_random_string
 from django_filters.rest_framework.backends import DjangoFilterBackend
 from rest_framework.viewsets import ModelViewSet
@@ -31,7 +31,7 @@ from apps.account_app.models import (
     TicketRoom,
     BestStudent,
     PrivateNotification,
-    Invitation
+    Invitation,
 )
 from base.settings import SIMPLE_JWT
 from base.utils.config import generate_otp_code, get_client_ip
@@ -46,11 +46,16 @@ from .utils import get_token_for_user
 from ..course.paginations import CommonPagination
 
 
-OTP_TEMPLATE_ID = config("SMS_IR_OTP_TEMPLATE_ID", cast=int)  # TODO, move into config file
-FORGET_TEMPLATE_ID = config("SMS_IR_FORGET_TEMPLATE_ID", cast=int)  # TODO, move into config file
+OTP_TEMPLATE_ID = config(
+    "SMS_IR_OTP_TEMPLATE_ID", cast=int
+)  # TODO, move into config file
+FORGET_TEMPLATE_ID = config(
+    "SMS_IR_FORGET_TEMPLATE_ID", cast=int
+)  # TODO, move into config file
+
 
 class UserLoginApiView(APIView):
-     # TODO, better query api
+    # TODO, better query api
     serializer_class = serializers.UserLoginSerializer
     permission_classes = (NotAuthenticate,)
 
@@ -70,12 +75,18 @@ class UserLoginApiView(APIView):
                     "data": data,
                     "is_staff": user.is_staff,
                     "is_coach": user.is_coach,
-                    "full_name": user.get_full_name
+                    "full_name": user.get_full_name,
                 }
             else:
-                return Response({"message": "this account is not active!"}, status=status.HTTP_403_FORBIDDEN)
+                return Response(
+                    {"message": "this account is not active!"},
+                    status=status.HTTP_403_FORBIDDEN,
+                )
         else:
-            return Response({"message": "invalid username or password"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"message": "invalid username or password"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
         return Response(data)
 
 
@@ -84,27 +95,33 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
     pagination_class = UserPagination
     filter_backends = (DjangoFilterBackend, SearchFilter)
-    filterset_fields = ('is_staff', "gender", "is_active")
+    filterset_fields = ("is_staff", "gender", "is_active")
     filterset_class = UserFilter
 
     def get_permissions(self):
-        if self.request.method == 'POST':
+        if self.request.method == "POST":
             self.permission_classes = (IsAdminUser,)
         return super().get_permissions()
 
     def get_queryset(self):
-        query = User.objects.select_related("state", "city").prefetch_related(
-            Prefetch(
-                "student", queryset=Student.objects.only("referral_code", "user_id")
+        query = (
+            User.objects.select_related("state", "city")
+            .prefetch_related(
+                Prefetch(
+                    "student", queryset=Student.objects.only("referral_code", "user_id")
+                )
             )
+            .order_by("-id")
+            .filter(Q(is_deleted=False) | Q(is_deleted__isnull=True))
         )
+
         if self.request.user.is_staff:
             return query
         else:
             return query.filter(id=self.request.user.id)
 
     def get_serializer_class(self):
-        if self.request.method in ('PUT', "PATCH"):
+        if self.request.method in ("PUT", "PATCH"):
             return serializers.UpdateUserSerializer
         return super().get_serializer_class()
 
@@ -118,8 +135,8 @@ class BaseApiView(APIView):
         return get_object_or_404(self.model, pk=pk)
 
     def get(self, request, *args, **kwargs):
-        if 'pk' in self.kwargs:
-            instance = self.get_object(pk=self.kwargs['pk'])
+        if "pk" in self.kwargs:
+            instance = self.get_object(pk=self.kwargs["pk"])
             serializer = self.serializer_class(instance)
             return Response(serializer.data, status=HTTP_200_OK)
         queryset = self.model
@@ -149,7 +166,11 @@ class StateCitiesGenericView(ListAPIView):
     serializer_class = serializers.CitySerializer
 
     def get_queryset(self):
-        return City.objects.filter(state_id=self.kwargs['pk']).select_related('state').order_by("city")
+        return (
+            City.objects.filter(state_id=self.kwargs["pk"])
+            .select_related("state")
+            .order_by("city")
+        )
 
 
 class ChangePasswordApiView(APIView):
@@ -162,9 +183,9 @@ class ChangePasswordApiView(APIView):
 
         validated_data = serializer.validated_data
 
-        new_password = validated_data.get('new_password')
-        old_password = validated_data.get('old_password')
-        confirm_password = validated_data.get('confirm_password')
+        new_password = validated_data.get("new_password")
+        old_password = validated_data.get("old_password")
+        confirm_password = validated_data.get("confirm_password")
 
         if new_password != confirm_password:
             raise ValidationError({"message": "پسورد ها با هم برابر نیستند"})
@@ -186,7 +207,7 @@ class ForgetPasswordApiView(APIView):
         serializer.is_valid(raise_exception=True)
 
         # get mobile phone and otp_code in data
-        mobile_phone = serializer.validated_data['mobile_phone']
+        mobile_phone = serializer.validated_data["mobile_phone"]
 
         # generate code
         code = generate_otp_code()
@@ -195,18 +216,28 @@ class ForgetPasswordApiView(APIView):
         user_ip = get_client_ip(request)
 
         # check user exists
-        user = User.objects.filter(mobile_phone=mobile_phone).only("mobile_phone", "is_active")
-        get_user = user.first() # get user object
+        user = User.objects.filter(mobile_phone=mobile_phone).only(
+            "mobile_phone", "is_active"
+        )
+        get_user = user.first()  # get user object
 
         if not user.exists():
-            raise ValidationError({"detail": "phone number dose not exits please signup"}, code="user_not_exist")
+            raise ValidationError(
+                {"detail": "phone number dose not exits please signup"},
+                code="user_not_exist",
+            )
         if not get_user.is_active:
-            raise ValidationError({"detail": "you account is ban!"}, code="account_not_active")
+            raise ValidationError(
+                {"detail": "you account is ban!"}, code="account_not_active"
+            )
         else:
-            cache_key = f'forget_{get_user.mobile_phone}_{code}_{user_ip}'
+            cache_key = f"forget_{get_user.mobile_phone}_{code}_{user_ip}"
             cache.set(cache_key, code, timeout=120)
-            send_otp_sms_task.delay(get_user.mobile_phone, code, 'forget_password', FORGET_TEMPLATE_ID)
-            return Response({'message': "code sent"}, status=HTTP_200_OK)
+            send_otp_sms_task.delay(
+                get_user.mobile_phone, code, "forget_password", FORGET_TEMPLATE_ID
+            )
+            return Response({"message": "code sent"}, status=HTTP_200_OK)
+
 
 class ConfirmForgetPasswordApiView(APIView):
     serializer_class = serializers.ConfirmForgetPasswordSerializer
@@ -216,27 +247,35 @@ class ConfirmForgetPasswordApiView(APIView):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        code = serializer.validated_data['code']
-        password = serializer.validated_data['confirm_password']
+        code = serializer.validated_data["code"]
+        password = serializer.validated_data["confirm_password"]
         user_ip = get_client_ip(request)
-        mobile_phone = serializer.validated_data['mobile_phone']
+        mobile_phone = serializer.validated_data["mobile_phone"]
 
-        cache_key = f'forget_{mobile_phone}_{code}_{user_ip}'
+        cache_key = f"forget_{mobile_phone}_{code}_{user_ip}"
         get_cache_key = cache.get(cache_key)
         if not get_cache_key:
             raise ValidationError({"message": "otp is invalid or expired"})
         else:
-            user = User.objects.filter(mobile_phone=mobile_phone).only("mobile_phone", "password", "is_active").first()
+            user = (
+                User.objects.filter(mobile_phone=mobile_phone)
+                .only("mobile_phone", "password", "is_active")
+                .first()
+            )
 
             if not user:
                 raise ValidationError({"message": "user dose not exits"})
             if not user.is_active:
-                raise ValidationError({"detail": "you account is ban!"}, code="account_not_active")
+                raise ValidationError(
+                    {"detail": "you account is ban!"}, code="account_not_active"
+                )
             else:
                 user.set_password(password)
                 user.save(update_fields=["password", "updated_at"])
                 cache.delete(cache_key)
-                return Response({"message": "password successfully change"}, status=HTTP_200_OK)
+                return Response(
+                    {"message": "password successfully change"}, status=HTTP_200_OK
+                )
 
 
 class StudentViewSet(ModelViewSet):
@@ -255,6 +294,7 @@ class TicketRoomViewSet(ModelViewSet):
     """
     filter query --> ?is_close=false or is_close=true
     """
+
     permission_classes = (IsAuthenticated,)
     pagination_class = CommonPagination
     serializer_class = serializers.TickerRoomSerializer
@@ -288,24 +328,44 @@ class TicketRoomViewSet(ModelViewSet):
 
 
 class TicketChatViewSet(ModelViewSet):
-    """
+    (
+        """
     send ticket user to admin
-    """""
+    """
+        ""
+    )
+
     # TODO, better query for create ticket
     permission_classes = (TicketRoomPermission,)
     serializer_class = serializers.TicketSerializer
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        context['room_pk'] = self.kwargs['ticket_room_pk']
+        context["room_pk"] = self.kwargs["ticket_room_pk"]
         return context
 
     def get_queryset(self):
-        ticket = Ticket.objects.filter(
-            room_id=self.kwargs['ticket_room_pk'], is_publish=True, room__is_active=True).only(
-            "ticket_body", "ticket_file", "created_at", "sender__first_name", "sender__last_name", "depth", "path",
-            "numchild", "reply__first_name", "reply__last_name", "reply__mobile_phone"
-        ).select_related("sender", "reply")
+        ticket = (
+            Ticket.objects.filter(
+                room_id=self.kwargs["ticket_room_pk"],
+                is_publish=True,
+                room__is_active=True,
+            )
+            .only(
+                "ticket_body",
+                "ticket_file",
+                "created_at",
+                "sender__first_name",
+                "sender__last_name",
+                "depth",
+                "path",
+                "numchild",
+                "reply__first_name",
+                "reply__last_name",
+                "reply__mobile_phone",
+            )
+            .select_related("sender", "reply")
+        )
 
         user = self.request.user
 
@@ -327,10 +387,7 @@ class BestStudentViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         return BestStudent.objects.filter(is_publish=True).only(
-            "student",
-            "description",
-            "student_image",
-            "attributes"
+            "student", "description", "student_image", "attributes"
         )
 
 
@@ -342,14 +399,16 @@ class ValidateTokenApiView(APIView):
         serializer.is_valid(raise_exception=True)
         response = Response()
         try:
-            token = serializer.validated_data['token']
-            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=settings.SIMPLE_JWT['ALGORITHM'])
+            token = serializer.validated_data["token"]
+            payload = jwt.decode(
+                token, settings.SECRET_KEY, algorithms=settings.SIMPLE_JWT["ALGORITHM"]
+            )
         except jwt.ExpiredSignatureError:
             raise ValidationError("Token has expired")
         except jwt.InvalidTokenError:
             raise ValidationError("Invalid token")
         else:
-            response.data = 'valid token'
+            response.data = "valid token"
             response.status_code = HTTP_200_OK
             return response
 
@@ -362,16 +421,27 @@ class UserNotificationViewSet(viewsets.ModelViewSet):
     ?read=False
     ?title=xyz
     """
+
     pagination_class = CommonPagination
 
     def get_queryset(self):
-        return PrivateNotification.objects.filter(user=self.request.user).only(
-            "body", "is_read", "created_at", "title", "user__first_name", "user__last_name", "notification_type",
-            "char_link"
-        ).select_related("user")
+        return (
+            PrivateNotification.objects.filter(user=self.request.user)
+            .only(
+                "body",
+                "is_read",
+                "created_at",
+                "title",
+                "user__first_name",
+                "user__last_name",
+                "notification_type",
+                "char_link",
+            )
+            .select_related("user")
+        )
 
     def get_permissions(self):
-        if self.request.method in SAFE_METHODS or self.request.method == 'PATCH':
+        if self.request.method in SAFE_METHODS or self.request.method == "PATCH":
             self.permission_classes = (IsAuthenticated,)
         else:
             self.permission_classes = (IsAdminUser,)
@@ -402,6 +472,7 @@ class RequestPhoneView(APIView):
     """
     درخواست کد اعتبار سنجی اگر کاربر وجود نداشته باشید کابر رو به همراه پسورد رندوم ان را میسازد
     """
+
     serializer_class = serializers.RequestPhoneSerializer
     permission_classes = (NotAuthenticate,)
 
@@ -410,7 +481,7 @@ class RequestPhoneView(APIView):
         serializer.is_valid(raise_exception=True)
 
         # get phone by serializer
-        phone = serializer.validated_data['mobile_phone']
+        phone = serializer.validated_data["mobile_phone"]
 
         # generate random password
         random_string = get_random_string(16)
@@ -425,46 +496,46 @@ class RequestPhoneView(APIView):
         user = User.objects.filter(mobile_phone=phone).only("mobile_phone").first()
         if user:
             # set cache
-            cache_key = f'otp_{phone}_{code}_{user_ip}'
+            cache_key = f"otp_{phone}_{code}_{user_ip}"
             cache.set(cache_key, code, timeout=120)
             # send otp sms
-            send_otp_sms_task.delay(phone, code, 'otp', OTP_TEMPLATE_ID)
+            send_otp_sms_task.delay(phone, code, "otp", OTP_TEMPLATE_ID)
         else:
             # hash password
             hash_password = make_password(password=random_string)
             # create user
             User.objects.create_user(mobile_phone=phone, password=hash_password)
             # set cache
-            cache_key = f'{phone}:{code}_{user_ip}'
+            cache_key = f"{phone}:{code}_{user_ip}"
             cache.set(cache_key, code, timeout=120)
             # send otp sms
-            send_otp_sms_task.delay(phone, code, 'otp', OTP_TEMPLATE_ID)
+            send_otp_sms_task.delay(phone, code, "otp", OTP_TEMPLATE_ID)
 
-        return Response({
-            "status": True,
-            "message": "code send"
-        })
+        return Response({"status": True, "message": "code send"})
 
 
 class RequestOtpVerifyView(APIView):
     """
     تایید کد اعتبار سنجی برای ورود به حساب
     """
+
     serializer_class = serializers.RequestPhoneVerifySerializer
     permission_classes = (NotAuthenticate,)
 
     def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data, context={'request': request})
+        serializer = self.serializer_class(
+            data=request.data, context={"request": request}
+        )
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
         return Response(
             data={
-                "data": data['data'],
-                "is_staff": bool(data['is_staff']),
-                "is_coach": bool(data['is_coach']),
-                "full_name": data['full_name']
+                "data": data["data"],
+                "is_staff": bool(data["is_staff"]),
+                "is_coach": bool(data["is_coach"]),
+                "full_name": data["full_name"],
             },
-            status=HTTP_201_CREATED
+            status=HTTP_201_CREATED,
         )
 
 
@@ -473,17 +544,19 @@ class InvitationView(generics.ListAPIView):
     pagination --> 20 item
     لیست کاربران دعوت شده توسط شما
     """
+
     serializer_class = serializers.InvitationSerializer
     permission_classes = (IsAuthenticated,)
     pagination_class = CommonPagination
 
     def get_queryset(self):
-        return Invitation.objects.filter(
-            from_student__user_id=self.request.user.id
-        ).select_related(
-            "to_student__user"
-        ).only(
-            "to_student__user__first_name",
-            "to_student__user__last_name",
-            "created_at"
-        ).order_by("-id")
+        return (
+            Invitation.objects.filter(from_student__user_id=self.request.user.id)
+            .select_related("to_student__user")
+            .only(
+                "to_student__user__first_name",
+                "to_student__user__last_name",
+                "created_at",
+            )
+            .order_by("-id")
+        )

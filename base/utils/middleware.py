@@ -18,9 +18,7 @@ class RequestLoggingMiddleware:
 
         # ذخیره لاگ
         RequestLog.objects.create(
-            path=request.path,
-            method=request.method,
-            meta_data=json.dumps(meta_data)
+            path=request.path, method=request.method, meta_data=json.dumps(meta_data)
         )
 
         response = self.get_response(request)
@@ -34,7 +32,7 @@ class UserCacheMiddleware:
     def __call__(self, request):
         user = request.user
         if user.is_authenticated:
-            cache_key = f'user_{user.id}'
+            cache_key = f"user_{user.id}"
             cached_user = cache.get(cache_key)
             if cached_user is None:
                 cached_user = {

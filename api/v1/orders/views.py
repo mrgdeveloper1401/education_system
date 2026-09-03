@@ -16,6 +16,7 @@ class CourseSignupView(APIView):
     """
     referral_code can be sent null data
     """
+
     serializer_class = serializers.CourseSignUpSerializer
 
     def post(self, request, *args, **kwargs):

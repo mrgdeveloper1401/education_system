@@ -6,75 +6,134 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='ConsultationSchedule',
+            name="ConsultationSchedule",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('start_date', models.DateField()),
-                ('end_date', models.DateField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                ("start_date", models.DateField()),
+                ("end_date", models.DateField()),
             ],
             options={
-                'db_table': 'consultation_schedule',
+                "db_table": "consultation_schedule",
             },
         ),
         migrations.CreateModel(
-            name='ConsultationTopic',
+            name="ConsultationTopic",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('name', models.CharField(max_length=255, unique=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                ("name", models.CharField(max_length=255, unique=True)),
             ],
             options={
-                'db_table': 'consultation_topic',
+                "db_table": "consultation_topic",
             },
         ),
         migrations.CreateModel(
-            name='ConsultationSlot',
+            name="ConsultationSlot",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('date', models.DateField()),
-                ('is_available', models.BooleanField(default=True)),
-                ('schedule', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='consultation_slot', to='advertise_app.consultationschedule')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                ("date", models.DateField()),
+                ("is_available", models.BooleanField(default=True)),
+                (
+                    "schedule",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="consultation_slot",
+                        to="advertise_app.consultationschedule",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'consultation_slot',
+                "db_table": "consultation_slot",
             },
         ),
         migrations.CreateModel(
-            name='ConsultationRequest',
+            name="ConsultationRequest",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('mobile_phone', models.CharField(max_length=11, validators=[apps.account_app.validators.MobileRegexValidator()], verbose_name='شماره موبایل')),
-                ('first_name', models.CharField(max_length=30, verbose_name='نام کد اموز')),
-                ('last_name', models.CharField(max_length=30, verbose_name='نام خانوادگی کد اموز')),
-                ('is_answer', models.BooleanField(default=False)),
-                ('topic', models.CharField(blank=True, max_length=100, null=True)),
-                ('slot', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='consultation_slot_slot', to='advertise_app.consultationslot')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                (
+                    "mobile_phone",
+                    models.CharField(
+                        max_length=11,
+                        validators=[apps.account_app.validators.MobileRegexValidator()],
+                        verbose_name="شماره موبایل",
+                    ),
+                ),
+                (
+                    "first_name",
+                    models.CharField(max_length=30, verbose_name="نام کد اموز"),
+                ),
+                (
+                    "last_name",
+                    models.CharField(
+                        max_length=30, verbose_name="نام خانوادگی کد اموز"
+                    ),
+                ),
+                ("is_answer", models.BooleanField(default=False)),
+                ("topic", models.CharField(blank=True, max_length=100, null=True)),
+                (
+                    "slot",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="consultation_slot_slot",
+                        to="advertise_app.consultationslot",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'consultation_request',
+                "db_table": "consultation_request",
             },
         ),
     ]

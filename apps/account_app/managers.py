@@ -1,8 +1,7 @@
-from django.apps import apps
 from django.contrib import auth
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import UserManager as BaseUserManager
-from django.db.models import QuerySet, Manager, Q
+from django.db.models import QuerySet, Manager
 from django.utils.timezone import now
 
 

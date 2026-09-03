@@ -4,6 +4,7 @@ from rest_framework import viewsets, permissions
 from . import serializers
 from apps.core_app.models import SitemapEntry, CourseSiteInformation
 
+
 class SitemapViewSet(viewsets.ModelViewSet):
     queryset = SitemapEntry.objects.only(
         "slug_text",
@@ -22,10 +23,7 @@ class SitemapViewSet(viewsets.ModelViewSet):
 class CourseSiteInformationViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.CourseSiteInformationSerializer
     queryset = CourseSiteInformation.objects.defer(
-        "is_deleted",
-        "deleted_at",
-        "updated_at",
-        "created_at"
+        "is_deleted", "deleted_at", "updated_at", "created_at"
     )
 
     def get_permissions(self):

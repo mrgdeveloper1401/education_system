@@ -9,194 +9,525 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('auth', '0012_alter_user_first_name_max_length'),
-        ('core_app', '0001_initial'),
+        ("auth", "0012_alter_user_first_name_max_length"),
+        ("core_app", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='BestStudent',
+            name="BestStudent",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('student', models.CharField(help_text='نام دانش اموز', max_length=50)),
-                ('student_image', models.ImageField(help_text='حجم عکس اپلودی نباید بیش تر از یک مگابایت باشد', null=True, upload_to='best_student_image/%Y/%m/%d', validators=[apps.account_app.validators.validate_upload_image_user])),
-                ('is_publish', models.BooleanField(default=True)),
-                ('description', models.CharField(max_length=500, null=True)),
-                ('attributes', django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=100), null=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                ("student", models.CharField(help_text="نام دانش اموز", max_length=50)),
+                (
+                    "student_image",
+                    models.ImageField(
+                        help_text="حجم عکس اپلودی نباید بیش تر از یک مگابایت باشد",
+                        null=True,
+                        upload_to="best_student_image/%Y/%m/%d",
+                        validators=[
+                            apps.account_app.validators.validate_upload_image_user
+                        ],
+                    ),
+                ),
+                ("is_publish", models.BooleanField(default=True)),
+                ("description", models.CharField(max_length=500, null=True)),
+                (
+                    "attributes",
+                    django.contrib.postgres.fields.ArrayField(
+                        base_field=models.CharField(max_length=100), null=True
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'دانش اموز برتر',
-                'verbose_name_plural': 'دانش اموزان برتر',
-                'db_table': 'best_student',
-                'ordering': ('-created_at',),
+                "verbose_name": "دانش اموز برتر",
+                "verbose_name_plural": "دانش اموزان برتر",
+                "db_table": "best_student",
+                "ordering": ("-created_at",),
             },
         ),
         migrations.CreateModel(
-            name='User',
+            name="User",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('last_login', models.DateTimeField(blank=True, null=True, verbose_name='last login')),
-                ('is_superuser', models.BooleanField(default=False, help_text='Designates that this user has all permissions without explicitly assigning them.', verbose_name='superuser status')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('mobile_phone', models.CharField(max_length=15, unique=True, verbose_name='mobile phone')),
-                ('first_name', models.CharField(blank=True, max_length=30, null=True, verbose_name='first name')),
-                ('last_name', models.CharField(blank=True, max_length=30, null=True, verbose_name='last name')),
-                ('email', models.EmailField(blank=True, max_length=254, null=True, verbose_name='email address')),
-                ('is_staff', models.BooleanField(default=False)),
-                ('is_verified', models.BooleanField(default=False)),
-                ('is_active', models.BooleanField(default=True)),
-                ('password', models.CharField(blank=True, max_length=128, null=True, verbose_name='password')),
-                ('image', models.ImageField(blank=True, null=True, upload_to='user_image/%Y/%m/%d', validators=[apps.account_app.validators.validate_upload_image_user], verbose_name='عکس')),
-                ('second_mobile_phone', models.CharField(blank=True, max_length=11, null=True, validators=[apps.account_app.validators.MobileRegexValidator()], verbose_name='شماره تماس دوم')),
-                ('nation_code', models.CharField(blank=True, max_length=10, null=True, validators=[apps.account_app.validators.NationCodeRegexValidator()], verbose_name='کد ملی')),
-                ('address', models.TextField(blank=True, null=True, verbose_name='ادرس')),
-                ('is_coach', models.BooleanField(default=False, verbose_name='به عنوان مربی')),
-                ('birth_date', models.DateField(blank=True, null=True, verbose_name='تاریخ نولد')),
-                ('bio', models.CharField(blank=True, max_length=500, null=True)),
-                ('gender', models.CharField(blank=True, choices=[('male', 'پسر'), ('Female', 'دختر')], max_length=6, null=True, verbose_name='gender')),
-                ('grade', models.CharField(blank=True, choices=[('one', 'اول'), ('two', 'دوم'), ('three', 'سوم'), ('four', 'چهارم'), ('five', 'پنجم'), ('six', 'ششم'), ('seven', 'هفتم'), ('eight', 'هشتم'), ('nine', 'نهم'), ('ten', 'دهم'), ('eleven', 'یازدهم'), ('twelfth', 'دوازدهم'), ('graduate', 'فارغ التحصیل')], max_length=8, null=True, verbose_name='grade')),
-                ('school', models.CharField(blank=True, max_length=30, null=True, verbose_name='نام مدرسه')),
-                ('city', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='student_city', to='core_app.city')),
-                ('groups', models.ManyToManyField(blank=True, help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.', related_name='user_set', related_query_name='user', to='auth.group', verbose_name='groups')),
-                ('state', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='state', to='core_app.state', verbose_name='استان')),
-                ('user_permissions', models.ManyToManyField(blank=True, help_text='Specific permissions for this user.', related_name='user_set', related_query_name='user', to='auth.permission', verbose_name='user permissions')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "last_login",
+                    models.DateTimeField(
+                        blank=True, null=True, verbose_name="last login"
+                    ),
+                ),
+                (
+                    "is_superuser",
+                    models.BooleanField(
+                        default=False,
+                        help_text="Designates that this user has all permissions without explicitly assigning them.",
+                        verbose_name="superuser status",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                (
+                    "mobile_phone",
+                    models.CharField(
+                        max_length=15, unique=True, verbose_name="mobile phone"
+                    ),
+                ),
+                (
+                    "first_name",
+                    models.CharField(
+                        blank=True, max_length=30, null=True, verbose_name="first name"
+                    ),
+                ),
+                (
+                    "last_name",
+                    models.CharField(
+                        blank=True, max_length=30, null=True, verbose_name="last name"
+                    ),
+                ),
+                (
+                    "email",
+                    models.EmailField(
+                        blank=True,
+                        max_length=254,
+                        null=True,
+                        verbose_name="email address",
+                    ),
+                ),
+                ("is_staff", models.BooleanField(default=False)),
+                ("is_verified", models.BooleanField(default=False)),
+                ("is_active", models.BooleanField(default=True)),
+                (
+                    "password",
+                    models.CharField(
+                        blank=True, max_length=128, null=True, verbose_name="password"
+                    ),
+                ),
+                (
+                    "image",
+                    models.ImageField(
+                        blank=True,
+                        null=True,
+                        upload_to="user_image/%Y/%m/%d",
+                        validators=[
+                            apps.account_app.validators.validate_upload_image_user
+                        ],
+                        verbose_name="عکس",
+                    ),
+                ),
+                (
+                    "second_mobile_phone",
+                    models.CharField(
+                        blank=True,
+                        max_length=11,
+                        null=True,
+                        validators=[apps.account_app.validators.MobileRegexValidator()],
+                        verbose_name="شماره تماس دوم",
+                    ),
+                ),
+                (
+                    "nation_code",
+                    models.CharField(
+                        blank=True,
+                        max_length=10,
+                        null=True,
+                        validators=[
+                            apps.account_app.validators.NationCodeRegexValidator()
+                        ],
+                        verbose_name="کد ملی",
+                    ),
+                ),
+                (
+                    "address",
+                    models.TextField(blank=True, null=True, verbose_name="ادرس"),
+                ),
+                (
+                    "is_coach",
+                    models.BooleanField(default=False, verbose_name="به عنوان مربی"),
+                ),
+                (
+                    "birth_date",
+                    models.DateField(blank=True, null=True, verbose_name="تاریخ نولد"),
+                ),
+                ("bio", models.CharField(blank=True, max_length=500, null=True)),
+                (
+                    "gender",
+                    models.CharField(
+                        blank=True,
+                        choices=[("male", "پسر"), ("Female", "دختر")],
+                        max_length=6,
+                        null=True,
+                        verbose_name="gender",
+                    ),
+                ),
+                (
+                    "grade",
+                    models.CharField(
+                        blank=True,
+                        choices=[
+                            ("one", "اول"),
+                            ("two", "دوم"),
+                            ("three", "سوم"),
+                            ("four", "چهارم"),
+                            ("five", "پنجم"),
+                            ("six", "ششم"),
+                            ("seven", "هفتم"),
+                            ("eight", "هشتم"),
+                            ("nine", "نهم"),
+                            ("ten", "دهم"),
+                            ("eleven", "یازدهم"),
+                            ("twelfth", "دوازدهم"),
+                            ("graduate", "فارغ التحصیل"),
+                        ],
+                        max_length=8,
+                        null=True,
+                        verbose_name="grade",
+                    ),
+                ),
+                (
+                    "school",
+                    models.CharField(
+                        blank=True, max_length=30, null=True, verbose_name="نام مدرسه"
+                    ),
+                ),
+                (
+                    "city",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="student_city",
+                        to="core_app.city",
+                    ),
+                ),
+                (
+                    "groups",
+                    models.ManyToManyField(
+                        blank=True,
+                        help_text="The groups this user belongs to. A user will get all permissions granted to each of their groups.",
+                        related_name="user_set",
+                        related_query_name="user",
+                        to="auth.group",
+                        verbose_name="groups",
+                    ),
+                ),
+                (
+                    "state",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.PROTECT,
+                        related_name="state",
+                        to="core_app.state",
+                        verbose_name="استان",
+                    ),
+                ),
+                (
+                    "user_permissions",
+                    models.ManyToManyField(
+                        blank=True,
+                        help_text="Specific permissions for this user.",
+                        related_name="user_set",
+                        related_query_name="user",
+                        to="auth.permission",
+                        verbose_name="user permissions",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'کاربر',
-                'verbose_name_plural': 'کاربران',
-                'db_table': 'users',
+                "verbose_name": "کاربر",
+                "verbose_name_plural": "کاربران",
+                "db_table": "users",
             },
             managers=[
-                ('objects', django.contrib.auth.models.UserManager()),
+                ("objects", django.contrib.auth.models.UserManager()),
             ],
         ),
         migrations.CreateModel(
-            name='Coach',
+            name="Coach",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('coach_number', models.CharField(blank=True, max_length=15)),
-                ('is_active', models.BooleanField(default=True)),
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.DO_NOTHING, related_name='coach', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                ("coach_number", models.CharField(blank=True, max_length=15)),
+                ("is_active", models.BooleanField(default=True)),
+                (
+                    "user",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="coach",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'استاد',
-                'verbose_name_plural': 'اساتید',
-                'db_table': 'coach',
+                "verbose_name": "استاد",
+                "verbose_name_plural": "اساتید",
+                "db_table": "coach",
             },
         ),
         migrations.CreateModel(
-            name='PrivateNotification',
+            name="PrivateNotification",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('title', models.CharField(max_length=255)),
-                ('body', models.TextField()),
-                ('char_link', models.CharField(blank=True, help_text='link for redirect', max_length=100, null=True)),
-                ('notification_type', models.CharField(blank=True, max_length=30, null=True)),
-                ('is_read', models.BooleanField(default=False)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, related_name='notifications', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                ("title", models.CharField(max_length=255)),
+                ("body", models.TextField()),
+                (
+                    "char_link",
+                    models.CharField(
+                        blank=True,
+                        help_text="link for redirect",
+                        max_length=100,
+                        null=True,
+                    ),
+                ),
+                (
+                    "notification_type",
+                    models.CharField(blank=True, max_length=30, null=True),
+                ),
+                ("is_read", models.BooleanField(default=False)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="notifications",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'نوتیفیکیشن کاربر',
-                'verbose_name_plural': 'نوتیفیکیشن های کاربر',
-                'db_table': 'private_notification',
+                "verbose_name": "نوتیفیکیشن کاربر",
+                "verbose_name_plural": "نوتیفیکیشن های کاربر",
+                "db_table": "private_notification",
             },
         ),
         migrations.CreateModel(
-            name='Student',
+            name="Student",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('student_number', models.CharField(max_length=11)),
-                ('referral_code', models.CharField(blank=True, db_index=True, max_length=30)),
-                ('is_active', models.BooleanField(default=True)),
-                ('user', models.OneToOneField(limit_choices_to={'is_coach': False}, on_delete=django.db.models.deletion.DO_NOTHING, related_name='student', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                ("student_number", models.CharField(max_length=11)),
+                (
+                    "referral_code",
+                    models.CharField(blank=True, db_index=True, max_length=30),
+                ),
+                ("is_active", models.BooleanField(default=True)),
+                (
+                    "user",
+                    models.OneToOneField(
+                        limit_choices_to={"is_coach": False},
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="student",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'دانش اموز',
-                'verbose_name_plural': 'دانش اموزان',
-                'db_table': 'student',
+                "verbose_name": "دانش اموز",
+                "verbose_name_plural": "دانش اموزان",
+                "db_table": "student",
             },
         ),
         migrations.CreateModel(
-            name='Invitation',
+            name="Invitation",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('from_student', models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, related_name='from_invasion', to='account_app.student', verbose_name='از دانش اموز')),
-                ('to_student', models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, related_name='to_invasion', to='account_app.student', verbose_name='به داشن اموز')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                (
+                    "from_student",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="from_invasion",
+                        to="account_app.student",
+                        verbose_name="از دانش اموز",
+                    ),
+                ),
+                (
+                    "to_student",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="to_invasion",
+                        to="account_app.student",
+                        verbose_name="به داشن اموز",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'دعوت',
-                'verbose_name_plural': 'دعوت ها',
-                'db_table': 'invitation',
+                "verbose_name": "دعوت",
+                "verbose_name_plural": "دعوت ها",
+                "db_table": "invitation",
             },
         ),
         migrations.CreateModel(
-            name='TicketRoom',
+            name="TicketRoom",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('title_room', models.CharField(help_text='عنوان چت روم تیکت', max_length=50)),
-                ('subject_room', models.CharField(help_text='موضوع تیکت', max_length=50)),
-                ('is_active', models.BooleanField(default=True)),
-                ('is_close', models.BooleanField(default=False)),
-                ('user', models.ForeignKey(limit_choices_to={'is_active': True}, on_delete=django.db.models.deletion.DO_NOTHING, related_name='ticker_room', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                (
+                    "title_room",
+                    models.CharField(help_text="عنوان چت روم تیکت", max_length=50),
+                ),
+                (
+                    "subject_room",
+                    models.CharField(help_text="موضوع تیکت", max_length=50),
+                ),
+                ("is_active", models.BooleanField(default=True)),
+                ("is_close", models.BooleanField(default=False)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        limit_choices_to={"is_active": True},
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="ticker_room",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'اتاق تیکت',
-                'verbose_name_plural': 'اتاق های تیکت',
-                'db_table': 'ticker_room',
+                "verbose_name": "اتاق تیکت",
+                "verbose_name_plural": "اتاق های تیکت",
+                "db_table": "ticker_room",
             },
         ),
         migrations.CreateModel(
-            name='Ticket',
+            name="Ticket",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('path', models.CharField(max_length=255, unique=True)),
-                ('depth', models.PositiveIntegerField()),
-                ('numchild', models.PositiveIntegerField(default=0)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('ticket_body', models.TextField(verbose_name='متن تیکت')),
-                ('ticket_file', models.FileField(blank=True, null=True, upload_to='ticket/%Y/%m/%d')),
-                ('is_publish', models.BooleanField(default=True)),
-                ('reply', models.ForeignKey(blank=True, limit_choices_to={'is_active': True, 'is_staff': True}, null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='ticket_reply', to=settings.AUTH_USER_MODEL)),
-                ('sender', models.ForeignKey(limit_choices_to={'is_active': True}, on_delete=django.db.models.deletion.DO_NOTHING, related_name='sender', to=settings.AUTH_USER_MODEL)),
-                ('room', models.ForeignKey(limit_choices_to={'is_active': True}, on_delete=django.db.models.deletion.DO_NOTHING, related_name='room', to='account_app.ticketroom')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("path", models.CharField(max_length=255, unique=True)),
+                ("depth", models.PositiveIntegerField()),
+                ("numchild", models.PositiveIntegerField(default=0)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                ("ticket_body", models.TextField(verbose_name="متن تیکت")),
+                (
+                    "ticket_file",
+                    models.FileField(
+                        blank=True, null=True, upload_to="ticket/%Y/%m/%d"
+                    ),
+                ),
+                ("is_publish", models.BooleanField(default=True)),
+                (
+                    "reply",
+                    models.ForeignKey(
+                        blank=True,
+                        limit_choices_to={"is_active": True, "is_staff": True},
+                        null=True,
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="ticket_reply",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "sender",
+                    models.ForeignKey(
+                        limit_choices_to={"is_active": True},
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="sender",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
+                (
+                    "room",
+                    models.ForeignKey(
+                        limit_choices_to={"is_active": True},
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="room",
+                        to="account_app.ticketroom",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'تیکت',
-                'verbose_name_plural': 'تیکت ها',
-                'db_table': 'ticket',
+                "verbose_name": "تیکت",
+                "verbose_name_plural": "تیکت ها",
+                "db_table": "ticket",
             },
         ),
     ]

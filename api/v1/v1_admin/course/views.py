@@ -1,5 +1,14 @@
 from django.db.models import Prefetch
-from rest_framework import viewsets, permissions, exceptions, decorators, response, views, status, filters
+from rest_framework import (
+    viewsets,
+    permissions,
+    exceptions,
+    decorators,
+    response,
+    views,
+    status,
+    filters,
+)
 from drf_spectacular.views import extend_schema
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -18,7 +27,7 @@ from apps.course_app.models import (
     AnswerQuestion,
     Comment,
     SignupCourse,
-    StudentEnrollment
+    StudentEnrollment,
 )
 from .filters import AdminCommentFilter
 from .paginations import AdminPagination
@@ -28,7 +37,9 @@ from ...course.paginations import CommonPagination
 
 class CategoryViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAdminUser,)
-    queryset = Category.objects.only("id", "category_name", "image", "description", "description_slug").order_by("-id")
+    queryset = Category.objects.only(
+        "id", "category_name", "image", "description", "description_slug"
+    ).order_by("-id")
     pagination_class = CommonPagination
 
     def get_serializer_class(self):
@@ -36,7 +47,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
             return serializers.CreateCategorySerializer
         if self.action in ("list", "retrieve"):
             return serializers.ListRetrieveCategorySerializer
-        if self.action in ('update', 'partial_update'):
+        if self.action in ("update", "partial_update"):
             return serializers.UpdateCategoryNodeSerializer
         if self.action == "destroy":
             return serializers.ListRetrieveCategorySerializer
@@ -50,14 +61,17 @@ class AdminCourseViewSet(viewsets.ModelViewSet):
     filter query --> ?course_name=course_name \n
     ordering --> (id, )
     """
+
     permission_classes = (permissions.IsAdminUser,)
     pagination_class = CommonPagination
     serializer_class = serializers.AdminCourseSerializer
-    ordering_fields = ('id', "order_number")
+    ordering_fields = ("id", "order_number")
     filter_backends = (filters.OrderingFilter,)
 
     def get_queryset(self):
-        return Course.objects.filter(category_id=self.kwargs["category_pk"]).defer("deleted_at", "is_deleted")
+        return Course.objects.filter(category_id=self.kwargs["category_pk"]).defer(
+            "deleted_at", "is_deleted"
+        )
 
     def filter_queryset(self, queryset):
         course_name = self.request.query_params.get("course_name", None)
@@ -69,7 +83,7 @@ class AdminCourseViewSet(viewsets.ModelViewSet):
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        context['category_pk'] = self.kwargs["category_pk"]
+        context["category_pk"] = self.kwargs["category_pk"]
         return context
 
 
@@ -78,6 +92,7 @@ class AdminCourseSectionViewSet(viewsets.ModelViewSet):
     filter query --> ?search=title \n
     ??is_last_section=true or false
     """
+
     permission_classes = (permissions.IsAdminUser,)
     pagination_class = CommonPagination
     serializer_class = serializers.AdminCreateCourseSectionSerializer
@@ -86,7 +101,9 @@ class AdminCourseSectionViewSet(viewsets.ModelViewSet):
     search_fields = ("title",)
 
     def get_queryset(self):
-        return Section.objects.filter(course_id=self.kwargs["course_pk"]).defer("deleted_at", "is_deleted")
+        return Section.objects.filter(course_id=self.kwargs["course_pk"]).defer(
+            "deleted_at", "is_deleted"
+        )
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -99,6 +116,7 @@ class AdminSectionFileViewSet(viewsets.ModelViewSet):
     file_type --> main or more or gold
     zip_file --> (zip, rar)
     """
+
     permission_classes = (permissions.IsAdminUser,)
     serializer_class = serializers.AdminCourseSectionFileSerializer
 
@@ -112,12 +130,12 @@ class AdminSectionFileViewSet(viewsets.ModelViewSet):
             "title",
             "answer",
             "created_at",
-            "updated_at"
+            "updated_at",
         )
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        context['section_pk'] = self.kwargs['section_pk']
+        context["section_pk"] = self.kwargs["section_pk"]
         return context
 
 
@@ -133,12 +151,12 @@ class AdminSectionVideoViewSet(viewsets.ModelViewSet):
             "video_url",
             "section_id",
             "is_publish",
-            "title"
+            "title",
         )
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        context['section_pk'] = self.kwargs['section_pk']
+        context["section_pk"] = self.kwargs["section_pk"]
         return context
 
 
@@ -168,30 +186,37 @@ class AdminLessonCourseViewSet(viewsets.ModelViewSet):
 
     progress --> (not_started, finished, in_progress)
     """
+
     permission_classes = (permissions.IsAdminUser,)
     serializer_class = serializers.AdminLessonCourseSerializer
     pagination_class = CommonPagination
     filterset_class = LessonCourseFilter
 
     def get_queryset(self):
-        return LessonCourse.objects.filter(course_id=self.kwargs['course_pk']).prefetch_related(
-            Prefetch("students", Student.objects.only("student_number"))
-        ).defer(
-            "is_deleted", "deleted_at"
+        return (
+            LessonCourse.objects.filter(course_id=self.kwargs["course_pk"])
+            .prefetch_related(
+                Prefetch("students", Student.objects.only("student_number"))
+            )
+            .defer("is_deleted", "deleted_at")
         )
 
     @extend_schema(responses={200: serializers.AdminCoachRankingSerializer})
-    @decorators.action(detail=True, methods=['GET'], url_path="student_poll_answer")
+    @decorators.action(detail=True, methods=["GET"], url_path="student_poll_answer")
     def student_poll_answer(self, request, category_pk=None, course_pk=None, pk=None):
-        answer_poll = AnswerQuestion.objects.filter(
-            section_question__section__course_id=course_pk
-        ).select_related("student__user", "section_question__section").only(
-            "student__user__first_name",
-            "student__user__last_name",
-            "section_question__question_title",
-            "rate",
-            "section_question__section__title",
-            "section_question"
+        answer_poll = (
+            AnswerQuestion.objects.filter(
+                section_question__section__course_id=course_pk
+            )
+            .select_related("student__user", "section_question__section")
+            .only(
+                "student__user__first_name",
+                "student__user__last_name",
+                "section_question__question_title",
+                "rate",
+                "section_question__section__title",
+                "section_question",
+            )
         )
         serializer = serializers.AdminCoachRankingSerializer(answer_poll, many=True)
         return response.Response(serializer.data)
@@ -210,7 +235,7 @@ class AdminStudentPresentAbsentViewSet(viewsets.ReadOnlyModelViewSet):
             "student__user__first_name",
             "student__user__last_name",
             "section__title",
-            "created_at"
+            "created_at",
         ).select_related("student__user", "section")
 
 
@@ -219,16 +244,13 @@ class AdminSectionQuestionViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAdminUser,)
 
     def get_queryset(self):
-        return SectionQuestion.objects.filter(section_id=self.kwargs['section_pk']).only(
-            "question_title",
-            "section",
-            "is_publish",
-            "created_at"
-        )
+        return SectionQuestion.objects.filter(
+            section_id=self.kwargs["section_pk"]
+        ).only("question_title", "section", "is_publish", "created_at")
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        context['section_pk'] = self.kwargs['section_pk']
+        context["section_pk"] = self.kwargs["section_pk"]
         return context
 
 
@@ -237,12 +259,9 @@ class AdminAnswerQuestionViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (permissions.IsAdminUser,)
 
     def get_queryset(self):
-        return AnswerQuestion.objects.filter(section_question_id=self.kwargs['section_question_pk']).only(
-            "student",
-            "section_question",
-            "created_at",
-            "rate"
-        )
+        return AnswerQuestion.objects.filter(
+            section_question_id=self.kwargs["section_question_pk"]
+        ).only("student", "section_question", "created_at", "rate")
 
 
 class AdminCommentViewSet(viewsets.ModelViewSet):
@@ -251,6 +270,7 @@ class AdminCommentViewSet(viewsets.ModelViewSet):
     pagination --> 20 item
     permission --> admin user
     """
+
     serializer_class = serializers.AdminCommentSerializer
     pagination_class = AdminPagination
     permission_classes = (permissions.IsAdminUser,)
@@ -258,38 +278,39 @@ class AdminCommentViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
 
     def get_queryset(self):
-        return Comment.objects.filter(
-            category_id=self.kwargs['category_pk']
-        ).only(
-            "is_publish",
-            "comment_body",
-            "category",
-            "path",
-            "numchild",
-            "depth",
-            "user__first_name",
-            "user__last_name",
-            "created_at",
-            "is_pined",
-            "updated_at"
-        ).select_related("user").order_by("-id")
+        return (
+            Comment.objects.filter(category_id=self.kwargs["category_pk"])
+            .only(
+                "is_publish",
+                "comment_body",
+                "category",
+                "path",
+                "numchild",
+                "depth",
+                "user__first_name",
+                "user__last_name",
+                "created_at",
+                "is_pined",
+                "updated_at",
+            )
+            .select_related("user")
+            .order_by("-id")
+        )
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        context['category_pk'] = self.kwargs['category_pk']
+        context["category_pk"] = self.kwargs["category_pk"]
         return context
+
 
 class SignUpCourseViewSet(viewsets.ModelViewSet):
     queryset = SignupCourse.objects.only(
-            "course__course_name",
-            "student_name",
-            "phone_number",
-            "created_at"
-        )
+        "course__course_name", "student_name", "phone_number", "created_at"
+    )
     serializer_class = serializers.SignUpCourseSerializer
 
     def get_permissions(self):
-        if self.request.method in ('PUT', 'PATCH', 'DELETE', "GET"):
+        if self.request.method in ("PUT", "PATCH", "DELETE", "GET"):
             self.permission_classes = (permissions.IsAdminUser,)
         return super().get_permissions()
 
@@ -299,19 +320,21 @@ class AdminCertificateViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.AdminCertificateSerializer
 
     def get_queryset(self):
-        return Certificate.objects.filter(section_id=self.kwargs['section_pk']).select_related(
-            "student__user"
-        ).only(
-            "student__student_number",
-            "student__user__first_name",
-            "student__user__last_name",
-            "unique_code",
-            "qr_code",
-            "final_pdf",
-            "is_active",
-            "created_at",
-            "updated_at",
-            "student__student_number"
+        return (
+            Certificate.objects.filter(section_id=self.kwargs["section_pk"])
+            .select_related("student__user")
+            .only(
+                "student__student_number",
+                "student__user__first_name",
+                "student__user__last_name",
+                "unique_code",
+                "qr_code",
+                "final_pdf",
+                "is_active",
+                "created_at",
+                "updated_at",
+                "student__student_number",
+            )
         )
 
 
@@ -356,14 +379,15 @@ class StudentEnrollmentView(viewsets.ModelViewSet):
         return super().get_serializer_class()
 
     def get_queryset(self):
-        return StudentEnrollment.objects.filter(
-            lesson_course_id=self.kwargs['class_room_pk'],
-        ).select_related("student").only(
-            "student__student_number",
-            "student_status"
+        return (
+            StudentEnrollment.objects.filter(
+                lesson_course_id=self.kwargs["class_room_pk"],
+            )
+            .select_related("student")
+            .only("student__student_number", "student_status")
         )
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        context['class_room_pk'] = self.kwargs['class_room_pk']
+        context["class_room_pk"] = self.kwargs["class_room_pk"]
         return context

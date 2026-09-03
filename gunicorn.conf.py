@@ -23,6 +23,7 @@ loglevel = "error"
 # access_log_format = '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s" %(D)s µs'
 # capture_output = True  # گرفتن خروجی‌های استاندارد پایتون (stdout/stderr)
 
+
 def post_fork(server, worker):
     from django.db.backends.postgresql.base import DatabaseWrapper
 

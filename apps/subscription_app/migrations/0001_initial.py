@@ -8,88 +8,228 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('course_app', '0001_initial'),
-        ('discount_app', '0001_initial'),
+        ("course_app", "0001_initial"),
+        ("discount_app", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Plan',
+            name="Plan",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('plan_title', models.CharField(help_text='عنوان پلن')),
-                ('number_of_days', models.CharField(choices=[('1', 'یک ماهه'), ('2', 'دو ماهه'), ('3', 'سه ماهه'), ('4', 'چهار ماهه'), ('5', 'پنج ماهه'), ('6', 'شش ماه'), ('7', 'هفت ماه'), ('8', 'هشت ماه'), ('9', 'نه ماهه'), ('10', 'ده ماهه'), ('11', 'یازده ماهه'), ('12', 'دوازده ماهه')], default='1', max_length=10)),
-                ('price', models.FloatField(blank=True, help_text='قیمت', null=True, validators=[django.core.validators.MinValueValidator(0)])),
-                ('is_free', models.BooleanField(default=False, help_text='رایگان هست؟')),
-                ('description', models.TextField(help_text='توضیحی در مورد پلن')),
-                ('is_active', models.BooleanField(default=True, help_text='قابل انتشار باشد یا خیر')),
-                ('facilities', django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=50), blank=True, default=list, null=True)),
-                ('discount_percent', models.PositiveSmallIntegerField(blank=True, help_text='درصد تخفیف (۰ تا ۱۰۰)', null=True, validators=[django.core.validators.MaxValueValidator(100)])),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                ("plan_title", models.CharField(help_text="عنوان پلن")),
+                (
+                    "number_of_days",
+                    models.CharField(
+                        choices=[
+                            ("1", "یک ماهه"),
+                            ("2", "دو ماهه"),
+                            ("3", "سه ماهه"),
+                            ("4", "چهار ماهه"),
+                            ("5", "پنج ماهه"),
+                            ("6", "شش ماه"),
+                            ("7", "هفت ماه"),
+                            ("8", "هشت ماه"),
+                            ("9", "نه ماهه"),
+                            ("10", "ده ماهه"),
+                            ("11", "یازده ماهه"),
+                            ("12", "دوازده ماهه"),
+                        ],
+                        default="1",
+                        max_length=10,
+                    ),
+                ),
+                (
+                    "price",
+                    models.FloatField(
+                        blank=True,
+                        help_text="قیمت",
+                        null=True,
+                        validators=[django.core.validators.MinValueValidator(0)],
+                    ),
+                ),
+                (
+                    "is_free",
+                    models.BooleanField(default=False, help_text="رایگان هست؟"),
+                ),
+                ("description", models.TextField(help_text="توضیحی در مورد پلن")),
+                (
+                    "is_active",
+                    models.BooleanField(
+                        default=True, help_text="قابل انتشار باشد یا خیر"
+                    ),
+                ),
+                (
+                    "facilities",
+                    django.contrib.postgres.fields.ArrayField(
+                        base_field=models.CharField(max_length=50),
+                        blank=True,
+                        default=list,
+                        null=True,
+                    ),
+                ),
+                (
+                    "discount_percent",
+                    models.PositiveSmallIntegerField(
+                        blank=True,
+                        help_text="درصد تخفیف (۰ تا ۱۰۰)",
+                        null=True,
+                        validators=[django.core.validators.MaxValueValidator(100)],
+                    ),
+                ),
             ],
             options={
-                'db_table': 'plan',
+                "db_table": "plan",
             },
         ),
         migrations.CreateModel(
-            name='PaymentVerify',
+            name="PaymentVerify",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('verify_payment', models.JSONField(blank=True)),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, related_name='user_payment_verify', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                ("verify_payment", models.JSONField(blank=True)),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="user_payment_verify",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'db_table': 'payment_verify',
+                "db_table": "payment_verify",
             },
         ),
         migrations.CreateModel(
-            name='Subscription',
+            name="Subscription",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('end_date', models.DateField()),
-                ('status', models.CharField(choices=[('active', 'فعال'), ('expired', 'منقضی شده'), ('pending', 'در انتظار'), ('canceled', 'لغو شده'), ('trial', 'آزمایشی')], default='pending', max_length=10)),
-                ('auto_renew', models.BooleanField(default=False)),
-                ('price', models.FloatField(blank=True, null=True)),
-                ('coupon', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='coupon_subscription', to='discount_app.coupon')),
-                ('course', models.ForeignKey(null=True, on_delete=django.db.models.deletion.DO_NOTHING, related_name='course_subscription', to='course_app.course')),
-                ('crud_course_type', models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, to='course_app.coursetypemodel')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, related_name='user_subscription', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                ("end_date", models.DateField()),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("active", "فعال"),
+                            ("expired", "منقضی شده"),
+                            ("pending", "در انتظار"),
+                            ("canceled", "لغو شده"),
+                            ("trial", "آزمایشی"),
+                        ],
+                        default="pending",
+                        max_length=10,
+                    ),
+                ),
+                ("auto_renew", models.BooleanField(default=False)),
+                ("price", models.FloatField(blank=True, null=True)),
+                (
+                    "coupon",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="coupon_subscription",
+                        to="discount_app.coupon",
+                    ),
+                ),
+                (
+                    "course",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="course_subscription",
+                        to="course_app.course",
+                    ),
+                ),
+                (
+                    "crud_course_type",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        to="course_app.coursetypemodel",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="user_subscription",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'اشتراک',
-                'verbose_name_plural': 'اشتراک\u200cها',
-                'db_table': 'subscription',
+                "verbose_name": "اشتراک",
+                "verbose_name_plural": "اشتراک\u200cها",
+                "db_table": "subscription",
             },
         ),
         migrations.CreateModel(
-            name='PaymentSubscription',
+            name="PaymentSubscription",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('deleted_at', models.DateTimeField(editable=False, null=True)),
-                ('is_deleted', models.BooleanField(editable=False, null=True)),
-                ('response_payment', models.JSONField(blank=True, null=True)),
-                ('subscription', models.ForeignKey(on_delete=django.db.models.deletion.DO_NOTHING, related_name='payment_subscription', to='subscription_app.subscription')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("deleted_at", models.DateTimeField(editable=False, null=True)),
+                ("is_deleted", models.BooleanField(editable=False, null=True)),
+                ("response_payment", models.JSONField(blank=True, null=True)),
+                (
+                    "subscription",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        related_name="payment_subscription",
+                        to="subscription_app.subscription",
+                    ),
+                ),
             ],
             options={
-                'db_table': 'payment_subscription',
+                "db_table": "payment_subscription",
             },
         ),
     ]

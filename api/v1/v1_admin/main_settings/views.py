@@ -19,11 +19,15 @@ class BannerViewSet(viewsets.ModelViewSet):
         user = self.request.user
 
         if not self.request.user.is_authenticated:
-            return queryset.filter(banner_type__exact='public')
+            return queryset.filter(banner_type__exact="public")
         if user.is_staff is False and user.is_coach:
-            return queryset.filter(Q(banner_type__exact="coach") | Q(banner_type__exact='public'))
+            return queryset.filter(
+                Q(banner_type__exact="coach") | Q(banner_type__exact="public")
+            )
         if user.is_coach is False and user.is_staff is False:
-            return queryset.filter(Q(banner_type__exact="student") | Q(banner_type__exact='public'))
+            return queryset.filter(
+                Q(banner_type__exact="student") | Q(banner_type__exact="public")
+            )
         else:
             return queryset
 
@@ -33,7 +37,7 @@ class HeaderSiteViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.HeaderSiteSerializer
 
     def get_permissions(self):
-        if self.request.method in ('POST', "PUT", 'PATCH', 'DELETE'):
+        if self.request.method in ("POST", "PUT", "PATCH", "DELETE"):
             self.permission_classes = (permissions.IsAdminUser,)
         return super().get_permissions()
 

@@ -6,7 +6,9 @@ from apps.course_app.models import Course
 
 
 class CourseSignUp(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="course_signup_one")
+    course = models.ForeignKey(
+        Course, on_delete=models.CASCADE, related_name="course_signup_one"
+    )
     mobile_phone = models.CharField(max_length=15)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)

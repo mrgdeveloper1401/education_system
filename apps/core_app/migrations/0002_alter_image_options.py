@@ -4,14 +4,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core_app', '0001_initial'),
+        ("core_app", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='image',
-            options={'verbose_name': 'Image', 'verbose_name_plural': 'Images'},
+            name="image",
+            options={"verbose_name": "Image", "verbose_name_plural": "Images"},
         ),
     ]

@@ -6,8 +6,7 @@ from apps.discount_app.models import Discount, Coupon
 
 class DiscountSerializer(serializers.ModelSerializer):
     content_type = serializers.SlugRelatedField(
-        queryset=ContentType.objects.all(),
-        slug_field='model'
+        queryset=ContentType.objects.all(), slug_field="model"
     )
 
     class Meta:
@@ -15,8 +14,8 @@ class DiscountSerializer(serializers.ModelSerializer):
         exclude = ("is_deleted", "deleted_at")
 
     def validate(self, data):
-        content_type = data.get('content_type')
-        object_id = data.get('object_id')
+        content_type = data.get("content_type")
+        object_id = data.get("object_id")
 
         if content_type and object_id:
             model_class = content_type.model_class()

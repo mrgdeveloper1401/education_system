@@ -3,20 +3,27 @@ from django.dispatch import receiver
 
 from apps.account_app.models import PrivateNotification, User, Student, Invitation
 from .enums import SendFileChoices
-from .models import StudentAccessSection, SendSectionFile, CallLessonCourse, StudentEnrollment, StudentSectionScore, \
-    SignupCourse
+from .models import (
+    StudentAccessSection,
+    SendSectionFile,
+    CallLessonCourse,
+    StudentEnrollment,
+    StudentSectionScore,
+    SignupCourse,
+)
 
 
 @receiver(post_save, sender=SendSectionFile)
 def next_section_access(sender, instance, **kwargs):
     if instance.send_file_status == SendFileChoices.accepted and instance.score > 60:
         get_student_section_access = StudentAccessSection.objects.filter(
-            student=instance.student,
-            section=instance.section_file.section
+            student=instance.student, section=instance.section_file.section
         ).first()
 
         if get_student_section_access:
-            StudentAccessSection.objects.filter(id=get_student_section_access.id + 1).update(
+            StudentAccessSection.objects.filter(
+                id=get_student_section_access.id + 1
+            ).update(
                 is_access=True,
             )
 
@@ -34,7 +41,7 @@ def create_student_section_score(sender, instance, **kwargs):
             StudentSectionScore.objects.create(
                 student=instance.student,
                 section=instance.section_file.section,
-                score=instance.score
+                score=instance.score,
             )
 
 
@@ -45,9 +52,9 @@ def create_admin_notification_when_cancel_student(sender, instance, created, **k
         lst = [
             PrivateNotification(
                 user=i,
-                title='cancel student',
+                title="cancel student",
                 body="یکی از دانش اموزان در خواست انصرافی رو داده هست",
-                notification_type="cancel signup student"
+                notification_type="cancel signup student",
             )
             for i in admin_user
         ]
@@ -59,12 +66,16 @@ def create_admin_notification_when_cancel_student(sender, instance, created, **k
 @receiver(post_save, sender=StudentEnrollment)
 def access_student_access_section(sender, instance, created, **kwargs):
     if created:
-        lesson_course_sections = instance.lesson_course.course.sections.filter(is_publish=True)
+        lesson_course_sections = instance.lesson_course.course.sections.filter(
+            is_publish=True
+        )
         # print(lesson_course_sections)
         create_student_access_section = []
 
         for i in lesson_course_sections:
-            if not StudentAccessSection.objects.filter(student=instance.student, section=i).exists():
+            if not StudentAccessSection.objects.filter(
+                student=instance.student, section=i
+            ).exists():
                 create_student_access_section.append(
                     StudentAccessSection(
                         student=instance.student,
@@ -81,9 +92,7 @@ def access_student_access_section(sender, instance, created, **kwargs):
 def create_user_after_signup_course(sender, instance, created, **kwargs):
     if created:
         # get user
-        user = User.objects.filter(
-            mobile_phone=instance.phone_number
-        ).only(
+        user = User.objects.filter(mobile_phone=instance.phone_number).only(
             "mobile_phone"
         )
 
@@ -97,7 +106,9 @@ def create_user_after_signup_course(sender, instance, created, **kwargs):
             referral_code = instance.referral_code
             if referral_code:
                 # get student
-                student = Student.objects.filter(referral_code=referral_code).only("student_number")
+                student = Student.objects.filter(referral_code=referral_code).only(
+                    "student_number"
+                )
 
                 if student:
                     Invitation.objects.create(

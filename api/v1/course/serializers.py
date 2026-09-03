@@ -24,10 +24,15 @@ from apps.course_app.models import (
     CallLessonCourse,
     Certificate,
     CourseTypeModel,
-    StudentEnrollment, StudentStatusChoices
+    StudentEnrollment,
+    StudentStatusChoices,
 )
 from apps.discount_app.models import Discount
-from apps.course_app.tasks import create_qr_code, admin_user_request_certificate, send_notification_when_score_is_accepted
+from apps.course_app.tasks import (
+    create_qr_code,
+    admin_user_request_certificate,
+    send_notification_when_score_is_accepted,
+)
 from apps.course_app.enums import RateChoices
 
 
@@ -40,13 +45,13 @@ class CategoryTreeNodeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        exclude = ('created_at', "updated_at", "deleted_at", "is_deleted")
+        exclude = ("created_at", "updated_at", "deleted_at", "is_deleted")
 
 
 class CourseSectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Section
-        fields = ('id', "title", "cover_image")
+        fields = ("id", "title", "cover_image")
 
 
 class StudentAccessSectionSerializer(serializers.ModelSerializer):
@@ -54,7 +59,7 @@ class StudentAccessSectionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StudentAccessSection
-        fields = ('section', "is_access")
+        fields = ("section", "is_access")
 
 
 class CoachSectionSerializer(serializers.ModelSerializer):
@@ -66,7 +71,7 @@ class CoachSectionSerializer(serializers.ModelSerializer):
 class CourseSectionDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Section
-        fields = ('title', "cover_image", "description", "created_at")
+        fields = ("title", "cover_image", "description", "created_at")
 
 
 class StudentAccessSectionDetailSerializer(serializers.ModelSerializer):
@@ -74,7 +79,7 @@ class StudentAccessSectionDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StudentAccessSection
-        fields = ('section', "is_access")
+        fields = ("section", "is_access")
 
 
 class CourseSectionVideoSerializer(serializers.ModelSerializer):
@@ -99,44 +104,47 @@ class CommentSerializer(serializers.ModelSerializer):
     parent = serializers.IntegerField(required=False)
     user_name = serializers.SerializerMethodField()
     user_image = serializers.SerializerMethodField()
-    category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.only("category_name"))
+    category = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.only("category_name")
+    )
     user_is_coach = serializers.SerializerMethodField()
 
     class Meta:
         model = Comment
-        fields = ("id",
-                  'comment_body',
-                  "parent",
-                  "created_at",
-                  "user_name",
-                  "user_image",
-                  "numchild",
-                  'depth',
-                  "path",
-                  "category",
-                  "user_is_coach",
-                  "is_pined"
-                  )
-        read_only_fields = ['numchild', "depth", "path"]
+        fields = (
+            "id",
+            "comment_body",
+            "parent",
+            "created_at",
+            "user_name",
+            "user_image",
+            "numchild",
+            "depth",
+            "path",
+            "category",
+            "user_is_coach",
+            "is_pined",
+        )
+        read_only_fields = ["numchild", "depth", "path"]
 
     def validate(self, data):
-        user = self.context['request'].user
-        category_id = data['category']
+        user = self.context["request"].user
+        category_id = data["category"]
 
         if hasattr(user, "student"):
             is_exists = LessonCourse.objects.filter(
-                students__user=user,
-                course__category_id=category_id
+                students__user=user, course__category_id=category_id
             )
 
         else:
             is_exists = LessonCourse.objects.filter(
-                coach__user=user,
-                course__category_id=category_id
+                coach__user=user, course__category_id=category_id
             )
 
         if not is_exists:
-            raise serializers.ValidationError({"message": "you do not permission this action"})
+            raise serializers.ValidationError(
+                {"message": "you do not permission this action"}
+            )
 
         return data
 
@@ -151,7 +159,7 @@ class CommentSerializer(serializers.ModelSerializer):
         return obj.user.is_coach
 
     def create(self, validated_data):
-        user = self.context['request'].user
+        user = self.context["request"].user
 
         parent = validated_data.pop("parent", None)
 
@@ -166,13 +174,13 @@ class CommentSerializer(serializers.ModelSerializer):
 class SimpleLessonCourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
-        fields = ['course_name', "course_image", "project_counter"]
+        fields = ["course_name", "course_image", "project_counter"]
 
 
 class SimpleStudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Student
-        fields = ('id', "student_name")
+        fields = ("id", "student_name")
 
 
 class LessonCourseSerializer(serializers.ModelSerializer):
@@ -183,7 +191,15 @@ class LessonCourseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = LessonCourse
-        fields = ("id", "course", "course_category", "progress", "coach_name", "class_name", "progress_bar")
+        fields = (
+            "id",
+            "course",
+            "course_category",
+            "progress",
+            "coach_name",
+            "class_name",
+            "progress_bar",
+        )
 
     @extend_schema_field(serializers.CharField())
     def get_coach_name(self, obj):
@@ -193,15 +209,14 @@ class LessonCourseSerializer(serializers.ModelSerializer):
     def get_progress_bar(self, obj):
         # تعداد سکشن‌هایی که دانشجو نمره بالای 60 گرفته
         passed_sections = StudentSectionScore.objects.filter(
-            student__user_id=self.context['request'].user.id,
+            student__user_id=self.context["request"].user.id,
             section__course__lesson_course=obj,
-            score__gte=60
+            score__gte=60,
         ).count()
 
         # تعداد کل سکشن‌های این دوره
         total_sections = Section.objects.filter(
-            course__lesson_course=obj,
-            is_publish=True
+            course__lesson_course=obj, is_publish=True
         ).count()
 
         # محاسبه درصد پیشرفت
@@ -220,7 +235,14 @@ class ListCoachLessonCourseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = LessonCourse
-        fields = ('id', "course", "course_category", "progress", "class_name", "course_image")
+        fields = (
+            "id",
+            "course",
+            "course_category",
+            "progress",
+            "class_name",
+            "course_image",
+        )
 
     @extend_schema_field(serializers.IntegerField())
     def get_course_category(self, obj):
@@ -244,7 +266,13 @@ class StudentLessonCourseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = StudentEnrollment
-        fields = ("id", "student_status", "student_name", "student_phone", "student_second_number")
+        fields = (
+            "id",
+            "student_status",
+            "student_name",
+            "student_phone",
+            "student_second_number",
+        )
 
     @extend_schema_field(serializers.CharField())
     def get_student_phone(self, obj):
@@ -262,34 +290,44 @@ class StudentLessonCourseSerializer(serializers.ModelSerializer):
 class StudentPresentAbsentSerializer(serializers.ModelSerializer):
     class Meta:
         model = PresentAbsent
-        fields = ('student_status', "created_at")
+        fields = ("student_status", "created_at")
 
 
 class SendFileSerializer(serializers.ModelSerializer):
     class Meta:
         model = SendSectionFile
-        fields = ("id", "score", "comment_student", "zip_file", "created_at", "comment_teacher", "send_file_status",
-                  "updated_at")
+        fields = (
+            "id",
+            "score",
+            "comment_student",
+            "zip_file",
+            "created_at",
+            "comment_teacher",
+            "send_file_status",
+            "updated_at",
+        )
         extra_kwargs = {
             "score": {"read_only": True},
             "comment_teacher": {"read_only": True},
-            "send_file_status": {"read_only": True}
+            "send_file_status": {"read_only": True},
         }
 
     def create(self, validated_data):
         return SendSectionFile.objects.create(
-            student=self.context['request'].user.student,
-            section_file_id=self.context['section_file_pk'],
-            **validated_data
+            student=self.context["request"].user.student,
+            section_file_id=self.context["section_file_pk"],
+            **validated_data,
         )
 
     def validate(self, data):
-        user = self.context['request'].user
+        user = self.context["request"].user
         zip_file = data.get("zip_file")
-        section_file_pk = self.context['section_file_pk']
+        section_file_pk = self.context["section_file_pk"]
 
         if zip_file:
-            if SendSectionFile.objects.filter(section_file_id=section_file_pk, student__user=user).exists():
+            if SendSectionFile.objects.filter(
+                section_file_id=section_file_pk, student__user=user
+            ).exists():
                 raise exceptions.ValidationError({"message": "you have already file"})
 
         if not SectionFile.objects.filter(id=section_file_pk).exists():
@@ -306,7 +344,13 @@ class CoachSendFileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SendSectionFile
-        fields = ['score', "student", "student_name", "comment_teacher", "send_file_status"]
+        fields = [
+            "score",
+            "student",
+            "student_name",
+            "comment_teacher",
+            "send_file_status",
+        ]
 
     @extend_schema_field(serializers.CharField())
     def get_student_name(self, obj):
@@ -316,30 +360,40 @@ class CoachSendFileSerializer(serializers.ModelSerializer):
 class OnlineLinkSerializer(serializers.ModelSerializer):
     class Meta:
         model = OnlineLink
-        exclude = ['is_deleted', "deleted_at", "class_room", "updated_at"]
+        exclude = ["is_deleted", "deleted_at", "class_room", "updated_at"]
 
     def create(self, validated_data):
-        coach_lesson_course_pk = self.context['coach_lesson_course_pk']
-        return OnlineLink.objects.create(class_room_id=coach_lesson_course_pk, **validated_data)
+        coach_lesson_course_pk = self.context["coach_lesson_course_pk"]
+        return OnlineLink.objects.create(
+            class_room_id=coach_lesson_course_pk, **validated_data
+        )
 
     def validate(self, attrs):
-        class_room_pk = self.context['coach_lesson_course_pk']
-        is_publish = attrs.get('is_publish')
+        class_room_pk = self.context["coach_lesson_course_pk"]
+        is_publish = attrs.get("is_publish")
 
         if is_publish:
-            if OnlineLink.objects.filter(is_publish=True, class_room_id=class_room_pk).exists():
-                raise exceptions.ValidationError({"message": "you have already publish"})
+            if OnlineLink.objects.filter(
+                is_publish=True, class_room_id=class_room_pk
+            ).exists():
+                raise exceptions.ValidationError(
+                    {"message": "you have already publish"}
+                )
         return attrs
 
 
 class NestedCoachPresentAbsentSerializer(serializers.Serializer):
     student = serializers.PrimaryKeyRelatedField(
-        queryset=Student.objects.filter(is_active=True).only("student_number", "user__first_name", "user__last_name")
+        queryset=Student.objects.filter(is_active=True).only(
+            "student_number", "user__first_name", "user__last_name"
+        )
     )
     section = serializers.PrimaryKeyRelatedField(
         queryset=Section.objects.filter(is_publish=True).only("id", "title")
     )
-    student_status = serializers.ChoiceField(choices=StudentStatusChoices.choices, default=StudentStatusChoices.present)
+    student_status = serializers.ChoiceField(
+        choices=StudentStatusChoices.choices, default=StudentStatusChoices.present
+    )
 
 
 class CreateCoachPresentAbsentSerializer(serializers.Serializer):
@@ -347,14 +401,17 @@ class CreateCoachPresentAbsentSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         lst = []
-        for item in validated_data['present_absent']:
-
-            if PresentAbsent.objects.filter(section=item['section'], student=item['student']).exists():
+        for item in validated_data["present_absent"]:
+            if PresentAbsent.objects.filter(
+                section=item["section"], student=item["student"]
+            ).exists():
                 continue
 
             lst.append(
                 PresentAbsent(
-                    section=item['section'], student=item['student'], student_status=item['student_status']
+                    section=item["section"],
+                    student=item["student"],
+                    student_status=item["student_status"],
                 )
             )
 
@@ -375,8 +432,16 @@ class CoachPresentAbsentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PresentAbsent
-        fields = ['id', "student", "student_status", "section", "created_at", "student_name", "section_title"]
-        read_only_fields = ['section']
+        fields = [
+            "id",
+            "student",
+            "student_status",
+            "section",
+            "created_at",
+            "student_name",
+            "section_title",
+        ]
+        read_only_fields = ["section"]
 
     @extend_schema_field(serializers.CharField())
     def get_student_name(self, obj):
@@ -387,7 +452,7 @@ class CoachPresentAbsentSerializer(serializers.ModelSerializer):
         return obj.section.title
 
     def update(self, instance, validated_data):
-        instance.section_id = int(self.context['section_pk'])
+        instance.section_id = int(self.context["section_pk"])
         return super().update(instance, validated_data)
 
 
@@ -405,19 +470,19 @@ class StudentListPresentAbsentSerializer(serializers.ModelSerializer):
 class CoachSectionFileSerializer(serializers.ModelSerializer):
     class Meta:
         model = SectionFile
-        fields = ("id", 'zip_file', 'answer', "title", "file_type", "is_publish")
+        fields = ("id", "zip_file", "answer", "title", "file_type", "is_publish")
 
 
 class StudentOnlineLinkSerializer(serializers.ModelSerializer):
     class Meta:
         model = OnlineLink
-        fields = ('id', "link", "created_at")
+        fields = ("id", "link", "created_at")
 
 
 class SectionQuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = SectionQuestion
-        fields = ('id', "question_title")
+        fields = ("id", "question_title")
 
 
 class RateAnswerSerializer(serializers.Serializer):
@@ -429,26 +494,24 @@ class AnswerSectionQuestionSerializer(serializers.Serializer):
     rates = RateAnswerSerializer(many=True)
 
     def create(self, validated_data):
-        user_id = self.context['request'].user.id # get user_id by context
-        student = Student.objects.filter(user_id=user_id).only("student_number") # filter query student
+        user_id = self.context["request"].user.id  # get user_id by context
+        student = Student.objects.filter(user_id=user_id).only(
+            "student_number"
+        )  # filter query student
 
         # check user is student
         if not student.exists():
-            raise exceptions.ValidationError(
-                {
-                    "message": _("your account not student")
-                }
-            )
+            raise exceptions.ValidationError({"message": _("your account not student")})
 
         student = student.first()
 
         answers = []
 
-        for item in validated_data['rates']:
+        for item in validated_data["rates"]:
             answer = AnswerQuestion(
                 student=student,
-                section_question_id=item['section_question_id'],
-                rate=item['rate'],
+                section_question_id=item["section_question_id"],
+                rate=item["rate"],
             )
             answers.append(answer)
 
@@ -475,8 +538,19 @@ class CoachStudentSendFilesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SendSectionFile
-        fields = ("student", "id", 'std_name', "zip_file", "comment_student", "file_type", "send_file_status",
-                  'score', "created_at", "updated_at", "comment_teacher")
+        fields = (
+            "student",
+            "id",
+            "std_name",
+            "zip_file",
+            "comment_student",
+            "file_type",
+            "send_file_status",
+            "score",
+            "created_at",
+            "updated_at",
+            "comment_teacher",
+        )
 
     @extend_schema_field(serializers.CharField())
     def get_file_type(self, obj):
@@ -490,22 +564,22 @@ class CoachStudentSendFilesSerializer(serializers.ModelSerializer):
 class UpdateCoachStudentSendFilesSerializer(serializers.ModelSerializer):
     class Meta:
         model = SendSectionFile
-        fields = ('id', "score", "comment_teacher")
+        fields = ("id", "score", "comment_teacher")
 
     def update(self, instance, validated_data):
         data = super().update(instance, validated_data)
 
-        lesson_course_pk = self.context['lesson_course_pk']
-        section_pk = self.context['section_pk']
-        user_id = self.context['user_id']
-        student_send_files_pk = self.context['student_send_files_pk']
+        lesson_course_pk = self.context["lesson_course_pk"]
+        section_pk = self.context["section_pk"]
+        user_id = self.context["user_id"]
+        student_send_files_pk = self.context["student_send_files_pk"]
 
         send_notification_when_score_is_accepted.delay(
             lesson_course_id=lesson_course_pk,
             section_file_pk=student_send_files_pk,
             section_pk=section_pk,
             score=instance.score,
-            user_id=user_id
+            user_id=user_id,
         )
         return data
 
@@ -513,7 +587,7 @@ class UpdateCoachStudentSendFilesSerializer(serializers.ModelSerializer):
 class ScoreIntoStudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = SendSectionFile
-        fields = ('score', "student", "comment_teacher")
+        fields = ("score", "student", "comment_teacher")
 
 
 class CallLessonCourseSerializer(serializers.ModelSerializer):
@@ -523,17 +597,17 @@ class CallLessonCourseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CallLessonCourse
-        exclude = ('is_deleted', "deleted_at", "lesson_course")
+        exclude = ("is_deleted", "deleted_at", "lesson_course")
 
     def create(self, validated_data):
-        coach_lesson_course_pk = self.context['lesson_course_pk']
+        coach_lesson_course_pk = self.context["lesson_course_pk"]
         return CallLessonCourse.objects.create(
             lesson_course_id=coach_lesson_course_pk, **validated_data
         )
 
     def validate(self, attrs):
         student_lesson_course = LessonCourse.objects.filter(
-            students__exact=attrs["student"], id=self.context['lesson_course_pk']
+            students__exact=attrs["student"], id=self.context["lesson_course_pk"]
         )
 
         if not student_lesson_course:
@@ -551,7 +625,7 @@ class HomeCategorySerializer(serializers.ModelSerializer):
             "image",
             "description",
             "description_slug",
-            "is_publish"
+            "is_publish",
         )
 
 
@@ -560,7 +634,15 @@ class CourseTypeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CourseTypeModel
-        fields = ("id", "course_type", "description", "price", "discounts", "plan_type", "amount")
+        fields = (
+            "id",
+            "course_type",
+            "description",
+            "price",
+            "discounts",
+            "plan_type",
+            "amount",
+        )
 
     def get_discounts(self, obj):
         discounts = Discount.objects.filter(
@@ -568,7 +650,7 @@ class CourseTypeSerializer(serializers.ModelSerializer):
             object_id=obj.id,
             is_active=True,
             start_date__lte=timezone.now(),
-            end_date__gte=timezone.now()
+            end_date__gte=timezone.now(),
         ).values("id", "percent", "start_date", "end_date")
         return discounts
 
@@ -593,7 +675,7 @@ class HomeCourseSerializer(serializers.ModelSerializer):
             "course_type_model",
             "description_slug",
             "is_publish",
-            "is_free"
+            "is_free",
         )
 
 
@@ -609,24 +691,22 @@ class CertificateSerializer(serializers.ModelSerializer):
     #     return obj.student.student_name if obj.student.user.first_name else None
 
     def create(self, validated_data):
-        section_pk = self.context['section_pk']
+        section_pk = self.context["section_pk"]
         lesson_course_pk = self.context["lesson_course_pk"]
-        user_id = self.context['request'].user.id # get user_id by context serializer
-        student = Student.objects.filter(user_id=user_id).select_related(
-            "user"
-        ).only(
-            "student_number",
-            "user__first_name",
-            "user__last_name",
-        ) # queryset student
+        user_id = self.context["request"].user.id  # get user_id by context serializer
+        student = (
+            Student.objects.filter(user_id=user_id)
+            .select_related("user")
+            .only(
+                "student_number",
+                "user__first_name",
+                "user__last_name",
+            )
+        )  # queryset student
 
         # check dose exists student
         if not student.exists():
-            raise exceptions.ValidationError(
-                {
-                    "message": _("student not found")
-                }
-            )
+            raise exceptions.ValidationError({"message": _("student not found")})
 
         # get object student id
         student = student.first()
@@ -639,29 +719,23 @@ class CertificateSerializer(serializers.ModelSerializer):
 
         if self.instance is None and certificate.exists():
             raise exceptions.ValidationError(
-                {
-                    "message": _("you have already certificate")
-                }
+                {"message": _("you have already certificate")}
             )
 
         # create request certificate
         certificate = Certificate.objects.create(
-            student_id=student.id,
-            section_id=section_pk,
-            **validated_data
+            student_id=student.id, section_id=section_pk, **validated_data
         )
         # call celery task celery
         create_qr_code.delay(
-            information = {
+            information={
                 "unique_code_certificate": certificate.unique_code,
                 "student_number": student.student_number,
                 "student_name": student.student_name,
                 "section_id": section_pk,
-                "lesson_course_pk": lesson_course_pk
+                "lesson_course_pk": lesson_course_pk,
             },
-            certificate_id = {
-                "id": certificate.id
-            }
+            certificate_id={"id": certificate.id},
         )
         # create notification for admin , task celery
         admin_user_request_certificate.delay(
@@ -669,46 +743,44 @@ class CertificateSerializer(serializers.ModelSerializer):
             #     f"/api_course/student_lesson_course/{lesson_course_pk}/sections/{section_pk}/certificate/"
             # }
             body=f"ادمین محترم کاربر {certificate.student.student_name} \n"
-                 f"درخواست گواهی نامه داده هست",
-            link=f"lesson_course_id:{lesson_course_pk}/section_id:{section_pk}/"
+            f"درخواست گواهی نامه داده هست",
+            link=f"lesson_course_id:{lesson_course_pk}/section_id:{section_pk}/",
         )
         return certificate
 
     def validate(self, attrs):
-        section_pk=self.context['section_pk']
-        user_id=self.context['request'].user.id
+        section_pk = self.context["section_pk"]
+        user_id = self.context["request"].user.id
 
         # get section_score
         section_score = StudentSectionScore.objects.filter(
-            section_id=section_pk,
-            student__user_id=user_id,
-            score__gte=60
-        ).only(
-            "id"
-        )
+            section_id=section_pk, student__user_id=user_id, score__gte=60
+        ).only("id")
 
         if section_score:
             # check student access section
             student_access_section = StudentAccessSection.objects.filter(
                 section_id=section_pk,
-                student__user_id=self.context['request'].user.id,
+                student__user_id=self.context["request"].user.id,
                 section__is_last_section=True,
                 section__is_publish=True,
-                is_access=True
-            ).only(
-                "id"
-            )
+                is_access=True,
+            ).only("id")
 
             if not student_access_section.exists():
                 raise exceptions.ValidationError(
                     {
-                        "message": _("you not arrived last_section or this section not last_section")
+                        "message": _(
+                            "you not arrived last_section or this section not last_section"
+                        )
                     }
                 )
         else:
             raise exceptions.ValidationError(
                 {
-                    "message": _("this section you have not been accept or this section not last_section")
+                    "message": _(
+                        "this section you have not been accept or this section not last_section"
+                    )
                 }
             )
         return attrs
@@ -735,7 +807,9 @@ class CertificateSerializer(serializers.ModelSerializer):
 
 class CrudCourseTypeSerializer(serializers.ModelSerializer):
     course = serializers.PrimaryKeyRelatedField(
-        queryset=Course.objects.filter(is_publish=True).only("course_name",)
+        queryset=Course.objects.filter(is_publish=True).only(
+            "course_name",
+        )
     )
     discounts = serializers.SerializerMethodField()
 
@@ -744,7 +818,7 @@ class CrudCourseTypeSerializer(serializers.ModelSerializer):
         exclude = ("is_deleted", "deleted_at")
 
     def create(self, validated_data):
-        course_id = self.context['course_pk']
+        course_id = self.context["course_pk"]
         return CourseTypeModel.objects.create(course_id=course_id, **validated_data)
 
     @extend_schema_field(serializers.ListField(child=serializers.DictField()))
@@ -772,32 +846,34 @@ class AllCourseSerializer(serializers.ModelSerializer):
             "course_level",
             "time_course",
             "course_age",
-            "description_slug"
+            "description_slug",
         )
 
 
 class SendNotificationUserSendSectionFile(serializers.Serializer):
     lesson_course = serializers.PrimaryKeyRelatedField(
-        queryset=LessonCourse.objects.only("class_name", "is_active").filter(is_active=True),
-    )
+        queryset=LessonCourse.objects.only("class_name", "is_active").filter(
+            is_active=True
+        ),
+    )  # TODO, check query
     section = serializers.PrimaryKeyRelatedField(
         queryset=Section.objects.only("title").filter(is_publish=True)
-    )
+    )  # TODO, check query
 
-    def validate(self, attrs):
-        student = Student.objects.filter(user=self.context['request'].user).only("student_number")
-
-        if not student:
-            raise exceptions.ValidationError({"message": "user has no student"})
-        return attrs
+    # def validate(self, attrs):
+    #     student = Student.objects.filter(user_id=self.context['request'].user.id).only("student_number")
+    #
+    #     if not student:
+    #         raise exceptions.ValidationError({"message": "user has no student"})
+    #     return attrs
 
     def create(self, validated_data):
-        lesson_course = validated_data['lesson_course']
+        lesson_course = validated_data["lesson_course"]
         coach = lesson_course.coach
         coach_user = coach.user
         course = lesson_course.course
-        section_id = validated_data['section'].id
-        user = self.context['request'].user
+        section_id = validated_data["section"].id
+        user = self.context["request"].user
         user_full_name = user.get_full_name
 
         return PrivateNotification.objects.create(
@@ -805,23 +881,18 @@ class SendNotificationUserSendSectionFile(serializers.Serializer):
             title="notification send section file",
             body=f"کاربر {user_full_name} تمرینی را ارسال کرده هست ",
             notification_type="send_section_file",
-            char_link=f"lesson_course_id{lesson_course.id}/section_id:{section_id}/course_id:{course.id}/"
+            char_link=f"lesson_course_id{lesson_course.id}/section_id:{section_id}/course_id:{course.id}/",
         )
 
     def to_representation(self, instance):
         res = "notification created"
-        return {
-            "message": res
-        }
+        return {"message": res}
 
 
 class ListCourseIdTitleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
-        fields = (
-            "id",
-            "course_name"
-        )
+        fields = ("id", "course_name")
 
 
 class CertificateValidateSerializer(serializers.Serializer):

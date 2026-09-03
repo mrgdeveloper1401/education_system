@@ -8,10 +8,7 @@ class ListDetailCourseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Course
-        exclude = (
-            "is_deleted",
-            "deleted_at"
-        )
+        exclude = ("is_deleted", "deleted_at")
 
 
 class ListCategorySerializer(serializers.ModelSerializer):

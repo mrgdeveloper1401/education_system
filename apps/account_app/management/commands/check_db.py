@@ -4,12 +4,12 @@ from django.db.utils import OperationalError
 
 
 class Command(BaseCommand):
-    help = 'Checks the database'
+    help = "Checks the database"
 
     def handle(self, *args, **options):
-        db_conn = connections['default']
+        db_conn = connections["default"]
         try:
             db_conn.cursor()
-            self.stdout.write(self.style.SUCCESS('Successfully connected to database'))
+            self.stdout.write(self.style.SUCCESS("Successfully connected to database"))
         except OperationalError:
-            self.stdout.write(self.style.ERROR('Database connection failed'))
+            self.stdout.write(self.style.ERROR("Database connection failed"))

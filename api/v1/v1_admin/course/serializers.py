@@ -20,13 +20,15 @@ from apps.course_app.models import (
     Comment,
     SignupCourse,
     StudentEnrollment,
-    StudentAccessSection
+    StudentAccessSection,
 )
 from base.utils.config import generate_otp_code, get_client_ip
 from apps.account_app.tasks import send_otp_sms_task
 
 
-OTP_TEMPLATE_ID = config("SMS_IR_OTP_TEMPLATE_ID", cast=int)  # TODO, move into config file
+OTP_TEMPLATE_ID = config(
+    "SMS_IR_OTP_TEMPLATE_ID", cast=int
+)  # TODO, move into config file
 
 
 class CreateCategorySerializer(serializers.ModelSerializer):
@@ -34,7 +36,7 @@ class CreateCategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ('category_name', 'parent', "image", "description", "description_slug")
+        fields = ("category_name", "parent", "image", "description", "description_slug")
 
     def create(self, validated_data):
         parent = validated_data.pop("parent", None)
@@ -49,27 +51,25 @@ class CreateCategorySerializer(serializers.ModelSerializer):
 class ListRetrieveCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ("id", 'category_name', "image", "description", "description_slug")
+        fields = ("id", "category_name", "image", "description", "description_slug")
 
 
 class UpdateCategoryNodeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ('category_name', "image", "description", "description_slug")
+        fields = ("category_name", "image", "description", "description_slug")
 
 
 class AdminCourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
-        exclude = ('is_deleted', "deleted_at", "category")
-        extra_kwargs = {
-            "facilities": {
-                "required": False
-            }
-        }
+        exclude = ("is_deleted", "deleted_at", "category")
+        extra_kwargs = {"facilities": {"required": False}}
 
     def create(self, validated_data):
-        return Course.objects.create(category_id=self.context['category_pk'],**validated_data)
+        return Course.objects.create(
+            category_id=self.context["category_pk"], **validated_data
+        )
 
 
 class AdminCreateCourseSectionSerializer(serializers.ModelSerializer):
@@ -80,7 +80,7 @@ class AdminCreateCourseSectionSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         # get course by context
-        course_id = self.context['course_pk']
+        course_id = self.context["course_pk"]
 
         try:
             course = Course.objects.filter(id=course_id).only("course_name")
@@ -88,8 +88,10 @@ class AdminCreateCourseSectionSerializer(serializers.ModelSerializer):
             raise exceptions.ValidationError("Course does not exist")
 
         # get all section and filter is_last_section
-        course_sections_is_last = course.first().sections.filter(is_last_section=True, is_publish=True).only(
-            "course_id"
+        course_sections_is_last = (
+            course.first()
+            .sections.filter(is_last_section=True, is_publish=True)
+            .only("course_id")
         )
         # print(self.instance)
         # check is_last_section dose it exists or not?
@@ -99,33 +101,45 @@ class AdminCreateCourseSectionSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
-        course_id = self.context['course_pk']
-        return Section.objects.create(course_id=course_id,**validated_data)
+        course_id = self.context["course_pk"]
+        return Section.objects.create(course_id=course_id, **validated_data)
 
 
 class AdminCourseSectionFileSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = SectionFile
-        fields = ("id", "is_publish", "zip_file", "title", "file_type", "answer", "created_at", "updated_at")
+        fields = (
+            "id",
+            "is_publish",
+            "zip_file",
+            "title",
+            "file_type",
+            "answer",
+            "created_at",
+            "updated_at",
+        )
 
     def create(self, validated_data):
-        return SectionFile.objects.create(section_id=int(self.context['section_pk']), **validated_data)
+        return SectionFile.objects.create(
+            section_id=int(self.context["section_pk"]), **validated_data
+        )
 
 
 class AdminListCourseSectionFileSerializer(serializers.ModelSerializer):
     class Meta:
         model = SectionFile
-        exclude = ('is_deleted', "deleted_at")
+        exclude = ("is_deleted", "deleted_at")
 
 
 class AdminSectionVideoSerializer(serializers.ModelSerializer):
     class Meta:
         model = SectionVideo
-        exclude = ('is_deleted', "deleted_at", "section")
+        exclude = ("is_deleted", "deleted_at", "section")
 
     def create(self, validated_data):
-        return SectionVideo.objects.create(section_id=int(self.context['section_pk']), **validated_data)
+        return SectionVideo.objects.create(
+            section_id=int(self.context["section_pk"]), **validated_data
+        )
 
 
 # class AdminCourseListSerializer(serializers.ModelSerializer):
@@ -144,7 +158,7 @@ class AdminLessonCourseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = LessonCourse
-        exclude = ('is_deleted', "deleted_at")
+        exclude = ("is_deleted", "deleted_at")
 
     def create(self, validated_data):
         return LessonCourse.objects.create(**validated_data)
@@ -156,7 +170,7 @@ class AdminStudentPresentAbsentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PresentAbsent
-        fields = ('id', "student_status", "student_name", "section_name", "created_at")
+        fields = ("id", "student_status", "student_name", "section_name", "created_at")
 
     @extend_schema_field(serializers.CharField())
     def get_student_name(self, obj):
@@ -170,19 +184,21 @@ class AdminStudentPresentAbsentSerializer(serializers.ModelSerializer):
 class AdminSectionQuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = SectionQuestion
-        fields = ('id', "question_title", "is_publish", "created_at")
+        fields = ("id", "question_title", "is_publish", "created_at")
 
     def create(self, validated_data):
-        section_pk = self.context['section_pk']
+        section_pk = self.context["section_pk"]
         return SectionQuestion.objects.create(section_id=section_pk, **validated_data)
 
 
 class AnswerQuestionSerializer(serializers.ModelSerializer):
-    student = serializers.PrimaryKeyRelatedField(queryset=Student.objects.only("student_number"))
+    student = serializers.PrimaryKeyRelatedField(
+        queryset=Student.objects.only("student_number")
+    )
 
     class Meta:
         model = AnswerQuestion
-        fields = ('id', "student", "created_at", "rate")
+        fields = ("id", "student", "created_at", "rate")
 
 
 class AdminCoachRankingSerializer(serializers.ModelSerializer):
@@ -192,7 +208,13 @@ class AdminCoachRankingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AnswerQuestion
-        fields = ['rate', "question_title", "student_name", "section_name", 'section_question']
+        fields = [
+            "rate",
+            "question_title",
+            "student_name",
+            "section_name",
+            "section_question",
+        ]
 
     @extend_schema_field(serializers.CharField())
     def get_question_title(self, obj):
@@ -222,22 +244,28 @@ class AdminCommentSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         parent = validated_data.pop("parent", None)
-        user = self.context['request'].user.id
-        category_pk = self.context['category_pk']
+        user = self.context["request"].user.id
+        category_pk = self.context["category_pk"]
         # print(validated_data)
 
         if parent is None:
-            self.instance = Comment.add_root(user_id=user, category_id=category_pk, **validated_data)
+            self.instance = Comment.add_root(
+                user_id=user, category_id=category_pk, **validated_data
+            )
         else:
             comment_node = get_object_or_404(Comment, id=parent)
-            self.instance = comment_node.add_child(user_id=user, category_id=category_pk, **validated_data)
+            self.instance = comment_node.add_child(
+                user_id=user, category_id=category_pk, **validated_data
+            )
 
         return self.instance
 
 
 class SignUpCourseSerializer(serializers.ModelSerializer):
     course = serializers.PrimaryKeyRelatedField(
-        queryset=Course.objects.only("course_name", "is_publish").filter(is_publish=True)
+        queryset=Course.objects.only("course_name", "is_publish").filter(
+            is_publish=True
+        )
     )
     referral_code = serializers.CharField(required=False)
 
@@ -250,19 +278,21 @@ class SignUpCourseSerializer(serializers.ModelSerializer):
         referral_code = validated_data.pop("referral_code", None)
 
         # get phone
-        phone = validated_data['phone_number']
+        phone = validated_data["phone_number"]
 
         # get referral_code is exits yes or no
-        referral_student = Student.objects.filter(referral_code=referral_code).only("student_number")
+        referral_student = Student.objects.filter(referral_code=referral_code).only(
+            "student_number"
+        )
 
         # generate code
         code = generate_otp_code()
 
-        user_ip = get_client_ip(self.context['request'])
+        user_ip = get_client_ip(self.context["request"])
 
-        cache_key = f'otp_{phone}_{code}_{user_ip}'
+        cache_key = f"otp_{phone}_{code}_{user_ip}"
         cache.set(cache_key, code, timeout=120)
-        send_otp_sms_task.delay(phone, code, 'otp', OTP_TEMPLATE_ID)
+        send_otp_sms_task.delay(phone, code, "otp", OTP_TEMPLATE_ID)
 
         return data
 
@@ -287,35 +317,31 @@ class SyncAdminCreateStudentSectionSerializer(serializers.Serializer):
     course = serializers.IntegerField()
 
     def create(self, validated_data):
-        section_id = validated_data['section']
-        course_id = validated_data['course']
+        section_id = validated_data["section"]
+        course_id = validated_data["course"]
 
         # دریافت همه دانش‌آموزان موجود برای این دوره
         existing_students = Student.objects.filter(
             student_lesson_course__course_id=course_id,
-            student_lesson_course__is_active=True
+            student_lesson_course__is_active=True,
         ).distinct()
 
         # دریافت دانش‌آموزانی که از قبل دسترسی دارند
         existing_access = StudentAccessSection.objects.filter(
-            section_id=section_id,
-            student__in=existing_students
-        ).values_list('student_id', flat=True)
+            section_id=section_id, student__in=existing_students
+        ).values_list("student_id", flat=True)
 
         # ایجاد لیست برای bulk_create
         new_access = [
-            StudentAccessSection(
-                student_id=student_id,
-                section_id=section_id
-            )
-            for student_id in existing_students.values_list('id', flat=True)
+            StudentAccessSection(student_id=student_id, section_id=section_id)
+            for student_id in existing_students.values_list("id", flat=True)
             if student_id not in existing_access
         ]
 
         StudentAccessSection.objects.bulk_create(new_access)
 
         return {
-            'section': section_id,
+            "section": section_id,
             "course": course_id,
         }
 
@@ -342,23 +368,18 @@ class CreateStudentEnrollmentSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         data = validated_data.pop("data")
-        class_room_id = self.context['class_room_pk']
+        class_room_id = self.context["class_room_pk"]
 
         if not data:
-            raise exceptions.ValidationError({"message": "you must send student_id and student status"})
+            raise exceptions.ValidationError(
+                {"message": "you must send student_id and student status"}
+            )
         else:
             create_data = [
-                StudentEnrollment(
-                    student=i['student'],
-                    lesson_course_id=class_room_id
-                )
+                StudentEnrollment(student=i["student"], lesson_course_id=class_room_id)
                 for i in data
             ]
             created = StudentEnrollment.objects.bulk_create(create_data)
             for obj in created:
-                post_save.send(
-                    sender=StudentEnrollment,
-                    instance=obj,
-                    created=True
-                )
+                post_save.send(sender=StudentEnrollment, instance=obj, created=True)
             return {"data": created}

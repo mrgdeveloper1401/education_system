@@ -14,6 +14,7 @@ from base.utils.config import generate_otp_code, get_client_ip
 OTP_TEMPLATE_ID = config("SMS_IR_OTP_TEMPLATE_ID", cast=int)
 COURSE_SIGNUP_TEMPLATE_ID = config("SMS_IR_COURSE_SIGNUP_TEMPLATE_ID", cast=int)
 
+
 class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
@@ -28,7 +29,14 @@ class CourseSignUpSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CourseSignUp
-        fields = ("course", "mobile_phone", "first_name", "last_name", "have_account", "referral_code")
+        fields = (
+            "course",
+            "mobile_phone",
+            "first_name",
+            "last_name",
+            "have_account",
+            "referral_code",
+        )
         read_only_fields = ("have_account",)
 
     def validate(self, attrs):
@@ -44,13 +52,14 @@ class CourseSignUpSerializer(serializers.ModelSerializer):
         referral_code = validated_data.pop("referral_code", None)
 
         # get data mobile_phone
-        mobile_phone = validated_data['mobile_phone']
+        mobile_phone = validated_data["mobile_phone"]
 
         # get user
-        get_user = User.objects.filter(mobile_phone=mobile_phone).only("mobile_phone", "first_name", "last_name")
+        get_user = User.objects.filter(mobile_phone=mobile_phone).only(
+            "mobile_phone", "first_name", "last_name"
+        )
         # check user exits
         if not get_user.exists():
-
             # create user
             user = User.objects.create_user(
                 mobile_phone=mobile_phone,
@@ -63,26 +72,25 @@ class CourseSignUpSerializer(serializers.ModelSerializer):
             send_successfully_signup_task.delay(
                 phone=user.mobile_phone,
                 template_id=COURSE_SIGNUP_TEMPLATE_ID,
-                template_name='course_signup',
+                template_name="course_signup",
                 password=user.mobile_phone,
-                full_name=user.get_full_name
+                full_name=user.get_full_name,
             )
 
         else:
             # generate code
             code = generate_otp_code()
-            user_ip = get_client_ip(self.context['request'])
-            cache_key = f'otp_{get_user.mobile_phone}_{code}_{user_ip}'
+            user_ip = get_client_ip(self.context["request"])
+            cache_key = f"otp_{get_user.mobile_phone}_{code}_{user_ip}"
             cache.set(cache_key, code, timeout=120)
 
             # send sms otp
-            send_otp_sms_task.delay(get_user.mobile_phone, code, 'otp', OTP_TEMPLATE_ID)
+            send_otp_sms_task.delay(get_user.mobile_phone, code, "otp", OTP_TEMPLATE_ID)
 
         # if referral_code is exiting, do task
         if referral_code:
             process_referral.delay(
-                referral_code=referral_code,
-                mobile_phone=mobile_phone
+                referral_code=referral_code, mobile_phone=mobile_phone
             )
 
         # return data

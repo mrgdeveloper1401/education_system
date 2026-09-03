@@ -14,21 +14,31 @@ from apps.discount_app.models import Coupon
 
 class Subscription(CreateMixin, UpdateMixin, SoftDeleteMixin):
     class Status(models.TextChoices):
-        ACTIVE = 'active', _('فعال')
-        EXPIRED = 'expired', _('منقضی شده')
-        PENDING = 'pending', _('در انتظار')
-        CANCELED = 'canceled', _('لغو شده')
-        TRIAL = 'trial', _('آزمایشی')
+        ACTIVE = "active", _("فعال")
+        EXPIRED = "expired", _("منقضی شده")
+        PENDING = "pending", _("در انتظار")
+        CANCELED = "canceled", _("لغو شده")
+        TRIAL = "trial", _("آزمایشی")
 
-    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="user_subscription")
-    course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name='course_subscription', null=True)
+    user = models.ForeignKey(
+        User, on_delete=models.DO_NOTHING, related_name="user_subscription"
+    )
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.DO_NOTHING,
+        related_name="course_subscription",
+        null=True,
+    )
     end_date = models.DateField()
-    coupon = models.ForeignKey(Coupon, on_delete=models.DO_NOTHING, blank=True, null=True,
-                                 related_name="coupon_subscription",)
+    coupon = models.ForeignKey(
+        Coupon,
+        on_delete=models.DO_NOTHING,
+        blank=True,
+        null=True,
+        related_name="coupon_subscription",
+    )
     status = models.CharField(
-        max_length=10,
-        choices=Status.choices,
-        default=Status.PENDING
+        max_length=10, choices=Status.choices, default=Status.PENDING
     )
     auto_renew = models.BooleanField(default=False)
     price = models.FloatField(null=True, blank=True)
@@ -39,16 +49,14 @@ class Subscription(CreateMixin, UpdateMixin, SoftDeleteMixin):
         # check price
         if self.price is None:
             raise exceptions.ValidationError(
-                {
-                    "message": _("you subscription dose not price!!")
-                }
+                {"message": _("you subscription dose not price!!")}
             )
 
         coupon = Coupon.objects.filter(
             is_active=True,
             valid_from__lte=timezone.now(),
             valid_to__gte=timezone.now(),
-            code=coupon_code
+            code=coupon_code,
         ).only("discount", "code")
 
         tax_value = 10
@@ -64,34 +72,46 @@ class Subscription(CreateMixin, UpdateMixin, SoftDeleteMixin):
             return final_price
         return price_tax
 
-
     class Meta:
-        db_table = 'subscription'
-        verbose_name = _('اشتراک')
-        verbose_name_plural = _('اشتراک‌ها')
+        db_table = "subscription"
+        verbose_name = _("اشتراک")
+        verbose_name_plural = _("اشتراک‌ها")
 
 
 class Plan(CreateMixin, UpdateMixin, SoftDeleteMixin):
     plan_title = models.CharField(help_text=_("عنوان پلن"))
-    number_of_days = models.CharField(max_length=10, choices=NumberOfDaysChoices.choices,
-                                      default=NumberOfDaysChoices.one)
-    price = models.FloatField(validators=[MinValueValidator(0)], help_text=_("قیمت"), blank=True, null=True)
+    number_of_days = models.CharField(
+        max_length=10,
+        choices=NumberOfDaysChoices.choices,
+        default=NumberOfDaysChoices.one,
+    )
+    price = models.FloatField(
+        validators=[MinValueValidator(0)], help_text=_("قیمت"), blank=True, null=True
+    )
     is_free = models.BooleanField(default=False, help_text=_("رایگان هست؟"))
     description = models.TextField(help_text=_("توضیحی در مورد پلن"))
-    is_active = models.BooleanField(default=True, help_text=_("قابل انتشار باشد یا خیر"))
-    facilities = ArrayField(models.CharField(max_length=50), blank=True, null=True, default=list)
+    is_active = models.BooleanField(
+        default=True, help_text=_("قابل انتشار باشد یا خیر")
+    )
+    facilities = ArrayField(
+        models.CharField(max_length=50), blank=True, null=True, default=list
+    )
     discount_percent = models.PositiveSmallIntegerField(
         null=True,
         blank=True,
         validators=[MaxValueValidator(100)],
-        help_text=_("درصد تخفیف (۰ تا ۱۰۰)")
+        help_text=_("درصد تخفیف (۰ تا ۱۰۰)"),
     )
 
     def clean(self):
         if self.is_free and self.price:
-            raise ValidationError({"is_free", _("dont create plan when is_free and not free")})
+            raise ValidationError(
+                {"is_free", _("dont create plan when is_free and not free")}
+            )
         if not self.is_free and not self.price:
-            raise ValidationError({"price": _("price and is free, one of this must bet set")})
+            raise ValidationError(
+                {"price": _("price and is free, one of this must bet set")}
+            )
 
     @property
     def calc_discount(self):
@@ -106,11 +126,13 @@ class Plan(CreateMixin, UpdateMixin, SoftDeleteMixin):
         return max(self.price - self.calc_discount, 0)
 
     class Meta:
-        db_table = 'plan'
+        db_table = "plan"
 
 
 class PaymentSubscription(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    subscription = models.ForeignKey(Subscription, on_delete=models.DO_NOTHING, related_name='payment_subscription')
+    subscription = models.ForeignKey(
+        Subscription, on_delete=models.DO_NOTHING, related_name="payment_subscription"
+    )
     response_payment = models.JSONField(blank=True, null=True)
 
     class Meta:
@@ -119,7 +141,9 @@ class PaymentSubscription(CreateMixin, UpdateMixin, SoftDeleteMixin):
 
 class PaymentVerify(CreateMixin, UpdateMixin, SoftDeleteMixin):
     verify_payment = models.JSONField(blank=True)
-    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name="user_payment_verify")
+    user = models.ForeignKey(
+        User, on_delete=models.DO_NOTHING, related_name="user_payment_verify"
+    )
 
     class Meta:
         db_table = "payment_verify"

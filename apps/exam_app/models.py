@@ -14,20 +14,32 @@ from apps.course_app.models import Course
 
 
 class QuestionType(models.TextChoices):
-    MULTIPLE_CHOICE = 'MC', _('چند گزینه‌ای')
-    DESCRIPTIVE = 'DE', _('تشریحی')
+    MULTIPLE_CHOICE = "MC", _("چند گزینه‌ای")
+    DESCRIPTIVE = "DE", _("تشریحی")
 
 
 class Exam(CreateMixin, UpdateMixin, SoftDeleteMixin):
     name = models.CharField(max_length=255, help_text=_("نام ازمون"))
     description = models.TextField(help_text=_("توضیح در مورد ازمون"))
-    course = models.ForeignKey(Course, on_delete=models.DO_NOTHING, related_name="exam",
-                               blank=True, null=True,
-                               help_text=_("میتوان دوه ای را انتخاب کرد یا ازمون به دوره خاصی مربوط نباشد"))
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.DO_NOTHING,
+        related_name="exam",
+        blank=True,
+        null=True,
+        help_text=_("میتوان دوه ای را انتخاب کرد یا ازمون به دوره خاصی مربوط نباشد"),
+    )
     is_active = models.BooleanField(default=True)
-    start_datetime = models.DateTimeField( blank=True, null=True,
-        help_text=_("تاریخ شروع ازمون میتوانید از یک زمان خاصی بگید ازمون شروع شود یا میتوان ان را خالی گذاشت"))
-    number_of_time = models.PositiveSmallIntegerField(help_text=_("مدت زمان ازمون بر اساس دقیقه"))
+    start_datetime = models.DateTimeField(
+        blank=True,
+        null=True,
+        help_text=_(
+            "تاریخ شروع ازمون میتوانید از یک زمان خاصی بگید ازمون شروع شود یا میتوان ان را خالی گذاشت"
+        ),
+    )
+    number_of_time = models.PositiveSmallIntegerField(
+        help_text=_("مدت زمان ازمون بر اساس دقیقه")
+    )
     user_access = models.ManyToManyField(User, related_name="user_access", blank=True)
     coach_access = models.ForeignKey(
         User,
@@ -35,9 +47,7 @@ class Exam(CreateMixin, UpdateMixin, SoftDeleteMixin):
         related_name="user_coach_exam_access",
         blank=True,
         null=True,
-        limit_choices_to={
-            "is_coach": True
-        }
+        limit_choices_to={"is_coach": True},
     )
 
     def get_exam_question_count(self):
@@ -59,7 +69,7 @@ class Exam(CreateMixin, UpdateMixin, SoftDeleteMixin):
     @property
     def exam_end_date(self):
         if self.start_datetime:
-            d = (self.start_datetime + timedelta(minutes=self.number_of_time))
+            d = self.start_datetime + timedelta(minutes=self.number_of_time)
             d = d.astimezone(tz=pytz.timezone(settings.TIME_ZONE))
             return d
         return None
@@ -67,11 +77,15 @@ class Exam(CreateMixin, UpdateMixin, SoftDeleteMixin):
     def clean(self):
         if self.course and not self.start_datetime:
             raise exceptions.ValidationError(
-                {"course": _("اگه دوره ای رو انتخاب میکنید باید تایم شروع ان را هم ست کنید")}
+                {
+                    "course": _(
+                        "اگه دوره ای رو انتخاب میکنید باید تایم شروع ان را هم ست کنید"
+                    )
+                }
             )
 
     class Meta:
-        db_table = 'exam'
+        db_table = "exam"
 
 
 class Question(CreateMixin, UpdateMixin, SoftDeleteMixin):
@@ -82,35 +96,39 @@ class Question(CreateMixin, UpdateMixin, SoftDeleteMixin):
         upload_to="question_exam/file/%Y/%m/%d",
         blank=True,
         null=True,
-        help_text=_("پیوست یک فایل برای سوال"
-                    "فورمت های مجاز"
-                    "zip - pdf - png - jpeg"),
-        validators=(FileExtensionValidator(allowed_extensions=("zip","pdf", "png", "jpeg")),)
+        help_text=_("پیوست یک فایل برای سوالفورمت های مجازzip - pdf - png - jpeg"),
+        validators=(
+            FileExtensionValidator(allowed_extensions=("zip", "pdf", "png", "jpeg")),
+        ),
     )
     question_type = models.CharField(
         max_length=2,
         choices=QuestionType.choices,
         default=QuestionType.MULTIPLE_CHOICE,
-        help_text=_("نوع سوال")
+        help_text=_("نوع سوال"),
     )
     max_score = models.PositiveSmallIntegerField(
         default=1,
         validators=[MinValueValidator(1)],
-        help_text=_("حداکثر نمره قابل کسب برای این سوال")
+        help_text=_("حداکثر نمره قابل کسب برای این سوال"),
     )
 
     class Meta:
-        db_table = 'question'
+        db_table = "question"
 
 
 class Participation(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    student = models.ForeignKey(Student, on_delete=models.DO_NOTHING, related_name="participation_student")
-    exam = models.ForeignKey(Exam, on_delete=models.DO_NOTHING, related_name="participation_exam")
+    student = models.ForeignKey(
+        Student, on_delete=models.DO_NOTHING, related_name="participation_student"
+    )
+    exam = models.ForeignKey(
+        Exam, on_delete=models.DO_NOTHING, related_name="participation_exam"
+    )
     is_access = models.BooleanField(default=True)
     score = models.FloatField(_("نمره"), blank=True, null=True)
 
     class Meta:
-        db_table = 'participation'
+        db_table = "participation"
 
     @property
     def expired_exam(self):
@@ -121,14 +139,16 @@ class Choice(CreateMixin, UpdateMixin, SoftDeleteMixin):
     question = models.ForeignKey(
         Question,
         on_delete=models.DO_NOTHING,
-        related_name='choices',
-        limit_choices_to={'question_type': QuestionType.MULTIPLE_CHOICE}
+        related_name="choices",
+        limit_choices_to={"question_type": QuestionType.MULTIPLE_CHOICE},
     )
     text = models.CharField(max_length=255, help_text=_("متن گزینه"))
-    is_correct = models.BooleanField(default=False, help_text=_("آیا این گزینه صحیح است؟"))
+    is_correct = models.BooleanField(
+        default=False, help_text=_("آیا این گزینه صحیح است؟")
+    )
 
     class Meta:
-        db_table = 'choice'
+        db_table = "choice"
 
 
 class Answer(CreateMixin, UpdateMixin, SoftDeleteMixin):
@@ -137,14 +157,14 @@ class Answer(CreateMixin, UpdateMixin, SoftDeleteMixin):
         on_delete=models.PROTECT,
         blank=True,
         null=True,
-        related_name="user_answer"
+        related_name="user_answer",
     )
     participation = models.ForeignKey(
-        Participation,
-        on_delete=models.DO_NOTHING,
-        related_name='participation_answer'
+        Participation, on_delete=models.DO_NOTHING, related_name="participation_answer"
     )
-    question = models.ForeignKey(Question, on_delete=models.DO_NOTHING, related_name="question_answer")
+    question = models.ForeignKey(
+        Question, on_delete=models.DO_NOTHING, related_name="question_answer"
+    )
 
     # برای سوالات چندگزینه‌ای
     selected_choices = models.ManyToManyField(Choice, blank=True)
@@ -157,22 +177,24 @@ class Answer(CreateMixin, UpdateMixin, SoftDeleteMixin):
         blank=True,
         null=True,
         validators=[MinValueValidator(0)],
-        help_text=_("نمره اختصاص داده شده توسط تصحیح کننده")
+        help_text=_("نمره اختصاص داده شده توسط تصحیح کننده"),
     )
 
     # is_corrected = models.BooleanField(default=False, help_text=_("آیا تصحیح شده است؟"))
-    choice_file = models.FileField(upload_to="choice_exam/file/%Y/%m/%d", blank=True, null=True,
-                                   help_text=_("در صورتی که نیاز به ارسال فایل هست میتوانید فایل رو ارسال کیند"))
+    choice_file = models.FileField(
+        upload_to="choice_exam/file/%Y/%m/%d",
+        blank=True,
+        null=True,
+        help_text=_("در صورتی که نیاز به ارسال فایل هست میتوانید فایل رو ارسال کیند"),
+    )
 
     class Meta:
-        db_table = 'answer'
+        db_table = "answer"
 
     def save(self, *args, **kwargs):
         if self.given_score:
             if self.given_score > self.question.max_score:
                 raise rest_framework_exceptions.ValidationError(
-                    {
-                        "message": _("given score can not biggest question_max_score")
-                    }
+                    {"message": _("given score can not biggest question_max_score")}
                 )
         super().save(*args, **kwargs)

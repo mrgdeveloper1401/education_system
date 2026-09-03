@@ -1,9 +1,15 @@
 from django.contrib import admin
 
-from .models import ConsultationTopic, ConsultationRequest, ConsultationSchedule, ConsultationSlot
+from .models import (
+    ConsultationTopic,
+    ConsultationRequest,
+    ConsultationSchedule,
+    ConsultationSlot,
+)
 
 
 admin.site.register(ConsultationTopic)
+
 
 @admin.register(ConsultationSlot)
 class SlotAdmin(admin.ModelAdmin):
@@ -34,7 +40,15 @@ class ConsultationScheduleAdmin(admin.ModelAdmin):
 @admin.register(ConsultationRequest)
 class ConsultationRequestAdmin(admin.ModelAdmin):
     raw_id_fields = ("slot",)
-    list_display = ("id", "slot_id", "mobile_phone", "first_name", "last_name", "is_answer", "topic")
+    list_display = (
+        "id",
+        "slot_id",
+        "mobile_phone",
+        "first_name",
+        "last_name",
+        "is_answer",
+        "topic",
+    )
     list_display_links = ("id", "slot_id", "mobile_phone")
     list_filter = ("is_answer",)
     list_per_page = 20

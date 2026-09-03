@@ -9,7 +9,7 @@ from apps.blog_app.models import CategoryBlog, PostBlog
 
 @receiver([post_save, post_delete], sender=CategoryBlog)
 def invalidate_category_cache(sender, instance, **kwargs):
-    redis_connection = get_redis_connection('default')
+    redis_connection = get_redis_connection("default")
     key_list = redis_connection.keys("*category_list_cache*")
     retrieve_key = redis_connection.keys("*category_retrieve_cache*")
     if key_list:

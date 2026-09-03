@@ -16,6 +16,7 @@ from apps.core_app.managers import PublishManager
 
 WEBP_QUALITY = 100
 
+
 def validate_image_size(value):
     max_size = 1
     if value.size > max_size * 1024 * 1024:
@@ -63,7 +64,7 @@ class SitemapEntry(CreateMixin, SoftDeleteMixin):
         max_digits=3,
         decimal_places=2,
         default=0.5,
-        help_text='A value between 0.00 and 1.00'
+        help_text="A value between 0.00 and 1.00",
     )
 
     class Meta:
@@ -77,17 +78,24 @@ class CourseSiteInformation(CreateMixin, UpdateMixin, SoftDeleteMixin):
     video_counter = models.CharField(max_length=10, blank=True)
 
     class Meta:
-        db_table = 'course_site_information'
+        db_table = "course_site_information"
+
 
 class Image(CreateMixin, UpdateMixin, SoftDeleteMixin):
     title = models.CharField(max_length=128, null=True, blank=True)
-    image = models.ImageField(width_field="width", height_field="height", upload_to="images/%Y/%m/%d",
-                              validators=(validate_image_size,),
-                              help_text=_("max size is 1 MG"))
+    image = models.ImageField(
+        width_field="width",
+        height_field="height",
+        upload_to="images/%Y/%m/%d",
+        validators=(validate_image_size,),
+        help_text=_("max size is 1 MG"),
+    )
     width = models.IntegerField(null=True, blank=True)
     height = models.IntegerField(null=True, blank=True)
     file_hash = models.CharField(max_length=40, null=True, blank=True)
-    file_size = models.PositiveIntegerField(null=True, blank=True, help_text=_("file size as xx.b"))
+    file_size = models.PositiveIntegerField(
+        null=True, blank=True, help_text=_("file size as xx.b")
+    )
     image_address = models.URLField(null=True, blank=True)
 
     @property
@@ -153,7 +161,9 @@ class State(models.Model):
 
 
 class City(models.Model):
-    state = models.ForeignKey(State, on_delete=models.PROTECT, related_name="cites", verbose_name=_("استان"))
+    state = models.ForeignKey(
+        State, on_delete=models.PROTECT, related_name="cites", verbose_name=_("استان")
+    )
     city = models.CharField(_("شهر"), max_length=40, db_index=True)
 
     def __str__(self):
@@ -164,11 +174,12 @@ class City(models.Model):
         db_table = "city"
         verbose_name = _("شهر")
         verbose_name_plural = _("شهر ها")
-        unique_together = [('state', "city")]
+        unique_together = [("state", "city")]
+
 
 class Banner(CreateMixin, UpdateMixin, SoftDeleteMixin):
     title = models.CharField(max_length=255)
-    file = models.FileField(upload_to='banners/%Y/%m/%d')
+    file = models.FileField(upload_to="banners/%Y/%m/%d")
     is_publish = models.BooleanField(default=True)
     banner_type = models.CharField(
         choices=(("coach", "coach"), ("student", "student"), ("public", "public")),
@@ -177,21 +188,31 @@ class Banner(CreateMixin, UpdateMixin, SoftDeleteMixin):
     )
 
     class Meta:
-        db_table = 'banner'
-        ordering = ('-created_at',)
+        db_table = "banner"
+        ordering = ("-created_at",)
 
 
 class HeaderSite(CreateMixin, UpdateMixin, SoftDeleteMixin):
-    header_title = models.CharField(max_length=50, help_text="عنوان هدر", blank=True, null=True)
-    image = models.ImageField(upload_to="header_title/%Y/%m/%d", validators=[file_upload_validator],
-                              blank=True, null=True)
+    header_title = models.CharField(
+        max_length=50, help_text="عنوان هدر", blank=True, null=True
+    )
+    image = models.ImageField(
+        upload_to="header_title/%Y/%m/%d",
+        validators=[file_upload_validator],
+        blank=True,
+        null=True,
+    )
     is_publish = models.BooleanField(default=True)
     text_color = models.CharField(max_length=15, blank=True)
     background_color = models.CharField(max_length=15, blank=True)
 
     def clean(self):
         if not self.header_title and not self.image:
-            raise ValidationError({"header_title": "header title and image At least one of this should be"})
+            raise ValidationError(
+                {
+                    "header_title": "header title and image At least one of this should be"
+                }
+            )
 
     class Meta:
         db_table = "header_site"

@@ -11,7 +11,7 @@ from apps.course_app.models import Certificate
 def create_qr_code(*args, **kwargs):
     # get data
     information = kwargs.get("information")
-    certificate_id = kwargs["certificate_id"]['id']
+    certificate_id = kwargs["certificate_id"]["id"]
 
     # Create QR code instance
     qr = qrcode.QRCode(
@@ -36,30 +36,21 @@ def create_qr_code(*args, **kwargs):
     certificate = Certificate.objects.filter(id=certificate_id).only("id").first()
     filename = f"qr_code_{certificate.unique_code}.png"
 
-    certificate.qr_code.save(
-        filename,
-        ContentFile(buffer.getvalue()),
-        save=True
-    )
+    certificate.qr_code.save(filename, ContentFile(buffer.getvalue()), save=True)
 
     return f"QR code generated for certificate {certificate_id}"
 
 
 @shared_task(queue="notification")
 def admin_user_request_certificate(body, link):
-    admin_user = User.objects.filter(
-        is_active=True,
-        is_staff=True
-    ).only(
-        "mobile_phone"
-    )
+    admin_user = User.objects.filter(is_active=True, is_staff=True).only("mobile_phone")
     lst = [
         PrivateNotification(
             user=i,
             body=body,
-            title = "certificate",
+            title="certificate",
             notification_type="certificate",
-            char_link=link
+            char_link=link,
         )
         for i in admin_user
     ]
@@ -68,19 +59,19 @@ def admin_user_request_certificate(body, link):
         PrivateNotification.objects.bulk_create(lst)
 
 
-@shared_task(queue='notification')
+@shared_task(queue="notification")
 def send_notification_when_score_is_accepted(
-        lesson_course_id,
-        section_pk,
-        section_file_pk,
-        score,
-        user_id,
+    lesson_course_id,
+    section_pk,
+    section_file_pk,
+    score,
+    user_id,
 ):
     if score:
         PrivateNotification.objects.create(
             user_id=user_id,
             body="دانش اموز محترم نمره شما ثبت و ویرایش شده هست",
-            char_link=f'lesson_course_pk:{lesson_course_id}/section_pk:{section_pk}/section_file_pk:{section_file_pk}/section_file_pk:{section_file_pk}',
+            char_link=f"lesson_course_pk:{lesson_course_id}/section_pk:{section_pk}/section_file_pk:{section_file_pk}/section_file_pk:{section_file_pk}",
             notification_type="accept score",
             title="accept score",
         )

@@ -4,18 +4,25 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('account_app', '0002_alter_beststudent_options_alter_user_managers_and_more'),
+        ("account_app", "0002_alter_beststudent_options_alter_user_managers_and_more"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='privatenotification',
-            options={'ordering': ('id',), 'verbose_name': 'نوتیفیکیشن کاربر', 'verbose_name_plural': 'نوتیفیکیشن های کاربر'},
+            name="privatenotification",
+            options={
+                "ordering": ("id",),
+                "verbose_name": "نوتیفیکیشن کاربر",
+                "verbose_name_plural": "نوتیفیکیشن های کاربر",
+            },
         ),
         migrations.AlterModelOptions(
-            name='user',
-            options={'ordering': ('id',), 'verbose_name': 'کاربر', 'verbose_name_plural': 'کاربران'},
+            name="user",
+            options={
+                "ordering": ("id",),
+                "verbose_name": "کاربر",
+                "verbose_name_plural": "کاربران",
+            },
         ),
     ]

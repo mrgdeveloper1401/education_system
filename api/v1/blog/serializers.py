@@ -3,7 +3,13 @@ from rest_framework import serializers
 from rest_framework.generics import get_object_or_404
 
 from apps.account_app.models import User
-from apps.blog_app.models import CategoryBlog, PostBlog, TagBlog, FavouritePost, CommentBlog
+from apps.blog_app.models import (
+    CategoryBlog,
+    PostBlog,
+    TagBlog,
+    FavouritePost,
+    CommentBlog,
+)
 from api.v1.user.serializers import UserSerializer
 
 
@@ -53,48 +59,58 @@ class TagPostSerializer(serializers.ModelSerializer):
 class PostBlogSerializer(serializers.ModelSerializer):
     category_name = serializers.SerializerMethodField()
     author = serializers.PrimaryKeyRelatedField(
-        queryset=User.objects.only("mobile_phone").filter(is_active=True),
-        many=True
+        queryset=User.objects.only("mobile_phone").filter(is_active=True), many=True
     )
     tags = serializers.PrimaryKeyRelatedField(
-        queryset=TagBlog.objects.only("tag_name").filter(is_publish=True),
-        many=True
+        queryset=TagBlog.objects.only("tag_name").filter(is_publish=True), many=True
     )
 
     class Meta:
         model = PostBlog
         exclude = ("is_deleted", "deleted_at", "category")
-        read_only_fields = ('read_count', 'likes')
+        read_only_fields = ("read_count", "likes")
 
     @extend_schema_field(serializers.CharField())
     def get_category_name(self, obj):
         return obj.category.category_name
 
     def create(self, validated_data):
-        category_id = self.context['category_pk']
+        category_id = self.context["category_pk"]
         author = validated_data.pop("author", None)
         tags = validated_data.pop("tags", None)
-        post_blog =  PostBlog.objects.create(category_id=category_id, **validated_data)
+        post_blog = PostBlog.objects.create(category_id=category_id, **validated_data)
         post_blog.author.set(author)
         post_blog.tags.set(tags)
         return post_blog
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        data['author'] = FullNameAuthorPostBlogSerializer(instance.author, many=True).data
-        data['tags'] = TagPostSerializer(instance.tags, many=True).data
+        data["author"] = FullNameAuthorPostBlogSerializer(
+            instance.author, many=True
+        ).data
+        data["tags"] = TagPostSerializer(instance.tags, many=True).data
         return data
 
 
 class ListPostBlogSerializer(serializers.ModelSerializer):
     class Meta:
         model = PostBlog
-        exclude = ("is_deleted", "deleted_at", "category", "post_body", "read_count", "read_time", "likes")
+        exclude = (
+            "is_deleted",
+            "deleted_at",
+            "category",
+            "post_body",
+            "read_count",
+            "read_time",
+            "likes",
+        )
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        data['author'] = FullNameAuthorPostBlogSerializer(instance.author, many=True).data
-        data['tags'] = TagPostSerializer(instance.tags, many=True).data
+        data["author"] = FullNameAuthorPostBlogSerializer(
+            instance.author, many=True
+        ).data
+        data["tags"] = TagPostSerializer(instance.tags, many=True).data
         return data
 
 
@@ -121,19 +137,15 @@ class CommentBlogSerializer(serializers.ModelSerializer):
         return serializer.data
 
     def create(self, validated_data):
-        user = self.context['request'].user
-        post_id = self.context['post_pk']
+        user = self.context["request"].user
+        post_id = self.context["post_pk"]
         return CommentBlog.objects.create(user=user, post_id=post_id, **validated_data)
 
 
 class AuthorListSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = (
-            "get_full_name",
-            "mobile_phone",
-            "id"
-        )
+        fields = ("get_full_name", "mobile_phone", "id")
 
 
 class LatestPostSerializer(serializers.ModelSerializer):
@@ -150,7 +162,7 @@ class LatestPostSerializer(serializers.ModelSerializer):
             "post_cover_image",
             "post_slug",
             "created_at",
-            "updated_at"
+            "updated_at",
         )
 
 
@@ -178,7 +190,7 @@ class DetailLatestPostSerializer(serializers.ModelSerializer):
             "post_cover_image",
             "likes",
             "is_publish",
-            "description_slug"
+            "description_slug",
         )
 
 
@@ -193,9 +205,4 @@ class IncrementPostBlogSerializer(serializers.Serializer):
 class SeoPostBlogSerializer(serializers.ModelSerializer):
     class Meta:
         model = PostBlog
-        fields = (
-            "post_title",
-            "post_slug",
-            "created_at",
-            "updated_at"
-        )
+        fields = ("post_title", "post_slug", "created_at", "updated_at")
